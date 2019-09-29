@@ -1,0 +1,232 @@
+.comment {
+  &__inner {
+    background: #fbfbfb;
+    border-bottom: 1px solid rgb(223, 223, 220);
+    padding: .75em;
+    color: #333;
+    /* font-size: .875rem; */
+    margin: .25em 0;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  &__top {
+    font-size: .875em;
+    margin: 0 0 .5em;
+    position: relative;
+    border-bottom: 1px solid #d2d2d2;
+    padding: .5em .75em;
+    background: #f7f7f7;
+  }
+
+  &__date {
+    font-weight: bold;
+  }
+
+  &__children {
+    margin: 0 0 0 1.25em;
+  }
+
+  &__avatar {
+    width: 5em;
+    background-size: contain;
+    margin: .25em 1em 0 0;
+  }
+
+  &__texts {
+    width: 100%;
+    &--with-avatar {
+      max-width: calc(100% - 4em);
+    }
+  }
+  &__text {
+    img {
+      max-width: 100%;
+    }
+    .bbQuoteName {
+      color: #333;
+      padding-left: 5px;
+      font-size: .875em!important;
+      font-weight: bold;
+      padding-top: 7px;
+      padding-bottom: 7px;
+      margin: 0 auto;
+      border-width: 1px 1px 0px 4px;
+      border-style: dotted dotted;
+      border-color: rgb(0, 0, 0) rgb(0, 0, 0);
+      border-image: initial;
+      border-bottom: 0px;
+      border-left: 4px solid rgb(131, 148, 178);
+      background: #e4eaf2;
+    }
+
+    .quoteMessage {
+      color: rgb(70, 85, 132);
+      font-size: .875em!important;
+      background: #fff;
+      padding: 3px;
+      border-width: 0 1px 1px 4px !important;
+      border-style: dotted dotted !important;
+      border-color: rgb(0, 0, 0) rgb(0, 0, 0) !important;
+      border-image: initial !important;
+      border-left: 4px solid rgb(131, 148, 178) !important;
+      border-top: 0 !important;
+    }
+
+    .uSpoilerButton {
+      background: #eee;
+      color: #686868;
+      border-width: 1px;
+      border-style: solid;
+      border-color: #dddddd #c6c6c6 #c6c6c6 #c6c6c6;
+      border-radius: 5px;
+      -moz-border-radius: 5px;
+      cursor: pointer;
+      padding: .25em .5em;
+      font: inherit;
+      margin: .25em 0;
+
+      &:hover {
+        background: #ddd;
+      }
+    }
+    &--negative {
+      opacity: .5;
+      &:hover{
+        opacity: 1;
+      }
+    }
+  }
+
+
+  &__rating {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: .25em;
+    right: .5em;
+    font-size: 1.25em;
+
+    &__button {
+      width: .75em;
+      height: .75em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 0;
+      border-radius: .5em;
+      cursor: pointer;
+
+      &--plus {
+        color: #218d20;
+        background: #9ccc9a;
+      }
+
+      &--minus {
+        color: #c34b4c;
+        background: #c29493;
+      }
+    }
+
+    &__number {
+      margin: 0 .5em;
+      font-weight: bold;
+
+      &--positive {
+        color: #9ccc9a;
+      }
+
+      &--negative {
+        color: #c29493;
+      }
+    }
+  }
+
+  &__username {
+    color: #ffa400;
+    font-weight: bold;
+  }
+  &__reply {
+    padding: .125em .5em;
+    text-decoration: none;
+    border: 1px solid #e2e2e2;
+    color: #333;
+    border-radius: 50px;
+    display: inline-block;
+    margin: .5em 0;
+    cursor: pointer;
+    float: right;
+
+    &:hover {
+      background: #eee;
+    }
+  }
+  &__edit {
+    margin: 0 .5em;
+    cursor: pointer;
+    font-size: .875em;
+    color: #555;
+    text-decoration: underline;
+  }
+  &__delete {
+    cursor: pointer;
+    font-size: .875em;
+    color: #bf2b2b;
+    text-decoration: underline;
+  }
+}
+.box--comments {
+  height: auto!important;
+}
+.box .comments {
+  flex: 1;
+  background: #fbfbfb;
+  margin: 0 -1.5em;
+}
+
+.comments {
+  &__pages {
+    background: linear-gradient(#000000, rgba(38, 38, 38, 0.9) 49%,  rgba(7, 7, 7, 0.9) 50%, rgb(12, 12, 12));
+    padding: .25em 1em 1em;
+  }
+  &__form {
+    background: #f7f7f7;
+    border-bottom: 1px dashed #ccc;
+    padding: 1em;
+    position: relative;
+    &__disable {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.75));
+    }
+    &__register {
+      padding: 0.5em;
+      background: #ecf0f1;
+      border-radius: 0.25em;
+      box-shadow: 1px 1px 1px inset #abc0c5;
+      font-size: 1.125em;
+      color: #333;
+      a {
+        color: $main-links;
+        font-weight: bold;
+      }
+    }
+  }
+  &__reply-form-container {
+    padding: .5em;
+    &:empty {
+      padding: 0;
+    }
+  }
+  &__edit-form-container {
+    padding: .5em;
+    &:empty {
+      padding: 0;
+    }
+  }
+}

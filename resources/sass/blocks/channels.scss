@@ -1,0 +1,35 @@
+.channels-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  background: linear-gradient(180deg, #211f1c, #21201d, rgba(63, 59, 53, 0.88));
+  padding: 1em;
+  margin: 1em 0;
+}
+
+.channel-item {
+  text-align: center;
+  margin: .25em;
+  width: 6.5em;
+
+  &__logo {
+    width: 100%;
+    height: 6.5em;
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-color: #ccc;
+    border-radius: .25em;
+    border: 2px solid #3a3a3a;
+    box-shadow: 0 0.5em 1em -0.25em rgb(55, 55, 55);
+    z-index: -1;
+  }
+
+  &__name {
+    display: block;
+    line-height: 1.125;
+    font-size: .85em;
+    color: #c4bd97;
+    margin: .25em 0 0;
+  }
+}

@@ -1,0 +1,16 @@
+.awards-history {
+  &__item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px dashed #c2c5ca;
+    padding: .5em;
+
+    &__texts {
+      padding: 0 0 0 .5em;
+    }
+
+    &__date {
+      font-size: .875em;
+    }
+  }
+}

@@ -1,0 +1,19 @@
+.program {
+  display: block;
+  min-width: 10em;
+  margin: 1em .5em 0;
+  flex: auto;
+  &__cover {
+    display: block;
+    height: 7em;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+  }
+}
+
+.programs-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}

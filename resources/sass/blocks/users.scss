@@ -1,0 +1,184 @@
+.user-info {
+  display: flex;
+  &__group-icon {
+    height: 47px;
+  }
+  &__col {
+    flex: 1;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    margin: .5em 0;
+
+    strong {
+      margin: 0 .25em 0 0;
+    }
+
+    &__icon {
+      background: #898989;
+      color: #fff;
+      width: 1.75em;
+      height: 1.75em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      margin: 0 .35em 0 0;
+
+      i {
+        font-size: .85em;
+      }
+    }
+  }
+}
+.user-page {
+  &__top {
+    display: flex;
+    overflow: hidden;
+  }
+
+  &__signature {
+    padding: .5em;
+    background: #ecf0f1;
+    border-radius: .25em;
+    box-shadow: 1px 1px 1px inset #abc0c5;
+    font-size: .875em;
+    margin: .5em 0 0;
+  }
+
+  &__info-container {
+    flex: 1;
+  }
+  &__info-block {
+    text-align: center;
+    padding: 1em;
+    margin: .5em 0;
+    background: linear-gradient(180deg, #211f1c, #21201d, rgba(63, 59, 53, 0.88));
+    text-decoration: none;
+    color: inherit;
+    &__title {
+      font-size: 1.25em;
+    }
+    &__value {
+      cursor: pointer;
+      font-size: 2em;
+      font-weight: bold;
+      color: #c4bd97;
+    }
+    &__change {
+      cursor: pointer;
+      font-size: 2em;
+      font-weight: bold;
+      color: #c4bd97;
+      margin: 0 0 0 .125em;
+    }
+  }
+  &__videos {
+    .video-item {
+      display: block;
+      width: calc(20% - .5em);
+      padding: .25em;
+    }
+  }
+}
+
+.reputation-history {
+  height: 100%;
+  overflow: auto;
+  &__item {
+    border-bottom: 1px dashed #c2c5ca;
+    padding: 8px;
+
+    &__user {
+      color: #111;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    &__weight {
+      font-size: 12px;
+      padding: 1px 2px 2px 5px;
+      margin: 0 5px 0 0;
+
+      &--positive {
+        background: #218d20;
+        color: #fff;
+      }
+      &--negative {
+        background: #c34b4c;
+        color: #fff;
+      }
+      &--neutral {
+        background: #c6dbdf;
+      }
+    }
+    &__source {
+      color: #555;
+      font-size: 12px;
+    }
+    &__date {
+      font-size: 12px;
+      color: #777;
+    }
+
+    &__reply-comment {
+      font-size: 14px;
+      margin: 4px 0 0;
+      font-style: italic;
+    }
+  }
+}
+
+
+.warnings-history {
+  height: 100%;
+  overflow: auto;
+  &__item {
+    border-bottom: 1px dashed #c2c5ca;
+    padding: 8px;
+
+    &__user {
+      color: #111;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    &__weight {
+      font-size: 12px;
+      padding: 1px 2px 2px 5px;
+      margin: 0 5px 0 0;
+
+      &--positive {
+        background: #218d20;
+        color: #fff;
+      }
+      &--negative {
+        background: #c34b4c;
+        color: #fff;
+      }
+      &--neutral {
+        background: #c6dbdf;
+      }
+    }
+    &__source {
+      color: #555;
+      font-size: 12px;
+    }
+    &__date {
+      font-size: 12px;
+      color: #777;
+    }
+
+    &__reply-comment {
+      font-size: 14px;
+      margin: 4px 0 0;
+      font-style: italic;
+    }
+  }
+}
+
+.change-reputation {
+  padding: 1em;
+}

@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css?family=Noto+Serif:400,700&display=swap&subset=cyrillic');
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap&subset=cyrillic');
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css");
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Noto Serif', serif;
+  background-image: url("/pictures/bg.png");
+  background-color: #333;
+  color: #fff;
+  min-height: 100vh;
+}
+a {
+  color: $links;
+  &:hover {
+    color: $linkshover;
+  }
+}
+.content {
+
+}
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+
+.row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  &--vertical {
+    height: 100%;
+    flex-direction: column;
+  }
+  &--stretch {
+    align-items: stretch;
+  }
+  &--align-start {
+    align-items: flex-start;
+  }
+}
+.img-full-width {
+  width: 100%;
+}
+.img-full-height {
+  height: 100%;
+}
+
+.col {
+  flex: 1;
+  margin: 0 .25em;
+
+  &--2 {
+    flex: 2;
+  }
+
+  &--3 {
+    flex: 3;
+  }
+
+  &--4 {
+    flex: 4;
+  }
+
+  &:only-of-type {
+    margin: 0 !important;
+  }
+
+  &:first-of-type {
+    margin: 0 .25em 0 0;
+  }
+
+  &:last-of-type {
+    margin: 0 0 0 .25em;
+  }
+}

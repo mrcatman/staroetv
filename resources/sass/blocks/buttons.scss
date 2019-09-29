@@ -1,0 +1,29 @@
+.button {
+  display: inline-block;
+  border: none;
+  font: inherit;
+  font-size: 1.125em;
+  background: linear-gradient(180deg, #513b27, #725336 49%, #291e13 50%, #2c1f14);
+  padding: .5em 1.125em;
+  border-radius: 4px;
+  color: #c4bd97;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: inset 0 1px 10px #2b1e13;
+  &--light {
+    text-decoration: none;
+    box-shadow: none;
+    background: linear-gradient(#fafafa, #fafafa 49%, #eee 50%, #eee);
+    font-size: 1em;
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    color: #555;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #dddddd #c6c6c6 #c6c6c6 #c6c6c6;
+    &:hover {
+      color: #777;
+      background: linear-gradient(#eee, #eee 49%, #ddd 50%, #ddd);
+    }
+  }
+}

@@ -1,0 +1,44 @@
+.box {
+  background: repeating-linear-gradient(90deg, #3f3b35 0px, #3f3b35 20px, #23211e 21px, #201f1c 40px);
+  padding: 0;
+  margin: 1em 0;
+  display: flex;
+  flex-direction: column;
+  &__heading {
+    text-align: left;
+    padding: .5em;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0), rgba(0, 0, 0, 0.5));
+    font-size: 1.5em;
+    color: #c4bd97;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &__link {
+      font-size: .75em;
+    }
+
+    &--small {
+      font-size: 1em;
+      padding: 1em .5em;
+    }
+    &__count {
+      font-weight: bold;
+    }
+  }
+
+  &__inner {
+    flex: 1;
+    padding: 0 1.5em 1.5em;
+    position: relative;
+    background: linear-gradient(180deg, rgb(33, 31, 28), rgb(33, 32, 29), rgba(63, 59, 53, 0.88));
+  }
+}
+.col > .box, .row > .box {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+.col .box__inner {
+  padding: 0 1.5em;
+}

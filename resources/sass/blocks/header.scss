@@ -1,0 +1,67 @@
+.top-menu {
+  background: linear-gradient(#403c36 0%, #696259 48%, #262320 52%, #282521 100%);
+  &__inner {
+    padding: .5em 0;
+    text-align: left;
+  }
+  &__link {
+    font-size: 1.25em;
+    color: #c4bd97;
+    font-weight: bold;
+    padding: 0 .25em;
+  }
+}
+
+
+.header {
+  background: repeating-linear-gradient(90deg, #9e734c, #9d734b 49%, #d19964 49%, #d59c66 100% 50px);
+  background-size: 7em;
+  &__title {
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0;
+    padding: .5em 0;
+    text-align: center;
+    color: #eee;
+    text-shadow: 0 .25em .75em #000;
+    font-size: 2.5em;
+  }
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.auth-panel {
+  background: #262320;
+  padding: .25em;
+  display: flex;
+  align-items: center;
+
+  &__avatar {
+    width: 4em;
+    height: 4em;
+    background: #111;
+    display: block;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+
+  &__texts {
+    display: flex;
+    flex-direction: column;
+    padding: 0 2.5em 0 1em;
+  }
+
+  &__logout {
+    font-size: .875em;
+  }
+
+  &__username {
+    font-weight: bold;
+    color: $main-links;
+  }
+}
