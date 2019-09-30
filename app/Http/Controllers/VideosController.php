@@ -54,9 +54,8 @@ class VideosController extends Controller {
     public function getInfo() {
         if (request()->has('vk_video_id')) {
             $vk_id = request()->input('vk_video_id');
-            $token = "3363aef282a9431692b250a6cc2d6a5c101b41d4924a8fad905c28b4e7f7f8762c7d16f4bd75f424f8e47";
-            $data = file_get_contents("https://api.vk.com/method/video.get?access_token=$token&v=5.101&videos=$vk_id&extended=1");
-            $data = json_decode($data);
+            $token = config('tokens.vk');
+            $data = json_decode(file_get_contents("https://api.vk.com/method/video.get?access_token=$token&v=5.101&videos=$vk_id&extended=1"));
             return [
                 'status' => 1,
                 'data' => [
@@ -65,9 +64,8 @@ class VideosController extends Controller {
             ];
         } elseif (request()->has('youtube_video_id')) {
             $youtube_id = request()->input('youtube_video_id');
-            $token = "AIzaSyAU10UC3yFn5SCr0Mgj28nJlgLOG3Gz0Po";
-            $data = file_get_contents("https://www.googleapis.com/youtube/v3/videos?id=$youtube_id&key=$token&part=snippet");
-            $data = json_decode($data);
+            $token = config('tokens.youtube');
+            $data = json_decode(file_get_contents("https://www.googleapis.com/youtube/v3/videos?id=$youtube_id&key=$token&part=snippet"));
             return [
                 'status' => 1,
                 'data' => [
