@@ -91,15 +91,19 @@ class BBCodesHelper {
         }
         $text = preg_replace('/<!--(.*)-->/Uis', '', $text);
         $document = new \DOMDocument();
-        $document->loadHTML('<?xml encoding="UTF-8">' . $text);
-        $document->encoding = 'UTF-8';
-        $root = $document->getElementsByTagName('html')->item(0);
-        $rootElement = new Element($root);
-        foreach ($rootElement->getChildren() as $child) {
-            self::convertChildren($child);
+        try {
+            $document->loadHTML('<?xml encoding="UTF-8">' . $text);
+            $document->encoding = 'UTF-8';
+            $root = $document->getElementsByTagName('html')->item(0);
+            $rootElement = new Element($root);
+            foreach ($rootElement->getChildren() as $child) {
+                self::convertChildren($child);
+            }
+            $bbcode = self::convertToBBCode($rootElement);
+            return trim($bbcode);
+        } catch(\Exception $e) {
+            return $text;
         }
-        $bbcode = self::convertToBBCode($rootElement);
-        return trim($bbcode);
     }
 
     private static function convertChildren(Element $element)
@@ -192,7 +196,7 @@ class BBCodesHelper {
         } elseif ($tag === "img") {
             $src = $element->node->getAttribute('src');
             $class = $element->node->getAttribute('class');
-            if ($class == "smile") {
+            //if ($class == "smile") {
                 $picture = Picture::where(['url' => $src])->first();
                 if ($picture) {
                     $smile = Smile::where(['picture_id' => $picture->id])->first();
@@ -200,7 +204,7 @@ class BBCodesHelper {
                         return $smile->text;
                     }
                 }
-            }
+            //}
             return "[img]".$src."[/img]";
         } elseif ($tag === "span") {
             $attr = $element->node->getAttribute('style');

@@ -55,7 +55,11 @@
             {{$message->created_at}}
         </div>
         <div class="forum-message__content">
+            @if (isset($highlight) && $highlight)
+            {!! \App\Helpers\HighlightHelper::highlight($message->content, $highlight) !!}
+            @else
             {!! $message->content !!}
+            @endif
             @if ($message->edited_by)
             <div class="forum-message__edited-by">
                 Сообщение отредактировал <span class="forum-message__edited-by__username">{{$message->edited_by}}</span> - {{$message->edited_at}}
@@ -70,7 +74,9 @@
         @endif
         <div class="forum-message__actions">
             <div class="forum-message__actions__left">
+                @if ($message->user)
                 <a class="button button--light" target="_blank" href="{{$message->user->url}}">Профиль</a>
+                @endif
             </div>
             <div class="forum-message__actions__right">
                 @if ($message->can_edit)

@@ -11,6 +11,10 @@
         @else
             @if (\App\Helpers\PermissionsHelper::allows("comadd"))
                 @include('blocks/comments_form', ['material_type' => $conditions['material_type'], 'material_id' => $conditions['material_id']])
+            @else
+                <div class="comments__form__register">
+                    Пользователи, находящиеся в вашей группе, не могут оставлять комментарии
+                </div>
             @endif
         @endif
     </div>

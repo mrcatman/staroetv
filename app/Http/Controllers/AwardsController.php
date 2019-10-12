@@ -9,7 +9,7 @@ use App\Helpers\CommentsHelper;
 use App\Program;
 use App\UserAward;
 use App\UserReputation;
-use App\Video;
+use App\Record;
 use Carbon\Carbon;
 
 class AwardsController extends Controller {

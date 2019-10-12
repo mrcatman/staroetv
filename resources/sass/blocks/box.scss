@@ -4,6 +4,7 @@
   margin: 1em 0;
   display: flex;
   flex-direction: column;
+
   &__heading {
     text-align: left;
     padding: .5em;
@@ -11,9 +12,14 @@
     font-size: 1.5em;
     color: #c4bd97;
     display: flex;
+    text-decoration: none;
     align-items: center;
     justify-content: space-between;
-
+    box-shadow: 0 1em 1em -.75em #1b1b1b inset;
+    border-top: 1px solid #48462e;
+    border-bottom: 1px solid #423f2f;
+    border-left: 1px solid #44422c;
+    border-right: 1px solid #424026;
     &__link {
       font-size: .75em;
     }
@@ -31,8 +37,11 @@
     flex: 1;
     padding: 0 1.5em 1.5em;
     position: relative;
-    background: linear-gradient(180deg, rgb(33, 31, 28), rgb(33, 32, 29), rgba(63, 59, 53, 0.88));
+    background: linear-gradient(180deg, #211f1c, #21201d, rgba(63, 59, 53, 75));
   }
+}
+a.box__heading:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0), rgba(0, 0, 0, 0.65));
 }
 .col > .box, .row > .box {
   margin: 0;

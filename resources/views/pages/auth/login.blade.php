@@ -1,6 +1,6 @@
 @extends('layouts.default')
 @section('content')
-    <form class="box" method="POST" action="{{ route('login') }}">
+    <form class="form box" method="POST" action="{{ route('login') }}">
         <div class="box__heading">
             Вход на сайт
         </div>
@@ -20,13 +20,15 @@
                     <span class="input-container__message"></span>
                 </div>
             </div>
-            <label class="input-container input-container--checkbox">
-                <input class="checkbox" type="checkbox" name="remember" checked>
-                <div class="input-container__label">Запомнить меня</div>
-                <div class="input-container__inner">
-                    <span class="input-container__message"></span>
+            <div class="row">
+                <div class="col">
+                    <label class="input-container input-container--checkbox">
+                        <input type="checkbox" name="remember" checked/>
+                        <div class="input-container--checkbox__element"></div>
+                        <div class="input-container__label">Запомнить меня</div>
+                    </label>
                 </div>
-            </label>
+            </div>
             <button class="button">Войти</button>
         </div>
         @csrf

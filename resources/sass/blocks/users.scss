@@ -1,8 +1,6 @@
 .user-info {
   display: flex;
-  &__group-icon {
-    height: 47px;
-  }
+
   &__col {
     flex: 1;
   }
@@ -182,3 +180,62 @@
 .change-reputation {
   padding: 1em;
 }
+
+.users-list {
+  padding: 1.25em;
+  background: #f8f7f4;
+  color: #333;
+  &__link {
+    color: #555;
+  }
+  &__form {
+    background: #e2e2e2;
+    padding: 1em;
+    border-radius: .25em;
+
+    &__inner {
+      display: flex;
+    }
+
+    &__item {
+      margin: 0 .25em 0 0;
+    }
+
+    &__found {
+      font-size: 1.125em;
+      margin: .5em 0 0;
+    }
+  }
+  &__heading {
+    font-size: 1.75em;
+    font-weight: bold;
+  }
+
+  &__table {
+    background: #fff;
+    border-spacing: 0;
+    border: 1px solid #dfdfdc;
+    padding: .25em;
+    margin: 0 0 1.25em;
+    border-radius: .25em;
+    width: 100%;
+    td {
+      padding: .25em 1em;
+      border-bottom: 1px solid #dfdfdc;
+      text-align: center;
+    }
+    thead td {
+      font-weight: bold;
+    }
+  }
+
+  &__pager {
+    font-size: .875em;
+    padding: 0 0 1em;
+  }
+
+  &__avatar {
+    height: 3.5em;
+  }
+}
+

@@ -6,11 +6,29 @@
     font-weight: bold;
     text-align: left;
     padding: 0.5em;
-    box-shadow: 0 0 1em #2b2b2b;
-    background: linear-gradient(#212121, #111);
     z-index: 10000000;
     font-size: 1.5em;
     color: #c4bd97;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0), rgba(0, 0, 0, 0.5));
+    box-shadow: 0 1em 1em -0.75em #5a5a5a inset;
+    border-top: 1px solid #48462e;
+    border-bottom: 1px solid #423f2f;
+    border-left: 1px solid #44422c;
+    border-right: 1px solid #424026;
+    &--main-page {
+      margin: 1em 0 -.75em;
+      background: linear-gradient(#403c36 0%, #696259 48%, #262320 52%, #282521 100%);
+      border-bottom: 3px solid #5e5b48;
+    }
+    &__buttons {
+      font-size: .625em;
+      .button {
+        margin: 0 0 0 1em;
+      }
+    }
   }
 
   &__children {
@@ -30,9 +48,20 @@
       font-size: 1.2em;
     }
   }
-  &__pager {
+
+  &__pager-container {
     background: linear-gradient(#333, #000);
-    padding: .5em 1em 1em;
+    padding: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  &__pager {
+    margin: -.5em 0 0;
+  }
+
+  &__search {
+    margin: .5em 0 0;
   }
   &__breadcrumbs {
     background: linear-gradient(0deg, rgba(97, 97, 97, 0.25), rgba(255, 255, 255, 0), rgba(0, 0, 0, 0.5));
@@ -66,16 +95,25 @@
   }
   &__form {
     background: #fafafa;
-    padding: 1em;
+    padding: 1em!important;
+    width: calc(100% - 2em);
+    .input-container__message {
+      margin: 0;
+      position: initial;
+    }
   }
-
+  .form {
+    margin: 0;
+  }
 }
 
 .forum {
   background: #fff;
   display: flex;
   width: 100%;
-
+  a {
+    text-decoration: none;
+  }
   &__title {
     font-size: 1.25em;
     font-weight: bold;
@@ -87,17 +125,22 @@
     align-items: center;
     padding: 1em;
     justify-content: space-between;
-    border-bottom: 1px dashed #ccc;
     flex: 1.5;
     color: #333;
     text-decoration: none;
-
+    border-right: 1px solid #e3e1e1;
+    background: #f5f5f5;
+    border-top: 1px solid #ffffff;
+    border-bottom: 1px solid #ccc;
     &:hover {
+      color: #333;
       background: #f3f3f3;
     }
   }
 
   &__numbers {
+    font-weight: 500;
+    text-shadow: 0 1px 1px #fff;
     display: flex;
     align-items: center;
     text-align: center;
@@ -115,7 +158,6 @@
   &__last-topic {
     background: #f0f0f0;
     color: #111;
-    border-left: 1px dashed #ccc;
     font-weight: bold;
     display: flex;
     flex-direction: row;
@@ -127,7 +169,9 @@
     border-bottom: 1px solid #c7c7c7;
     text-align: right;
     text-decoration: none;
-
+    border-left: 1px solid #e7e7e7;
+    border-bottom: 1px solid #dcdcdc;
+    background: linear-gradient(180deg, #efefef, #ececec);
     &__text {
       font-size: .825em;
       color: #333;
@@ -137,7 +181,7 @@
     }
 
     &__date {
-      font-size: .95em;
+      font-size: .875em;
       color: #555;
     }
 
@@ -163,8 +207,7 @@
 
     &__username {
       font-weight: 300;
-      font-size: .825em;
-
+      font-size: .875em;
       &__text {
         font-weight: bold;
         color: #333;
@@ -178,12 +221,13 @@
   color: #333;
   background: #fafafa;
   display: flex;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2), inset 0 0 4px 0 rgba(255, 255, 255, 0.6);
   a {
     color: #555;
   }
   &__top {
     display: flex;
-    border-bottom: 1px dashed #ccc;
+    border-bottom: 1px solid #ccc;
     background: #eee;
     flex-direction: column;
     align-items: center;
@@ -195,7 +239,9 @@
   &__content {
     position: relative;
     flex: 2;
-    border-bottom: 1px dashed #ccc;
+    border-bottom: 1px solid #ccc;
+    background: #f8f7f4;
+    background-image: url("/pictures/noise.png");
     .bbQuoteName {
       color: #333;
       padding-left: 5px;
@@ -278,6 +324,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    a {
+      font-weight: bold;
+      text-decoration: none;
+    }
   }
   &__username {
     color: #333;
@@ -286,22 +336,33 @@
     width: calc(100% - 1.3em);
     text-align: center;
     background: #ccc;
-    padding: .8em;
+    border-top: 1px solid #fafafa;
+    border-bottom: 1px solid #ccc;
+    background: linear-gradient(to bottom, #c9cfd8, #d8dbde);
+    padding: 1em;
+    box-shadow: 0 3px 5px -3px #ccc;
   }
   &__content {
     flex: 1;
     padding: 1em;
   }
   &__group-icon {
-    width: 8em;
+
   }
   &__date {
-    font-size: .875em;
-    padding: 1em;
-    margin: 0;
+   margin: 0;
     border-bottom: 1px dashed #ccc;
     background: #eaeaea;
     font-weight: bold;
+    font-size: .95em;
+    color: #555;
+    border-top: 1px solid #fafafa;
+    border-bottom: 1px solid #ccc;
+    box-shadow: 0 3px 5px -6px #555;
+    background: linear-gradient(to bottom, #e4e6e9, #e4eaf2);
+    padding: 1em 1em calc(1em + 3px);
+    position: relative;
+    z-index: 1;
   }
   &__right {
     flex: 3.5;
@@ -347,6 +408,9 @@
     align-items: center;
     justify-content: space-between;
     font-size: .85em;
+    border-top: 1px solid #d0d0d0;
+    border-bottom: 1px solid #d4d4c8;
+    background-image: url(/pictures/noise.png);
     &__right {
       .button {
         margin: 0 0 0 1em;

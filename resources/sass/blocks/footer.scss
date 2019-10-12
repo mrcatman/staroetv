@@ -1,0 +1,42 @@
+.footer {
+  background: repeating-linear-gradient(90deg, #473422, #473422 49%, #36271a 49%, #36271a 100% 50px);
+  background-size: 5em;
+  position: relative;
+
+  &:before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(#332b23, rgba(71, 52, 34, 0));
+  }
+
+  &__menu {
+    position: relative;
+    padding: 1em;
+
+    &__link {
+      color: #c4bd97;
+      font-size: 1.25em;
+      text-decoration: none;
+      border-bottom: 1px solid #c4bd97;
+      margin: 0 .5em 0 0;
+      font-weight: 500;
+    }
+  }
+
+  &__copyright {
+    position: relative;
+    color: #a9a9a9;
+    text-align: left;
+    padding: 0 1em 1em;
+    font-size: .875em;
+  }
+
+  > .container {
+    background: rgba(0, 0, 0, 0.35);
+  }
+}

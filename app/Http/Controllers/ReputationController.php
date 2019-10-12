@@ -11,7 +11,7 @@ use App\Helpers\PermissionsHelper;
 use App\Program;
 use App\User;
 use App\UserReputation;
-use App\Video;
+use App\Record;
 use Carbon\Carbon;
 
 class ReputationController extends Controller {

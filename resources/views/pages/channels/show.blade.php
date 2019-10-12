@@ -21,14 +21,17 @@
         <div class="row">
             <div class="box">
                 <div class="box__heading">
-                    Видео <span class="box__heading__count">{{count($videos)}}</span>
+                    <div class="box__heading__inner">
+                        Видео <span class="box__heading__count">{{$records_count}}</span>
+                    </div>
                 </div>
                 <div class="box__inner">
-                    <div class="videos-list">
-                        @foreach($videos as $video)
-                            @include('blocks/video', ['video' => $video])
+                    <div class="records-list">
+                        @foreach($records as $record)
+                            @include('blocks/record', ['record' => $record])
                         @endforeach
                     </div>
+                    {{$records->links()}}
                 </div>
             </div>
         </div>

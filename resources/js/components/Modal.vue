@@ -12,7 +12,7 @@
                         <div @click="hide()" class="modal-window__close">x</div>
                     </div>
                     <div class="modal-window__content">
-                        <div class="modal-window__content__inner">
+                        <div class="modal-window__content__inner" :class="{'modal-window__content__inner--no-padding': nopadding}">
                             <slot></slot>
                         </div>
                     </div>
@@ -37,7 +37,7 @@
     import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
 
     export default {
-        props: ['title', 'loading'],
+        props: ['title', 'loading', 'nopadding'],
         data () {
             return {
                 testingSizes: false,
@@ -50,7 +50,9 @@
         },
         watch: {
             loading() {
-                this.setSize();
+                if (!this.loading) {
+                    this.setSize();
+                }
             }
         },
         mounted() {
@@ -70,12 +72,13 @@
                     this.$nextTick(() => {
                         let width = this.$refs.sizeTester.offsetWidth;
                         let height = this.$refs.sizeTester.offsetHeight;
-                        this.width = width + 40;
-                        this.height = height + 70;
+                       // this.width = width + 40;
+                        //this.height = height + 70;
+                        this.width = 640;
+                        this.height = height > 360 ? 360 : height + 70;
                         this.testingSizes = false;
                         this.x = (window.innerWidth - this.width) / 2;
                         this.y = (window.innerHeight - this.height) / 2;
-                        this.visible = true;
                         resolve();
                     });
                 })

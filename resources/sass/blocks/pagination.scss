@@ -17,6 +17,9 @@
   font-weight: bold;
   box-shadow: inset 0px 1px 10px #2b1e13;
   margin: 0 .25em 0 0;
+  a {
+    text-decoration: none;
+  }
   &.active {
     color: #000;
     background: linear-gradient(180deg, #9f744d, #c08c5c 49%, #7c5b3a 50%, #8c6442);
@@ -31,5 +34,35 @@
     display: block;
     padding: 0.5em 1.125em;
     color: inherit;
+  }
+}
+
+.pager-container--light {
+  .page-item {
+    text-decoration: none;
+    box-shadow: none;
+    background: linear-gradient(#fafafa, #fafafa 49%, #eee 50%, #eee);
+    font-size: 1em;
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    color: #555;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #dddddd #c6c6c6 #c6c6c6 #c6c6c6;
+    a {
+      text-decoration: none;
+    }
+    &:hover {
+      color: #777;
+      background: linear-gradient(#eee, #eee 49%, #ddd 50%, #ddd);
+    }
+
+    &.active {
+      background: linear-gradient(#e6e6e6, #eaeaea 49%, #d5d5d5 50%, #eee);
+    }
+
+    &.disabled {
+      background: linear-gradient(#b7b7b7, #c0c0c0 49%, #b7b7b7 50%, #b3b3b3);
+    }
   }
 }

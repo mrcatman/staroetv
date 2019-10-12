@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\API\UcozAPI;
 use App\Channel;
 use App\Program;
-use App\Video;
+use App\Record;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -60,14 +60,14 @@ class ImportVideos extends Command
         }
 
         $channels = Channel::pluck('id', 'name');
-        $ucoz_ids = Video::pluck('ucoz_id')->toArray();
+        $ucoz_ids = Record::pluck('ucoz_id')->where(['is_radio' => false])->toArray();
 
         for ($i = $start_page; $i <= $end_page; $i++) {
             $videos = $api->getVideos($i);
             echo "Страница: ".$i.PHP_EOL;
             foreach ($videos as $video) {
                 $cover = str_replace($ucoz_domain, "", $video->screenshot);
-                $obj = new Video([
+                $obj = new Record([
                     'is_from_ucoz' => true,
                     'original_added_at' => Carbon::createFromTimestamp($video->add_date_ts),
                     'author_username' => $video->author,
@@ -194,6 +194,7 @@ class ImportVideos extends Command
                     }
                     $additional_description = trim($matches[4]);
                     echo "Доп.описание: ".$additional_description.PHP_EOL;
+                    $obj->short_description = $additional_description;
                 }
 
                 if (!in_array($video->id, $ucoz_ids)) {

@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+use App\Helpers\PermissionsHelper;
 use Illuminate\Database\Eloquent\Model;
 use App\Helpers\DatesHelper;
 class Forum extends Model {
@@ -37,5 +38,19 @@ class Forum extends Model {
 
     public function getIsClosedAttribute() {
         return $this->state == 2;
+    }
+
+    public function getCanCreateNewTopicAttribute() {
+        if ($this->parent_id < 1) {
+            return false;
+        }
+        if (PermissionsHelper::allows('frclosef')) {
+            return true;
+        }
+        if (PermissionsHelper::allows('frthread')) {
+            $groups = explode(",", $this->can_create_topics);
+            return in_array(auth()->user()->group_id, $groups);
+        }
+        return false;
     }
 }

@@ -52,4 +52,32 @@ class Comment extends Model {
     }
 
 
+    public function getTextAttribute() {
+        $text = $this->attributes['text'];
+        $text = str_replace("<br /><br />", "<br />", $text);
+        if (strpos($text, "_uVideoPlayer") !== false) {
+             $text = preg_replace('/<script(.*?)>_uVideoPlayer\({(.*?)},(.*?)\);<\/script>/', '<div class="comment__video-player" data-params={$2} data-element=$3></div>', $text);
+        }
+        return $text;
+    }
+
+    public function getUrlAttribute() {
+        if ($this->material_type === Article::TYPE_NEWS || $this->material_type === Article::TYPE_ARTICLES || $this->material_type === Article::TYPE_BLOG) {
+            $article = Article::where(['original_id' => $this->material_id])->first();
+            if ($article) {
+                return $article->url;
+            }
+        } elseif ($this->material_type === Record::TYPE_VIDEOS) {
+            $record = Record::where(['ucoz_id' => $this->material_id])->first();
+            if ($record) {
+                return $record->url;
+            }
+        } elseif ($this->material_type === 4) {
+
+        } else {
+          //  dd($this->material_type);
+        }
+    }
+
+
 }

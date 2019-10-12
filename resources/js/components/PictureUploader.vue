@@ -1,22 +1,25 @@
 <template>
-    <div class="picture-uploader" :class="{'picture-uploader--light': light}" >
-        <div class="modal" v-show="showModal">
-            <div class="modal__inner">
-                <div class="modal__header">
-                    <div class="modal__header__title">Выбор картинки</div>
-                    <div class="modal__header__close" @click="showModal = false">(x)</div>
-                </div>
-                <div class="modal__content">
-                    <div class="picture-uploader__loading-list" v-if="loadingList">Загрузка...</div>
-                    <div class="picture-uploader__list" v-else>
-                        <a @click="setPicture(picture)" class="picture-uploader__item" v-for="(picture, $index) in picturesList" :key="$index">
-                            <div class="picture-uploader__item__image" :style="{backgroundImage: `url(${picture.url})`}"></div>
-                            <div class="picture-uploader__item__date">Дата загрузки: {{picture.created_at}}</div>
-                        </a>
-                    </div>
+    <div class="picture-uploader" :class="{'picture-uploader--light': light, 'picture-uploader--small': small}" >
+        <modal ref="pictureModalElement" :nopadding="true" title="Выбор картинки" :loading="loadingList" class="modal">
+            <div class="picture-uploader__list">
+                <div @click="setPicture(picture)" class="picture-uploader__item" v-for="(picture, $index) in picturesList" :key="$index">
+                    <div class="picture-uploader__item__image" :style="{backgroundImage: `url(${picture.url})`}"></div>
+                    <div class="picture-uploader__item__date">Дата загрузки: {{picture.created_at}}</div>
                 </div>
             </div>
-        </div>
+        </modal>
+        <modal ref="URLModalElement" title="Загрузка по URL" :loading="URLModal.loading" class="modal">
+            <div class="input-container input-container--vertical">
+                <label class="input-container__label">Введите URL</label>
+                <div class="input-container__inner">
+                    <input class="input" v-model="URLModal.address"/>
+                </div>
+            </div>
+            <div class="form__bottom">
+                <a @click="loadPictureByURL()" class="button button--light">Загрузить</a>
+                <Response :light="true" :data="URLModal.response"/>
+            </div>
+        </modal>
         <input type="hidden" :value="pictureData.id" :name="name"/>
         <div class="picture-uploader__inner">
             <a class="picture-uploader__reset"  v-if="pictureData && pictureData.url" @click="pictureData = {}">x</a>
@@ -26,6 +29,8 @@
         <div class="picture-uploader__buttons">
             <label class="button" :class="{'button--light': light}">Загрузить <input style="display:none" @change="onFileInputChange" type="file" /></label>
             <a class="button" :class="{'button--light': light}" v-if="channelid" @click="getPictures()">Выбрать</a>
+            <a class="button" :class="{'button--light': light}" @click="$refs.URLModalElement.show()">URL</a>
+
         </div>
     </div>
 </template>
@@ -66,7 +71,8 @@
             height: 100%;
             background-position: center center;
             background-repeat: no-repeat;
-            background-size: contain;
+            background-color: #555;
+            background-size: 85%;
         }
         &__inner {
             width: 7.5em;
@@ -121,9 +127,19 @@
                 background-repeat: no-repeat;
             }
         }
-
-
-
+        &--small &__inner {
+            width: 3.5em;
+            height: 3.5em;
+        }
+        &--small &__buttons {
+            flex-direction: row;
+        }
+        &--small &__preloader {
+            width: 2em;
+            height: 2em;
+            top: .25em;
+            left: .25em;
+        }
     }
     @keyframes pictureUploaderPreloader {
         0% {
@@ -135,8 +151,14 @@
     }
 </style>
 <script>
+    import Modal from './Modal';
+    import Response from "./Response";
     let extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg'];
     export default {
+        components: {
+            Response,
+            Modal
+        },
         watch: {
             pictureData(newData) {
                 if (this.returnPath) {
@@ -147,12 +169,36 @@
             }
         },
         methods: {
+            loadPictureByURL() {
+                this.URLModal.loading = true;
+                let data = {url: this.URLModal.address};
+                if (this.channelid) {
+                    data.channel_id = this.channelid;
+                }
+                if (this.tag) {
+                    data.tag = this.tag;
+                }
+                $.post('/upload/pictures/by-url', data) .done((res) => {
+                    this.URLModal.loading = false;
+                    this.URLModal.response = res;
+                    if (res.status) {
+                        this.status = 1;
+                        this.pictureData = res.data.picture;
+                        this.$refs.URLModalElement.hide();
+                    } else {
+                        alert(res.text);
+                    }
+                }).fail((e) => {
+                    this.URLModal.loading = false;
+                    alert(e.responseJSON.message);
+                })
+            },
             setPicture(data) {
                 this.pictureData = data;
-                this.showModal = false;
+                this.$refs.pictureModalElement.hide();
             },
             getPictures() {
-                this.showModal = true;
+                this.$refs.pictureModalElement.show();
                 this.loadingList = true;
                 $.get(`/upload/pictures/getbychannel/${this.channelid}`)
                     .done((res) => {
@@ -176,8 +222,8 @@
                         if (this.channelid) {
                             fd.append('channel_id', this.channelid ? this.channelid : '');
                         }
-                        if (this.type) {
-                            fd.append('type', this.type ? this.type : '');
+                        if (this.tag) {
+                            fd.append('tag', this.tag ? this.tag : '');
                         }
                         fd.append('picture', image);
                         this.status = -1;
@@ -208,6 +254,9 @@
             }
         },
         props: {
+            small: {
+
+            },
             light: {
 
             },
@@ -217,7 +266,7 @@
             value: {
 
             },
-            type: {
+            tag: {
 
             },
             name: {
@@ -233,6 +282,12 @@
         },
         data() {
             return {
+                URLModal: {
+                    address: '',
+                    visible: false,
+                    loading: false,
+                    response: null
+                },
                 picturesList: [],
                 showModal: false,
                 loadingList: false,
@@ -243,14 +298,15 @@
         mounted() {
             if (this.returnPath) {
                 if (this.value) {
-                    this.pictureData = {
-                        url: this.value
+                    if (typeof this.value === "object") {
+                        this.pictureData = this.value;
+                    } else {
+                        this.pictureData = {
+                            url: this.value
+                        }
                     }
                 }
             }
         },
-        components: {
-
-        }
     }
 </script>

@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+use App\Helpers\DatesHelper;
 use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model {
@@ -26,7 +27,7 @@ class Article extends Model {
 
     public function getContentAttribute() {
         $content = $this->attributes['content'];
-        $content = str_replace("&nbsp;", "", $content);
+        $content = str_replace("&nbsp;", " ", $content);
         $content = preg_replace("/\s+/", " ", $content);
         $content = str_replace("<br><br>", "<br>", $content);
         $content = str_replace("<br><br>", "<br>", $content);
@@ -64,10 +65,19 @@ class Article extends Model {
             $path = "/stuff/".$this->category_id."-1-0-".$this->original_id;
             return $path;
         }
+
     }
 
     public function user() {
         return $this->belongsTo('App\User', 'user_id', 'id');
     }
+
+    public function getCreatedAtAttribute() {
+        if (!isset($this->attributes['created_at'])) {
+            return "";
+        }
+        return DatesHelper::format($this->attributes['created_at']);
+    }
+
 
 }

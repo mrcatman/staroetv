@@ -1,0 +1,33 @@
+.tab {
+  text-decoration: none;
+  box-shadow: none;
+  background: linear-gradient(#fafafa, #fafafa 49%, #eee 50%, #eee);
+  font-size: 1em;
+  font-family: "Roboto", sans-serif;
+  color: #555;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #dddddd #c6c6c6 #c6c6c6 #c6c6c6;
+  display: inline-block;
+  padding: 1em 1.25em;
+  cursor: pointer;
+
+  &--active {
+    background: linear-gradient(#e6e6e6, #eaeaea 49%, #d5d5d5 50%, #eee);
+  }
+
+  &:hover {
+    color: #777;
+    background: linear-gradient(#eee, #eee 49%, #ddd 50%, #ddd);
+  }
+
+  &:first-of-type {
+    border-top-left-radius: 1em;
+    border-bottom-left-radius: 1em;
+  }
+
+  &:last-of-type {
+    border-top-right-radius: 1em;
+    border-bottom-right-radius: 1em;
+  }
+}

@@ -49,20 +49,41 @@ let onReady = () => {
         })
     }
 
-    $('body').on('submit', '.form', function (e) {
+    $(body).on('click', '.captcha', function() {
+       $(this).attr('src', $(this).attr('src'));
+    });
+
+    $(body).on('submit', '.form', function (e) {
         e.preventDefault();
         const url = $(this).attr('action') || window.location.pathname;
         $('#editor').each(function () {
             let $textarea = $(this);
-            $textarea.val(CKEDITOR.instances['editor'].getData());
+            if (CKEDITOR.instances['editor']) {
+                $textarea.val(CKEDITOR.instances['editor'].getData());
+            }
         });
 
-        const data = $(this).serialize();
-        $(this).append('<div class="form__preloader"></div>');
-        $.post(url, data)
-            .done((res) => {
-                $(this).find('.form__preloader').remove();
-                if (res.status) {
+        const data = $(this).serializeArray();
+        $(this).find('input[type="checkbox"]').each(function() {
+            if ($(this).attr('name') !== "") {
+                data.push({'name': $(this).attr('name'), 'value': $(this).is(':checked')});
+            }
+        });
+        $(this).append('<div class="form__preloader"><img src="/pictures/ajax.gif"></div>');
+        let formData = {};
+        data.forEach(item => {
+            formData[item.name] = item.value;
+        });
+
+        $(this).find('.input-container').removeClass('input-container--with-errors');
+        $(this).find('.input-container__message').html('');
+        $.ajax(url, {
+            data : JSON.stringify(formData),
+            contentType : 'application/json',
+            type: 'POST'
+        }).done((res) => {
+            $(this).find('.form__preloader').remove();
+            if (res.status) {
                     if ($(this).data('auto-close-modal')) {
                         setTimeout(() => {
                             if ($(this).parents('.modal-window').length > 0) {
@@ -93,26 +114,37 @@ let onReady = () => {
                     $(this).find('.response').removeClass('response--success').addClass('response--error').html(res.text);
                     if (res.errors) {
                         Object.keys(res.errors).forEach(key => {
-                            $(this).find('*[name=' + key + ']').parents('.input-container').find('.input-container__message').html(res.errors[key].join("; "));
+                            $(this).find('*[name=' + key + ']').parents('.input-container').addClass('input-container--with-errors').find('.input-container__message').html(res.errors[key].join("; "));
                         })
                     }
                     if ($(this).data('callback')) {
                         window[$(this).data('callback')](res);
                     }
                 }
+                $(this).find('.response')[0].scrollIntoView();
             })
             .fail((xhr) => {
                 $(this).find('.form__preloader').remove();
+
                 let error = xhr.responseJSON;
                 if (error.message === "") {
                     $(this).find('.response').removeClass('response--success').addClass('response--error').html("Неизвестная ошибка");
                 } else {
                     $(this).find('.response').removeClass('response--success').addClass('response--error').html(error.message);
                     Object.keys(error.errors).forEach(key => {
-                        $(this).find('*[name=' + key + ']').parents('.input-container').find('.input-container__message').html(error.errors[key].join("; "));
+                        $(this).find('*[name=' + key + ']').parents('.input-container').addClass('input-container--with-errors').find('.input-container__message').html(error.errors[key].join("; "));
                     })
                 }
+                $(this).find('.response')[0].scrollIntoView();
             });
+    });
+
+    $(body).on('change', '.input-container--checkbox--toggle input[type="checkbox"]', function(e) {
+        if ($(this).is(':checked')) {
+            $(this).parents('.input-container--checkbox--toggle').find('.input').attr('disabled', false);
+        } else {
+            $(this).parents('.input-container--checkbox--toggle').find('.input').attr('disabled', true);
+        }
     });
 
     // COMMENTS
@@ -193,7 +225,7 @@ let onReady = () => {
 
             }
         }
-        $('.forum-message__video-player').each(function() {
+        $('.comment__video-player, .forum-message__video-player').each(function() {
             let params = $(this).data('params');
             params = params.replace(/'/g, '"');
             params = JSON.parse(params);
@@ -226,11 +258,13 @@ let onReady = () => {
         }
         title = title || $(elementName).data('title') || "";
         if ($('.modal-window[data-name="'+modalName+'"]').length === 0) {
-            $('body').append('<div class="modal-window" data-name="'+modalName+'" data-selector="'+elementName+'"><div class="modal-window__inner">' +
+            $(body).append('<div class="modal-window" data-name="'+modalName+'" data-selector="'+elementName+'"><div class="modal-window__inner">' +
                 '<div class="modal-window__top"><div class="modal-window__title">'+title+'</div><div class="modal-window__close">x</div></div>' +
                 '<div class="modal-window__content"></div>' +
                 '</div></div>');
             let modal = $('.modal-window[data-name="'+modalName+'"]');
+            $('.modal-window').removeClass('modal-window--top');
+            $(modal).addClass('modal-window--top');
             let modalInner = $('.modal-window[data-name="'+modalName+'"] .modal-window__inner');
             let modalContent = $('.modal-window[data-name="'+modalName+'"] .modal-window__content');
             //let width = $(elementName).width()  > 800 ? 800 :  $(elementName).width();
@@ -264,13 +298,13 @@ let onReady = () => {
         $(this).addClass('modal-window--top');
     });
 
-    $(body).on('click', '.modal-window__close', function() {
+    $(body).on('click', '.modal-window__close, .modal-window__close-button', function() {
         let modal = $(this).parents('.modal-window');
         if ($(modal).hasClass('modal-window--vue')) return;
         let selectorName = $(modal).data('selector');
         let modalName = $(modal).data('name');
         openedModals.splice(openedModals.indexOf(modalName), 1);
-        $(selectorName).hide().appendTo('body');
+        $(selectorName).hide().appendTo(body);
         $(modal).remove();
         if (callbacksOnCloseModals[modalName] !== undefined && callbacksOnCloseModals[modalName] !== null) {
             callbacksOnCloseModals[modalName]();
@@ -293,11 +327,26 @@ let onReady = () => {
         $('#change_reputation input[name="user_id"]').val($(this).data('user-id'));
     });
 
+    $(body).on('click', '.button--login', function(e) {
+        showModal('#login');
+        e.preventDefault();
+    });
+
+    $(body).on('click', '.form__bottom__link', function(e) {
+        $(this).parents('.modal-window').find('.modal-window__close').click();
+    });
 
     // FORUM
 
     $(body).on('click', '.bb-editor__smiles__all', function() {
         showModal('#all_smiles');
+    });
+
+    $(body).on('click', '.forum-section__delete-topic', function() {
+        showModal('#delete_topic');
+    });
+    $(body).on('click', '.forum-section__move-topic', function() {
+        showModal('#move_topic');
     });
 
     $(body).on('click', '.forum-message__reputation__number', function() {
@@ -351,6 +400,14 @@ let onReady = () => {
         $(message).find('.forum-message__edit-form').hide();
     });
 
+    $(body).on('change', '#forum_state', function() {
+        if ($(this).val() == "4") {
+            $('#forum_move_to').show();
+        } else {
+            $('#forum_move_to').hide();
+        }
+    })
+
     function forumMessageCallback(res) {
         if (res.status) {
             let currentPage = parseInt($('.pagination').eq(0).find('.page-item.active .page-link').text().trim());
@@ -366,6 +423,29 @@ let onReady = () => {
         }
     }
     window.forumMessageCallback = forumMessageCallback;
+
+    // TABS
+    $(body).on('click', '.tab', function() {
+        let id = $(this).parents('.tabs').data('id');
+        let tab = $(this).data('content');
+        $(this).parents('.tabs').find('.tab').removeClass('tab--active');
+        $(this).addClass('tab--active');
+        $(body).find('.tab-content[data-id="'+id+'"]').hide();
+        $(body).find('.tab-content[data-id="'+id+'"][data-tab="'+tab+'"]').show();
+    })
+
+    //CHANNELS
+    $(body).on('click', '.cities-list__item', function() {
+        let city = $(this).data('city');
+        $('.cities-list__item').removeClass('cities-list__item--active');
+        $(this).addClass('cities-list__item--active');
+        if ($(this).hasClass('cities-list__item--all')) {
+            $(this).parents('.tab-content').find('.channel-item').show();
+        } else {
+            $(this).parents('.tab-content').find('.channel-item').hide();
+            $(this).parents('.tab-content').find('.channel-item[data-city="'+city+'"]').show();
+        }
+    })
 };
 $(document).ready(function() {
     onReady();

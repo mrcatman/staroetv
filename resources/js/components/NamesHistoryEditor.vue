@@ -2,7 +2,7 @@
     <div class="channel-names">
         <input type="hidden" name="channel_names" :value="namesJson" />
         <div class="channel-names__inner">
-            <div class="row" v-for="(name, $index) in this.names" :key="$index">
+            <div class="row channel-names__row" v-for="(name, $index) in this.names" :key="$index">
                 <div class="col">
                     <div class="input-container input-container--vertical">
                         <label class="input-container__label">Название</label>
@@ -10,8 +10,9 @@
                             <input v-model="name.name" class="input"/>
                         </div>
                     </div>
+                    <a class="button button--light" @click="deleteItem($index)">Удалить</a>
                 </div>
-                <div class="col">
+                <div class="col channel-names__datepicker-container">
                     <div class="input-container input-container--vertical">
                         <label class="input-container__label">Начальная дата</label>
                         <div class="input-container__inner">
@@ -19,7 +20,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col">
+                <div class="col channel-names__datepicker-container">
                     <div class="input-container input-container--vertical">
                         <label class="input-container__label">Конечная дата</label>
                         <div class="input-container__inner">
@@ -30,21 +31,48 @@
                 <div class="col">
                     <div class="input-container input-container--vertical">
                         <label class="input-container__label">Лого</label>
-                        <div class="input-container__inner">
-                            <PictureUploader type="logo" :data="name.logo" v-model="name.logo_id" :channelid="channelid"/>
+                        <div class="input-container__inner channel-names__picture-uploader-container">
+                            <PictureUploader :key="name.id" :light="true" tag="logo" :data="name.logo" v-model="name.logo_id" :channelid="channelid"/>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <a class="button" @click="addItem()">Добавить еще пункт</a>
+        <div class="channel-names__bottom">
+            <a class="button button--light" @click="addItem()">Добавить еще пункт</a>
+        </div>
+
     </div>
 </template>
 <style lang="scss">
+
     .channel-names {
         background: linear-gradient(rgba(55, 52, 47, 0.67), rgba(0, 0, 0, 0.5));
         padding: .5em 1em 1em;
         flex: 1;
+        background: #eee;
+        color: #000;
+        font-family: "Roboto", sans-serif;
+        font-size: 1.25em;
+        border: 1px dashed #555;
+        &__bottom {
+            font-size: .75em;
+            background: #ddd;
+            margin: 1em -1.25em -1.25em;
+            padding: 1em;
+            border-top: 1px dashed #555;
+        }
+        &__datepicker-container {
+            margin: -2.25em .5em 0 .5em;
+        }
+        &__picture-uploader-container {
+            font-size: .875em;
+        }
+        &__row {
+            margin: -1em 0;
+            border-bottom: 1px dashed #ccc;
+        }
+
         &__inner {
             font-size: .75em;
             margin: -1em 0 0;
@@ -62,6 +90,10 @@
             }
         },
         methods: {
+            deleteItem(index) {
+                this.names.splice(index, 1);
+                //this.$forceUpdate();
+            },
             addItem() {
                 let data = JSON.parse(JSON.stringify({
                     name: "",

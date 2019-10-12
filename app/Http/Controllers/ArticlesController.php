@@ -13,6 +13,8 @@ class ArticlesController extends Controller {
         $see_also = $see_also->merge(
             Article::where('id', '>', $article->id)->where(['pending' => 0, 'type_id' => $conditions['type_id']])->orderBy('id', 'asc')->limit(3)->get()
         );
+        $article->views++;
+        $article->save();
         return view("pages.article", [
             'article' => $article,
             'see_also' => $see_also

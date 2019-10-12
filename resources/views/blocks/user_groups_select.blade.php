@@ -1,0 +1,1 @@
+<user-groups-select name="{{$name}}" data="{{$data}}" :groups="{{\App\UserGroup::all()}}" />

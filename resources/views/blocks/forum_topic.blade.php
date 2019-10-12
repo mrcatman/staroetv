@@ -2,6 +2,7 @@
     <a href="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" class="forum__top">
         <div class="forum__info">
             <div class="forum__title">
+                @if ($topic->is_closed)<i class="fa fa-lock"></i>@endif
                 {{$topic->title}}
             </div>
             @if ($topic->description != "")
@@ -26,7 +27,7 @@
             Последнее обновление:
         </a>
         <div class="forum__last-topic__info">
-            <a  class="forum__last-topic__date">
+            <a class="forum__last-topic__date">
                 {{$topic->last_reply_at}}
             </a>
             <span class="forum__last-topic__username">

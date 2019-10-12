@@ -10,6 +10,7 @@
   cursor: pointer;
   font-weight: bold;
   box-shadow: inset 0 1px 10px #2b1e13;
+  text-decoration: none;
   &--light {
     text-decoration: none;
     box-shadow: none;
@@ -21,9 +22,51 @@
     border-width: 1px;
     border-style: solid;
     border-color: #dddddd #c6c6c6 #c6c6c6 #c6c6c6;
+
     &:hover {
       color: #777;
       background: linear-gradient(#eee, #eee 49%, #ddd 50%, #ddd);
+    }
+  }
+
+  &--dropdown {
+    position: relative;
+
+    &__icon {
+      font-size: .875em;
+      margin: 0 0 0 .5em;
+    }
+
+    &__list {
+      position: absolute;
+      right: 0;
+      flex-direction: column;
+      background: #fafafa;
+      top: 100%;
+      border-radius: .25em;
+      box-shadow: 0 0 1em #00000042;
+      overflow: hidden;
+      z-index: 10;
+      display: none;
+
+      &__item {
+        white-space: nowrap;
+        color: #111;
+        text-decoration: none;
+        font-size: .875em;
+        font-weight: normal;
+        font-family: "Roboto", sans-serif;
+        padding: .5em 1em;
+        display: block;
+        border-bottom: 1px solid #eee;
+
+        &:hover {
+          background: #eaeaea;
+        }
+      }
+    }
+    &:hover &__list {
+      display: flex;
     }
   }
 }

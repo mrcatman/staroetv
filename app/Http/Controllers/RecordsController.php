@@ -6,20 +6,20 @@ use App\Channel;
 use App\Helpers\PermissionsHelper;
 use App\Picture;
 use App\Program;
-use App\Video;
+use App\Record;
 use Carbon\Carbon;
 
-class VideosController extends Controller {
+class RecordsController extends Controller {
 
     public function show($id) {
-        $video = Video::where(['id' => $id])->first();
+        $video = Record::where(['id' => $id])->first();
         $related_program = null;
         $related_channel = null;
         if ($video->program) {
-            $related_program = Video::where(['program_id' => $video->program_id])->inRandomOrder()->limit(6)->get();
+            $related_program = Record::where(['program_id' => $video->program_id])->inRandomOrder()->limit(6)->get();
         }
         if ($video->channel) {
-            $related_channel = Video::where(['channel_id' => $video->channel_id])->inRandomOrder()->limit(6)->get();
+            $related_channel = Record::where(['channel_id' => $video->channel_id])->inRandomOrder()->limit(6)->get();
         }
         return view("pages.video", [
             'video' => $video,
@@ -28,24 +28,63 @@ class VideosController extends Controller {
         ]);
     }
 
-    public function index() {
-        $channels = Channel::all();
-        return view("pages.videos", [
-            'channels' => $channels,
+    public function showOld($id) {
+        $video = Record::where(['ucoz_id' => $id])->first();
+        $related_program = null;
+        $related_channel = null;
+        if ($video->program) {
+            $related_program = Record::where(['program_id' => $video->program_id])->inRandomOrder()->limit(6)->get();
+        }
+        if ($video->channel) {
+            $related_channel = Record::where(['channel_id' => $video->channel_id])->inRandomOrder()->limit(6)->get();
+        }
+        return view("pages.video", [
+            'video' => $video,
+            'related_program' => $related_program,
+            'related_channel' => $related_channel,
         ]);
     }
 
-    public function add() {
-        return view ("pages.forms.video", [
-            'video' => null,
-            'channels' => Channel::with('logo', 'names')->get()
+
+    public function index($params) {
+        $federal = Channel::where(['is_federal' => true])->where($params)->orderBy('order', 'ASC')->get();
+        $regional = Channel::where(['is_regional' => true])->where($params)->orderBy('order', 'ASC')->get();
+        $abroad = Channel::where(['is_abroad' => true])->where($params)->orderBy('order', 'ASC')->get();
+        $other = Channel::where(['is_federal' => false, 'is_regional' => false, 'is_abroad' => false])->where($params)->orderBy('order', 'ASC')->get();
+        $cities = [];
+        foreach ($regional as $channel) {
+            if (!isset($cities[$channel->city])) {
+                $cities[$channel->city] = 1;
+            } else {
+                $cities[$channel->city]++;
+            }
+        }
+        arsort($cities);
+        return view("pages.records.index", [
+            'cities' => $cities,
+            'data' => $params,
+            'federal' => $federal,
+            'regional' => $regional,
+            'abroad' => $abroad,
+            'other' => $other,
+        ]);
+    }
+
+    public function add($params) {
+        return view ("pages.forms.record", [
+            'data' => $params,
+            'record' => null,
+            'channels' => Channel::with('logo', 'names')->where($params)->get()
         ]);
     }
 
     public function edit($id) {
-        $video = Video::with('channel','program', 'program.coverPicture')->find($id);
-        return view ("pages.forms.video", [
-            'video' => $video,
+        $record = Record::with('channel','program', 'program.coverPicture')->find($id);
+        return view ("pages.forms.record", [
+            'data' => [
+                'is_radio' => $record->is_radio
+            ],
+            'record' => $record,
             'channels' => Channel::with('logo', 'names')->get()
         ]);
     }
@@ -88,7 +127,7 @@ class VideosController extends Controller {
             ];
         }
         $user = auth()->user();
-        $video = new Video([
+        $video = new Record([
             'is_from_ucoz' => false,
             'original_added_at' => Carbon::now(),
             'author_username' => $user->username,
@@ -97,6 +136,29 @@ class VideosController extends Controller {
             'short_contents' => '',
             'views' => 0
         ]);
+        return $this->fillData($video);
+    }
+
+    public function update($id) {
+        $video = Record::find($id);
+        if (!$video) {
+            return [
+                'status' => 0,
+                'text' => 'Видео не найдено'
+            ];
+        }
+        if (!$video->can_edit) {
+           return [
+               'status' => 0,
+               'text' => 'Ошибка доступа'
+           ];
+        };
+        return $this->fillData($video);
+    }
+
+    private function fillData($video) {
+        $user = auth()->user();
+
         $errors = [];
         if (!request()->input('channel.name') && request()->input('channel.unknown') !== 'true') {
             $errors['channel'] = "Выберите канал";
@@ -109,10 +171,12 @@ class VideosController extends Controller {
                 $video->channel_id = $channel->id;
             }
         }
-        if (!request()->input('program.name') && request()->input('program.unknown') !== 'true' && request()->input('is_interprogram') !== 'true') {
+        $is_interprogram = request()->input('is_interprogram', false);
+        $video->is_interprogram = $is_interprogram === "true" || $is_interprogram == 1;
+        if (!request()->input('program.name') && request()->input('program.unknown') !== 'true' && !$is_interprogram) {
             $errors['program'] = "Выберите программу";
         } else {
-            if ( request()->input('is_interprogram') !== 'true') {
+            if (!$video->is_interprogram) {
                 if (request()->input('program.id') > 0) {
                     $video->program_id = request()->input('program.id');
                 } else {
@@ -142,7 +206,7 @@ class VideosController extends Controller {
         if (request()->input('short_description') != "") {
             $video->short_description = request()->input('short_description');
         }
-        $video->is_interprogram = request()->input('is_interprogram', false) === "true";
+
         if ($video->is_interprogram) {
             if (request()->input('interprogram_package_id') > 0) {
                 $video->interprogram_package_id = request()->input('interprogram_package_id');

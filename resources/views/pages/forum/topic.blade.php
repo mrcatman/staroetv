@@ -8,18 +8,32 @@
                 @if ($subforum) <a class="forum-section__breadcrumb" href="/forum/{{$subforum->id}}">{{$subforum->title}}</a> @endif
                 <a class="forum-section__breadcrumb" >{{$topic->title}}</a>
             </div>
-            <div class="forum-section__title">{{$topic->title}}</div>
+            <div class="forum-section__title">
+                <div class="forum-section__title__inner">
+                    @if ($topic->is_closed)<i class="fa fa-lock"></i>@endif
+                    {{$topic->title}}
+                </div>
+                <div class="forum-section__title__buttons">
+                    @include('blocks/forum_topic_panel', ['topic' => $topic])
+                </div>
+            </div>
             @if ($show_pager)
-            <div class="forum-section__pager">
-                {{$paginator->links()}}
+            <div class="forum-section__pager-container">
+                <div class="forum-section__pager">
+                    {{$paginator->links()}}
+                </div>
+                <form action="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" method="GET" class="forum-section__search">
+                    <input class="input" name="s" value="{{$search}}">
+                    <button type="submit" class="button button--light">ОК</button>
+                </form>
             </div>
             @endif
             <div class="forum-section__messages">
                 @if ($fixed_message)
-                @include('blocks/forum_message', ['fixed' => true, 'message' => $fixed_message])
+                    @include('blocks/forum_message', ['fixed' => true, 'message' => $fixed_message])
                 @endif
                 @foreach ($messages as $message)
-                    @include('blocks/forum_message', ['fixed' => false, 'message' => $message])
+                    @include('blocks/forum_message', ['fixed' => false, 'message' => $message, 'highlight' => $search])
                 @endforeach
             </div>
             <div class="forum-section__breadcrumbs">
@@ -29,15 +43,21 @@
                 <a class="forum-section__breadcrumb" >{{$topic->title}}</a>
             </div>
             @if ($show_pager)
-                <div class="forum-section__pager">
-                    {{$paginator->links()}}
+                <div class="forum-section__pager-container">
+                    <div class="forum-section__pager">
+                        {{$paginator->links()}}
+                    </div>
+                    <form action="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" method="GET" class="forum-section__search">
+                        <input class="input" name="s" value="{{$search}}">
+                        <button type="submit" class="button button--light">ОК</button>
+                    </form>
                 </div>
             @endif
-            <div class="forum-section__form">
-                @if (\App\Helpers\PermissionsHelper::allows("frreply") || \App\Helpers\PermissionsHelper::allows("frcloset"))
+            @if (\App\Helpers\PermissionsHelper::allows("frreply") || \App\Helpers\PermissionsHelper::allows("frcloset"))
+                <div class="forum-section__form">
                 @include('blocks/forum_form', ['topic_id' => $topic->id])
-                @endif
-            </div>
+                </div>
+            @endif
         </div>
     </div>
     @include('blocks/change_reputation_modal')

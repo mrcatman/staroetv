@@ -1,14 +1,15 @@
 <?php
 
 namespace App;
+use App\Helpers\PermissionsHelper;
 use Illuminate\Database\Eloquent\Model;
 
 class Channel extends Model {
 
     protected $guarded = [];
 
-    public function videos() {
-        return $this->hasMany('App\Video');
+    public function records() {
+        return $this->hasMany('App\Record');
     }
 
     public function programs() {
@@ -32,5 +33,15 @@ class Channel extends Model {
         return $this->hasOne('App\Picture', 'id', 'logo_id');
     }
 
+    public function getCanEditAttribute() {
+        if (PermissionsHelper::allows("channels")) {
+            return true;
+        }
+        $user = auth()->user();
+        if ($user) {
+            return $this->author_id == $user->id && PermissionsHelper::allows("channelsown");
+        }
+        return false;
+    }
 
 }

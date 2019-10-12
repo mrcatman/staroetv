@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Picture;
 use App\Program;
-use App\Video;
+use App\Record;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
@@ -70,10 +70,10 @@ class importPictures extends Command
 
     public function handle()
     {
-        $video_covers = Video::pluck('cover')->unique()->values();
+        $video_covers = Record::pluck('cover')->unique()->values();
         foreach ($video_covers as $video_cover) {
             $id = $this->download($video_cover);
-            Video::where(['cover' => $video_cover])->update([
+            Record::where(['cover' => $video_cover])->update([
                 'cover_id' => $id
             ]);
         }

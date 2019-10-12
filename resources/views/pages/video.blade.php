@@ -8,21 +8,33 @@
                 </div>
                 <div class="inner-page__content">
                     <div class="row">
-                        {!! $video->embed_code !!}
+                        <div class="video-page__player-container">
+                            {!! $video->embed_code !!}
+                        </div>
                     </div>
-                    <div class="inner-page__icon-blocks-container">
-                        <a @if ($video->user) href="{{$video->user->url}}" @endif class="inner-page__icon-block">
-                            <i class="fa fa-user"></i>
-                            <span class="inner-page__icon-block__text">{{$video->user ? $video->user->username : $video->author_username}}</span>
+                    <div class="video-page__bottom">
+                        <a href="/channels/{{$video->channel->id}}" class="video-page__channel">
+                            <div class="video-page__channel__logo" style="background-image: url({{$video->getChannelLogo()}})"></div>
+                            <div class="video-page__channel__name">
+                                {{$video->getChannelName()}}
+                            </div>
                         </a>
+                        <div class="inner-page__icon-blocks-container">
+                            <a @if ($video->user) href="{{$video->user->url}}" @endif class="inner-page__icon-block">
+                                <i class="fa fa-user"></i>
+                                <span class="inner-page__icon-block__text">{{$video->user ? $video->user->username : $video->author_username}}</span>
+                            </a>
+                        </div>
                     </div>
                     <div class="inner-page__text">
                         {{ $video->description }}
                     </div>
                 </div>
-                <div class="form video-page__comments">
+                <div class="box form video-page__comments">
                     <div class="box__heading">
-                        Комментарии <span class="box__heading__count">{{\App\Comment::where(['material_type' => 10, 'material_id' => $video->ucoz_id])->count()}}</span>
+                        <div class="box__heading__inner">
+                            Комментарии <span class="box__heading__count">{{\App\Comment::where(['material_type' => 10, 'material_id' => $video->ucoz_id])->count()}}</span>
+                        </div>
                     </div>
                     <div class="box__inner">
                         @include('blocks/comments', ['ajax' => false, 'page' => 1, 'conditions' => ['material_type' => 10, 'material_id' => $video->ucoz_id]])
@@ -33,7 +45,9 @@
                 @if ($related_program)
                 <div class="box">
                     <div class="box__heading box__heading--small">
-                        Другие выпуски программы <span class="box__heading__count">{{$video->program->name}}</span>
+                        <div class="box__heading__inner">
+                            Другие выпуски программы <span class="box__heading__count">{{$video->program->name}}</span>
+                        </div>
                     </div>
                     <div class="box__inner">
                         <div class="video-page__related">
@@ -47,7 +61,9 @@
                 @if ($related_channel)
                 <div class="box">
                     <div class="box__heading box__heading--small">
-                        Видео с канала <span class="box__heading__count">{{$video->channel->name}}</span>
+                        <div class="box__heading__inner">
+                            Видео с канала <span class="box__heading__count">{{$video->channel->name}}</span>
+                        </div>
                     </div>
                     <div class="box__inner">
                         <div class="video-page__related">

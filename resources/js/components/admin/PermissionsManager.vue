@@ -34,143 +34,98 @@
                 <response :light="true" :data="editPanel.response"/>
             </div>
         </modal>
-        <table v-if="loaded" class="permissions-manager__groups">
-            <thead>
-                <tr>
-                    <td>
-                        ID
-                    </td>
-                    <td>
-                        Название
-                    </td>
-                    <td>
-                        Иконка
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(group, $index) in groupsData" :key="$index">
-                    <td>{{group.id}}</td>
-                    <td>{{group.name}}</td>
-                    <td>
-                        <img class="permissions-manager__group-icon" :src="group.icon"/>
-                    </td>
-                    <td>
-                        <a @click="showEditModal(group)">Редактировать</a>
-                    </td>
-                    <td>
-                        <a v-if="canDeleteGroup(group)" @click="showDeleteModal(group)">Удалить</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <br>
-        <a class="button button--light" @click="showAddModal()">Добавить еще группу</a>
-        <br><br>
-        <div class="form">
-            <div class="form__preloader" v-if="permissionsPanel.loading"></div>
-            <table v-if="loaded" v-for="(section, $index) in permissions" :key="$index">
+        <div class="admin-panel__heading-container">
+            <div class="admin-panel__heading">Группы пользователей и их права</div>
+        </div>
+        <div class="admin-panel__main-content">
+            <table v-if="loaded" class="admin-panel__table permissions-manager__groups">
                 <thead>
                     <tr>
-                        <td :colspan="groups.length + 1">
-                            {{section.name}}
+                        <td>
+                            ID
                         </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td v-for="(group, $index2) in groupsData" :key="$index2">
-                            {{group.name}}
+                        <td>
+                            Название
+                        </td>
+                        <td>
+                            Иконка
+                        </td>
+                        <td>
+
+                        </td>
+                        <td>
+
                         </td>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(item, $index3) in section.items" :key="$index3">
-                        <td>{{item.name}}</td>
-                        <td v-for="(group, $index4) in groupsData" :key="$index4">
-                            <input :name="item.id + '_' + group.id" type="checkbox" v-if="item.values[group.id]" v-model="item.values[group.id].value">
+                    <tr v-for="(group, $index) in groupsData" :key="$index">
+                        <td>{{group.id}}</td>
+                        <td>{{group.name}}</td>
+                        <td>
+                            <img class="permissions-manager__group-icon" :src="group.icon"/>
+                        </td>
+                        <td>
+                            <a @click="showEditModal(group)">Редактировать</a>
+                        </td>
+                        <td>
+                            <a v-if="canDeleteGroup(group)" @click="showDeleteModal(group)">Удалить</a>
                         </td>
                     </tr>
                 </tbody>
             </table>
-            <div class="form__bottom">
-                <a @click="savePermissions()" class="button button--light">Сохранить</a>
-                <response :data="permissionsPanel.response"/>
+            <br>
+            <a class="button button--light" @click="showAddModal()">Добавить еще группу</a>
+            <br><br>
+            <div class="form">
+                <div class="form__preloader" v-if="permissionsPanel.loading"></div>
+                <table v-if="loaded" class="admin-panel__table" v-for="(section, $index) in permissions" :key="$index">
+                    <thead>
+                        <tr>
+                            <td :colspan="groups.length + 1">
+                                {{section.name}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td v-for="(group, $index2) in groupsData" :key="$index2">
+                                {{group.name}}
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, $index3) in section.items" :key="$index3">
+                            <td>{{item.name}}</td>
+                            <td v-for="(group, $index4) in groupsData" :key="$index4">
+                                <input :name="item.id + '_' + group.id" type="checkbox" v-if="item.values[group.id]" v-model="item.values[group.id].value">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="form__bottom">
+                    <a @click="savePermissions()" class="button button--light">Сохранить</a>
+                    <response :light="true" :data="permissionsPanel.response"/>
+                </div>
             </div>
         </div>
     </div>
 </template>
 <style lang="scss">
     .permissions-manager {
-        font-size: .85em;
-        background: #fff;
-        color: #111;
-        padding: 1em;
+
         &__group-icon {
             max-height: 5em;
-        }
-        a {
-            color: #555;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        .button {
-            text-decoration: none;
         }
         &__groups {
             font-size: 1.25em;
         }
-        table {
-            font-family: Roboto, sans-serif;
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0 0 1em;
-        }
 
-        thead td {
-            font-size: .85em;
-            max-width: 7.5em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-align: center;
-        }
-
-        tbody td:nth-of-type(1) {
-            font-size: .85em;
-            max-width: 24em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-align: left;
-            font-weight: bold;
-        }
-
-        tbody td {
-            text-align: center;
-        }
-
-        td {
-            border: 1px solid #ccc;
-        }
-
-        thead tr td:only-of-type {
-            font-size: 1.25em;
-            text-align: center;
-            padding: .5em 0;
-            background: #eee;
-        }
     }
 </style>
 <script>
-    import PictureUploader from './PictureUploader';
-    import Modal from './Modal';
-    import Response from './Response';
+    import PictureUploader from '../PictureUploader';
+    import Modal from '../Modal';
+    import Response from '../Response';
     export default {
         computed: {
             groupsToMove() {
@@ -272,7 +227,7 @@
                 }).fail((xhr) => {
                     this.deletePanel.loading = false;
                     let error = xhr.responseJSON;
-                    this.editPanel.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+                    this.deletePanel.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
                 })
             }
         },
@@ -326,9 +281,14 @@
             this.permissionsData.forEach(permissionGroup => {
                 permissionGroup.items.forEach(permissionItem => {
                     permissionItem.values = {};
-                    this.permissionsValuesData[permissionItem.id].forEach(groupDataItem => {
-                        permissionItem.values[groupDataItem.group_id] = {id: groupDataItem.id, value: groupDataItem.option_value};
-                    });
+                    if (this.permissionsValuesData[permissionItem.id]) {
+                        this.permissionsValuesData[permissionItem.id].forEach(groupDataItem => {
+                            permissionItem.values[groupDataItem.group_id] = {
+                                id: groupDataItem.id,
+                                value: groupDataItem.option_value
+                            };
+                        });
+                    }
                     let groupIds = Object.keys(permissionItem.values).map(item => parseInt(item));
                     let groupsWithNoValues = this.groupsData.map(group => group.id).filter(x => !groupIds.includes(x));
                     groupsWithNoValues.forEach(groupId => {

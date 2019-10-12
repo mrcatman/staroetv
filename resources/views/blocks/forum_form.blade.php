@@ -2,7 +2,9 @@
     @if (isset($edit_id))
     <input type="hidden" name="message_id" value="{{$edit_id}}"/>
     @endif
+    @if (isset($topic_id))
     <input type="hidden" name="topic_id" value="{{$topic_id}}"/>
+    @endif
     <input type="hidden" name="id" value=""/>
     <span class="bb-editor__input-container">
         <input type="button" title="Bold" value="b" onclick="bb.simpletag('b','','','')" class="codeButtons" id="b" style="width:20px;font-weight:bold">
@@ -114,6 +116,7 @@
             <a class="bb-editor__smiles__all">Все смайлы</a>
         </div>
     </div>
+    @if (!isset($show_buttons) || $show_buttons)
     <div class="bb-editor__submit">
         <input class="button button--light bb-editor__submit__button" type="submit" name="submit" value="{{isset($edit_id) ? "Сохранить" : "Отправить"}}">
         @if (isset($edit_id))
@@ -121,6 +124,7 @@
         @endif
         <div class="response response--light"></div>
     </div>
+    @endif
 </form>
 <div class="bb-editor__all-smiles" id="all_smiles" style="display:none" data-title="Все смайлы">
     @foreach (\App\Smile::all() as $smile)
@@ -130,3 +134,4 @@
         </a>
     @endforeach
 </div>
+<span class="input-container__message"></span>

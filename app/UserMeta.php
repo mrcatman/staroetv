@@ -9,4 +9,9 @@ class UserMeta extends Model {
     protected $guarded = [];
     public $timestamps = false;
 
+    public function getDateOfBirthTsAttribute(){
+        $date_of_birth = $this->attributes['date_of_birth'];
+        $date = strtotime($date_of_birth) * 1000;
+        return $date;
+    }
 }

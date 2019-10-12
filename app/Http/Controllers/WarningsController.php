@@ -9,7 +9,7 @@ use App\Helpers\CommentsHelper;
 use App\Program;
 use App\UserReputation;
 use App\UserWarning;
-use App\Video;
+use App\Record;
 use Carbon\Carbon;
 
 class WarningsController extends Controller {

@@ -60,7 +60,9 @@
     width: calc(100% / 3);
     text-align: center;
     cursor: pointer;
-
+    &__picture {
+      max-height: 1.75em;
+    }
     &--with-text {
       width: auto;
       height: 5em;

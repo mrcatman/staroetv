@@ -1,14 +1,21 @@
 .top-menu {
   background: linear-gradient(#403c36 0%, #696259 48%, #262320 52%, #282521 100%);
   &__inner {
-    padding: .5em 0;
+    display: flex;
     text-align: left;
   }
   &__link {
     font-size: 1.25em;
     color: #c4bd97;
     font-weight: bold;
-    padding: 0 .25em;
+    padding: .35em 1em;
+    text-decoration: none;
+    border-left: 1px solid #676057;
+    border-right: 1px solid #272420;
+
+    &:hover {
+      background: rgba(255, 255, 255, .05);
+    }
   }
 }
 

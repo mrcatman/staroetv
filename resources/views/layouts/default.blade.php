@@ -19,7 +19,7 @@
                         <a class="auth-panel__avatar" href="/users/{{auth()->user()->id}}" style="background-image:url({{auth()->user()->avatar ? auth()->user()->avatar->url : ''}})"></a>
                         <div class="auth-panel__texts">
                             <a href="{{auth()->user()->url}}" class="auth-panel__username">{{auth()->user()->username}}</a>
-                            <a class="auth-panel__logout" href="{{ route('logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();">
+                            <a class="auth-panel__logout" onclick="event.preventDefault();document.getElementById('logout-form').submit();">
                                 Выход
                             </a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
@@ -27,6 +27,10 @@
                             </form>
                         </div>
                     @endauth
+                    @guest
+                        <a class="button button--login" href="/login">Вход</a>
+                        <a class="button button--register" href="/register">Регистрация</a>
+                    @endguest
                 </div>
             </div>
         </div>
@@ -34,7 +38,8 @@
     <div class="top-menu">
         <div class="container">
             <div class="top-menu__inner">
-                <a class="top-menu__link" href="/videos">Видеоархив</a>
+                <a class="top-menu__link" href="/video">Видеоархив</a>
+                <a class="top-menu__link" href="/radio">Радиоархив</a>
                 <a class="top-menu__link" href="/news">Новости</a>
                 <a class="top-menu__link" href="/blog">Блоги</a>
                 <a class="top-menu__link" href="/articles">Статьи</a>
@@ -50,7 +55,25 @@
         </div>
         @if (!request()->header('X-PJAX', false))
     </div>
+    <div class="footer">
+        <div class="container">
+            <div class="footer__menu">
+                <a class="footer__menu__link" href="/index/0-127">О проекте</a>
+                <a class="footer__menu__link" href="/index/0-128">Команда сайта</a>
+                <a class="footer__menu__link" href="/index/0-133">Правила</a>
+                <a class="footer__menu__link" href="#">Обратная связь</a>
+                <a class="footer__menu__link" href="/index/15">Пользователи</a>
+            </div>
+            <div class="footer__copyright">
+                Дизайн и верстка сайта © «Старый телевизор»; 2008 - 2019
+                Все аудио- и видеоматериалы, размещённые на сайте, принадлежат их владельцам. Нахождение материалов на сайте не оспаривает авторские права их создателей.
+            </div>
+        </div>
+    </div>
 </body>
+@guest
+    @include('blocks/login_form')
+@endguest
 
 <script type="text/javascript" rel="script" src="{{asset('js/app.js')}}"></script>
 <script src="//cdn.ckeditor.com/4.12.1/standard/ckeditor.js"></script>

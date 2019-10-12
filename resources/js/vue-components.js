@@ -1,11 +1,17 @@
 Vue.component('names-history-editor', require('./components/NamesHistoryEditor.vue').default);
 Vue.component('picture-uploader', require('./components/PictureUploader.vue').default);
-Vue.component('permissions-manager', require('./components/PermissionsManager.vue').default);
-Vue.component('video-form', require('./components/VideoForm.vue').default);
+Vue.component('record-form', require('./components/RecordForm.vue').default);
+Vue.component('user-groups-select', require('./components/UserGroupsSelect.vue').default);
+Vue.component('datepicker', require('vuejs-datepicker').default);
+
+Vue.component('permissions-manager', require('./components/admin/PermissionsManager.vue').default);
+Vue.component('channels-manager', require('./components/admin/ChannelsManager.vue').default);
+Vue.component('channels-order-manager', require('./components/admin/ChannelsOrderManager.vue').default);
+Vue.component('smiles-manager', require('./components/admin/SmilesManager.vue').default);
 
 Vue.component('select2', {
-    props: ['options', 'value', 'theme'],
-    template: '<select><slot></slot></select>',
+    props: ['options', 'value', 'theme', 'name'],
+    template: '<select :name="name"><slot></slot></select>',
     mounted: function () {
         var vm = this;
         $(this.$el)

@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Cache;
 class ForumController extends Controller {
 
     protected $messages_on_page = 20;
+    protected $topics_on_page = 25;
     protected $cache_time = 3600;
 
     public function index() {
@@ -32,13 +33,24 @@ class ForumController extends Controller {
         ]);
     }
 
-    public function subforum($id) {
+    public function subforum($id, $page = 1) {
         $forum = Forum::find($id);
         $parent_forum = Forum::find($forum->parent_id);
         if (!PermissionsHelper::checkSubforumAccess('can_view', $forum)) {
             return redirect('/forum');
         }
+        $topics = ForumTopic::where(['forum_id' => $forum->id, 'is_fixed' => false]);
+        $total = $topics->count();
+        $topics_on_page = $this->topics_on_page;
+        $topics = $topics->limit($topics_on_page)->offset(($page - 1) * $topics_on_page)->orderBy('last_reply_at', 'DESC')->get();
+
+        $paginator = new ForumPaginator([], $total, $topics_on_page, $page, [
+            'path'  => ForumPaginator::resolveCurrentPath(),
+            'forum_id' => $forum->id,
+        ]);
         return view("pages.forum.subforum", [
+            'paginator' => $paginator,
+            'topics' => $topics,
             'parent_forum' => $parent_forum,
             'forum' => $forum,
         ]);
@@ -61,24 +73,36 @@ class ForumController extends Controller {
         if (!$topic) {
             return redirect("/forum");
         }
+
+        $search = request()->input('s');
+
         $fixed_message = null;
-        if ($topic->first_message_fixed) {
+        if ($topic->first_message_fixed && !$search) {
             $fixed_message = ForumMessage::where(['topic_id' => $topic_id])->orderBy('id', 'asc')->first();
         }
 
+        $messages = null;
+
         $cache_tag = 'msg_' . $topic_id . '_' . $page;
         $total_tag = 'total_' . $topic_id . '_' . $page;
-        $messages = Cache::get($cache_tag);
+        if (!$search) {
+            $messages = Cache::get($cache_tag);
+        }
         if (!$messages) {
             $messages = ForumMessage::where(['topic_id' => $topic_id]);
             if ($fixed_message) {
                 $messages = $messages->where('id', '!=', $fixed_message->id);
             }
             $messages = $messages->with('user')->orderBy('id', 'asc');
+            if ($search) {
+                $messages = $messages->where('content', 'like', '%'.$search.'%');
+            }
             $total = $messages->count();
             $messages = $messages->limit($messages_on_page)->offset(($page - 1) * $messages_on_page)->get();
-            Cache::put($cache_tag, $messages, $cache_time);
-            Cache::put($total_tag, $total, $cache_time);
+            if (!$search) {
+                Cache::put($cache_tag, $messages, $cache_time);
+                Cache::put($total_tag, $total, $cache_time);
+            }
         } else {
             $total = Cache::get($total_tag);
         }
@@ -91,8 +115,8 @@ class ForumController extends Controller {
         $show_pager = $total > $messages_on_page;
         $users = $messages->pluck('user')->unique()->filter();
 
-
         return view("pages.forum.topic", [
+            'search' => $search,
             'show_pager' => $show_pager,
             'topic' => $topic,
             'messages' => $messages,
@@ -223,12 +247,12 @@ class ForumController extends Controller {
         ];
     }
 
-    public function postMessage() {
+    public function postMessage($topic_id = null) {
         $user = auth()->user();
         if (!$user) {
             return ['status' => 0, 'text' => 'Вы не авторизованы'];
         }
-        $topic = ForumTopic::find(request()->input('topic_id'));
+        $topic = ForumTopic::find($topic_id ? $topic_id : request()->input('topic_id'));
         if (!$topic) {
             return ['status' => 0, 'text' => 'Тема не найдена'];
         }
@@ -305,6 +329,303 @@ class ForumController extends Controller {
                     ]
                 ]
             ]
+        ];
+    }
+
+    public function newTopic($id) {
+        $forum = Forum::find($id);
+        $parent_forum = Forum::find($forum->parent_id);
+        return view("pages.forum.topic_form", [
+            'forum_id' => $id,
+            'topic' => null,
+            'parent_forum' => $parent_forum,
+            'forum' => $forum,
+        ]);
+    }
+
+    public function editTopic($id) {
+        $topic = ForumTopic::find($id);
+        $forum = Forum::find($topic->forum_id);
+        $parent_forum = Forum::find($forum->parent_id);
+        return view("pages.forum.topic_form", [
+            'forum_id' => $id,
+            'topic' => $topic,
+            'parent_forum' => $parent_forum,
+            'forum' => $forum,
+        ]);
+    }
+
+    public function createTopic($id) {
+        $forum = Forum::find($id);
+        if (!$forum) {
+            return [
+                'status' => 0,
+                'text' => 'Форум не найден'
+            ];
+        }
+        if (!$forum->can_create_new_topic) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+        $data = request()->validate([
+            'title' => 'required|min:1',
+            'description' => 'sometimes',
+            'message' => 'required|min:1',
+            'first_message_fixed' => 'sometimes|boolean',
+            'is_fixed' => 'sometimes|boolean',
+            'is_closed' => 'sometimes|boolean',
+        ]);
+        $content = $data['message'];
+        unset($data['message']);
+
+        $user = auth()->user();
+
+        $topic = new ForumTopic($data);
+        $topic->topic_starter_id = $user->id;
+        $topic->topic_starter_username = $user->username;
+        $topic->topic_last_username = $user->username;
+        $topic->last_reply_at = Carbon::now();
+
+        $topic->forum_id = $forum->id;
+        $topic->save();
+
+
+        $message_obj = new ForumMessage([
+            'topic_id' => $topic->id,
+            'is_first' => true,
+            'content' => BBCodesHelper::BBToHTML($content),
+            'username' => $user->username,
+            'edited_by' => '',
+            'ip' => request()->ip(),
+            'questionnaire' => '',
+            'user_id' => $user->id,
+        ]);
+        $message_obj->save();
+        return [
+            'status' => 1,
+            'text' => 'Тема создана',
+            'redirect_to' => '/forum/'.$forum->id.'-'.$topic->id.'-1'
+        ];
+    }
+
+    public function saveTopic($id) {
+        $topic = ForumTopic::find($id);
+        if (!$topic) {
+            return [
+                'status' => 0,
+                'text' => 'Тема не найдена'
+            ];
+        }
+        if (!$topic->can_edit) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+        $data = request()->validate([
+            'title' => 'required|min:1',
+            'description' => 'sometimes',
+            'first_message_fixed' => 'sometimes|boolean',
+            'is_fixed' => 'sometimes|boolean',
+            'is_closed' => 'sometimes|boolean',
+        ]);
+        $topic->fill($data);
+        $topic->save();
+        $this->deleteCache($topic->id, 1);
+        return [
+            'status' => 1,
+            'text' => 'Тема сохранена',
+            'redirect_to' => '/forum/'.$topic->forum_id.'-'.$topic->id.'-1'
+        ];
+    }
+
+    public function deleteTopic() {
+        $topic = ForumTopic::find(request()->input('topic_id'));
+        if (!$topic) {
+            return [
+                'status' => 0,
+                'text' => 'Тема не найдена'
+            ];
+        }
+        if (!$topic->can_delete) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+        $topic->delete();
+        ForumMessage::where(['topic_id' => $topic->id])->delete();
+        return [
+            'status' => 1,
+            'text' => 'Тема удалена',
+            'redirect_to' => '/forum/'.$topic->forum_id
+        ];
+    }
+
+    public function moveTopic() {
+        $topic = ForumTopic::find(request()->input('topic_id'));
+        if (!$topic) {
+            return [
+                'status' => 0,
+                'text' => 'Тема не найдена'
+            ];
+        }
+        if (!PermissionsHelper::allows('frreplthr')) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+        $forum = Forum::find(request()->input('forum_id'));
+        if (!$forum) {
+            return [
+                'status' => 0,
+                'text' => 'Форум не найден'
+            ];
+        }
+        if ($forum->parent_id < 1) {
+            return [
+                'status' => 0,
+                'text' => 'Невозможно переместить тему в данный форум'
+            ];
+        }
+        $topic->forum_id = $forum->id;
+        $topic->save();
+        return [
+            'status' => 1,
+            'text' => 'Тема перемещена',
+            'redirect_to' => '/forum/'.$topic->forum_id.'-'.$topic->id.'-1'
+        ];
+    }
+
+
+    public function newForum($parent_id) {
+        $forum = null;
+        $parent = Forum::find($parent_id);
+        $sections = Forum::where('parent_id', '<', '1')->get();
+        $forums = Forum::where('parent_id', '>', '0')->get();
+        return view("pages.forum.form", [
+            'parent' => $parent,
+            'forums' => $forums,
+            'is_section' => $parent_id == 0,
+            'parent_id' => $parent_id,
+            'forum' => null,
+            'sections' => $sections
+        ]);
+    }
+
+    public function editForum($id) {
+        $forum = Forum::find($id);
+        $parent = Forum::find($forum->parent_id);
+        $sections = Forum::where('parent_id', '<', '1')->where('id','!=', $id)->get();
+        $forums = Forum::where('parent_id', '>', '0')->get();
+        return view("pages.forum.form", [
+            'forums' => $forums,
+            'is_section' => $forum->parent_id < 1,
+            'parent' => $parent,
+            'parent_id' => $forum->parent_id,
+            'forum' => $forum,
+            'sections' => $sections
+        ]);
+    }
+
+    public function saveForum($id) {
+        if (!PermissionsHelper::allows('fredit')) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+        $forum = Forum::find($id);
+        if (!$forum) {
+            return [
+                'status' => 0,
+                'text' => 'Форум не найден'
+            ];
+        }
+        $data = request()->validate([
+            'can_create_topics' => 'sometimes',
+            'can_post' => 'sometimes',
+            'can_view' => 'sometimes',
+            'description' => 'sometimes',
+            'parent_id' => 'sometimes',
+            'state' => 'sometimes',
+            'title' => 'required|min:1',
+            'move_to' => 'sometimes',
+            'move_subforums_to' => 'sometimes'
+        ]);
+        $forum->fill($data);
+        if (isset($data['move_subforums_to']) && $data['move_subforums_to'] > 0) {
+            $move_to = Forum::find($data['move_subforums_to']);
+            if (!$move_to) {
+                return [
+                    'status' => 0,
+                    'text' => 'Форум для переноса не найден'
+                ];
+            }
+            Forum::where(['parent_id' => $forum->id])->update(['parent_id' => $move_to->id]);
+            $forum->delete();
+            return [
+                'status' => 1,
+                'text' => 'Форум удален',
+                'redirect_to' => '/forum/'
+            ];
+        }
+        if (isset($data['state']) && $data['state'] == "4") {
+            $move_to = Forum::find($data['move_to']);
+            if (!$move_to) {
+                return [
+                    'status' => 0,
+                    'text' => 'Форум для переноса не найден'
+                ];
+            }
+            ForumTopic::where(['forum_id' => $forum->id])->update(['forum_id' => $move_to->id]);
+            $forum->delete();
+            return [
+                'status' => 1,
+                'text' => 'Форум удален',
+                'redirect_to' => '/forum/'
+            ];
+        } else {
+            $forum->save();
+            return [
+                'status' => 1,
+                'text' => 'Форум сохранен',
+                'redirect_to' => '/forum/'.$forum->id
+            ];
+        }
+
+    }
+
+    public function createForum() {
+        if (!PermissionsHelper::allows('fredit')) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+        $data = request()->validate([
+            'can_create_topics' => 'sometimes',
+            'can_post' => 'sometimes',
+            'can_view' => 'sometimes',
+            'description' => 'sometimes',
+            'parent_id' => 'sometimes',
+            'state' => 'sometimes',
+            'title' => 'required|min:1',
+        ]);
+        if (!isset($data['parent_id'])) {
+            $data['parent_id'] = "0";
+        }
+        $forum = new Forum($data);
+        $forum->topics_count = 0;
+        $forum->replies_count = 0;
+        $forum->save();
+        return [
+            'status' => 1,
+            'text' => 'Форум сохранен',
+            'redirect_to' => '/forum/'.$forum->id
         ];
     }
 }

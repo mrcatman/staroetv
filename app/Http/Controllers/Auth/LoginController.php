@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class LoginController extends Controller
 {
     public function showLoginForm() {
-        return view('auth.login');
+        return view('pages.auth.login');
     }
 
     public function login() {
@@ -18,12 +18,18 @@ class LoginController extends Controller
         if (Auth::attempt([$field => $login, 'password' => request()->input('password')], request()->has('remember'))) {
             return [
                 'status' => 1,
-                'redirect_to' => '/users/'.User::where([$field => $login])->first()->id
+                'text' => 'Успешный вход',
+                'redirect_to' => '/index/8-'.User::where([$field => $login])->first()->id
             ];
         }
         return [
             'status' => 0,
             'text' => 'Неверные данные'
         ];
+    }
+
+    public function logout() {
+        Auth::logout();
+        return redirect('/');
     }
 }

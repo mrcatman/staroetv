@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Helpers\BBCodesHelper;
+use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -84,7 +86,7 @@ class User extends Authenticatable
 
 
     public function videos() {
-        return $this->hasMany('App\Video', 'author_username', 'username')->orderBy('id', 'desc');
+        return $this->hasMany('App\Record', 'author_username', 'username')->orderBy('id', 'desc');
     }
 
     public function getGroupIconAttribute() {
@@ -102,4 +104,25 @@ class User extends Authenticatable
         }
         return false;
     }
+
+
+    public function getCreatedAtAttribute() {
+        if (!isset($this->attributes['created_at'])) {
+            return "";
+        }
+        return DatesHelper::format($this->attributes['created_at']);
+    }
+
+
+    public function getWasOnlineAttribute() {
+        if (!isset($this->attributes['was_online'])) {
+            return "";
+        }
+        return DatesHelper::format($this->attributes['was_online']);
+    }
+
+    public function getSignatureOriginalAttribute() {
+        return BBCodesHelper::HTMLToBB($this->signature);
+    }
+
 }

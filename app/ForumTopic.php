@@ -2,6 +2,7 @@
 
 namespace App;
 use App\Helpers\DatesHelper;
+use App\Helpers\PermissionsHelper;
 use Illuminate\Database\Eloquent\Model;
 
 class ForumTopic extends Model {
@@ -18,5 +19,27 @@ class ForumTopic extends Model {
 
     public function forum() {
         return $this->belongsTo('App\Forum', 'forum_id', 'id');
+    }
+
+    public function getCanEditAttribute() {
+        if (PermissionsHelper::allows("fredtthall")) {
+            return true;
+        }
+        $user = auth()->user();
+        if ($user) {
+            return $this->user_id == $user->id && PermissionsHelper::allows("fredtthown");
+        }
+        return false;
+    }
+
+    public function getCanDeleteAttribute() {
+        if (PermissionsHelper::allows("frdelthall")) {
+            return true;
+        }
+        $user = auth()->user();
+        if ($user) {
+            return $this->user_id == $user->id && PermissionsHelper::allows("frdelthown");
+        }
+        return false;
     }
 }

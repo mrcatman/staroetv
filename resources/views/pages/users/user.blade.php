@@ -9,12 +9,18 @@
                 <div class="row row--vertical">
                     <div class="inner-page__header">
                         <div class="inner-page__header__title">Пользователь <strong>{{$user->username}}</strong></div>
-                        <img class="user-info__group-icon" src="{{$user->group_icon}}" />
+                        <div class="user-info__right">
+                            @if (auth()->user() && $user->id == auth()->user()->id)
+                            <a href="/profile/edit" class="button">Изменить профиль</a>
+                            @elseif (\App\Helpers\PermissionsHelper::allows('usedita'))
+                            <a href="/profile/edit/{{$user->id}}" class="button">Изменить профиль</a>
+                            @endif
+                        </div>
                     </div>
                     <div class="inner-page__content">
                         <div class="user-info">
                             <div class="user-info__col">
-
+                                <img class="user-info__group-icon" src="{{$user->group_icon}}" />
                                 <div class="user-info__item">
                                     <strong>Имя: </strong>{{$user->name}}
                                 </div>
@@ -97,7 +103,9 @@
         <div class="row">
             <div class="box">
                 <div class="box__heading">
-                    Видео пользователя <span class="box__heading__count">{{count($user->videos)}}</span>
+                    <div class="box__heading__inner">
+                        Видео пользователя <span class="box__heading__count">{{count($user->videos)}}</span>
+                    </div>
                 </div>
                 <div class="box__inner">
                     <div class="videos-list">
@@ -112,9 +120,11 @@
         <div class="row row--align-start">
             <div class="col">
                 <div class="box">
-                    <div class="box__heading">
-                        Комментарии пользователя <span class="box__heading__count">{{count($user->comments)}}</span>
-                    </div>
+                    <a href="/index/34-{{$user->id}}" class="box__heading">
+                        <div class="box__heading__inner">
+                            Комментарии пользователя <span class="box__heading__count">{{count($user->comments)}}</span>
+                        </div>
+                    </a>
                     <div class="box__inner">
                         <div class="comments">
                             @foreach ($user->comments->take(10) as $comment)

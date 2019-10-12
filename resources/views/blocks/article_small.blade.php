@@ -1,9 +1,11 @@
 <a href="{{$article->url}}" class="short-article">
-    @if ($article->cover != "")
-        <div class="short-article__cover" style="background-image:url({{$article->cover}})"></div>
-    @endif
-    <div class="short-article__title">
-        {{ $article->title }}
+    <div class="short-article__top">
+        @if ($article->cover != "")
+            <div class="short-article__cover" style="background-image:url({{$article->cover}})"></div>
+        @endif
+        <div class="short-article__title">
+            {{ $article->title }}
+        </div>
     </div>
     <div class="short-article__info">
         <span class="short-article__date"><i class="fa fa-calendar"></i>{{$article->created_at}}</span>

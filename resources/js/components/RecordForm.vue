@@ -1,23 +1,24 @@
 <template>
-    <div class="form video-form">
+    <div class="form record-form">
         <div class="form__preloader" v-show="loading"></div>
         <Response :data="response"/>
         <div class="input-container">
-            <label class="input-container__label">Ссылка на видео</label>
+            <label class="input-container__label" v-if="!isRadio">Ссылка на видео</label>
+            <label class="input-container__label" v-else>Ссылка на запись</label>
             <div class="input-container__inner">
                 <div class="input-container__element-outer">
-                    <div class="input-container__preloader" v-show="isLoadingVideoInfo">
+                    <div class="input-container__preloader" v-show="isLoadingRecordInfo">
                         <span></span>
                         <span></span>
                         <span></span>
                     </div>
-                    <input class="input" v-model="data.video.url"/>
+                    <input class="input" v-model="data.record.url"/>
                     <div class="input-container__description">ВК либо Youtube</div>
-                    <div class="video-form__player-container__outer" v-show="data.video.code || data.video.covers.length > 0 || data.program.cover_picture">
-                        <div class="video-form__player-container" v-html="data.video.code"></div>
-                        <div class="video-form__covers">
-                            <img class="video-form__cover" v-for="(cover, $index) in data.video.covers" :class="{'video-form__cover--active': cover === data.cover}" @click="data.cover = cover" :src="cover" />
-                            <img class="video-form__cover" v-if="data.program.cover_picture" :class="{'video-form__cover--active': data.program.cover_picture.url === data.cover}" @click="data.cover = data.program.cover_picture.url" :src="data.program.cover_picture.url" />
+                    <div class="record-form__player-container__outer" v-show="data.record.code || data.record.covers.length > 0 || data.program.cover_picture">
+                        <div class="record-form__player-container" v-html="data.record.code"></div>
+                        <div class="record-form__covers">
+                            <img class="record-form__cover" v-for="(cover, $index) in data.record.covers" :class="{'record-form__cover--active': cover === data.cover}" @click="data.cover = cover" :src="cover" />
+                            <img class="record-form__cover" v-if="data.program.cover_picture" :class="{'record-form__cover--active': data.program.cover_picture.url === data.cover}" @click="data.cover = data.program.cover_picture.url" :src="data.program.cover_picture.url" />
                         </div>
                     </div>
                 </div>
@@ -25,7 +26,8 @@
             </div>
         </div>
         <div class="input-container">
-            <label class="input-container__label">Канал</label>
+            <label class="input-container__label" v-if="!isRadio">Канал</label>
+            <label class="input-container__label" v-else>Радиостанция</label>
             <div class="input-container__inner">
                 <div class="input-container__element-outer">
                     <div class="input-container__overlay-outer">
@@ -33,7 +35,7 @@
                         <input class="input" v-model="data.channel.name"/>
                     </div>
                     <div class="input-container__toggle-buttons">
-                        <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.channel.unknown}" @click="setUnknownChannel()">Канал неизвестен</a>
+                        <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.channel.unknown}" @click="setUnknownChannel()">{{isRadio ? "Радиостанция неизвестна" : "Канал неизвестен"}}</a>
                     </div>
                     <div class="autocomplete__items" v-show="!data.channel.unknown">
                         <a @click="selectChannel(channelItem)" class="autocomplete__item" :class="{'autocomplete__item--selected': data.channel.id === channelItem.id}" v-for="(channelItem, $index) in filteredChannels" :key="$index">
@@ -50,12 +52,13 @@
             <div class="input-container__inner">
                 <div class="input-container__element-outer">
                     <div class="input-container__overlay-outer">
-                        <div class="input-container__disabled-overlay" v-if="data.is_interprogram || data.program.unknown"></div>
+                        <div class="input-container__disabled-overlay" v-if="data.is_interprogram || data.program.unknown || data.is_advertising"></div>
                         <input class="input" v-model="data.program.name"/>
                     </div>
                     <div class="input-container__toggle-buttons">
                         <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.program.unknown}" @click="setUnknownProgram()">Программа неизвестна</a>
-                        <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_interprogram}" @click="setInterprogram()">Межпрограммное пространство</a>
+                        <a title="Заставки, анонсы и т.д." class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_interprogram}" @click="setInterprogram()">Межпрограммное пространство</a>
+                        <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_advertising}" @click="setAdvertising()">Реклама</a>
                     </div>
                     <div class="autocomplete__items" v-show="!data.is_interprogram && !data.program.unknown">
                         <a @click="selectProgram(programItem)" class="autocomplete__item" :class="{'autocomplete__item--selected': data.program.id === programItem.id}" v-for="(programItem, $index) in filteredPrograms" :key="$index">
@@ -63,14 +66,14 @@
                             <span class="autocomplete__item__name">{{programItem.name}}</span>
                         </a>
                     </div>
-                    <div v-if="data.is_interprogram" class="video-form__interprogram-packages">
-                        <div @click="data.interprogram_package_id = item.id" v-for="(item, $index) in interprogramPackages" :key="$index"  class="video-form__interprogram-package" :class="{'video-form__interprogram-package--selected': data.interprogram_package_id === item.id}">
-                            <div class="video-form__interprogram-package__cover" :style="{backgroundImage: 'url('+item.cover_picture+')'}"></div>
-                            <div class="video-form__interprogram-package__name">{{item.name}}</div>
+                    <div v-if="data.is_interprogram" class="record-form__interprogram-packages">
+                        <div @click="data.interprogram_package_id = item.id" v-for="(item, $index) in interprogramPackages" :key="$index"  class="record-form__interprogram-package" :class="{'record-form__interprogram-package--selected': data.interprogram_package_id === item.id}">
+                            <div class="record-form__interprogram-package__cover" :style="{backgroundImage: 'url('+item.cover_picture+')'}"></div>
+                            <div class="record-form__interprogram-package__name">{{item.name}}</div>
                         </div>
-                        <div class="video-form__interprogram-package" @click="data.interprogram_package_id = null"  :class="{'video-form__interprogram-package--selected': data.interprogram_package_id === null}">
-                            <div class="video-form__interprogram-package__cover" style="background-image: url('/pictures/unknown.png')"></div>
-                            <div class="video-form__interprogram-package__name">Другое</div>
+                        <div class="record-form__interprogram-package" @click="data.interprogram_package_id = null"  :class="{'record-form__interprogram-package--selected': data.interprogram_package_id === null}">
+                            <div class="record-form__interprogram-package__cover" style="background-image: url('/pictures/unknown.png')"></div>
+                            <div class="record-form__interprogram-package__name">Другое</div>
                         </div>
                     </div>
                 </div>
@@ -114,7 +117,7 @@
     </div>
 </template>
 <style lang="scss">
-    .video-form {
+    .record-form {
         &__covers {
             display: flex;
             flex-wrap: wrap;
@@ -177,7 +180,9 @@
         is_interprogram: false,
         interprogram_package_id: null,
         cover: '',
-        video: {
+        is_advertising: false,
+        record: {
+            title: '',
             url: '',
             id: null,
             code: null,
@@ -203,64 +208,80 @@
     };
     export default {
         mounted() {
-            if (this.video) {
+            if (this.record) {
                 this.data = {
-                    is_interprogram: this.video.is_interprogram,
-                    interprogram_package_id:  this.video.interprogram_package_id,
-                    cover: this.video.cover,
-                    video: {
-                        url: this.video.original_url,
+                    is_interprogram: this.record.is_interprogram,
+                    interprogram_package_id:  this.record.interprogram_package_id,
+                    cover: this.record.cover,
+                    record: {
+                        url: this.record.original_url,
                         id: null,
-                        code: this.video.embed_code,
+                        code: this.record.embed_code,
                         covers: []
                     },
-                    short_description:  this.video.short_description,
+                    short_description:  this.record.short_description,
                     date: {
-                        year: this.video.year,
-                        month: this.video.month,
-                        day: this.video.day
+                        year: this.record.year,
+                        month: this.record.month,
+                        day: this.record.day
                     },
                     program: {
-                        name: this.video.program ? this.video.program.name : '',
-                        id: this.video.program ? this.video.program.id : null,
-                        cover_picture: this.video.program ? this.video.program.cover_picture : null,
-                        unknown: !(this.video.program_id > 0) && !this.video.is_interprogram,
+                        name: this.record.program ? this.record.program.name : '',
+                        id: this.record.program ? this.record.program.id : null,
+                        cover_picture: this.record.program ? this.record.program.cover_picture : null,
+                        unknown: !(this.record.program_id > 0) && !this.record.is_interprogram,
                     },
                     channel: {
-                        name: this.video.channel ? this.video.channel.name : '',
-                        id: this.video.channel ? this.video.channel.id : null,
-                        unknown: !(this.video.channel_id > 0),
+                        name: this.record.channel ? this.record.channel.name : '',
+                        id: this.record.channel ? this.record.channel.id : null,
+                        unknown: !(this.record.channel_id > 0),
                     }
                 };
-                if (this.video.channel && this.video.channel.id) {
+                if (this.record.channel && this.record.channel.id) {
                     this.loadPrograms();
                 }
             }
         },
         components: {Response},
-        props: ['channels', 'video'],
+        props: ['channels', 'record', 'meta'],
         methods: {
             save() {
                 this.loading = true;
-                $.post(this.video ? '/videos/' + this.video.id : '/videos/add', this.data).done(res => {
+                this.data.is_radio = this.isRadio;
+                $.post(this.record ? '/records/' + this.record.id + '/edit' : '/records/add', this.data).done(res => {
                     this.loading = false;
                     this.response = res;
                     this.errors = res.errors || {};
                     window.scrollTo(0, 0);
                     if (res.status) {
-                        this.response.text+= `<a target=_blank href='/videos/${res.data.video.id}'>Перейти к видео</a>`;
-                        this.data = JSON.parse(JSON.stringify(defaultData));
-                        this.programs = [];
-                        this.interprogramPackages = [];
+                        if (this.isRadio) {
+                            this.response.text+= `<a target=_blank href='${res.data.record.url}'>Перейти к радиозаписи</a>`;
+                        } else {
+                            this.response.text+= `<a target=_blank href='${res.data.record.url}'>Перейти к видеозаписи</a>`;
+                        }
+
+                        if (!this.record) {
+                            this.data = JSON.parse(JSON.stringify(defaultData));
+                            this.programs = [];
+                            this.interprogramPackages = [];
+                        }
                     }
                 });
+            },
+            setAdvertising() {
+                this.data.is_advertising = !this.data.is_advertising;
+                if (this.data.is_interprogram) {
+                    this.data.program.unknown = false;
+                }
             },
             setInterprogram() {
                 this.data.is_interprogram = !this.data.is_interprogram;
                 if (this.data.is_interprogram) {
                     this.data.program.unknown = false;
                     if (this.data.channel.id) {
-                        this.loadInterprogramPackages();
+                        if (!this.isRadio) {
+                            this.loadInterprogramPackages();
+                        }
                     }
                 }
             },
@@ -273,46 +294,48 @@
             setUnknownChannel() {
                 this.data.channel.unknown = !this.data.channel.unknown;
             },
-            async getVideoData() {
-                let url = this.data.video.url;
+            async getRecordData() {
+                let url = this.data.record.url;
                 let youtubeData = url.match(/^.*((m\.)?youtu\.be\/|vi?\/|u\/\w\/|embed\/|\?vi?=|\&vi?=)([^#\&\?]*).*/);
                 if (youtubeData && youtubeData.length === 4) {
                     let id = youtubeData[3];
                     let code = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${id}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                    this.data.video.id = id;
-                    this.data.video.code = code;
-                    this.data.video.covers = [];
+                    this.data.record.id = id;
+                    this.data.record.code = code;
+                    this.data.record.covers = [];
                     ['0', '1', '2', '3', 'hqdefault'].forEach(frame => {
-                        this.data.video.covers.push(`https://img.youtube.com/vi/${id}/${frame}.jpg`);
+                        this.data.record.covers.push(`https://img.youtube.com/vi/${id}/${frame}.jpg`);
                     });
-                    this.isLoadingVideoInfo = true;
-                    $.post('/videos/getinfo', {youtube_video_id: id}).done(async res => {
-                        this.isLoadingVideoInfo = false;
+                    this.isLoadingRecordInfo = true;
+                    $.post('/records/getinfo', {youtube_record_id: id}).done(async res => {
+                        this.isLoadingRecordInfo = false;
                         if (res.status && res.data.youtube_response && res.data.youtube_response.items && res.data.youtube_response.items.length > 0) {
-                            let video = res.data.youtube_response.items[0].snippet;
-                            let title = video.title;
+                            let record = res.data.youtube_response.items[0].snippet;
+                            let title = record.title;
+                            this.data.record.title = title;
                             this.parseInfo(title);
                         }
                     })
                 } else {
                     let id = null;
-                    let vkData = url.match(/(.*?)vk.com\/video(.*?)([0-9-_]+)(.*?)/);
+                    let vkData = url.match(/(.*?)vk.com\/record(.*?)([0-9-_]+)(.*?)/);
                     if (vkData && vkData[3].length > 1) {
                         id = vkData[3];
                     } else {
-                        let vkData = url.match(/(.*?)video_ext.php\?oid=(.*?)&id=(.*?)&(.*?)/);
+                        let vkData = url.match(/(.*?)record_ext.php\?oid=(.*?)&id=(.*?)&(.*?)/);
                         id = vkData[2] + '_' + vkData[3];
                     }
                     if (id) {
-                        this.isLoadingVideoInfo = true;
-                        $.post('/videos/getinfo', {vk_video_id: id}).done(async res => {
-                            this.isLoadingVideoInfo = false;
+                        this.isLoadingRecordInfo = true;
+                        $.post('/records/getinfo', {vk_record_id: id}).done(async res => {
+                            this.isLoadingRecordInfo = false;
                             if (res.status && res.data.vk_response && res.data.vk_response.response && res.data.vk_response.response.items.length > 0) {
-                                let video = res.data.vk_response.response.items[0];
-                                this.data.video.id = id;
-                                this.data.video.code = `<iframe width="560" height="315" src=${video.player} frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                                this.data.video.covers = [video.image[video.image.length - 1].url];
-                                let title = video.title;
+                                let record = res.data.vk_response.response.items[0];
+                                this.data.record.id = id;
+                                this.data.record.code = `<iframe width="560" height="315" src=${record.player} frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                                this.data.record.covers = [record.image[record.image.length - 1].url];
+                                let title = record.title;
+                                this.data.record.title = title;
                                 this.parseInfo(title);
                             }
                         })
@@ -321,6 +344,14 @@
             },
             async parseInfo(title) {
                 let parsed = title.match(/((.*?){0,1}staroetv.su(.*?){0,1})?[\])\\/ ]{0,2}(.*?)\((.*?), (.*?)\)(.*)/);
+                if (!parsed) {
+                    let newParsed = title.match(/(.*?){0,1}staroetv.su(.*?){0,1} (.*?) - (.*?) \((.*?)\)(.*?)/);
+                    if (newParsed && newParsed.length === 7) {
+                        parsed = [
+                            '', '', '', '', newParsed[4], newParsed[3], newParsed[5], newParsed[6]
+                        ]
+                    }
+                }
                 if (parsed && parsed.length === 8) {
                     parsed = parsed.map(string => {
                         if (string) {
@@ -462,14 +493,17 @@
             }
         },
         watch: {
-            "data.video.url"() {
+            "data.record.url"() {
                 clearTimeout(this.changeUrlTimeout);
                 this.changeUrlTimeout = setTimeout(() => {
-                    this.getVideoData();
+                    this.getRecordData();
                 }, 500)
             }
         },
         computed: {
+            isRadio() {
+                return this.meta && this.meta.is_radio
+            },
             allProgramNames() {
                 let names = {};
                 this.programs.forEach(program => {
@@ -542,7 +576,7 @@
                 loading: false,
                 response: null,
                 interprogramPackages: [],
-                isLoadingVideoInfo: false,
+                isLoadingRecordInfo: false,
                 changeUrlTimeout: null,
                 data: JSON.parse(JSON.stringify(defaultData)),
                 programs: [],

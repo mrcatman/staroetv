@@ -9,9 +9,9 @@ class ProgramsController extends Controller {
 
     public function show($id) {
         $program = Program::find($id);
-        return view("pages.program", [
+        return view("pages.programs.show", [
             'program' => $program,
-            'videos' => $program->videos,
+            'records' => $program->records,
         ]);
     }
 }

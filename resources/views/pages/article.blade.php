@@ -36,7 +36,9 @@
                     </div>
                     <div class="box box--comments">
                         <div class="box__heading">
-                            Комментарии <span class="box__heading__count">{{\App\Comment::where(['material_type' => $article->type_id, 'material_id' => $article->original_id])->count()}}</span>
+                            <div class="box__heading__inner">
+                                Комментарии <span class="box__heading__count">{{\App\Comment::where(['material_type' => $article->type_id, 'material_id' => $article->original_id])->count()}}</span>
+                            </div>
                         </div>
                         <div class="box__inner">
                             @include('blocks/comments', ['ajax' => false, 'page' => 1, 'conditions' => ['material_type' => $article->type_id, 'material_id' => $article->original_id]])

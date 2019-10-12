@@ -10,7 +10,7 @@ use App\Helpers\BBCodesHelper;
 use App\Helpers\CommentsHelper;
 use App\Helpers\PermissionsHelper;
 use App\Program;
-use App\Video;
+use App\Record;
 use Carbon\Carbon;
 
 class CommentsController extends Controller {
