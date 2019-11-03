@@ -5,6 +5,13 @@
   padding: .5em 0 0;
 }
 
+.pager-container {
+  @include mobile() {
+    max-width: calc(100vw - 2em);
+    overflow: auto;
+  }
+}
+
 .page-item {
   display: inline-block;
   border: none;
@@ -17,17 +24,26 @@
   font-weight: bold;
   box-shadow: inset 0px 1px 10px #2b1e13;
   margin: 0 .25em 0 0;
+  &:hover {
+    background: linear-gradient(180deg, #705237, #8f6945 49%, #291e13 50%, #2c1f14);
+  }
   a {
     text-decoration: none;
   }
   &.active {
     color: #000;
     background: linear-gradient(180deg, #9f744d, #c08c5c 49%, #7c5b3a 50%, #8c6442);
+    &:hover {
+      background: linear-gradient(180deg, #d89e69, #dda26d 49%, #7c5b3a 50%, #8c6442);
+    }
   }
   &.disabled {
     color: #8d8d8d;
     background: linear-gradient(180deg, #584d44, #736354 49%, #35322e 50%, #413b37);
     cursor: default;
+    &:hover {
+      background: linear-gradient(180deg, #584d44, #736354 49%, #35322e 50%, #413b37);
+    }
   }
 
   & > * {

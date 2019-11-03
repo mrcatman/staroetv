@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Channel;
 use App\ChannelName;
 use App\Comment;
+use App\CommentRating;
 use App\ForumMessage;
 use App\Helpers\BBCodesHelper;
 use App\Helpers\CommentsHelper;
@@ -151,12 +152,57 @@ class CommentsController extends Controller {
         }
     }
 
+    public function rating() {
+        if (!PermissionsHelper::allows('comrate')) {
+            return [
+                'status' => 0,
+                'text' => 'Вы не можете оценивать комментарии'
+            ];
+        }
+        $comment = Comment::find(request()->input('comment_id'));
+        if (!$comment) {
+            return [
+                'status' => 0,
+                'text' => 'Комментарий не найден'
+            ];
+        }
+        $weight = request()->input('weight');
+        if ($weight != -1 && $weight != 1) {
+            return [
+                'status' => 0,
+                'text' => 'Неверное значение веса рейтинга'
+            ];
+        }
+        $rating = CommentRating::firstOrNew([
+            'user_id' => auth()->user()->id,
+            'comment_id' => $comment->id,
+        ]);
+        $rating->weight = $weight;
+        $rating->save();
 
+        $new_count = $comment->total_rating;
+
+        $class = $new_count > 0 ? "comment__rating__number--positive" : ($new_count < 0 ? "comment__rating__number--negative" : "");
+        $html = "<span class='comment__rating__number $class'>$new_count</span>";
+        return [
+            'status' => 1,
+            'text' => 'Комментарий сохранен',
+            'data' => [
+                'dom' => [
+                    [
+                        'replace' => ".comment[data-id=".$comment->id."] .comment__rating__container",
+                        'html' => $html
+                    ]
+                ]
+            ]
+        ];
+    }
 
     public function getOriginal($id) {
         $comment = Comment::find($id);
         $text = BBCodesHelper::HTMLToBB($comment->original_text);
         dd($text);
     }
+
 
 }

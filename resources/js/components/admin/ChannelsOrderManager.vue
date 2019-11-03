@@ -3,6 +3,10 @@
         <div class="admin-panel__heading-container">
             <div class="admin-panel__heading">Управление порядком каналов</div>
             <div class="tabs">
+                <a class="tab" :class="{'tab--active': channelType === 'tv'}" @click="channelType = 'tv'">ТВ</a>
+                <a class="tab" :class="{'tab--active': channelType === 'radio'}" @click="channelType = 'radio'">Радио</a>
+            </div>
+            <div class="tabs">
                 <a class="tab" :class="{'tab--active': type === 'federal'}" @click="type = 'federal'">Федеральные</a>
                 <a class="tab" :class="{'tab--active': type === 'regional'}" @click="type = 'regional'">Региональные</a>
                 <a class="tab" :class="{'tab--active': type === 'abroad'}" @click="type = 'abroad'">Зарубежные</a>
@@ -60,6 +64,12 @@
                 })
             },
             showChannel(channel) {
+                if (this.channelType === 'tv' && channel.is_radio) {
+                    return;
+                }
+                if (this.channelType === 'radio' && !channel.is_radio) {
+                    return;
+                }
                 if (this.type === 'federal') {
                     return channel.is_federal;
                 }
@@ -84,6 +94,7 @@
         data() {
             return {
                 channelsList: this.channels,
+                channelType: 'tv',
                 type: 'federal',
                 response: null,
                 loading: false

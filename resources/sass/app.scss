@@ -1,5 +1,9 @@
 @import "_variables";
-
+@mixin mobile() {
+  @media screen and (max-width: 768px) {
+    @content;
+  }
+}
 @import "blocks/box";
 @import "blocks/buttons";
 @import "blocks/forms";
@@ -20,3 +24,4 @@
 @import "blocks/tabs";
 @import "blocks/admin";
 @import "blocks/footer";
+

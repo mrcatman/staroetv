@@ -99,23 +99,41 @@
             </div>
             @include('blocks/user_page_modals', ['user' => $user])
         </div>
-        @if (count($user->videos) > 0)
+        @if (count($videos) > 0)
         <div class="row">
             <div class="box">
                 <div class="box__heading">
                     <div class="box__heading__inner">
-                        Видео пользователя <span class="box__heading__count">{{count($user->videos)}}</span>
+                        Видео пользователя <span class="box__heading__count">{{count($videos)}}</span>
                     </div>
                 </div>
                 <div class="box__inner">
                     <div class="videos-list">
-                        @foreach ($user->videos->take(10) as $video)
-                            @include('blocks/video', ['video' => $video])
+                        @foreach ($videos->take(10) as $record)
+                            @include('blocks/record', ['record' => $record])
                         @endforeach
                     </div>
                 </div>
             </div>
         </div>
+        @endif
+        @if (count($radio_recordings) > 0)
+            <div class="row">
+                <div class="box">
+                    <div class="box__heading">
+                        <div class="box__heading__inner">
+                            Радиозаписи пользователя <span class="box__heading__count">{{count($radio_recordings)}}</span>
+                        </div>
+                    </div>
+                    <div class="box__inner">
+                        <div class="videos-list">
+                            @foreach ($radio_recordings->take(10) as $record)
+                                @include('blocks/record', ['record' => $record])
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
         @endif
         <div class="row row--align-start">
             <div class="col">

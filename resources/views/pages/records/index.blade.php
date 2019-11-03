@@ -1,6 +1,6 @@
 @extends('layouts.default')
 @section('content')
-    <div class="inner-page">
+    <div class="inner-page channels-list-page">
         <div class="inner-page__header">
             <div class="inner-page__header__title">{{$data['is_radio'] ? "Архив старых радиозаписей" : "Архив старых видеозаписей"}}</div>
             <div class="inner-page__header__right">
@@ -20,20 +20,20 @@
                 @endif
             </div>
         </div>
-        <div class="inner-page__content">
-            <div class="tabs" data-id="channels">
-                <a class="tab tab--active" data-content="federal">Федеральные</a>
-                <a class="tab" data-content="regional">Региональные</a>
-                <a class="tab" data-content="abroad">Зарубежные</a>
-                <a class="tab" data-content="other">Другие</a>
+        <div class="inner-page__content inner-page__content--no-padding">
+            @include('blocks/records_search', ['is_radio' => $data['is_radio']])
+            <div class="channels-list-page__tabs">
+                <div class="tabs" data-id="channels">
+                    <a class="tab tab--active" data-content="federal">Федеральные</a>
+                    <a class="tab" data-content="regional">Региональные</a>
+                    <a class="tab" data-content="abroad">Зарубежные</a>
+                    <a class="tab" data-content="other">Другие</a>
+                </div>
             </div>
             <div class="tab-content" data-id="channels" data-tab="federal">
                 <div class="channels-list">
                     @foreach($federal as $channel)
-                        <a href="/channels/{{$channel->url}}" class="channel-item">
-                            <div class="channel-item__logo"   @if ($channel->logo) style="background-image:url({{$channel->logo->url}})"  @endif></div>
-                            <span class="channel-item__name" >{{$channel->name}}</span>
-                        </a>
+                        @include('blocks/channel_small', ['channel' => $channel])
                     @endforeach
                 </div>
             </div>
@@ -49,30 +49,21 @@
                 </div>
                 <div class="channels-list">
                     @foreach($regional as $channel)
-                        <a href="/channels/{{$channel->url}}" class="channel-item" data-city="{{$channel->city}}">
-                            <div class="channel-item__logo"   @if ($channel->logo) style="background-image:url({{$channel->logo->url}})"  @endif></div>
-                            <span class="channel-item__name" >{{$channel->name}}</span>
-                        </a>
+                        @include('blocks/channel_small', ['channel' => $channel])
                     @endforeach
                 </div>
             </div>
             <div style="display: none" class="tab-content" data-id="channels" data-tab="abroad">
                 <div class="channels-list">
                     @foreach($abroad as $channel)
-                        <a href="/channels/{{$channel->url}}" class="channel-item">
-                            <div class="channel-item__logo"   @if ($channel->logo) style="background-image:url({{$channel->logo->url}})"  @endif></div>
-                            <span class="channel-item__name" >{{$channel->name}}</span>
-                        </a>
+                        @include('blocks/channel_small', ['channel' => $channel])
                     @endforeach
                 </div>
             </div>
             <div style="display: none" class="tab-content" data-id="channels" data-tab="other">
                 <div class="channels-list">
                     @foreach($other as $channel)
-                        <a href="/channels/{{$channel->url}}" class="channel-item">
-                            <div class="channel-item__logo"   @if ($channel->logo) style="background-image:url({{$channel->logo->url}})"  @endif></div>
-                            <span class="channel-item__name" >{{$channel->name}}</span>
-                        </a>
+                        @include('blocks/channel_small', ['channel' => $channel])
                     @endforeach
                 </div>
             </div>

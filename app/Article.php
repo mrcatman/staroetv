@@ -11,6 +11,12 @@ class Article extends Model {
     const TYPE_NEWS = 2;
     const TYPE_BLOG = 8;
 
+    const names = [
+        self::TYPE_ARTICLES => 'articles',
+        self::TYPE_NEWS => 'news',
+        self::TYPE_BLOG => 'blog'
+    ];
+
     public function getTitleAttribute() {
         return html_entity_decode($this->attributes['title']);
     }
@@ -59,6 +65,10 @@ class Article extends Model {
     public function getUrlAttribute() {
         if ($this->type_id == self::TYPE_NEWS) {
             $path = "/news/".$this->year."-".$this->month."-".$this->day."-".$this->original_id;
+            return $path;
+        }
+        if ($this->type_id == self::TYPE_ARTICLES) {
+            $path = "/blog/".$this->year."-".$this->month."-".$this->day."-".$this->original_id;
             return $path;
         }
         if ($this->type_id == self::TYPE_BLOG) {

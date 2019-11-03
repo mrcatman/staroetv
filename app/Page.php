@@ -13,4 +13,12 @@ class Page extends Model {
         $content = str_replace("\ ", "", $content);
         return $content;
     }
+
+    public function getFullUrlAttribute() {
+        if ($this->url) {
+            return "/pages/".$this->url;
+        } else {
+            return "/index/0-".$this->id;
+        }
+    }
 }

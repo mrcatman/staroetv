@@ -1,8 +1,20 @@
 @extends('layouts.default')
 @section('content')
-    <div class="inner-page">
+    <div class="inner-page inner-page--article">
         @if ($article->cover != "")
             <div class="inner-page__cover-block" style="background-image:url({{$article->cover}})">
+                <div class="inner-page__cover-block__panel">
+                    @if ($can_edit || $can_delete)
+                    <div class="inner-page__cover-block__panel__bg">
+                        @if ($can_edit)
+                            <a class="button button--light" href="{{$edit_link}}">{{$edit_title}}</a>
+                        @endif
+                        @if ($can_delete)
+                            <a class="button button--light">{{$delete_title}}</a>
+                        @endif
+                    </div>
+                    @endif
+                </div>
                 <div class="inner-page__cover-block__texts">
                     <div class="inner-page__cover-block__title">{{$article->title}}</div>
                     <div class="inner-page__cover-block__info">

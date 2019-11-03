@@ -1,14 +1,22 @@
 <div class="forum @if($topic->is_closed) forum--closed @endif @if($topic->is_fixed) forum--fixed @endif">
-    <a href="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" class="forum__top">
+    <div class="forum__top">
         <div class="forum__info">
-            <div class="forum__title">
+            <a href="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" class="forum__title">
                 @if ($topic->is_closed)<i class="fa fa-lock"></i>@endif
                 {{$topic->title}}
-            </div>
+            </a>
             @if ($topic->description != "")
-            <div class="forum__description">
+            <a href="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" class="forum__description">
                 {{$topic->description}}
-            </div>
+            </a>
+            @endif
+            @if (isset($topic->users))
+                <div class="forum__users">
+                    Сейчас смотрят:
+                    @foreach ($topic->users as $user)
+                        <a target="_blank" href="{{$user->url}}" class="user-online" data-group-id="{{$user->group_id}}">{{$user->username}}</a>
+                    @endforeach
+                </div>
             @endif
         </div>
         <div class="forum__numbers">
@@ -21,7 +29,7 @@
                 <div class="forum__number__description">просмотров</div>
             </div>
         </div>
-    </a>
+    </div>
     <div class="forum__last-topic">
         <a href="" class="forum__last-topic__text">
             Последнее обновление:

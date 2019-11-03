@@ -22,11 +22,11 @@
                 </div>
             </div>
             <div class="forum-section__children">
-                @if (count($forum->fixed_topics) > 0)
+                @if (count($fixed_topics) > 0)
                 <div class="forum-section__subsection">
                     <div class="forum-section__subsection__title">Важные темы</div>
                     <div class="forum-section__subsection__children">
-                        @foreach ($forum->fixed_topics as $topic)
+                        @foreach ($fixed_topics as $topic)
                             @include('blocks/forum_topic', ['topic' => $topic])
                         @endforeach
                     </div>

@@ -6,9 +6,11 @@
             <a class="button button--light" href="/channels/{{$channel->id}}/edit">Редактировать</a>
         </div>
         <div class="inner-page__content">
+            @if ($channel->description != "")
             <div class="inner-page__text-block">
                 {!! $channel->description !!}
             </div>
+            @endif
             <div class="programs-list">
                 @foreach($programs as $program)
                     <a href="/programs/{{$program->id}}" class="program">
@@ -22,7 +24,7 @@
             <div class="box">
                 <div class="box__heading">
                     <div class="box__heading__inner">
-                        Видео <span class="box__heading__count">{{$records_count}}</span>
+                        {{$channel->is_radio ? "Радиозаписи" : "Видеозаписи"}} <span class="box__heading__count">{{$records_count}}</span>
                     </div>
                 </div>
                 <div class="box__inner">
@@ -31,7 +33,9 @@
                             @include('blocks/record', ['record' => $record])
                         @endforeach
                     </div>
-                    {{$records->links()}}
+                    <div class="records-list__pager-container">
+                        {{$records->links()}}
+                    </div>
                 </div>
             </div>
         </div>

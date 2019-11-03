@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Article;
 use App\Picture;
 use App\Program;
 use App\Record;
@@ -68,19 +69,50 @@ class importPictures extends Command
         }
     }
 
+
+    protected function create($url) {
+       if (strlen($url) === 0) {
+           return;
+       }
+       if ($url[0] == "/" || Str::startsWith($url, "http://staroetv.su/") || Str::startsWith($url, "http://staroetv.ucoz.ru/")) {
+            $url = str_replace("http://staroetv.su","", $url);
+            $url = str_replace("http://staroetv.ucoz.ru","", $url);
+            echo "Not downloading because of relative path " . $url . PHP_EOL;
+            $picture = new Picture([
+                'url' => $url
+            ]);
+            $picture->save();
+        } else {
+            $picture = new Picture([
+                'url' => $url
+            ]);
+            $picture->save();
+        }
+        return $picture->id;
+    }
+
     public function handle()
     {
-        $video_covers = Record::pluck('cover')->unique()->values();
+        $video_covers = [];
+        $program_covers = [];
+        //$video_covers = Record::whereNull('cover_id')->pluck('cover')->unique()->values();
         foreach ($video_covers as $video_cover) {
             $id = $this->download($video_cover);
             Record::where(['cover' => $video_cover])->update([
                 'cover_id' => $id
             ]);
         }
-        $program_covers = Program::pluck('cover')->unique()->values();
+       // $program_covers = Program::whereNull('cover_id')->pluck('cover')->unique()->values();
         foreach ($program_covers as $program_cover) {
             $id = $this->download($program_cover);
             Program::where(['cover' => $program_cover])->update([
+                'cover_id' => $id
+            ]);
+        }
+        $article_covers = Article::whereNull('cover_id')->pluck('cover')->unique()->values();
+        foreach ($article_covers as $article_cover) {
+            $id = $this->create($article_cover);
+            Article::where(['cover' => $article_cover])->update([
                 'cover_id' => $id
             ]);
         }

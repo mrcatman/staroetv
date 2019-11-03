@@ -9,26 +9,55 @@ use App\Helpers\BBCodesHelper;
 use App\Helpers\DatesHelper;
 use App\Helpers\ForumPaginator;
 use App\Helpers\PermissionsHelper;
+use App\User;
 use Carbon\Carbon;
 use http\Message;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Session;
 
 class ForumController extends Controller {
 
     protected $messages_on_page = 20;
     protected $topics_on_page = 25;
     protected $cache_time = 3600;
+    protected $online_time = 10;
 
     public function index() {
         $forums = Forum::where(['parent_id' => 0])->get();
-        $forums->transform(function($forum) {
-             $forum->subforums = $forum->subforums->filter(function($subforum) {
-                 return PermissionsHelper::checkSubforumAccess('can_view', $subforum);
+        $users_on_forum = User::where('last_page_seen', 'LIKE', '%forum%')->whereDate('was_online', '>=', Carbon::now()->subMinutes($this->online_time))->get();
+        $users_by_subforum = [];
+        foreach ($users_on_forum as $user) {
+            $last_page = $user->last_page_seen;
+            $last_page = explode("/", $last_page);
+            if (count($last_page) > 1) {
+                $subforum = explode("-", $last_page[1])[0];
+                if (!isset($users_by_subforum[$subforum])) {
+                    $users_by_subforum[$subforum] = [];
+                };
+                $users_by_subforum[$subforum][] = $user;
+            }
+        }
+        $forums->transform(function($forum) use ($users_by_subforum) {
+             $forum->subforums = $forum->subforums->map(function($subforum) use($users_by_subforum) {
+                 if (isset($users_by_subforum[$subforum->id])) {
+                     $subforum->users = $users_by_subforum[$subforum->id];
+                 }
+                 return $subforum;
+             })->filter(function($subforum) {
+                 return PermissionsHelper::checkGroupAccess('can_view', $subforum);
              });
              return $forum;
         });
+        $stats = [
+            'messages_count' => ForumMessage::count(),
+            'topics_count' => ForumTopic::count(),
+            'users_count' => User::count(),
+            'last_user' => User::orderBy('id', 'desc')->first()
+        ];
         return view("pages.forum.index", [
+            'stats' => $stats,
+            'users_on_forum' => $users_on_forum,
             'forums' => $forums,
         ]);
     }
@@ -36,7 +65,7 @@ class ForumController extends Controller {
     public function subforum($id, $page = 1) {
         $forum = Forum::find($id);
         $parent_forum = Forum::find($forum->parent_id);
-        if (!PermissionsHelper::checkSubforumAccess('can_view', $forum)) {
+        if (!PermissionsHelper::checkGroupAccess('can_view', $forum)) {
             return redirect('/forum');
         }
         $topics = ForumTopic::where(['forum_id' => $forum->id, 'is_fixed' => false]);
@@ -44,12 +73,43 @@ class ForumController extends Controller {
         $topics_on_page = $this->topics_on_page;
         $topics = $topics->limit($topics_on_page)->offset(($page - 1) * $topics_on_page)->orderBy('last_reply_at', 'DESC')->get();
 
+        $users_on_forum = User::where('last_page_seen', 'LIKE', '%forum/'.$forum->id.'%')->whereDate('was_online', '>=', Carbon::now()->subMinutes($this->online_time))->get();
+        $users_by_topic = [];
+
+        foreach ($users_on_forum as $user) {
+            $last_page = $user->last_page_seen;
+            $last_page = explode("/", $last_page);
+            $topic = explode("-", $last_page[1]);
+            if (isset($topic[1])) {
+                $topic = $topic[1];
+                if (!isset($users_by_subforum[$topic])) {
+                    $users_by_topic[$topic] = [];
+                };
+                $users_by_topic[$topic][] = $user;
+            }
+        }
+
+        $fixed_topics = $forum->fixed_topics;
+
+        foreach ($topics as $topic) {
+            if (isset($users_by_topic[$topic->id])) {
+                $topic->users = $users_by_topic[$topic->id];
+            }
+        };
+
+        foreach ($fixed_topics as $topic) {
+            if (isset($users_by_topic[$topic->id])) {
+                $topic->users = $users_by_topic[$topic->id];
+            }
+        };
+
         $paginator = new ForumPaginator([], $total, $topics_on_page, $page, [
             'path'  => ForumPaginator::resolveCurrentPath(),
             'forum_id' => $forum->id,
         ]);
         return view("pages.forum.subforum", [
             'paginator' => $paginator,
+            'fixed_topics' => $fixed_topics,
             'topics' => $topics,
             'parent_forum' => $parent_forum,
             'forum' => $forum,
@@ -61,7 +121,7 @@ class ForumController extends Controller {
         $subforum = Forum::find($forum_id);
         if ($subforum) {
             $forum = Forum::find($subforum->parent_id);
-            if (!PermissionsHelper::checkSubforumAccess('can_view', $subforum)) {
+            if (!PermissionsHelper::checkGroupAccess('can_view', $subforum)) {
                 return redirect('/forum');
             }
         }
@@ -260,7 +320,7 @@ class ForumController extends Controller {
             return ['status' => 0, 'text' => 'Тема закрыта'];
         }
         $subforum = Forum::find($topic->forum_id);
-        if (!PermissionsHelper::allows('frcloset') && (!PermissionsHelper::checkSubforumAccess('can_post', $subforum) || !PermissionsHelper::allows('frreply'))) {
+        if (!PermissionsHelper::allows('frcloset') && (!PermissionsHelper::checkGroupAccess('can_post', $subforum) || !PermissionsHelper::allows('frreply'))) {
             return ['status' => 0, 'text' => 'У вас нет прав для отправки сообщений в эту тему'];
         }
         $content = request()->input('message');

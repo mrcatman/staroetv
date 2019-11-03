@@ -18,6 +18,9 @@
     border-bottom: 1px solid #423f2f;
     border-left: 1px solid #44422c;
     border-right: 1px solid #424026;
+    @include mobile {
+      flex-direction: column;
+    }
     &--main-page {
       margin: 1em 0 -.75em;
       background: linear-gradient(#403c36 0%, #696259 48%, #262320 52%, #282521 100%);
@@ -25,6 +28,9 @@
     }
     &__buttons {
       font-size: .625em;
+      @include mobile {
+        text-align: center;margin: .5em 0 0;
+      }
       .button {
         margin: 0 0 0 1em;
       }
@@ -111,16 +117,31 @@
   background: #fff;
   display: flex;
   width: 100%;
+  @include mobile {
+    flex-direction: column;
+    margin: 0 0 .5em;
+  }
   a {
     text-decoration: none;
   }
   &__title {
+    color: #333;
     font-size: 1.25em;
     font-weight: bold;
+    &:hover {
+      color: #777;
+    }
+  }
+  &__description {
+    color: #555;
+    display: block;
+  }
+
+  &__users {
+    font-size: .875em;
   }
 
   &__top {
-    cursor: pointer;
     display: flex;
     align-items: center;
     padding: 1em;
@@ -139,12 +160,11 @@
   }
 
   &__numbers {
-    font-weight: 500;
+    font-weight: 700;
     text-shadow: 0 1px 1px #fff;
     display: flex;
     align-items: center;
     text-align: center;
-    font-weight: bold;
   }
 
 
@@ -172,12 +192,19 @@
     border-left: 1px solid #e7e7e7;
     border-bottom: 1px solid #dcdcdc;
     background: linear-gradient(180deg, #efefef, #ececec);
+    @include mobile {
+      flex-direction: column;
+      align-items: flex-start;
+    }
     &__text {
       font-size: .825em;
       color: #333;
       text-decoration: none;
       white-space: nowrap;
       text-align: left;
+      &:hover {
+        color: #777;
+      }
     }
 
     &__date {
@@ -188,6 +215,9 @@
     &__info {
       display: flex;
       flex-direction: column;
+      @include mobile {
+        align-items: flex-start;
+      }
     }
 
     &__link {
@@ -211,10 +241,35 @@
       &__text {
         font-weight: bold;
         color: #333;
+        &:hover {
+          color: #777;
+        }
       }
     }
   }
+  &__bottom {
+    color: #333;
+    background-image: url("/pictures/noise.png");
+    padding: 0 0 1em;
+    &__line {
+      background: #f8f7f4;
+      box-shadow: 0 0 1.75em inset #b4b4b4;
+      font-size: 1.125em;
 
+      &__heading {
+        background: linear-gradient(to bottom, #3d3a35, #534f49);
+        padding: .5em;
+        color: #fff;
+        font-weight: bold;
+        border-top: 1px solid #5d5546;
+        border-bottom: 1px solid #aca597;
+      }
+
+      &__text {
+        padding: .5em;
+      }
+    }
+  }
 }
 
 .forum-message {
@@ -222,6 +277,9 @@
   background: #fafafa;
   display: flex;
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2), inset 0 0 4px 0 rgba(255, 255, 255, 0.6);
+  @include mobile {
+    flex-direction: column;
+  }
   a {
     color: #555;
   }
@@ -234,6 +292,9 @@
     justify-content: flex-start;
     white-space: nowrap;
     width: 16em;
+    @include mobile {
+      width: 100%;
+    }
   }
 
   &__content {
@@ -311,6 +372,9 @@
     flex-direction: column;
     width: 100%;
     overflow: hidden;
+    @include mobile {
+      flex-direction: row;
+    }
   }
 
   &__avatar {
@@ -341,6 +405,11 @@
     background: linear-gradient(to bottom, #c9cfd8, #d8dbde);
     padding: 1em;
     box-shadow: 0 3px 5px -3px #ccc;
+    @include mobile {
+      background: none;
+      box-shadow: none;
+      border: none;
+    }
   }
   &__content {
     flex: 1;
@@ -360,7 +429,7 @@
     border-bottom: 1px solid #ccc;
     box-shadow: 0 3px 5px -6px #555;
     background: linear-gradient(to bottom, #e4e6e9, #e4eaf2);
-    padding: 1em 1em calc(1em + 3px);
+    padding: 1em 1em calc(1em + 2px);
     position: relative;
     z-index: 1;
   }
@@ -397,6 +466,7 @@
     }
   }
   &__signature {
+    background-image: url(/pictures/noise.png);
     font-size: .75em;
     padding: 1em;
   }
@@ -427,3 +497,13 @@
   }
 }
 
+.user-online {
+  font-weight: 500;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+  &[data-group-id="4"] {
+    color: #900020;
+  }
+}

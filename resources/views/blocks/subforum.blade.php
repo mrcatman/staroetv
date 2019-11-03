@@ -1,12 +1,20 @@
 <div class="forum @if($subforum->is_closed) forum--closed @endif">
-    <a href="/forum/{{$subforum->id}}" class="forum__top">
+    <div class="forum__top">
         <div class="forum__info">
-            <div class="forum__title">
+            <a href="/forum/{{$subforum->id}}" class="forum__title">
                 {{$subforum->title}}
-            </div>
+            </a>
             @if ($subforum->description != "")
-                <div class="forum__description">
+                <a href="/forum/{{$subforum->id}}" class="forum__description">
                     {{$subforum->description}}
+                </a>
+            @endif
+            @if (isset($subforum->users))
+                <div class="forum__users">
+                    Сейчас смотрят:
+                    @foreach ($subforum->users as $user)
+                        <a target="_blank" href="{{$user->url}}" class="user-online" data-group-id="{{$user->group_id}}">{{$user->username}}</a>
+                    @endforeach
                 </div>
             @endif
         </div>
@@ -20,7 +28,7 @@
                 <div class="forum__number__description">ответов</div>
             </div>
         </div>
-    </a>
+    </div>
     <div class="forum__last-topic">
         @if ($subforum->last_topic_id)
         <a href="/forum/{{$subforum->id}}-{{$subforum->last_topic_id}}-0-17-1" class="forum__last-topic__text">

@@ -82,6 +82,15 @@
                             </div>
                         </div>
                     </div>
+                    <div class="input-container">
+                        <label class="input-container__label">Титул</label>
+                        <div class="input-container__inner">
+                            <div class="input-container__element-outer">
+                                <input class="input" name="user_comment" value="{{$user->user_comment}}"/>
+                                <span class="input-container__message"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="inputs-group">

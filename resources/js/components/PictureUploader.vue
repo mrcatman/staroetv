@@ -85,7 +85,7 @@
         &__buttons {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            text-align: center;
             .button {
                 margin: 0 0 .5em;
             }

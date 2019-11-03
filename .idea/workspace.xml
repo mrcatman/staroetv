@@ -1,7 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BookmarkManager">
+    <bookmark url="file://$PROJECT_DIR$/app/ArticleCategory.php" line="12" />
+    <bookmark url="file://$PROJECT_DIR$/app/Crossposting/VKCrossposter.php" line="21" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="e64d1dab-5fde-4582-9b11-c5a8016c6c31" name="Default Changelist" comment="" />
+    <list default="true" id="e64d1dab-5fde-4582-9b11-c5a8016c6c31" name="Default Changelist" comment=".">
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/laravel-plugin.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/Console/Commands/importArticleCategories.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/Crossposting/BaseCrossposter.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/Crossposting/CrossposterResolver.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/Crossposting/VKCrossposter.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/Http/Middleware/setLastPage.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/components/RecordsSearch.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/components/admin/UsersManager.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/js/translit.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/blocks/admin_sidebar.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/blocks/channel_small.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/blocks/footer.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/blocks/header.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/blocks/records_search.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/pages/admin/static_pages.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/pages/admin/users.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/pages/forms/articles.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/pages/forms/static.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/resources/views/pages/records/search.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/staroetv.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/staroetv.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Article.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Article.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/ArticleCategory.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/ArticleCategory.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Channel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Channel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Comment.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Comment.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Console/Commands/importPictures.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Console/Commands/importPictures.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Helpers/PermissionsHelper.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Helpers/PermissionsHelper.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/AdminController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/AdminController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/ArticlesController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/ArticlesController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/ChannelsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/ChannelsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/CommentsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/CommentsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/ForumController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/ForumController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/PagesController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/PagesController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/RecordsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/RecordsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/UsersController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/UsersController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Kernel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Kernel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Page.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Page.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Picture.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Picture.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Record.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Record.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/usergroups.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/usergroups.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/migrations/2019_09_14_163308_create_news_tables.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/migrations/2019_09_14_163308_create_news_tables.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/components/PictureUploader.vue" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/components/PictureUploader.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/components/RecordForm.vue" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/components/RecordForm.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/components/Snackbar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/components/Snackbar.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/components/admin/ChannelsManager.vue" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/components/admin/ChannelsManager.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/components/admin/ChannelsOrderManager.vue" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/components/admin/ChannelsOrderManager.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/js/vue-components.js" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/vue-components.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/app.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/app.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/admin.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/admin.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/articles.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/articles.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/bb-editor.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/bb-editor.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/buttons.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/buttons.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/channels.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/channels.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/comments.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/comments.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/footer.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/footer.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/forms.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/forms.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/forum.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/forum.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/header.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/header.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/inner-page.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/inner-page.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/layout.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/layout.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/pagination.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/pagination.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/programs.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/programs.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/records.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/records.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/sass/blocks/tabs.scss" beforeDir="false" afterPath="$PROJECT_DIR$/resources/sass/blocks/tabs.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/blocks/comment.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/blocks/comment.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/blocks/forum_topic.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/blocks/forum_topic.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/blocks/record.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/blocks/record.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/blocks/subforum.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/blocks/subforum.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/layouts/admin.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/layouts/admin.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/layouts/default.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/layouts/default.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/pages/article.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/pages/article.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/pages/articles.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/pages/articles.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/pages/channels/show.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/pages/channels/show.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/pages/forms/channel.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/pages/forms/channel.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/pages/forms/user.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/pages/forms/user.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/pages/forum/index.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/pages/forum/index.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/pages/forum/subforum.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/pages/forum/subforum.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/pages/programs/show.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/pages/programs/show.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/pages/records/index.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/pages/records/index.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/pages/static.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/pages/static.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/pages/users/user.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/pages/users/show.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/pages/video.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/pages/records/show.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/routes/web.php" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -11,93 +107,138 @@
   <component name="ComposerSettings" doNotAsk="true" synchronizationState="SYNCHRONIZE">
     <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
   </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="staroetv@127.0.0.1" type="feb32156:DbDataSourceImpl" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="staroetv@127.0.0.1" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="staroetv@127.0.0.1" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="staroetv: schema" type="76f4a085:MysqlImplModel$Schema" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="staroetv@127.0.0.1" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="staroetv: schema" type="76f4a085:MysqlImplModel$Schema" />
+        <item name="articles_categories: table" type="285a2a93:MysqlImplModel$Table" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="staroetv@127.0.0.1" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="staroetv: schema" type="76f4a085:MysqlImplModel$Schema" />
+        <item name="comments_rating: table" type="285a2a93:MysqlImplModel$Table" />
+      </path>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="staroetv@127.0.0.1" type="feb32156:DbDataSourceImpl" />
+        <item name="schemas" type="d4e8921:DatabaseStructure$FamilyGroup" />
+        <item name="staroetv: schema" type="76f4a085:MysqlImplModel$Schema" />
+        <item name="users: table" type="285a2a93:MysqlImplModel$Table" />
+      </path>
+    </expand>
+    <select />
+  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/resources/views/pages/user.blade.php">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/resources/views/pages/program.blade.php">
+        <entry file="file://$PROJECT_DIR$/resources/views/pages/forms/articles.blade.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="7" column="41" lean-forward="true" selection-start-line="7" selection-start-column="6" selection-end-line="7" selection-end-column="41" />
+            <state relative-caret-position="340">
+              <caret line="20" column="99" lean-forward="true" selection-start-line="20" selection-start-column="99" selection-end-line="20" selection-end-column="99" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/Http/Controllers/VideosController.php">
+        <entry file="file://$PROJECT_DIR$/app/Crossposting/BaseCrossposter.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="425">
-              <caret line="45" column="65" selection-start-line="45" selection-start-column="65" selection-end-line="45" selection-end-column="65" />
+            <state relative-caret-position="238">
+              <caret line="47" column="9" selection-start-line="47" selection-start-column="9" selection-end-line="47" selection-end-column="9" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/resources/views/pages/forms/video.blade.php">
+        <entry file="file://$PROJECT_DIR$/app/Crossposting/config/vk.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="21" lean-forward="true" selection-start-line="8" selection-start-column="21" selection-end-line="8" selection-end-column="21" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/resources/sass/blocks/box.scss">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="10">
-              <caret line="14" column="35" selection-start-line="14" selection-start-column="35" selection-end-line="14" selection-end-column="35" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/resources/views/blocks/video.blade.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="4" selection-start-line="4" selection-end-line="4" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/Program.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="13" column="32" selection-start-line="13" selection-start-column="20" selection-end-line="13" selection-end-column="32" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/resources/js/components/VideoForm.vue">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1475">
-              <caret line="234" column="16" selection-start-line="234" selection-start-column="16" selection-end-line="234" selection-end-column="16" />
-              <folding>
-                <element signature="n#style#0;n#div#0;n#div#1;n#div#3;n#div#0;n#div#0;n#div#3;n#div#0;n#template#0;n#!!top" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/resources/sass/blocks/buttons.scss">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
+            <state>
+              <caret column="102" selection-start-column="102" selection-end-column="102" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/resources/views/pages/videos.blade.php">
+        <entry file="file://$PROJECT_DIR$/app/Crossposting/VKCrossposter.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="5" column="77" selection-start-line="5" selection-start-column="77" selection-end-line="5" selection-end-column="77" />
+            <state relative-caret-position="74">
+              <caret line="12" column="26" selection-start-line="12" selection-start-column="18" selection-end-line="12" selection-end-column="26" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/vendor/vkcom/vk-php-sdk/src/VK/OAuth/VKOAuth.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="547">
+              <caret line="178" column="22" selection-start-line="178" selection-start-column="22" selection-end-line="178" selection-end-column="22" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/.editorconfig">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/.env">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-259" />
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/.env.example">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="13" selection-start-column="13" selection-end-column="13" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/routes/web.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="341">
+              <caret line="96" column="26" selection-start-line="96" selection-start-column="23" selection-end-line="96" selection-end-column="26" />
+              <folding>
+                <element signature="e#7#389#0#PHP" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -106,47 +247,38 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>is_interprogramm</find>
-      <find>data:</find>
-      <find>computed</find>
-      <find>consol</find>
-      <find>cover--</find>
-      <find>&amp;--ac</find>
-      <find>__name</find>
-      <find>response--</find>
-      <find>cover_pictu</find>
-      <find>form__p</find>
-      <find>input-container</find>
-      <find>axios</find>
-      <find>meth</find>
-      <find>$.p</find>
-      <find>re</find>
-      <find>unknown:</find>
-      <find>videos/a</find>
-      <find>.url</find>
-      <find>.input-c</find>
-      <find>over</find>
-      <find>overlay</find>
-      <find>.response</find>
-      <find>res.sta</find>
-      <find>crea</find>
-      <find>is_inte</find>
-      <find>loadpro</find>
-      <find>vk.</find>
-      <find>cover</find>
-      <find>program =</find>
-      <find>selectpro</find>
+      <find>__date</find>
+      <find>channel-i</find>
+      <find>NEWS/</find>
+      <find>NEWS</find>
+      <find>articles</find>
+      <find>articles'</find>
+      <find>read</find>
+      <find>__co</find>
+      <find>&amp;__tex</find>
+      <find>comments/</find>
+      <find>comments</find>
+      <find>/rating</find>
+      <find>img</find>
+      <find>/edit'</find>
+      <find>records</find>
+      <find>records/</find>
+      <find>rating</find>
+      <find>articles/</find>
+      <find>comadd</find>
+      <find>type=&quot;radio&quot;</find>
+      <find>$types_data</find>
+      <find>radio-bu</find>
+      <find>picture-</find>
+      <find>&amp;__bu</find>
+      <find>cover-b</find>
+      <find>edi</find>
+      <find>show</find>
+      <find>sendre</find>
+      <find>group</find>
+      <find>news/</find>
     </findStrings>
     <replaceStrings>
-      <replace>$article</replace>
-      <replace>short-article</replace>
-      <replace>inner-page__cover-block</replace>
-      <replace>warnins</replace>
-      <replace>warnings-history</replace>
-      <replace>forum</replace>
-      <replace>&quot;forum</replace>
-      <replace>awards</replace>
-      <replace>$reputation_item</replace>
       <replace>]]],\n[&quot;name&quot;=</replace>
       <replace>]]],\n</replace>
       <replace>this.doInsert</replace>
@@ -164,62 +296,78 @@
       <replace>this.data.program</replace>
       <replace>:</replace>
       <replace>toggle-button</replace>
+      <replace>month</replace>
+      <replace>day</replace>
+      <replace>&quot;text&quot;</replace>
+      <replace>Record</replace>
+      <replace>body</replace>
+      <replace>.record</replace>
+      <replace>record</replace>
+      <replace>$record</replace>
+      <replace>checkGroupAccess</replace>
+      <replace>#fff, #f4f4f4</replace>
+      <replace>sort_order</replace>
+      <replace>record.</replace>
+      <replace>setNeedSave(channelsList[data.item._index])</replace>
     </replaceStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/app/Console/Commands/importSmiles.php" />
-        <option value="$PROJECT_DIR$/app/Console/Commands/importAwardsList.php" />
-        <option value="$PROJECT_DIR$/app/Smile.php" />
-        <option value="$PROJECT_DIR$/resources/views/blocks/forum_form.blade.php" />
-        <option value="$PROJECT_DIR$/resources/sass/blocks/bb-editor.scss" />
-        <option value="$PROJECT_DIR$/app/Http/Controllers/ForumController.php" />
-        <option value="$PROJECT_DIR$/app/Helpers/BBCodesHelper.php" />
-        <option value="$PROJECT_DIR$/resources/views/blocks/comments_form.blade.php" />
-        <option value="$PROJECT_DIR$/app/Http/Controllers/CommentsController.php" />
-        <option value="$PROJECT_DIR$/app/Award.php" />
-        <option value="$PROJECT_DIR$/resources/sass/app.scss" />
-        <option value="$PROJECT_DIR$/app/Comment.php" />
-        <option value="$PROJECT_DIR$/app/UserAward.php" />
-        <option value="$PROJECT_DIR$/resources/sass/blocks/awards.scss" />
-        <option value="$PROJECT_DIR$/resources/sass/blocks/modals.scss" />
-        <option value="$PROJECT_DIR$/resources/views/blocks/awards_modal_content.blade.php" />
-        <option value="$PROJECT_DIR$/resources/views/blocks/warnings_modal_content.blade.php" />
-        <option value="$PROJECT_DIR$/resources/views/blocks/reputation_modal_content.blade.php" />
-        <option value="$PROJECT_DIR$/resources/views/blocks/user_page_modals.blade.php" />
-        <option value="$PROJECT_DIR$/resources/views/pages/forum/topic.blade.php" />
-        <option value="$PROJECT_DIR$/resources/views/blocks/forum_message.blade.php" />
-        <option value="$PROJECT_DIR$/resources/sass/blocks/forum.scss" />
-        <option value="$PROJECT_DIR$/app/User.php" />
-        <option value="$PROJECT_DIR$/resources/js/app.js" />
-        <option value="$PROJECT_DIR$/database/migrations/2019_09_27_065405_add_is_federal_to_channels.php" />
-        <option value="$PROJECT_DIR$/resources/sass/blocks/layout.scss" />
-        <option value="$PROJECT_DIR$/resources/sass/_variables.scss" />
-        <option value="$PROJECT_DIR$/app/Program.php" />
-        <option value="$PROJECT_DIR$/database/migrations/2019_09_28_152138_create_interprogram_packages_table.php" />
-        <option value="$PROJECT_DIR$/app/Channel.php" />
-        <option value="$PROJECT_DIR$/app/Http/Controllers/ChannelsController.php" />
-        <option value="$PROJECT_DIR$/app/InterprogramPackagePicture.php" />
-        <option value="$PROJECT_DIR$/app/InterprogramPackage.php" />
-        <option value="$PROJECT_DIR$/app/Console/Commands/ImportVideos.php" />
-        <option value="$PROJECT_DIR$/resources/js/components/PermissionsManager.vue" />
-        <option value="$PROJECT_DIR$/app/Picture.php" />
-        <option value="$PROJECT_DIR$/resources/js/components/Response.vue" />
-        <option value="$PROJECT_DIR$/resources/sass/blocks/forms.scss" />
-        <option value="$PROJECT_DIR$/database/migrations/2019_09_09_113446_extend_channels_tables.php" />
-        <option value="$PROJECT_DIR$/database/migrations/2019_09_09_113506_extend_programs_tables.php" />
-        <option value="$PROJECT_DIR$/routes/web.php" />
-        <option value="$PROJECT_DIR$/database/migrations/2019_09_07_075814_create_videos_table.php" />
-        <option value="$PROJECT_DIR$/resources/views/blocks/video.blade.php" />
-        <option value="$PROJECT_DIR$/app/Video.php" />
+        <option value="$PROJECT_DIR$/resources/views/pages/admin/users.blade.php" />
+        <option value="$PROJECT_DIR$/resources/js/components/Snackbar.vue" />
         <option value="$PROJECT_DIR$/resources/js/vue-components.js" />
-        <option value="$PROJECT_DIR$/app/Http/Controllers/VideosController.php" />
-        <option value="$PROJECT_DIR$/resources/js/components/VideoForm.vue" />
-        <option value="$PROJECT_DIR$/resources/views/pages/forms/video.blade.php" />
-        <option value="$PROJECT_DIR$/resources/sass/blocks/box.scss" />
-        <option value="$PROJECT_DIR$/resources/sass/blocks/buttons.scss" />
-        <option value="$PROJECT_DIR$/resources/views/pages/videos.blade.php" />
+        <option value="$PROJECT_DIR$/resources/js/components/admin/ChannelsManager.vue" />
+        <option value="$PROJECT_DIR$/resources/js/components/admin/UsersManager.vue" />
+        <option value="$PROJECT_DIR$/resources/views/layouts/admin.blade.php" />
+        <option value="$PROJECT_DIR$/resources/views/pages/records/index.blade.php" />
+        <option value="$PROJECT_DIR$/resources/sass/blocks/admin.scss" />
+        <option value="$PROJECT_DIR$/app/Http/Controllers/AdminController.php" />
+        <option value="$PROJECT_DIR$/resources/views/pages/admin/static_pages.blade.php" />
+        <option value="$PROJECT_DIR$/resources/views/pages/static.blade.php" />
+        <option value="$PROJECT_DIR$/resources/sass/blocks/footer.scss" />
+        <option value="$PROJECT_DIR$/resources/views/blocks/admin_sidebar.blade.php" />
+        <option value="$PROJECT_DIR$/app/Picture.php" />
+        <option value="$PROJECT_DIR$/app/Record.php" />
+        <option value="$PROJECT_DIR$/resources/sass/blocks/records.scss" />
+        <option value="$PROJECT_DIR$/resources/sass/blocks/forum.scss" />
+        <option value="$PROJECT_DIR$/resources/views/blocks/channel_small.blade.php" />
+        <option value="$PROJECT_DIR$/resources/sass/blocks/channels.scss" />
+        <option value="$PROJECT_DIR$/resources/sass/blocks/header.scss" />
+        <option value="$PROJECT_DIR$/database/migrations/2019_09_14_163308_create_news_tables.php" />
+        <option value="$PROJECT_DIR$/app/Console/Commands/importArticleCategories.php" />
+        <option value="$PROJECT_DIR$/app/Article.php" />
+        <option value="$PROJECT_DIR$/resources/sass/blocks/articles.scss" />
+        <option value="$PROJECT_DIR$/app/ArticleCategory.php" />
+        <option value="$PROJECT_DIR$/resources/views/pages/forms/user.blade.php" />
+        <option value="$PROJECT_DIR$/resources/views/pages/records/search.blade.php" />
+        <option value="$PROJECT_DIR$/resources/views/pages/records/show.blade.php" />
+        <option value="$PROJECT_DIR$/config/usergroups.php" />
+        <option value="$PROJECT_DIR$/resources/views/pages/articles.blade.php" />
+        <option value="$PROJECT_DIR$/resources/views/layouts/default.blade.php" />
+        <option value="$PROJECT_DIR$/resources/sass/blocks/comments.scss" />
+        <option value="$PROJECT_DIR$/resources/js/app.js" />
+        <option value="$PROJECT_DIR$/app/Http/Controllers/CommentsController.php" />
+        <option value="$PROJECT_DIR$/app/Comment.php" />
+        <option value="$PROJECT_DIR$/resources/views/blocks/comment.blade.php" />
+        <option value="$PROJECT_DIR$/resources/sass/blocks/forms.scss" />
+        <option value="$PROJECT_DIR$/resources/js/components/PictureUploader.vue" />
+        <option value="$PROJECT_DIR$/resources/views/pages/article.blade.php" />
+        <option value="$PROJECT_DIR$/resources/sass/blocks/inner-page.scss" />
+        <option value="$PROJECT_DIR$/app/Http/Controllers/ArticlesController.php" />
+        <option value="$PROJECT_DIR$/app/Console/Commands/importPictures.php" />
+        <option value="$PROJECT_DIR$/app/Crossposting/CrossposterResolver.php" />
+        <option value="$PROJECT_DIR$/routes/web.php" />
+        <option value="$PROJECT_DIR$/vendor/vkcom/vk-php-sdk/src/VK/TransportClient/Curl/CurlHttpClient.php" />
+        <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/app/Crossposting/BaseCrossposter.php" />
+        <option value="$PROJECT_DIR$/vendor/vkcom/vk-php-sdk/src/VK/OAuth/VKOAuth.php" />
+        <option value="$PROJECT_DIR$/app/Crossposting/config/vk.json" />
+        <option value="$PROJECT_DIR$/app/Crossposting/VKCrossposter.php" />
+        <option value="$PROJECT_DIR$/resources/views/pages/forms/articles.blade.php" />
       </list>
     </option>
   </component>
@@ -316,20 +464,24 @@
       <path value="$PROJECT_DIR$/vendor/guzzlehttp/psr7" />
       <path value="$PROJECT_DIR$/vendor/intervention/image" />
       <path value="$PROJECT_DIR$/vendor/watson/rememberable" />
+      <path value="$PROJECT_DIR$/vendor/paquettg/string-encode" />
+      <path value="$PROJECT_DIR$/vendor/paquettg/php-html-parser" />
+      <path value="$PROJECT_DIR$/vendor/mews/captcha" />
+      <path value="$PROJECT_DIR$/vendor/vkcom/vk-php-sdk" />
     </include_path>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="381" />
-    <option name="y" value="119" />
-    <option name="width" value="1882" />
-    <option name="height" value="813" />
+    <option name="x" value="545" />
+    <option name="y" value="167" />
+    <option name="width" value="1571" />
+    <option name="height" value="1092" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -346,14 +498,14 @@
               <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
               <item name="staroetv" type="462c0819:PsiDirectoryNode" />
               <item name="app" type="462c0819:PsiDirectoryNode" />
-              <item name="Console" type="462c0819:PsiDirectoryNode" />
+              <item name="Crossposting" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
               <item name="staroetv" type="462c0819:PsiDirectoryNode" />
               <item name="app" type="462c0819:PsiDirectoryNode" />
-              <item name="Console" type="462c0819:PsiDirectoryNode" />
-              <item name="Commands" type="462c0819:PsiDirectoryNode" />
+              <item name="Crossposting" type="462c0819:PsiDirectoryNode" />
+              <item name="config" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
@@ -364,132 +516,18 @@
             <path>
               <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
               <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="app" type="462c0819:PsiDirectoryNode" />
-              <item name="Helpers" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="app" type="462c0819:PsiDirectoryNode" />
-              <item name="Http" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="app" type="462c0819:PsiDirectoryNode" />
-              <item name="Http" type="462c0819:PsiDirectoryNode" />
-              <item name="Controllers" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="bootstrap" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="database" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="database" type="462c0819:PsiDirectoryNode" />
-              <item name="migrations" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="database" type="462c0819:PsiDirectoryNode" />
-              <item name="seeds" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="public" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="public" type="462c0819:PsiDirectoryNode" />
-              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="config" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
               <item name="staroetv" type="462c0819:PsiDirectoryNode" />
               <item name="resources" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="js" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="js" type="462c0819:PsiDirectoryNode" />
-              <item name="components" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="lang" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="lang" type="462c0819:PsiDirectoryNode" />
-              <item name="en" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="lang" type="462c0819:PsiDirectoryNode" />
-              <item name="ru" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="sass" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="sass" type="462c0819:PsiDirectoryNode" />
-              <item name="blocks" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
               <item name="staroetv" type="462c0819:PsiDirectoryNode" />
               <item name="resources" type="462c0819:PsiDirectoryNode" />
               <item name="views" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="views" type="462c0819:PsiDirectoryNode" />
-              <item name="auth" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="views" type="462c0819:PsiDirectoryNode" />
-              <item name="blocks" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="views" type="462c0819:PsiDirectoryNode" />
-              <item name="layouts" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
@@ -497,14 +535,6 @@
               <item name="resources" type="462c0819:PsiDirectoryNode" />
               <item name="views" type="462c0819:PsiDirectoryNode" />
               <item name="pages" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="views" type="462c0819:PsiDirectoryNode" />
-              <item name="pages" type="462c0819:PsiDirectoryNode" />
-              <item name="admin" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
@@ -517,47 +547,90 @@
             <path>
               <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
               <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="views" type="462c0819:PsiDirectoryNode" />
-              <item name="pages" type="462c0819:PsiDirectoryNode" />
-              <item name="forum" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
-              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
               <item name="routes" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
               <item name="staroetv" type="462c0819:PsiDirectoryNode" />
-              <item name="storage" type="462c0819:PsiDirectoryNode" />
+              <item name="vendor" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
+              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
+              <item name="vendor" type="462c0819:PsiDirectoryNode" />
+              <item name="vkcom" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
+              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
+              <item name="vendor" type="462c0819:PsiDirectoryNode" />
+              <item name="vkcom" type="462c0819:PsiDirectoryNode" />
+              <item name="vk-php-sdk" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
+              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
+              <item name="vendor" type="462c0819:PsiDirectoryNode" />
+              <item name="vkcom" type="462c0819:PsiDirectoryNode" />
+              <item name="vk-php-sdk" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
+              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
+              <item name="vendor" type="462c0819:PsiDirectoryNode" />
+              <item name="vkcom" type="462c0819:PsiDirectoryNode" />
+              <item name="vk-php-sdk" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="VK" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="staroetv" type="b2602c69:ProjectViewProjectNode" />
+              <item name="staroetv" type="462c0819:PsiDirectoryNode" />
+              <item name="vendor" type="462c0819:PsiDirectoryNode" />
+              <item name="vkcom" type="462c0819:PsiDirectoryNode" />
+              <item name="vk-php-sdk" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="VK" type="462c0819:PsiDirectoryNode" />
+              <item name="OAuth" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="DatabaseDriversLRU" value="mysql" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/app" />
+    <property name="WebServerToolWindowPanel.toolwindow.highlight.mappings" value="true" />
+    <property name="WebServerToolWindowPanel.toolwindow.highlight.symlinks" value="true" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.date" value="false" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.permissions" value="false" />
+    <property name="WebServerToolWindowPanel.toolwindow.show.size" value="false" />
+    <property name="database.console.LAST_STATE" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/app/Crossposting" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="yarn" />
-    <property name="settings.editor.selected.configurable" value="watcher.settings" />
+    <property name="settings.editor.selected.configurable" value="web-ide.project.structure" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\staroetv\staroetv\app\Console\Commands" />
-      <recent name="C:\staroetv\staroetv\app" />
-      <recent name="C:\staroetv\staroetv\public\data" />
+      <recent name="C:\staroetv\staroetv\resources\views\pages\records" />
+      <recent name="C:\staroetv\staroetv\resources\views\pages\programs" />
+      <recent name="C:\staroetv\staroetv\resources\views\pages\" />
+      <recent name="C:\staroetv\staroetv\resources\views\pages\channels" />
+      <recent name="C:\staroetv\staroetv\resources\views\pages" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\staroetv\staroetv\app" />
+      <recent name="C:\staroetv\staroetv\app\Crossposting" />
       <recent name="C:\staroetv\staroetv\resources\views\pages\forms" />
       <recent name="C:\staroetv\staroetv\app\Console\Commands" />
-      <recent name="C:\staroetv\staroetv\app\Http\Controllers" />
-      <recent name="C:\staroetv\staroetv\resources\js\components" />
+      <recent name="C:\staroetv\staroetv\resources\views\pages\admin" />
+      <recent name="C:\staroetv\staroetv\resources\views\pages\records" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -600,394 +673,427 @@
       <workItem from="1569564643309" duration="4672000" />
       <workItem from="1569576798891" duration="11932000" />
       <workItem from="1569679747929" duration="18888000" />
+      <workItem from="1569831445674" duration="754000" />
+      <workItem from="1569849089019" duration="30996000" />
+      <workItem from="1570041185979" duration="15890000" />
+      <workItem from="1570214771180" duration="5315000" />
+      <workItem from="1570377366133" duration="91439000" />
+      <workItem from="1570974747565" duration="6000" />
+      <workItem from="1571035047568" duration="868000" />
+      <workItem from="1571463489040" duration="1805000" />
+      <workItem from="1571475962498" duration="14163000" />
+      <workItem from="1571639580437" duration="2454000" />
+      <workItem from="1571951983783" duration="3199000" />
+      <workItem from="1571986804278" duration="191000" />
+      <workItem from="1572082175368" duration="11402000" />
+      <workItem from="1572693407466" duration="12063000" />
     </task>
+    <task id="LOCAL-00001" summary=".">
+      <created>1569849243143</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1569849243143</updated>
+    </task>
+    <task id="LOCAL-00002" summary="обновление 12.10.2019">
+      <created>1570878433423</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1570878433423</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="248230000" />
+    <option name="totallyTimeSpent" value="438775000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="381" y="119" width="1882" height="813" extended-state="0" />
+    <frame x="545" y="167" width="1571" height="1092" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.8352941" visible="true" weight="0.23655324" />
-      <window_info id="Structure" order="1" sideWeight="0.16470589" side_tool="true" visible="true" weight="0.23655324" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.7947123" visible="true" weight="0.29847783" />
+      <window_info id="Structure" order="1" sideWeight="0.20528771" side_tool="true" visible="true" weight="0.29847783" />
       <window_info id="npm" order="2" side_tool="true" />
       <window_info id="Favorites" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.29704303" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49815303" weight="0.19480519" />
       <window_info anchor="bottom" id="Run" order="2" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.040106952" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.49658173" weight="0.046176046" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
-      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Terminal" order="11" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5003309" side_tool="true" visible="true" weight="0.3295099" />
+      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.4996691" visible="true" weight="0.3295099" />
+      <window_info anchor="bottom" id="Database Console" order="12" sideWeight="0.4995141" visible="true" weight="0.32903227" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Remote Host" order="3" />
-      <window_info anchor="right" id="Database" order="4" />
+      <window_info anchor="right" id="Remote Host" order="3" weight="0.3297143" />
+      <window_info anchor="right" id="Database" order="4" visible="true" weight="0.025810722" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
+    <MESSAGE value="." />
+    <MESSAGE value="обновление 12.10.2019" />
+    <option name="LAST_COMMIT_MESSAGE" value="обновление 12.10.2019" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/resources/js/vue-components.js</url>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/app/User.php">
+    <entry file="file://$PROJECT_DIR$/resources/sass/blocks/records.scss">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="223">
-          <caret line="74" selection-start-line="74" selection-end-line="74" />
+        <state relative-caret-position="918">
+          <caret line="54" column="31" selection-start-line="54" selection-start-column="31" selection-end-line="54" selection-end-column="31" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/js/bbcodes.js">
+    <entry file="file://$PROJECT_DIR$/app/Record.php">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2329">
+          <caret line="139" column="9" selection-start-line="139" selection-start-column="9" selection-end-line="139" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/consoles/db/1f81474b-cc95-4d0f-b911-ba77974afddd/console.sql">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="das://1f81474b-cc95-4d0f-b911-ba77974afddd/schema/staroetv/table/articles">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
         <state>
-          <folding>
-            <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
-          </folding>
+          <filtering enabled="true" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/database/migrations/2019_09_27_065405_add_is_federal_to_channels.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="28" column="31" selection-start-line="28" selection-start-column="31" selection-end-line="28" selection-end-column="31" />
+    <entry file="das://1f81474b-cc95-4d0f-b911-ba77974afddd/schema/staroetv/table/articles_categories">
+      <provider selected="true" editor-type-id="com.intellij.database.editor.DatabaseTableFileEditorProvider">
+        <state>
+          <filtering enabled="true" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/sass/blocks/layout.scss">
+    <entry file="file://$PROJECT_DIR$/app/Console/Commands/importArticleCategories.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" column="22" selection-start-line="17" selection-start-column="11" selection-end-line="17" selection-end-column="22" />
+        <state relative-caret-position="901">
+          <caret line="59" column="18" selection-start-line="59" selection-start-column="18" selection-end-line="59" selection-end-column="18" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/sass/_variables.scss">
+    <entry file="file://$PROJECT_DIR$/app/ArticleCategory.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="18" selection-start-line="1" selection-start-column="18" selection-end-line="1" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/js/bootstrap.js">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/js/components/PictureUploader.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2890">
-          <caret line="170" column="47" selection-start-line="170" selection-start-column="47" selection-end-line="170" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/Helpers/DatesHelper.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="12" column="23" selection-start-line="12" selection-start-column="23" selection-end-line="12" selection-end-column="130" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/Console/Kernel.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="7" column="6" selection-start-line="7" selection-start-column="6" selection-end-line="7" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/CommentsController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="15" column="6" selection-start-line="15" selection-start-column="6" selection-end-line="15" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/ForumMessage.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="8" column="6" selection-start-line="8" selection-start-column="6" selection-end-line="8" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/ChannelName.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" selection-start-line="6" selection-end-line="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/InterprogramPackagePicture.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" selection-start-line="9" selection-end-line="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/HomeController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="6" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/ProgramsController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="7" column="6" selection-start-line="7" selection-start-column="6" selection-end-line="7" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/js/components/Snackbar.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" selection-start-line="7" selection-end-line="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/js/components/Modal.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="19" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="72" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/pages/forms/channel.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="19" selection-start-line="1" selection-start-column="19" selection-end-line="1" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/ChannelsController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="36" column="8" selection-start-line="36" selection-start-column="8" selection-end-line="41" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/js/components/PermissionsManager.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="33" column="38" selection-start-line="33" selection-start-column="38" selection-end-line="33" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/pages/channel.blade.php">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/database/migrations/2019_09_13_185841_create_comments_tables.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="6" column="6" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="6" />
+        <state relative-caret-position="238">
+          <caret line="14" column="16" selection-start-line="14" selection-start-column="16" selection-end-line="14" selection-end-column="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/database/migrations/2019_09_14_163308_create_news_tables.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="24" column="55" selection-start-line="24" selection-start-column="11" selection-end-line="24" selection-end-column="55" />
+        <state relative-caret-position="680">
+          <caret line="43" column="46" selection-start-line="43" selection-start-column="46" selection-end-line="43" selection-end-column="46" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/Console/Commands/importPictures.php">
+    <entry file="file://$PROJECT_DIR$/config/usergroups.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="15" column="28" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/pages/articles.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="10" column="76" selection-start-line="10" selection-start-column="76" selection-end-line="10" selection-end-column="76" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/pages/records/search.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="27" selection-start-column="27" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/pages/records/show.blade.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
-          <caret line="54" column="12" selection-start-line="54" selection-start-column="12" selection-end-line="58" selection-end-column="77" />
+          <caret line="26" column="34" selection-start-line="26" selection-start-column="34" selection-end-line="26" selection-end-column="34" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/Picture.php">
+    <entry file="file://$PROJECT_DIR$/resources/views/layouts/admin.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="38" selection-start-line="4" selection-start-column="38" selection-end-line="4" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/layouts/default.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="23" column="14" selection-start-line="23" selection-start-column="14" selection-end-line="23" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/sass/blocks/comments.scss">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="613">
+          <caret line="149" column="22" selection-start-line="149" selection-start-column="22" selection-end-line="149" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/sass/blocks/articles.scss">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="238">
-          <caret line="14" column="68" selection-start-line="14" selection-start-column="68" selection-end-line="14" selection-end-column="68" />
+          <caret line="44" column="7" selection-start-line="44" selection-start-column="3" selection-end-line="44" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/blocks/comments.blade.php">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/blocks/comments_form.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="56" selection-start-column="56" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/CommentRating.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="6" selection-start-line="5" selection-start-column="6" selection-end-line="5" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/blocks/channel_small.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="3" selection-start-line="1" selection-start-column="3" selection-end-line="2" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/js/app.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="129">
+          <caret line="71" column="57" selection-start-line="71" selection-start-column="54" selection-end-line="71" selection-end-column="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/blocks/comment.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="146">
+          <caret line="15" column="230" selection-start-line="15" selection-start-column="230" selection-end-line="15" selection-end-column="230" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/Comment.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="269">
+          <caret line="82" column="42" lean-forward="true" selection-start-line="82" selection-start-column="42" selection-end-line="82" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/pages/forms/static.blade.php">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/CommentsController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="575">
+          <caret line="182" column="44" selection-start-line="182" selection-start-column="44" selection-end-line="182" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/blocks/change_reputation_modal.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="5" selection-start-line="4" selection-start-column="5" selection-end-line="20" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/Console/Commands/importComments.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-449">
+          <caret line="9" column="6" selection-start-line="9" selection-start-column="6" selection-end-line="9" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/Article.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-272">
+          <caret line="6" column="6" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="6" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/resources/sass/blocks/forum.scss">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="47" column="11" selection-start-line="47" selection-start-column="7" selection-end-line="47" selection-end-column="11" />
+        <state relative-caret-position="250">
+          <caret line="430" column="28" selection-start-line="430" selection-start-column="28" selection-end-line="430" selection-end-column="28" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/resources/sass/blocks/forms.scss">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="293">
-          <caret line="127" column="2" selection-start-line="127" selection-start-column="2" selection-end-line="127" selection-end-column="2" />
+        <state relative-caret-position="233">
+          <caret line="228" column="14" selection-start-line="228" selection-start-column="14" selection-end-line="228" selection-end-column="14" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/js/components/Response.vue">
+    <entry file="file://$PROJECT_DIR$/resources/js/components/PictureUploader.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="171" selection-start-line="1" selection-start-column="171" selection-end-line="1" selection-end-column="171" />
+        <state relative-caret-position="616">
+          <caret line="87" column="29" selection-start-line="87" selection-start-column="29" selection-end-line="87" selection-end-column="29" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/pages/video.blade.php">
+    <entry file="file://$PROJECT_DIR$/app/Console/Commands/importArticles.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-459" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/Channel.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="29" selection-start-line="29" selection-end-line="32" selection-end-column="5" />
+        <state relative-caret-position="102">
+          <caret line="11" column="6" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="6" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/InterprogramPackage.php">
+    <entry file="file://$PROJECT_DIR$/resources/views/blocks/user_page_modals.blade.php">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/pages/forms/channel.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="731">
+          <caret line="43" column="28" selection-start-line="43" selection-start-column="28" selection-end-line="43" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/pages/forms/user.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1139">
+          <caret line="67" column="18" selection-start-line="67" selection-start-column="18" selection-end-line="73" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/ArticlesController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2618">
+          <caret line="156" column="34" selection-start-line="156" selection-start-column="34" selection-end-line="156" selection-end-column="34" />
+          <folding>
+            <element signature="e#41#57#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/views/pages/article.blade.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="12" column="58" selection-start-line="12" selection-start-column="58" selection-end-line="12" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/sass/blocks/inner-page.scss">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1887">
+          <caret line="111" column="5" selection-start-line="111" selection-start-column="5" selection-end-line="111" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/Console/Commands/importPictures.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="146">
+          <caret line="71" selection-start-line="71" selection-end-line="71" />
+          <folding>
+            <element signature="e#40#56#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/Crossposting/CrossposterResolver.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="13" column="9" selection-start-line="13" selection-start-column="9" selection-end-line="13" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vendor/vkcom/vk-php-sdk/src/VK/TransportClient/Curl/CurlHttpClient.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-271">
+          <caret line="28" column="47" selection-start-line="28" selection-start-column="47" selection-end-line="28" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.editorconfig">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.env">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-259" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.env.example">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state>
-          <caret column="5" selection-start-column="5" selection-end-column="5" />
+          <caret column="13" selection-start-column="13" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/Crossposting/config/vk.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="102" selection-start-column="102" selection-end-column="102" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vendor/vkcom/vk-php-sdk/src/VK/OAuth/VKOAuth.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="547">
+          <caret line="178" column="22" selection-start-line="178" selection-start-column="22" selection-end-line="178" selection-end-column="22" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/routes/web.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="22" column="57" selection-start-line="22" selection-start-column="57" selection-end-line="22" selection-end-column="57" />
+        <state relative-caret-position="341">
+          <caret line="96" column="26" selection-start-line="96" selection-start-column="23" selection-end-line="96" selection-end-column="26" />
           <folding>
             <element signature="e#7#389#0#PHP" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/database/migrations/2019_09_09_113506_extend_programs_tables.php">
+    <entry file="file://$PROJECT_DIR$/resources/views/pages/forms/articles.blade.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="53" selection-start-line="17" selection-start-column="53" selection-end-line="17" selection-end-column="53" />
+        <state relative-caret-position="340">
+          <caret line="20" column="99" lean-forward="true" selection-start-line="20" selection-start-column="99" selection-end-line="20" selection-end-column="99" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/database/migrations/2019_09_09_113446_extend_channels_tables.php">
+    <entry file="file://$PROJECT_DIR$/app/Crossposting/BaseCrossposter.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="18" column="53" selection-start-line="18" selection-start-column="9" selection-end-line="18" selection-end-column="53" />
+        <state relative-caret-position="238">
+          <caret line="47" column="9" selection-start-line="47" selection-start-column="9" selection-end-line="47" selection-end-column="9" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/database/migrations/2019_09_07_075814_create_videos_table.php">
+    <entry file="file://$PROJECT_DIR$/app/Crossposting/VKCrossposter.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="29" column="47" selection-start-line="29" selection-start-column="47" selection-end-line="29" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/Video.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="31" column="26" selection-start-line="31" selection-start-column="26" selection-end-line="31" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/js/app.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="223">
-          <caret line="201" column="5" selection-start-line="201" selection-start-column="5" selection-end-line="206" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/js/vue-components.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="544">
-          <caret line="32" column="16" selection-start-line="32" selection-start-column="16" selection-end-line="32" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/database/migrations/2019_09_28_152138_create_interprogram_packages_table.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="19" column="53" selection-start-line="19" selection-start-column="53" selection-end-line="19" selection-end-column="53" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/Console/Commands/ImportVideos.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="12" column="6" selection-start-line="12" selection-start-column="6" selection-end-line="12" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/blocks/user_page_modals.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#116#136#0#HTML" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/blocks/video.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" selection-start-line="4" selection-end-line="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/Program.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="13" column="32" selection-start-line="13" selection-start-column="20" selection-end-line="13" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/VideosController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="45" column="65" selection-start-line="45" selection-start-column="65" selection-end-line="45" selection-end-column="65" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/js/components/VideoForm.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1475">
-          <caret line="234" column="16" selection-start-line="234" selection-start-column="16" selection-end-line="234" selection-end-column="16" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#div#1;n#div#3;n#div#0;n#div#0;n#div#3;n#div#0;n#template#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/pages/forms/video.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="21" lean-forward="true" selection-start-line="8" selection-start-column="21" selection-end-line="8" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/sass/blocks/box.scss">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="10">
-          <caret line="14" column="35" selection-start-line="14" selection-start-column="35" selection-end-line="14" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/pages/user.blade.php">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/sass/blocks/buttons.scss">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/pages/program.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" column="41" lean-forward="true" selection-start-line="7" selection-start-column="6" selection-end-line="7" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/resources/views/pages/videos.blade.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="77" selection-start-line="5" selection-start-column="77" selection-end-line="5" selection-end-column="77" />
+        <state relative-caret-position="74">
+          <caret line="12" column="26" selection-start-line="12" selection-start-column="18" selection-end-line="12" selection-end-column="26" />
         </state>
       </provider>
     </entry>

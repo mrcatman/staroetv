@@ -15,6 +15,9 @@ class ChannelsController extends Controller {
     public function show($url) {
         $channel = Channel::where(['url' => $url])->first();
         if (!$channel) {
+            $channel = Channel::where(['id' => $url])->first();
+        }
+        if (!$channel) {
             return redirect("/");
         }
         $records = Record::where(['channel_id' => $channel->id])->orderBy('id', 'desc')->paginate(30);
@@ -90,7 +93,9 @@ class ChannelsController extends Controller {
             'is_federal' => 'sometimes',
             'is_abroad' => 'sometimes',
             'country' => 'sometimes',
-            'city' => 'sometimes'
+            'city' => 'sometimes',
+            'is_radio' => 'sometimes',
+            'url' => 'sometimes'
         ]);
 
         foreach(['is_regional', 'is_abroad', 'is_federal'] as $key) {

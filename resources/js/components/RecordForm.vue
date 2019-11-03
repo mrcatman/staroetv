@@ -7,13 +7,20 @@
             <label class="input-container__label" v-else>Ссылка на запись</label>
             <div class="input-container__inner">
                 <div class="input-container__element-outer">
-                    <div class="input-container__preloader" v-show="isLoadingRecordInfo">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                    <div class="input-container__overlay-outer">
+                        <div class="input-container__disabled-overlay" v-if="data.record.own_code"></div>
+                        <div class="input-container__preloader" v-show="isLoadingRecordInfo">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
                     </div>
                     <input class="input" v-model="data.record.url"/>
-                    <div class="input-container__description">ВК либо Youtube</div>
+                    <div class="input-container__description" v-if="isRadio">Soundcloud либо прямая ссылка</div>
+                    <div class="input-container__description" v-else>ВК либо Youtube</div>
+                    <div class="input-container__toggle-buttons">
+                        <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.record.own_code}" @click="setOwnCode()">Ввести код для вставки вручную</a>
+                    </div>
                     <div class="record-form__player-container__outer" v-show="data.record.code || data.record.covers.length > 0 || data.program.cover_picture">
                         <div class="record-form__player-container" v-html="data.record.code"></div>
                         <div class="record-form__covers">
@@ -25,6 +32,18 @@
                 <span class="input-container__message">{{errors.url}}</span>
             </div>
         </div>
+        <div class="input-container" v-show="data.record.own_code">
+            <label class="input-container__label">Код для вставки</label>
+            <div class="input-container__inner">
+                <div class="input-container__element-outer">
+                    <div class="input-container__overlay-outer">
+                         <input class="input" v-model="data.record.code"/>
+                    </div>
+                </div>
+                <span class="input-container__message">{{errors.code}}</span>
+            </div>
+        </div>
+
         <div class="input-container">
             <label class="input-container__label" v-if="!isRadio">Канал</label>
             <label class="input-container__label" v-else>Радиостанция</label>
@@ -182,6 +201,7 @@
         cover: '',
         is_advertising: false,
         record: {
+            own_code: false,
             title: '',
             url: '',
             id: null,
@@ -285,6 +305,9 @@
                     }
                 }
             },
+            setOwnCode() {
+                this.$set(this.data.record, 'own_code', !this.data.record.own_code);
+            },
             setUnknownProgram() {
                 this.data.program.unknown = !this.data.program.unknown;
                 if (this.data.program.unknown) {
@@ -323,7 +346,9 @@
                         id = vkData[3];
                     } else {
                         let vkData = url.match(/(.*?)record_ext.php\?oid=(.*?)&id=(.*?)&(.*?)/);
-                        id = vkData[2] + '_' + vkData[3];
+                        if (vkData) {
+                            id = vkData[2] + '_' + vkData[3];
+                        }
                     }
                     if (id) {
                         this.isLoadingRecordInfo = true;

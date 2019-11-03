@@ -79,5 +79,12 @@ class Comment extends Model {
         }
     }
 
+    public function getTotalRatingAttribute() {
+        return $this->rating + $this->newRating->sum('weight');
+    }
+
+    public function newRating() {
+        return $this->hasMany(CommentRating::class);
+    }
 
 }

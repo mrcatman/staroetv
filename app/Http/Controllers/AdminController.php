@@ -6,14 +6,17 @@ use App\Channel;
 use App\ChannelName;
 use App\Comment;
 use App\Helpers\CommentsHelper;
+use App\Page;
 use App\Program;
 use App\Smile;
+use App\User;
 use App\UserAward;
 use App\UserGroup;
 use App\UserGroupConfig;
 use App\UserReputation;
 use App\Record;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller {
 
@@ -38,6 +41,84 @@ class AdminController extends Controller {
             'channels' => $channels
         ]);
     }
+
+
+    public function getUsers() {
+        $users = User::all();
+        $groups = UserGroup::all();
+        return view("pages.admin.users", [
+            'groups' => $groups,
+            'users' => $users
+        ]);
+    }
+
+    public function changeUserGroup() {
+        $user = User::find(request()->input('user_id'));
+        if (!$user) {
+            return [
+                'status' => 0,
+                'text' => 'Пользователь не найден'
+            ];
+        }
+        $group = UserGroup::find(request()->input('group_id', 1));
+        if (!$group) {
+            return [
+                'status' => 0,
+                'text' => 'Группа не найдена'
+            ];
+        }
+        if ($user->id === auth()->user()->id) {
+            return [
+                'status' => 0,
+                'text' => 'Вы не можете снять с себя админку'
+            ];
+        }
+        $user->group_id = request()->input('group_id', $group->id);
+        $user->save();
+        return [
+            'status' => 1,
+            'text' => 'Сохранено'
+        ];
+    }
+
+    public function changeUserPassword() {
+        $user = User::find(request()->input('user_id'));
+        if (!$user) {
+            return [
+                'status' => 0,
+                'text' => 'Пользователь не найден'
+            ];
+        }
+        if (!request()->has('new_password') || request()->input('new_password') == "") {
+            return [
+                'status' => 0,
+                'text' => 'Введите пароль'
+            ];
+        }
+        $password = request()->has('new_password');
+        $user->password = Hash::make($password);
+        $user->save();
+        return [
+            'status' => 1,
+            'text' => 'Сохранено'
+        ];
+    }
+
+    public function deleteUser() {
+        $user = User::find(request()->input('user_id'));
+        if (!$user) {
+            return [
+                'status' => 0,
+                'text' => 'Пользователь не найден'
+            ];
+        }
+        $user->delete();
+        return [
+            'status' => 1,
+            'text' => 'Пользователь удален'
+        ];
+    }
+
 
     public function getSmiles() {
         $smiles = Smile::with('picture')->get();
@@ -118,4 +199,10 @@ class AdminController extends Controller {
         return ['status' => 1, 'text' => 'Сохранено'];
     }
 
+    public function getPages() {
+        $static_pages = Page::all();
+        return view("pages.admin.static_pages", [
+            'static_pages' => $static_pages,
+        ]);
+    }
 }

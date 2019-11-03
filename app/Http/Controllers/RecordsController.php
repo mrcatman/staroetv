@@ -12,34 +12,34 @@ use Carbon\Carbon;
 class RecordsController extends Controller {
 
     public function show($id) {
-        $video = Record::where(['id' => $id])->first();
+        $record = Record::where(['id' => $id])->first();
         $related_program = null;
         $related_channel = null;
-        if ($video->program) {
-            $related_program = Record::where(['program_id' => $video->program_id])->inRandomOrder()->limit(6)->get();
+        if ($record->program) {
+            $related_program = Record::where(['program_id' => $record->program_id])->inRandomOrder()->limit(6)->get();
         }
-        if ($video->channel) {
-            $related_channel = Record::where(['channel_id' => $video->channel_id])->inRandomOrder()->limit(6)->get();
+        if ($record->channel) {
+            $related_channel = Record::where(['channel_id' => $record->channel_id])->inRandomOrder()->limit(6)->get();
         }
-        return view("pages.video", [
-            'video' => $video,
+        return view("pages.records.show", [
+            'record' => $record,
             'related_program' => $related_program,
             'related_channel' => $related_channel,
         ]);
     }
 
     public function showOld($id) {
-        $video = Record::where(['ucoz_id' => $id])->first();
+        $record = Record::where(['ucoz_id' => $id])->first();
         $related_program = null;
         $related_channel = null;
-        if ($video->program) {
-            $related_program = Record::where(['program_id' => $video->program_id])->inRandomOrder()->limit(6)->get();
+        if ($record->program) {
+            $related_program = Record::where(['program_id' => $record->program_id])->inRandomOrder()->limit(6)->get();
         }
-        if ($video->channel) {
-            $related_channel = Record::where(['channel_id' => $video->channel_id])->inRandomOrder()->limit(6)->get();
+        if ($record->channel) {
+            $related_channel = Record::where(['channel_id' => $record->channel_id])->inRandomOrder()->limit(6)->get();
         }
-        return view("pages.video", [
-            'video' => $video,
+        return view("pages.records.show", [
+            'record' => $record,
             'related_program' => $related_program,
             'related_channel' => $related_channel,
         ]);
@@ -94,7 +94,7 @@ class RecordsController extends Controller {
         if (request()->has('vk_video_id')) {
             $vk_id = request()->input('vk_video_id');
             $token = config('tokens.vk');
-            $data = json_decode(file_get_contents("https://api.vk.com/method/video.get?access_token=$token&v=5.101&videos=$vk_id&extended=1"));
+            $data = json_decode(file_get_contents("https://api.vk.com/method/record.get?access_token=$token&v=5.101&videos=$vk_id&extended=1"));
             return [
                 'status' => 1,
                 'data' => [
@@ -127,7 +127,7 @@ class RecordsController extends Controller {
             ];
         }
         $user = auth()->user();
-        $video = new Record([
+        $record = new Record([
             'is_from_ucoz' => false,
             'original_added_at' => Carbon::now(),
             'author_username' => $user->username,
@@ -136,94 +136,98 @@ class RecordsController extends Controller {
             'short_contents' => '',
             'views' => 0
         ]);
-        return $this->fillData($video);
+        return $this->fillData($record);
     }
 
     public function update($id) {
-        $video = Record::find($id);
-        if (!$video) {
+        $record = Record::find($id);
+        if (!$record) {
             return [
                 'status' => 0,
                 'text' => 'Видео не найдено'
             ];
         }
-        if (!$video->can_edit) {
+        if (!$record->can_edit) {
            return [
                'status' => 0,
                'text' => 'Ошибка доступа'
            ];
         };
-        return $this->fillData($video);
+        return $this->fillData($record);
     }
 
-    private function fillData($video) {
+    private function fillData($record) {
         $user = auth()->user();
-
+        $is_radio = request()->input('is_radio', false);
         $errors = [];
         if (!request()->input('channel.name') && request()->input('channel.unknown') !== 'true') {
-            $errors['channel'] = "Выберите канал";
+            if ($is_radio) {
+                $errors['channel'] = "Выберите радиостанцию";
+            } else {
+                $errors['channel'] = "Выберите канал";
+            }
         } else {
             if (request()->input('channel.id') > 0) {
-                $video->channel_id = request()->input('channel.id');
+                $record->channel_id = request()->input('channel.id');
             } else {
                 $channel = new Channel(['author_id' => $user->id, 'name' => request()->input('channel.name'),'is_regional' => false, 'is_abroad' => false, 'pending' => true]);
                 $channel->save();
-                $video->channel_id = $channel->id;
+                $record->channel_id = $channel->id;
             }
         }
         $is_interprogram = request()->input('is_interprogram', false);
-        $video->is_interprogram = $is_interprogram === "true" || $is_interprogram == 1;
+        $record->is_interprogram = $is_interprogram === "true" || $is_interprogram == 1;
         if (!request()->input('program.name') && request()->input('program.unknown') !== 'true' && !$is_interprogram) {
             $errors['program'] = "Выберите программу";
         } else {
-            if (!$video->is_interprogram) {
+            if (!$record->is_interprogram) {
                 if (request()->input('program.id') > 0) {
-                    $video->program_id = request()->input('program.id');
+                    $record->program_id = request()->input('program.id');
                 } else {
-                    $program = new Program(['author_id' => $user->id, 'name' => request()->input('program.name'), 'cover' => '', 'channel_id' => $video->id, 'pending' => true]);
+                    $program = new Program(['author_id' => $user->id, 'name' => request()->input('program.name'), 'cover' => '', 'channel_id' => $record->id, 'pending' => true]);
                     $program->save();
                     $program->program_id = $program->id;
                 }
             }
         }
-        if (!request()->input('video.code')) {
+        if (!request()->input('record.code')) {
             $errors['url'] = "Укажите ссылку на видео";
         } else {
-            $video->embed_code = request()->input('video.code');
+            $record->embed_code = request()->input('record.code');
         }
         if (request()->input('date.year') > 0) {
-            $video->year = request()->input('date.year');
+            $record->year = request()->input('date.year');
         }
         if (request()->input('date.month') > 0) {
-            $video->month = request()->input('date.month');
+            $record->month = request()->input('date.month');
         }
         if (request()->input('date.day') > 0) {
-            $video->day = request()->input('date.day');
+            $record->day = request()->input('date.day');
         }
         if (request()->input('date.year') > 0 && request()->input('date.month') > 0 && request()->input('date.day') > 0) {
-            $video->date = Carbon::createFromDate(request()->input('date.year'), request()->input('date.month'), request()->input('date.day'));
+            $record->date = Carbon::createFromDate(request()->input('date.year'), request()->input('date.month'), request()->input('date.day'));
         }
         if (request()->input('short_description') != "") {
-            $video->short_description = request()->input('short_description');
+            $record->short_description = request()->input('short_description');
         }
 
-        if ($video->is_interprogram) {
+        if ($record->is_interprogram) {
             if (request()->input('interprogram_package_id') > 0) {
-                $video->interprogram_package_id = request()->input('interprogram_package_id');
+                $record->interprogram_package_id = request()->input('interprogram_package_id');
             }
         }
         if (request()->input('cover') != "") {
             $cover = Picture::where(['url' => request()->input('cover')])->first();
             if ($cover) {
-                $video->cover_id = $cover->id;
+                $record->cover_id = $cover->id;
             } else {
                 $cover = new Picture();
                 $cover->loadFromURL(request()->input('cover'), md5(request()->input('cover')));
                 $cover->save();
-                $video->cover_id = $cover->id;
+                $record->cover_id = $cover->id;
             }
         }
-        $video->title = $video->generateTitle();
+        $record->title = $record->generateTitle();
         if (count($errors) > 0) {
             return [
                 'status' => 0,
@@ -231,13 +235,37 @@ class RecordsController extends Controller {
                 'errors' => $errors
             ];
         }
-        $video->save();
+        $record->save();
         return [
             'status' => 1,
-            'text' => 'Видео добавлено',
+            'text' => $is_radio ? 'Радиозапись добавлена' : 'Видео добавлено',
             'data' => [
-                'video' => $video
+                'record' => $record
             ]
         ];
+    }
+
+    public function search($params) {
+        $is_radio = $params['is_radio'];
+        $params = request()->all();
+        $search = request()->input('search');
+        $records = Record::where(['is_radio' => $is_radio])->where('title', 'LIKE', '%'.$search.'%');
+        if (request()->has('sort')) {
+            $sort = request()->input('sort');
+            $order = request()->input('sort_order', 'desc');
+            $records = $records->orderBy($sort, $order);
+        }
+        $records_count = $records->count();
+        $records = $records->paginate(30);
+        $data = [
+            'params' => $params,
+            'records' => $records->appends(request()->except('page')),
+            'records_count' => $records_count,
+            'is_radio' => $is_radio
+        ];
+        if (request()->isMethod('post')) {
+            return $data;
+        }
+        return view("pages.records.search", $data);
     }
 }

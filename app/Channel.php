@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Channel extends Model {
 
     protected $guarded = [];
+    protected $appends = ['full_url'];
 
     public function records() {
         return $this->hasMany('App\Record');
@@ -42,6 +43,19 @@ class Channel extends Model {
             return $this->author_id == $user->id && PermissionsHelper::allows("channelsown");
         }
         return false;
+    }
+
+
+    public function getFullUrlAttribute() {
+        $url = $this->url;
+        if (!$url) {
+            $url = $this->id;
+        }
+        if ($this->is_radio) {
+            return "/radio-stations/" .$url;
+        } else {
+            return "/channels/" . $url;
+        }
     }
 
 }

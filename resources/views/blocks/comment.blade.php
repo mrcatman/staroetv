@@ -12,7 +12,9 @@
                     @if (\App\Helpers\PermissionsHelper::allows("comrate"))
                     <span class="comment__rating__button comment__rating__button--plus">+</span>
                     @endif
-                    <span class="comment__rating__number @if($comment->rating > 0) comment__rating__number--positive @elseif ($comment->rating < 0) comment__rating__number--negative @endif">{{$comment->rating}}</span>
+                    <span class="comment__rating__container">
+                        <span class="comment__rating__number @if($comment->total_rating > 0) comment__rating__number--positive @elseif ($comment->total_rating < 0) comment__rating__number--negative @endif">{{$comment->total_rating}}</span>
+                    </span>
                     @if (\App\Helpers\PermissionsHelper::allows("comrate"))
                     <span class="comment__rating__button comment__rating__button--minus">-</span>
                     @endif

@@ -30,12 +30,13 @@ Route::get('/videos', function () {
 Route::get('/videos/add', function () {
     return (new \App\Http\Controllers\RecordsController())->add(['is_radio' => false]);
 });
+Route::any('/videos/search', function () {
+    return (new \App\Http\Controllers\RecordsController())->search(['is_radio' => false]);
+});
+Route::get('/videos/edit/{id}', 'RecordsController@edit');
 Route::get('/videos/{id}', 'RecordsController@show');
 Route::get('/video/vip/{id}/{channel?}/{url}', 'RecordsController@showOld');
 Route::get('/video/vip/{id}//{url}', 'RecordsController@showOld');
-Route::post('/videos/add', 'RecordsController@save');
-Route::get('/videos/{id}/edit', 'RecordsController@edit');
-Route::post('/videos/{id}/edit', 'RecordsController@update');
 Route::post('/videos/getinfo', 'RecordsController@getInfo');
 
 
@@ -50,18 +51,21 @@ Route::get('/radio-recordings/add', function () {
     return (new \App\Http\Controllers\RecordsController())->add(['is_radio' => true]);
 });
 Route::get('/radio-recordings/{id}', 'RecordsController@show');
-Route::post('/radio-recordings/add', 'RecordsController@save');
 Route::get('/radio-recordings/{id}/edit', 'RecordsController@edit');
-Route::post('/radio-recordings/{id}/edit', 'RecordsController@update');
-Route::post('/radio-recordings/getinfo', 'RecordsController@getInfo');
+Route::any('/radio/search', function () {
+    return (new \App\Http\Controllers\RecordsController())->search(['is_radio' => true]);
+});
 
 
+Route::post('/records/add', 'RecordsController@save');
+Route::post('/records/{id}/edit', 'RecordsController@update');
 
 Route::get('/programs/{id}', 'ProgramsController@show');
 
 Route::get('/channels/add', 'ChannelsController@add');
 Route::post('/channels/add', 'ChannelsController@save');
 Route::get('/channels/{id}', 'ChannelsController@show');
+Route::get('/radio-stations/{id}', 'ChannelsController@show');
 Route::get('/channels/{id}/edit', 'ChannelsController@edit');
 Route::get('/channels/{id}/programs', 'ChannelsController@getPrograms');
 Route::get('/channels/{id}/interprogram-packages', 'ChannelsController@getInterprogramPackages');
@@ -78,8 +82,31 @@ Route::post('/comments/add', 'CommentsController@add');
 Route::post('/comments/edit', 'CommentsController@edit');
 Route::post('/comments/delete', 'CommentsController@delete');
 Route::any('/comments/original/{id}', 'CommentsController@getOriginal');
+Route::post('/comments/rating', 'CommentsController@rating');
 
 
+Route::get('/news/add', function () {
+    return (new \App\Http\Controllers\ArticlesController())->add(['type_id' => \App\Article::TYPE_NEWS]);
+});
+Route::get('/blog/add', function () {
+    return (new \App\Http\Controllers\ArticlesController())->add(['type_id' => \App\Article::TYPE_BLOG]);
+});
+Route::get('/articles/add', function () {
+    return (new \App\Http\Controllers\ArticlesController())->add(['type_id' => \App\Article::TYPE_ARTICLES]);
+});
+Route::post('/articles/add', 'ArticlesController@save');
+
+Route::get('/news/edit/{id}', function ($id) {
+    return (new \App\Http\Controllers\ArticlesController())->edit(['original_id' => $id, 'type_id' => \App\Article::TYPE_NEWS]);
+});
+Route::get('/blog/edit/{id}', function ($id) {
+    return (new \App\Http\Controllers\ArticlesController())->edit(['original_id' => $id, 'type_id' => \App\Article::TYPE_BLOG]);
+});
+Route::get('/articles/edit/{id}', function ($id) {
+    return (new \App\Http\Controllers\ArticlesController())->edit(['original_id' => $id, 'type_id' => \App\Article::TYPE_ARTICLES]);
+});
+Route::post('/articles/edit/{id}', 'ArticlesController@update');
+Route::post('/articles/delete', 'ArticlesController@delete');
 
 Route::get('/news/{id}', function ($path) {
     $data = explode("-", $path);
@@ -88,6 +115,28 @@ Route::get('/news/{id}', function ($path) {
     }
     return (new \App\Http\Controllers\ArticlesController())->show([
         'type_id' => \App\Article::TYPE_NEWS,
+        'original_id' => $data[3]
+    ]);
+});
+
+Route::get('/blog/{id}', function ($path) {
+    $data = explode("-", $path);
+    if (!isset($data[3])) {
+        return redirect("/articles");
+    }
+    return (new \App\Http\Controllers\ArticlesController())->show([
+        'type_id' => \App\Article::TYPE_ARTICLES,
+        'original_id' => $data[3]
+    ]);
+});
+
+Route::get('/articles/{id}', function ($path) {
+    $data = explode("-", $path);
+    if (!isset($data[3])) {
+        return redirect("/articles");
+    }
+    return (new \App\Http\Controllers\ArticlesController())->show([
+        'type_id' => \App\Article::TYPE_ARTICLES,
         'original_id' => $data[3]
     ]);
 });
@@ -120,6 +169,27 @@ Route::get('/articles', function () {
     ]);
 });
 
+Route::get('/news/category/{id}', function ($category_id) {
+    return (new \App\Http\Controllers\ArticlesController())->list([
+        'type_id' => \App\Article::TYPE_NEWS,
+        'category_id' => $category_id,
+    ]);
+});
+Route::get('/blog/category/{id}', function ($category_id) {
+    return (new \App\Http\Controllers\ArticlesController())->list([
+        'type_id' => \App\Article::TYPE_BLOG,
+        'category_id' => $category_id,
+    ]);
+});
+Route::get('/articles/category/{id}', function ($category_id) {
+    return (new \App\Http\Controllers\ArticlesController())->list([
+        'type_id' => \App\Article::TYPE_ARTICLES,
+        'category_id' => $category_id,
+    ]);
+});
+
+
+
 Route::get('/index/8{id?}', function ($path = null) {
     if (!$path) {
         $data = [0];
@@ -148,6 +218,7 @@ Route::get('/index/8{id?}', function ($path = null) {
 });
 
 Route::get('/index/15', 'UsersController@list');
+Route::get('/index/15-{page}', 'UsersController@list');
 Route::post('/index/15', 'UsersController@list');
 
 
@@ -184,9 +255,16 @@ Route::post('reputation/change', 'ReputationController@change');
 Route::post('awards/ajax', 'AwardsController@ajax');
 Route::post('warnings/ajax', 'WarningsController@ajax');
 
-
+//PAGES
 Route::get('/index/0-{id}', 'PagesController@show');
+Route::get('/pages/add', 'PagesController@add');
+Route::post('/pages/add', 'PagesController@save');
+Route::get('/pages/{url}', 'PagesController@showByURL');
+Route::get('/pages/{id}/edit', 'PagesController@edit');
+Route::post('/pages/{id}/edit', 'PagesController@update');
+Route::post('/pages/delete', 'PagesController@delete');
 
+//PROFILE
 Route::get('/index/11', 'UsersController@edit');
 Route::get('/index/11-{id}-0-1', 'UsersController@edit');
 Route::get('/profile/edit', 'UsersController@edit');
@@ -195,20 +273,59 @@ Route::post('/profile/edit', 'UsersController@save');
 Route::get('/index/34-{id}', 'UsersController@comments');
 Route::get('/users/comments/{id}', 'UsersController@comments');
 
+
+
 Route::get('/go', function () {
     $path = explode("/go?",$_SERVER['REQUEST_URI'])[1];
     return redirect($path);
 });
 
+
+// ADMIN
+
 Route::middleware(\App\Http\Middleware\checkAdmin::class)->prefix('admin')->group(function () {
     Route::get('smiles', 'AdminController@getSmiles');
     Route::post('smiles', 'AdminController@saveSmiles');
+
     Route::resource('user-groups', 'UserGroupsController');
+
     Route::get('permissions', 'AdminController@getPermissions');
     Route::post('permissions', 'AdminController@savePermissions');
+
     Route::get('channels', 'AdminController@getChannels');
     Route::get('channels/order', 'AdminController@getChannelsOrder');
     Route::post('channels/order', 'AdminController@setChannelsOrder');
+
+    Route::get('users', 'AdminController@getUsers');
+    Route::post('users/change-group', 'AdminController@changeUserGroup');
+    Route::post('users/change-password', 'AdminController@changeUserPassword');
+    Route::post('users/delete', 'AdminController@deleteUser');
+
+    Route::get('pages', 'AdminController@getPages');
+});
+
+
+// CROSSPOST
+Route::middleware(\App\Http\Middleware\checkAdmin::class)->group(function() {
+    Route::get('/crosspost/test', function() {
+        $crossposter = new \App\Crossposting\VKCrossposter();
+        $crossposter->createPost([]);
+        return [];
+    });
+    Route::get('/crosspost/autoconnect/{name}', function($name) {
+        $crossposter = (new \App\Crossposting\CrossposterResolver())->get($name);
+        if (!$crossposter || !$crossposter->can_auto_connect) {
+            abort(403);
+        }
+        return redirect($crossposter->getAutoConnectRedirectURI());
+    });
+    Route::get('/crosspost/redirect/{name}', function ($name) {
+        $crossposter = (new \App\Crossposting\CrossposterResolver())->get($name);
+        if (!$crossposter || !$crossposter->can_auto_connect) {
+            abort(403);
+        }
+        return $crossposter->afterRedirect();
+    })->name('crosspostRedirectUri');
 });
 
 Auth::routes();

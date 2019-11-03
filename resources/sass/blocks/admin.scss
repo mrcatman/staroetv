@@ -3,28 +3,49 @@
   background: #fff;
   color: #111;
   margin: 1em 0 0;
+  display: flex;
+  &__sidebar {
+    max-width: 280px;
+    background: #eee;
+    border-right: 1px solid #ccc;
+  }
+
   &__name {
     font-size: 1.25em;
     font-weight: bold;
+    padding: 1.215em;
+    background: #363636;
+    color: #fafafa;
+    position: relative;
+    z-index: 1;
   }
+
   &__main-content {
+    position: relative;
     padding: 1em;
   }
 
   &__link {
     color: #555;
     text-decoration: none;
-    border-bottom: 1px dashed #555;
-    margin: 0 0 0 1em;
     font-size: 1.125em;
+    padding: 1em;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    background: linear-gradient(#f7f7f7, #f4f4f4);
+    border-top: 1px solid #fafafa;
+    border-bottom: 1px solid #d9d9d9;
     &:hover {
-      color: #999;
-      border-bottom: 1px dashed #999;
+      background: linear-gradient(#e4e4e4, #d9d9d9);
     }
     i {
       margin: 0 .5em 0 0;
     }
+    &.link--active {
+      background: linear-gradient(#f4f4f4, #d9d9d9);
+    }
   }
+
   &__top {
     background: #eee;
     padding: 1.25em;
@@ -47,7 +68,12 @@
     font-weight: bold;
   }
   &__content {
+    flex: 1;
+  }
 
+  &__links {
+    display: flex;
+    flex-direction: column;
   }
 
 
@@ -115,7 +141,54 @@
       padding: .5em 0;
       background: #eee;
     }
+
+    th {
+      font-size: 1.125em;
+      padding: .75em 0;
+      border: 1px solid #ddd;
+      background: linear-gradient(#f7f7f7, #f4f4f4);
+      cursor: pointer;
+
+      &:hover {
+        background: linear-gradient(#e4e4e4, #d9d9d9);
+      }
+
+      &[aria-sort="ascending"]:after {
+        content: "\f0de";
+        font-family: "Font Awesome 5 Free";
+        margin: .75em;
+        position: relative;
+        top: .25em;
+      }
+
+      &[aria-sort="descending"]:after {
+        content: "\f0dd";
+        font-family: "Font Awesome 5 Free";
+        margin: .75em;
+        position: relative;
+        top: -.125em;
+      }
+    }
+
   }
+  &__table-filters {
+    background: linear-gradient(#e7e7e7, #d5d5d5);
+    display: flex;
+    padding: 1em;
+
+    &__input {
+      flex: 1;
+      text-align: right;
+    }
+  }
+}
+
+.pager-container--admin-panel {
+  margin: -.5em 0 0;
+}
+
+.container--admin-panel {
+  max-width: unset;
 }
 
 

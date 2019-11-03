@@ -41,6 +41,7 @@ class CreateNewsTables extends Migration
             $table->bigIncrements('id');
             $table->integer('original_id');
             $table->integer('type_id');
+            $table->string('url')->nullable();
             $table->string('title')->nullable();
             $table->timestamps();
         });

@@ -39,10 +39,16 @@
 
   &__text-container {
     display: flex;
+    @include mobile() {
+      flex-direction: column;
+    }
   }
 
   &__smiles {
     margin: 0 0 0 1em;
+    @include mobile() {
+      margin: 1em 0;
+    }
   }
   &__cancel {
     margin: 0 .5em 0 0;

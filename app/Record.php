@@ -2,6 +2,7 @@
 
 namespace App;
 use App\Helpers\PermissionsHelper;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Record extends Model {
@@ -128,25 +129,37 @@ class Record extends Model {
     }
 
     public function getChannelName() {
+        $name = null;
         if ($this->date) {
             $name = ChannelName::where(['channel_id' => $this->channel_id])->whereDate('date_start', '<', $this->date)->whereDate('date_end', '>', $this->date)->first();
-            if ($name) {
-                return $name->name;
-            }
+        }
+        if (!$name && $this->year) {
+            $year_start = Carbon::createFromDate($this->year, 1, 1);
+            $year_end = Carbon::createFromDate($this->year, 12, 31);
+            $name = ChannelName::where(['channel_id' => $this->channel_id])->whereDate('date_start', '<', $year_end)->whereDate('date_end', '>', $year_start)->first();
+        }
+        if ($name) {
+            return $name->name;
         }
 
         return $this->channel->name;
     }
 
     public function getChannelLogo() {
+        $name = null;
         if ($this->date) {
             $name = ChannelName::where(['channel_id' => $this->channel_id])->whereDate('date_start', '<', $this->date)->whereDate('date_end', '>', $this->date)->first();
-            if ($name && $name->logo) {
-                return $name->logo->url;
-            }
-            if ($this->channel && $this->channel->logo) {
-                return $this->channel->logo->url;
-            }
+        }
+        if (!$name && $this->year) {
+            $year_start = Carbon::createFromDate($this->year, 1, 1);
+            $year_end = Carbon::createFromDate($this->year, 12, 31);
+            $name = ChannelName::where(['channel_id' => $this->channel_id])->whereDate('date_start', '<', $year_end)->whereDate('date_end', '>', $year_start)->first();
+        }
+        if ($name && $name->logo) {
+            return $name->logo->url;
+        }
+        if ($this->channel && $this->channel->logo) {
+            return $this->channel->logo->url;
         }
         return "/pictures/unknown.png";
     }

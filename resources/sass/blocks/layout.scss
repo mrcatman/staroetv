@@ -11,9 +11,9 @@ body {
   background: linear-gradient(#111, #333);
   background-attachment: fixed;
   color: #fff;
+  font-size: 16px;
   min-height: 100vh;
 }
-
 
 .content:before {
   content: "";
@@ -43,17 +43,27 @@ a {
   color: #777;
 }
 
-
 .container {
   max-width: 1400px;
   margin: 0 auto;
 }
 
+@media screen and (max-width: 1366px) {
+  body {
+    font-size: 14px;
+  }
+  .container {
+    max-width: 1024px;
+  }
+}
 
 .row {
   display: flex;
   align-items: center;
   width: 100%;
+  @include mobile() {
+    flex-direction: column;
+  }
   &--vertical {
     height: 100%;
     flex-direction: column;
@@ -75,7 +85,9 @@ a {
 .col {
   flex: 1;
   margin: 0 .25em;
-
+  @include mobile() {
+    margin: 0!important;
+  }
   &--2 {
     flex: 2;
   }

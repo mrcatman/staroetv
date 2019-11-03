@@ -15,7 +15,7 @@
             font-family: "Roboto", sans-serif;
         }
         &__message {
-            background: #e0e0e0;
+            background: linear-gradient(#e0e0e0, #dadada);
             z-index: 10000;
             padding: 3px;
             position: relative;
@@ -29,7 +29,7 @@
             }
             &__inner {
                 padding: 12px;
-                background: #d7d7d7;
+                background: linear-gradient(#f7f7f7, #f4f4f4);
                 border-left: 1px solid #eaebec;
                 border-top: 1px solid #eaebec;
                 border-bottom: 1px solid #c2c5ca;

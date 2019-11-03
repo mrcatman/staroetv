@@ -15,8 +15,8 @@ class PermissionsHelper {
         }
     }
 
-    public static function checkSubforumAccess($type, $subforum) {
-        $data = $subforum->{$type};
+    public static function checkGroupAccess($type, $entity) {
+        $data = $entity->{$type};
         if (!$data || $data == "0" || $data == "") {
             return true;
         }

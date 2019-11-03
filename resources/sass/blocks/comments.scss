@@ -35,11 +35,17 @@
 
   &__children {
     margin: 0 0 0 1.25em;
+    .comment {
+      padding: .5em 0 .5em .5em;
+    }
+
   }
 
   &__avatar {
-    width: 5em;
+    width: 9em;
+    background-position: center center;
     background-size: contain;
+    background-repeat: no-repeat;
   }
 
   &__texts {
@@ -141,7 +147,7 @@
 
     &__number {
       margin: 0 .5em;
-      font-weight: bold;
+      font-weight: 500;
 
       &--positive {
         color: #9ccc9a;
@@ -211,9 +217,10 @@
     background: linear-gradient(#000000, rgba(38, 38, 38, 0.9) 49%,  rgba(7, 7, 7, 0.9) 50%, rgb(12, 12, 12));
     padding: .25em 1em 1em;
   }
+
   &__form {
     background: #f7f7f7;
-    border-bottom: 1px dashed #ccc;
+    border-bottom: 1px solid #ddd;
     padding: 1em;
     position: relative;
     &__disable {

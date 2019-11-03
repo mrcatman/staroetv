@@ -3,7 +3,6 @@
 
         <snackbar ref="snackbar"></snackbar>
 
-
         <modal ref="logoModal" title="Загрузка по URL" :loading="logoPanel.loading" class="modal">
             <div class="input-container input-container--vertical">
                 <label class="input-container__label">Введите URL</label>
@@ -48,63 +47,73 @@
             <div class="admin-panel__heading">Управление каналами</div>
         </div>
         <div class="admin-panel__main-content">
-            <table class="admin-panel__table">
-                <thead>
-                    <tr>
-                        <td>Название</td>
-                        <td>Федеральный?</td>
-                        <td>Региональный?</td>
-                        <td>Город</td>
-                        <td>Зарубежный?</td>
-                        <td>Страна</td>
-                        <td colspan="3"></td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(channel, $index) in channelsList" :key="$index">
-                        <td>
-                            <div class="channels-manager__first-col">
-                             <div class="admin-panel__table__row-loading" v-if="channel._loading"></div>
-                                <div class="channels-manager__logo" v-if="channel.logo" :style="{backgroundImage: 'url('+channel.logo.url+')'}"></div>
-                                <input class="input" v-model="channelsList[$index].name"/>
-                                <a target="_blank" :href="'/channels/' + channel.id">(видео)</a>
-                            </div>
-                        </td>
-                        <td>
-                            <input type="checkbox" v-model="channelsList[$index].is_federal"/>
-                        </td>
-                        <td>
-                            <input type="checkbox" v-model="channelsList[$index].is_regional"/>
-                        </td>
-                        <td>
-                            <input class="input" v-model="channelsList[$index].city"/>
-                        </td>
-                        <td>
-                            <input type="checkbox" v-model="channelsList[$index].is_abroad"/>
-                        </td>
-                        <td>
-                            <input class="input" v-model="channelsList[$index].country"/>
-                        </td>
-                        <td colspan="3">
-                            <div class="channels-manager__buttons">
-                                <a @click="showLogoModal(channel)" class="button button--light">Логотип...</a>
-                                <a @click="saveChannel(channel)" class="button button--light">Сохранить</a>
-                                <a @click="showMergeModal(channel)" class="button button--light">Объединить...</a>
-                                <a @click="showDeleteModal(channel)" class="button button--light">Удалить</a>
-                            </div>
-
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="form__preloader" v-if="table.loading">
+                <img src="/pictures/ajax.gif">
+            </div>
+            <div class="admin-panel__table-filters">
+                <div class="pager-container pager-container--light pager-container--admin-panel">
+                    <b-pagination v-model="table.currentPage" :total-rows="channelsList.length" :per-page="table.perPage" align="fill" size="sm" class="my-0"></b-pagination>
+                </div>
+                <div class="admin-panel__table-filters__input">
+                    <input class="input" placeholder="Поиск" v-model="table.filter"/>
+                </div>
+            </div>
+            <b-table class="admin-panel__table" show-empty stacked="md" :filter="table.filter" :items="channelsList" :fields="table.fields" :current-page="table.currentPage" :per-page="table.perPage">
+                <template v-slot:cell(name)="data">
+                    <div class="channels-manager__first-col">
+                        <div class="admin-panel__table__row-loading" v-if="data.item._loading"></div>
+                        <div class="channels-manager__logo" v-if="data.item.logo" :style="{backgroundImage: 'url('+data.item.logo.url+')'}"></div>
+                        <input @change="setNeedSave(channelsList[data.item._index])" class="input" v-model="channelsList[data.item._index].name"/>
+                        <a title="Перейти на страницу канала" target="_blank" :href="'/channels/' + data.item.full_url">
+                            <i class="fa fa-external-link-square-alt"></i>
+                        </a>
+                        <span class="channels-manager__not-saved" title="Есть несохраненные изменения" v-if="channelsList[data.item._index]._need_save">*</span>
+                    </div>
+                </template>
+                <template v-slot:cell(is_radio)="data">
+                    <input @change="setNeedSave(channelsList[data.item._index])" type="checkbox" v-model="channelsList[data.item._index].is_radio"/>
+                </template>
+                <template v-slot:cell(is_federal)="data">
+                    <input @change="setNeedSave(channelsList[data.item._index])" type="checkbox" v-model="channelsList[data.item._index].is_federal"/>
+                </template>
+                <template v-slot:cell(is_regional)="data">
+                    <input @change="setNeedSave(channelsList[data.item._index])" type="checkbox" v-model="channelsList[data.item._index].is_regional"/>
+                </template>
+                <template v-slot:cell(city)="data">
+                    <input @change="setNeedSave(channelsList[data.item._index])" class="input" v-model="channelsList[data.item._index].city"/>
+                </template>
+                <template v-slot:cell(is_abroad)="data">
+                    <input @change="setNeedSave(channelsList[data.item._index])" type="checkbox" v-model="channelsList[data.item._index].is_abroad"/>
+                </template>
+                <template v-slot:cell(country)="data">
+                    <input @change="setNeedSave(channelsList[data.item._index])" class="input" v-model="channelsList[data.item._index].country"/>
+                </template>
+                <template v-slot:cell(_options)="data">
+                    <div class="channels-manager__buttons">
+                        <a @click="showLogoModal(data.item)" class="button button--light">Логотип...</a>
+                        <a @click="showMergeModal(data.item)" class="button button--light">Объединить...</a>
+                        <a @click="showDeleteModal(data.item)" class="button button--light">Удалить</a>
+                    </div>
+                </template>
+            </b-table>
+            <div class="form__bottom form__bottom--admin-panel">
+                <a @click="saveChannels()" class="button button--light">Сохранить</a>
+                <response :light="true" :data="table.response"/>
+            </div>
         </div>
     </div>
 </template>
 <style lang="scss">
     .channels-manager {
+        &__not-saved {
+            color: #f00;
+            margin: .35em 0 0 .5em;
+            font-size: 1.25em;
+        }
         &__logo {
             width: 2em;
             height: 2em;
+            margin-right: .5em;
             background-size: contain;
             background-position: center center;
             background-repeat: no-repeat;
@@ -113,8 +122,12 @@
             font-size: .875em;
         }
         &__first-col {
+            padding: .25em;
             display: flex;
             align-items: center;
+            i {
+                margin-left: .5em;
+            }
         }
     }
 </style>
@@ -134,6 +147,42 @@
             }
         },
         methods: {
+            setNeedSave(channel) {
+                this.$set(channel, '_need_save', true);
+            },
+            async saveChannelPromise(data) {
+                return new Promise((resolve) => {
+                    $.post('/channels/' + data.id + '/edit', data).done(res => {
+                        resolve(res);
+                    }).fail((xhr) => {
+                        let error = xhr.responseJSON;
+                        resolve({status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message});
+                    })
+                })
+            },
+            async saveChannels() {
+                let channels = this.channelsList.filter(channel => channel._need_save);
+                this.table.loading = true;
+                let hasErrors = false;
+                let lastResponse = null;
+                for (let index in channels) {
+                    if (!hasErrors) {
+                        let channel = channels[index];
+                        let response = await this.saveChannelPromise(channel);
+                        if (response.status) {
+                            channel._need_save = false;
+                            lastResponse = response;
+                        } else {
+                            this.table.response = response;
+                            hasErrors = true;
+                        }
+                    }
+                }
+                if (lastResponse && !hasErrors) {
+                    this.table.response = lastResponse;
+                }
+                this.table.loading = false;
+            },
             loadLogo() {
                 this.logoPanel.loading = true;
                 let data = {
@@ -188,7 +237,6 @@
             },
             deleteChannel() {
                 this.deletePanel.loading = true;
-                console.log(this);
                 $.post('/channels/delete', {
                     channel_id: this.deletePanel.channel.id
                 }).done(res => {
@@ -241,6 +289,55 @@
         },
         data() {
             return {
+                table: {
+                    response: null,
+                    loading: false,
+                    filter: '',
+                    currentPage: 1,
+                    perPage: 20,
+                    fields: [
+                        {
+                            key: 'name',
+                            label: 'Название',
+                            sortable: true
+                        },
+                        {
+                            key: 'is_federal',
+                            label: 'Федеральный?',
+                            sortable: true
+                        },
+                        {
+                            key: 'is_regional',
+                            label: 'Региональный?',
+                            sortable: true
+                        },
+                        {
+                            key: 'city',
+                            label: 'Город',
+                            sortable: true
+                        },
+                        {
+                            key: 'is_abroad',
+                            label: 'Зарубежный?',
+                            sortable: true
+                        },
+                        {
+                            key: 'country',
+                            label: 'Страна',
+                            sortable: true
+                        },
+                        {
+                            key: 'is_radio',
+                            label: 'Радио?',
+                            sortable: true
+                        },
+                        {
+                            key: '_options',
+                            label: '',
+                            sortable: false
+                        },
+                    ],
+                },
                 logoPanel: {
                     data: {
                         address: ''
@@ -249,7 +346,7 @@
                     channel: null,
                     response: null
                 },
-                channelsList: this.channels,
+                channelsList: [],
                 mergePanel: {
                     data: {
                         merged_id: null,
@@ -267,7 +364,10 @@
             }
         },
         mounted() {
-
+            this.channelsList = this.channels.map((channel, index) => {
+                channel._index = index;
+                return channel;
+            })
         },
         components: {
             Snackbar,

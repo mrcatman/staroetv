@@ -6,6 +6,18 @@
 .form .records {
   margin: 0 -1em -1em;
 }
+.box__inner .records-list {
+  margin: 0 -1.5em -1.5em;
+}
+.records-list__pager-container {
+  margin: 1.5em -1.5em -1.5em;
+  padding: .5em 1em 1em;
+  background: linear-gradient(to bottom, #4f4a42, #38342f);
+  border-top: 1px solid #57534a;
+  &--top {
+    margin: 0 -1.5em;
+  }
+}
 
 .record-item {
   display: flex;
@@ -14,8 +26,11 @@
   text-decoration: none;
   color: #c4bd97;
   border-bottom: 1px solid rgba(196, 189, 151, 0.25);
-
+  &:hover {
+    background: linear-gradient(to bottom, rgba(196, 189, 151, 0.25), rgba(196, 189, 151, 0) 30%, rgba(196, 189, 151, 0.1));
+  }
   &__cover {
+    margin: 0 0 0 .25em;
     width: 12em;
     height: 5em;
     padding: 0;
@@ -28,15 +43,16 @@
     font-size: 1.25em;
     font-weight: 500;
     margin: 0 0 .25em;
-    max-height: 4.25em;
     display: block;
     position: relative;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
+  .highlight {
+    background: rgba(196, 189, 151, 0.25);
+  }
   &__texts {
-    max-width: calc(100% - 17em);
+    max-width: calc(100% - 13.5em);
     margin: 0 0 0 1em;
   }
 
@@ -56,19 +72,28 @@
   &__channel {
     display: flex;
     align-items: center;
+    text-decoration: none;
+    padding: 1em 12em 1em 1em;
+    transition: all .25s;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0));
+    &:hover {
+      background: linear-gradient(to right, rgba(255, 255, 255, 0.5) 50%, rgba(0, 0, 0, 0));
+    }
     &__logo {
       width: 5em;
       height: 5em;
-      background-size: contain;
+      background-color: #333;
+      background-size: 75%;
       background-position: center center;
       background-repeat: no-repeat;
     }
 
-     &__name {
-       font-size: 1.25em;
+    &__name {
+      text-decoration: none;
+      font-size: 1.25em;
       font-weight: bold;
       margin: 0 0 0 .5em;
-     }
+    }
   }
   &__bottom {
     display: flex;
@@ -76,8 +101,11 @@
     justify-content: space-between;
     background: #eee;
     margin: 1em 0;
-    border: 1px dashed #ccc;
-    padding: 0 1em;
+    padding: 0;
+    background: linear-gradient(180deg, #ffffff, #dcdcdc);
+    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2), inset 0 0 4px 0 rgba(255, 255, 255, 0.6);
+    border-top: 1px solid #fafafa;
+    border-bottom: 1px solid #d9d9d9;
   }
   &__comments {
     height: auto!important;
@@ -89,13 +117,14 @@
     margin: 0 -1.25em;
   }
   &__related-container {
-    .form {
+    .box {
       margin: 0 0 .5em;
       height: auto;
     }
   }
   .record-item {
-    width: calc(50% - .5em);
+    width: 100%;
+    font-size: .875em;
   }
   &__player-container {
     position: relative;
@@ -109,5 +138,74 @@
       height: 100%;
     }
   }
+}
 
+.records-search {
+  background: linear-gradient(#fefefe, #d5d5d5);
+  border-top: 1px solid #fff;
+  box-shadow: 0 0.25em 1em rgba(0, 0, 0, 0.2901960784313726);
+  &__inner {
+    padding: 1em;
+    display: flex;
+    align-items: center;
+  }
+
+  &__form {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    margin: 0 0 0 1em;
+  }
+
+  &__title {
+    font-size: 1.25em;
+    font-weight: 500;
+  }
+
+  &__input-container {
+    flex: 1;
+    margin: 0 1.75em 0 0;
+
+    .input {
+      flex: 1;
+      width: 100%;
+    }
+  }
+
+  &__expand {
+    color: #333;
+    cursor: pointer;
+    border-bottom: 1px dashed #333;
+    margin: 0 0 0 1em;
+
+    &:hover {
+      color: #777;
+    }
+  }
+
+
+  &__extended {
+    border-top: 1px solid #ddd;
+    background: linear-gradient(to bottom, #fff, #fafafa);
+    padding: 1em;
+  }
+
+  &__sort {
+    &__title {
+      font-weight: 600;
+    }
+
+    &__option {
+      margin: 0 .5em 0 0;
+      color: #8b5428;
+
+      &--active {
+        border-bottom: 1px dashed;
+      }
+
+      &__title {
+        cursor: pointer;
+      }
+    }
+  }
 }

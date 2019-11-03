@@ -8,7 +8,7 @@ window.Vue = require('vue');
 require ('./vue-components');
 require ('./bbcodes');
 require ('./uVideoPlayer');
-
+let translit = require ('./translit');
 import 'select2';
 import 'select2/dist/css/select2.css';
 
@@ -204,11 +204,26 @@ let onReady = () => {
         }
     });
 
+    $(body).on('click', '.comment__rating__button', function() {
+        let comment_id = $(this).parents('.comment').eq(0).data('id');
+        let weight = !$(this).hasClass('comment__rating__button--minus') ? 1 : -1;
+        $.post('/comments/rating', {comment_id, weight}).done(res => {
+            if (res.status) {
+                replaceDom(res.data.dom);
+            } else {
+                alert(res.text);
+            }
+        })
+    });
+
     // PJAX RELATED
 
     $(document).pjax('a[target!="_blank"]', '#pjax-container', {timeout: 10000});
     onPageChange();
     function onPageChange() {
+        let pathname = window.location.pathname;
+        $('a').removeClass('link--active');
+        $('a[href="'+pathname+'"]').addClass('link--active');
         if ($('.user-page__info-container').length > 0) {
             if ($('.user-page__avatar').length > 0) {
                 let height =  $('.user-page__info-container').height();
@@ -220,7 +235,6 @@ let onReady = () => {
                     $('.user-page__info-container').css('flex', 'auto').css('width', 'calc(100% - '+($('.user-page__avatar').width())+'px)')
                     $('.user-page__info-container').show();
                 };
-
             } else {
 
             }
@@ -234,7 +248,9 @@ let onReady = () => {
         const app = new Vue({
             el: '#app',
             mounted: () => {
-
+                if ($('#editor').length > 0){
+                    CKEDITOR.replace('editor');
+                }
             }
         });
     }
@@ -345,6 +361,8 @@ let onReady = () => {
     $(body).on('click', '.forum-section__delete-topic', function() {
         showModal('#delete_topic');
     });
+
+
     $(body).on('click', '.forum-section__move-topic', function() {
         showModal('#move_topic');
     });
@@ -435,6 +453,13 @@ let onReady = () => {
     })
 
     //CHANNELS
+
+    $(body).on('change', '#channel_name', function() {
+        let name = $(this).val();
+        let transliterated = translit(name);
+        $('#channel_url').val(transliterated);
+    });
+
     $(body).on('click', '.cities-list__item', function() {
         let city = $(this).data('city');
         $('.cities-list__item').removeClass('cities-list__item--active');
@@ -446,6 +471,15 @@ let onReady = () => {
             $(this).parents('.tab-content').find('.channel-item[data-city="'+city+'"]').show();
         }
     })
+
+
+    //PAGES
+    $(body).on('click', '.button--delete-page', function() {
+        if ($(this).data('id')) {
+            $('input[name="page_id"]').val($(this).data('id'));
+        }
+        showModal('#delete_page');
+    });
 };
 $(document).ready(function() {
     onReady();

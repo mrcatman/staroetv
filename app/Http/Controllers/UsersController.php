@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Comment;
 use App\Helpers\BBCodesHelper;
 use App\Helpers\PermissionsHelper;
+use App\Record;
 use App\User;
 use App\UserMeta;
 use Carbon\Carbon;
@@ -17,8 +18,12 @@ class UsersController extends Controller {
         if (!$user) {
             return view("pages.errors.404");
         }
-        return view("pages.users.user", [
-            'user' => $user
+        $videos = Record::where(['author_id' => $user->id, 'is_radio' => false])->get();
+        $radio_recordings = Record::where(['author_id' => $user->id, 'is_radio' => true])->get();
+        return view("pages.users.show", [
+            'user' => $user,
+            'radio_recordings' => $radio_recordings,
+            'videos' => $videos,
         ]);
     }
 

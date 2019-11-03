@@ -4,13 +4,20 @@
         <div class="box__heading">
             {{ $is_radio ? ($channel ? "Редактировать радиостанцию: ".$channel->name : "Добавить радиостанцию") : ($channel ? "Редактировать канал: ".$channel->name : "Добавить канал") }}
         </div>
-        <input type="hidden" name="is_radio" value="{{$is_radio}}"/>
+        <input type="hidden" name="is_radio" value="{{$is_radio ? 1 : 0}}"/>
         <div class="box__inner">
             <div class="response"></div>
             <div class="input-container">
-                <label class="input-container__label">Название</label>
+                <label class="input-container__label">Название<span class="input-container__required">*</span></label>
                 <div class="input-container__inner">
-                    <input class="input" name="name" value="{{$channel ? $channel->name : ""}}"/>
+                    <input class="input" name="name" id="channel_name" value="{{$channel ? $channel->name : ""}}"/>
+                    <span class="input-container__message"></span>
+                </div>
+            </div>
+            <div class="input-container">
+                <label class="input-container__label">Короткий URL</label>
+                <div class="input-container__inner">
+                    <input class="input" name="url" id="channel_url" value="{{$channel ? $channel->url : ""}}"/>
                     <span class="input-container__message"></span>
                 </div>
             </div>
