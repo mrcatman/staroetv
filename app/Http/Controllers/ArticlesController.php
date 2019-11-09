@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 
 use App\Article;
 use App\ArticleCategory;
+use App\Crosspost;
+use App\Crossposting\CrossposterResolver;
 use App\Helpers\PermissionsHelper;
+use Illuminate\Support\Facades\URL;
 
 class ArticlesController extends Controller {
 
@@ -66,7 +69,7 @@ class ArticlesController extends Controller {
 
         $can_edit = $this->canEdit($article);
         $can_delete = $this->canDelete($article);
-        $edit_link = $this->types_data[$article->type_id]['edit_link']."/".$article->id;
+        $edit_link = $this->types_data[$article->type_id]['edit_link']."/".$article->original_id;
         $edit_title = $this->types_data[$article->type_id]['edit_title'];
         $delete_title = $this->types_data[$article->type_id]['delete_title'];
         return view("pages.article", [
@@ -140,6 +143,32 @@ class ArticlesController extends Controller {
         }
     }
 
+    protected function getCrossposts($article) {
+        $resolver = new CrossposterResolver();
+        $crossposts = $article->crossposts;
+        foreach ($crossposts as $crosspost) {
+            $crossposter = $resolver->get($crosspost->network);
+            $crosspost->link = $crossposter->makeLinkById($crosspost->crosspost_id);
+        }
+        return $crossposts;
+    }
+
+    protected function getCrosspostNetworks() {
+        $resolver = new CrossposterResolver();
+        $list = $resolver->getList();
+        $services = [];
+        foreach ($list as $service_name) {
+            $service = new $service_name;
+            if ($service->isActive()) {
+                $services[] = [
+                    'id' => $service->id,
+                    'name' => $service->public_name,
+                ];
+            }
+        }
+        return collect($services);
+    }
+
     public function edit($conditions) {
         $article = Article::where($conditions)->first();
         if (!$article) {
@@ -152,14 +181,115 @@ class ArticlesController extends Controller {
         $type_id = $conditions['type_id'];
         $edit_title = $this->types_data[$type_id]['edit_title'];
         $categories = ArticleCategory::where(['type_id' => $type_id])->get();
+        $crossposts = $this->getCrossposts($article);
+        $networks = $this->getCrosspostNetworks();
         return view("pages.forms.articles", [
+            'networks' => $networks,
+            'crossposts' => $crossposts,
             'categories' => $categories,
             'title' => $edit_title,
             'article' => $article,
             'type_id' => $type_id
         ]);
+    }
 
+    public function crosspost() {
+        $article = Article::find(request()->input('article_id'));
+        if (!$article) {
+            return [
+                'status' => 0,
+                'text' => 'Статья не найдена'
+            ];
+        }
+        $can_edit = $this->canEdit($article);
+        if (!$can_edit) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+        $network_id = request()->input('network_id');
+        $crossposter = (new CrossposterResolver())->get($network_id);
+        if (!$crossposter) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка: кросспостер не найден'
+            ];
+        }
+        $post = $crossposter->getPostInstance();
 
-        $can_delete = $this->canDelete($article);
+        $link = "http://staroetv.su/".$article->url;
+        $text = $article->title.PHP_EOL.PHP_EOL.$article->short_content;
+        $post->setText($text)->setLink($link);
+
+        $picture = $article->cover;
+        if ($picture) {
+            $post->setPicture($picture);
+        }
+
+        $crosspost = Crosspost::where(['article_id' => $article->id, 'network' => $network_id])->first();
+        if ($crosspost) {
+            if ($crosspost->text == $text) {
+                $post->doNotChangeText();
+            }
+            if ($crosspost->link == $link) {
+                $post->doNotChangeLink();
+            }
+            if ($crosspost->picture == $picture) {
+                $post->doNotChangePicture();
+            }
+            $crossposter->editPost($crosspost->crosspost_id, $post);
+        } else {
+            $post_id = $crossposter->createPost($post);
+            $crosspost = new Crosspost([
+                'network' => $network_id,
+                'article_id' => $article->id,
+                'crosspost_id' => $post_id,
+                'text' => $text,
+                'picture' => $picture,
+                'link' => $link
+            ]);
+            $crosspost->save();
+        }
+        $link = $crossposter->makeLinkById($crosspost->crosspost_id);
+        return [
+            'status' => 1,
+            'text' => 'Пост сделан',
+            'data' => [
+                'link' => $link,
+                'crosspost' => $crosspost,
+            ]
+        ];
+    }
+
+    public function update($id) {
+        $article = Article::find($id);
+        if (!$article) {
+            return [
+                'status' => 0,
+                'text' => 'Статья не найдена'
+            ];
+        }
+        $can_edit = $this->canEdit($article);
+        if (!$can_edit) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+        $data = request()->validate([
+            'category_id' => 'required',
+            'title' => 'required|min:1',
+            'content' => 'required|min:1',
+            'cover_id' => 'sometimes',
+            'short_content' => 'sometimes',
+            'source' => 'sometimes'
+        ]);
+        $article->fill($data);
+        $article->save();
+        return [
+            'status' => 1,
+            'text' => 'Обновлено'
+        ];
     }
 }

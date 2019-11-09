@@ -91,6 +91,8 @@ Route::get('/news/add', function () {
 Route::get('/blog/add', function () {
     return (new \App\Http\Controllers\ArticlesController())->add(['type_id' => \App\Article::TYPE_BLOG]);
 });
+Route::post('/articles/crosspost', 'ArticlesController@crosspost');
+
 Route::get('/articles/add', function () {
     return (new \App\Http\Controllers\ArticlesController())->add(['type_id' => \App\Article::TYPE_ARTICLES]);
 });
@@ -302,6 +304,7 @@ Route::middleware(\App\Http\Middleware\checkAdmin::class)->prefix('admin')->grou
     Route::post('users/delete', 'AdminController@deleteUser');
 
     Route::get('pages', 'AdminController@getPages');
+    Route::get('crossposting', 'CrosspostController@getServices');
 });
 
 
@@ -309,23 +312,13 @@ Route::middleware(\App\Http\Middleware\checkAdmin::class)->prefix('admin')->grou
 Route::middleware(\App\Http\Middleware\checkAdmin::class)->group(function() {
     Route::get('/crosspost/test', function() {
         $crossposter = new \App\Crossposting\VKCrossposter();
-        $crossposter->createPost([]);
+        $crossposter->deletePost(62);
         return [];
     });
-    Route::get('/crosspost/autoconnect/{name}', function($name) {
-        $crossposter = (new \App\Crossposting\CrossposterResolver())->get($name);
-        if (!$crossposter || !$crossposter->can_auto_connect) {
-            abort(403);
-        }
-        return redirect($crossposter->getAutoConnectRedirectURI());
-    });
-    Route::get('/crosspost/redirect/{name}', function ($name) {
-        $crossposter = (new \App\Crossposting\CrossposterResolver())->get($name);
-        if (!$crossposter || !$crossposter->can_auto_connect) {
-            abort(403);
-        }
-        return $crossposter->afterRedirect();
-    })->name('crosspostRedirectUri');
+    Route::get('/crosspost/autoconnect/{name}', 'CrosspostController@autoconnect')->name('crosspostAutoconnect');
+    Route::post('/crosspost/settings/{name}', 'CrosspostController@saveSettings')->name('crosspostSaveSettings');
+
+    //Route::get('/crosspost/redirect/{name}')->name('crosspostRedirectUri');
 });
 
 Auth::routes();

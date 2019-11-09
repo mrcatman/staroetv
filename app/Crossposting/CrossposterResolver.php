@@ -2,11 +2,19 @@
 
 namespace App\Crossposting;
 
+use App\Crossposting\Services\Telegram\TelegramCrossposter;
+use App\Crossposting\Services\VK\VKCrossposter;
+
 class CrossposterResolver {
 
-    public $list = [
-        'vk' => VKCrossposter::class
+    protected $list = [
+        'vk' => VKCrossposter::class,
+        'telegram' => TelegramCrossposter::class
     ];
+
+    public function getList() {
+        return array_values($this->list);
+    }
 
     public function get($name) {
         if (isset($this->list[$name])) {

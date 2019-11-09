@@ -23,7 +23,7 @@ class Article extends Model {
 
     public function getShortContentAttribute() {
         if ($this->attributes['short_content'] != "") {
-            return strip_tags($this->attributes['short_content']);
+            return html_entity_decode($this->attributes['short_content']);
         }
         $limit = 500;
         $content = $this->attributes['content'];
@@ -89,5 +89,12 @@ class Article extends Model {
         return DatesHelper::format($this->attributes['created_at']);
     }
 
+    public function coverPicture() {
+        return $this->hasOne('App\Picture', 'id', 'cover_id');
+    }
+
+    public function crossposts() {
+        return $this->hasMany('App\Crosspost');
+    }
 
 }

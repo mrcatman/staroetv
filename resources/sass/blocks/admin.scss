@@ -193,3 +193,33 @@
 
 
 
+.admin-panel__crossposting {
+  display: flex;
+  flex-wrap: wrap;
+  &__service {
+    width: calc(50% - 1em);
+    margin: 0 1em 2.5em 0;
+  }
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__form .response {
+    margin: 0;
+  }
+
+ &__instructions {
+    background: #eee;
+    padding: .5em 1em;
+    margin: 0 0 .5em;
+    border: 1px solid #aaa;
+  }
+
+  &__name {
+    font-size: 1.5em;
+    margin: 0;
+    font-weight: bold;
+  }
+}

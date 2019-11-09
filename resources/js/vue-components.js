@@ -10,6 +10,7 @@ Vue.component('user-groups-select', require('./components/UserGroupsSelect.vue')
 Vue.component('datepicker', require('vuejs-datepicker').default);
 Vue.component('pagination', require('laravel-vue-pagination'));
 Vue.component('records-search', require('./components/RecordsSearch').default);
+Vue.component('crossposts-editor', require('./components/CrosspostsEditor').default);
 
 Vue.component('permissions-manager', require('./components/admin/PermissionsManager.vue').default);
 Vue.component('channels-manager', require('./components/admin/ChannelsManager.vue').default);
