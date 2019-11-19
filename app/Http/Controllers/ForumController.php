@@ -244,6 +244,9 @@ class ForumController extends Controller {
         if (!$message->can_edit) {
             return ['status' => 0, 'text' => 'Вы не можете редактировать данное сообщение'];
         }
+        if (PermissionsHelper::isBanned()) {
+            return ['status' => 0, 'text' => 'Вы забанены'];
+        }
         $message->edited_at = Carbon::now();
         $message->edited_by = auth()->user()->username;
         $message->content = BBCodesHelper::BBToHTML(request()->input('message'));
@@ -282,6 +285,9 @@ class ForumController extends Controller {
         if (!$message) {
             return ['status' => 0, 'text' => 'Сообщение не найдено'];
         }
+        if (PermissionsHelper::isBanned()) {
+            return ['status' => 0, 'text' => 'Вы забанены'];
+        }
         if (!$message->can_edit) {
             return ['status' => 0, 'text' => 'Вы не можете удалить данное сообщение'];
         }
@@ -311,6 +317,9 @@ class ForumController extends Controller {
         $user = auth()->user();
         if (!$user) {
             return ['status' => 0, 'text' => 'Вы не авторизованы'];
+        }
+        if (PermissionsHelper::isBanned()) {
+            return ['status' => 0, 'text' => 'Вы забанены'];
         }
         $topic = ForumTopic::find($topic_id ? $topic_id : request()->input('topic_id'));
         if (!$topic) {

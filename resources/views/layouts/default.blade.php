@@ -10,7 +10,7 @@
     <title>Старый Телевизор</title>
     @endif
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
+    @yield('head')
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
 </head>
 <body>

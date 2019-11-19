@@ -30,6 +30,14 @@
       }
     }
   }
+  &__ban {
+    background: #D64541;
+    padding: .75em;
+    font-weight: bold;
+    font-size: 1.125em;
+    border-radius: .25em;
+    margin: .5em 0;
+  }
 }
 .user-page {
   &__top {
@@ -86,9 +94,11 @@
   height: 100%;
   overflow: auto;
   &__item {
-    border-bottom: 1px dashed #c2c5ca;
-    padding: 8px;
-
+    &__comment {
+      font-weight: 100;
+      font-size: .875em;
+      margin: .5em 0 0;
+    }
     &__user {
       color: #111;
       font-weight: bold;
@@ -174,6 +184,17 @@
       margin: 4px 0 0;
       font-style: italic;
     }
+  }
+}
+.warnings-form {
+  padding: .5em;
+  &__count {
+    max-width: 2.25em;
+    margin: 0 1em 0 0!important;
+    &__input {
+      max-width: 2em;
+    }
+
   }
 }
 

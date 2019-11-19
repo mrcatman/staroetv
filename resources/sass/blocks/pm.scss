@@ -1,0 +1,79 @@
+.private-messages {
+  background: #f8f7f4;
+  color: #333;
+  &__inner {
+    padding: 1.25em;
+  }
+  &__list {
+    margin: 1em 0 0;
+  }
+  &__heading {
+    display: flex;
+    align-items: center;
+    margin: 0 0 -1.25em;
+    padding: 1.25em;
+    background: #e2e2e2;
+    &__text {
+      margin: 0 1em 0 0;
+      font-weight: 500;
+      font-size: 1.25em;
+    }
+    &__right {
+      flex: 1;
+      text-align: right;
+
+      .button {
+        margin: 0 0 0 1em;
+      }
+    }
+  }
+}
+
+
+.private-message {
+  background: #dfdfdf;
+  font-size: 1.125em;
+  padding: .5em;
+  display: flex;
+  align-items: flex-end;
+
+  &:nth-of-type(2n) {
+    background: #e8e8e8;
+  }
+
+  &__title {
+    color: #333;
+    font-size: 1.125em;
+  }
+
+  &__time {
+    display: inline-block;
+    margin-left: auto;
+    font-weight: 500;
+  }
+}
+
+
+
+.private-message-page {
+  padding: 1.25em 0 0;
+  &__text {
+    word-break: break-all;
+    padding: 1.25em;
+  }
+  &__form {
+    margin: 0;
+    background: #e8e6e6;
+    &__title {
+      padding: 1em;
+      color: #c4bd97;
+      background: #2b2b2b;
+      font-weight: 500;
+      font-size: 1.125em;
+    }
+    &__inner {
+      padding: 1.25em;
+
+    }
+  }
+}

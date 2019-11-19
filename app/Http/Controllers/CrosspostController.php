@@ -36,6 +36,15 @@ class CrosspostController extends Controller {
         return redirect($crossposter->getAutoConnectRedirectURI());
     }
 
+    public function afterRedirect($name) {
+        $crossposter = (new \App\Crossposting\CrossposterResolver())->get($name);
+        if (!$crossposter || !$crossposter->can_auto_connect) {
+            abort(403);
+        }
+        $crossposter->afterRedirect(request()->all());
+        return redirect("/admin/crossposting");
+    }
+
     public function saveSettings($name) {
         $crossposter = (new \App\Crossposting\CrossposterResolver())->get($name);
         if (!$crossposter) {

@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -167,4 +168,12 @@ class Record extends Model {
     public function comments() {
         return $this->hasMany('App\Comment', 'material_id', 'original_id')->where(['material_type' => self::TYPE_VIDEOS]);
     }
+
+    public function getCreatedAtAttribute() {
+        if (!isset($this->attributes['created_at'])) {
+            return "";
+        }
+        return DatesHelper::format($this->attributes['created_at']);
+    }
+
 }

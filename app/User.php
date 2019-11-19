@@ -66,7 +66,6 @@ class User extends Authenticatable
         return $this->hasMany('App\ForumMessage', 'user_id', 'id')->orderBy('id', 'desc');
     }
 
-
     public function getReputationNumberAttribute() {
         return $this->reputation->sum('weight');
     }

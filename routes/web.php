@@ -64,6 +64,13 @@ Route::get('/programs/{id}', 'ProgramsController@show');
 
 Route::get('/channels/add', 'ChannelsController@add');
 Route::post('/channels/add', 'ChannelsController@save');
+Route::get('/channels/ajax',  function () {
+    return (new \App\Http\Controllers\ChannelsController())->getAjaxList(false);
+});
+Route::get('/radio-stations/ajax',  function () {
+    return (new \App\Http\Controllers\ChannelsController())->getAjaxList(true);
+});
+Route::get('/radio-stations/{id}', 'ChannelsController@show');
 Route::get('/channels/{id}', 'ChannelsController@show');
 Route::get('/radio-stations/{id}', 'ChannelsController@show');
 Route::get('/channels/{id}/edit', 'ChannelsController@edit');
@@ -91,7 +98,10 @@ Route::get('/news/add', function () {
 Route::get('/blog/add', function () {
     return (new \App\Http\Controllers\ArticlesController())->add(['type_id' => \App\Article::TYPE_BLOG]);
 });
+Route::get('/articles/crosspost', 'ArticlesController@getCrosspostParameters');
 Route::post('/articles/crosspost', 'ArticlesController@crosspost');
+Route::post('/articles/delete', 'ArticlesController@delete');
+Route::post('/articles/approve', 'ArticlesController@approve');
 
 Route::get('/articles/add', function () {
     return (new \App\Http\Controllers\ArticlesController())->add(['type_id' => \App\Article::TYPE_ARTICLES]);
@@ -190,7 +200,9 @@ Route::get('/articles/category/{id}', function ($category_id) {
     ]);
 });
 
+// USERS
 
+Route::post('/users/autocomplete', 'UsersController@autocomplete');
 
 Route::get('/index/8{id?}', function ($path = null) {
     if (!$path) {
@@ -223,6 +235,7 @@ Route::get('/index/15', 'UsersController@list');
 Route::get('/index/15-{page}', 'UsersController@list');
 Route::post('/index/15', 'UsersController@list');
 
+// FORUM
 
 Route::get('/forum', 'ForumController@index');
 
@@ -254,9 +267,19 @@ Route::post('/forum/get-edit-form', 'ForumController@getEditForm');
 
 Route::post('reputation/ajax', 'ReputationController@ajax');
 Route::post('reputation/change', 'ReputationController@change');
-Route::post('awards/ajax', 'AwardsController@ajax');
-Route::post('warnings/ajax', 'WarningsController@ajax');
+Route::post('reputation/edit', 'ReputationController@edit');
+Route::post('reputation/delete', 'ReputationController@delete');
+Route::post('reputation/reply', 'ReputationController@reply');
 
+Route::post('awards/ajax', 'AwardsController@ajax');
+Route::post('awards/list', 'AwardsController@list');
+Route::post('awards/give-out', 'AwardsController@create');
+Route::post('awards/edit', 'AwardsController@edit');
+Route::post('awards/delete', 'AwardsController@delete');
+
+Route::post('warnings/ajax', 'WarningsController@ajax');
+Route::post('warnings/form', 'WarningsController@form');
+Route::post('warnings/add', 'WarningsController@add');
 //PAGES
 Route::get('/index/0-{id}', 'PagesController@show');
 Route::get('/pages/add', 'PagesController@add');
@@ -275,7 +298,23 @@ Route::post('/profile/edit', 'UsersController@save');
 Route::get('/index/34-{id}', 'UsersController@comments');
 Route::get('/users/comments/{id}', 'UsersController@comments');
 
+// PM
+Route::get('/pm', 'PrivateMessagesController@index');
+Route::get('/index/14', 'PrivateMessagesController@index');
+Route::get('/pm/send', 'PrivateMessagesController@send');
+Route::post('/pm/send', 'PrivateMessagesController@post');
+Route::get('/pm/{id}', 'PrivateMessagesController@show');
 
+Route::any('/smiles', function() {
+    $smiles = \App\Smile::all();
+    return [
+        'status' => 1,
+        'data' => [
+            'title' => 'Все смайлы',
+            'html' => view('blocks/bb_editor_smiles', ['smiles' => $smiles])->render()
+        ]
+    ];
+});
 
 Route::get('/go', function () {
     $path = explode("/go?",$_SERVER['REQUEST_URI'])[1];
@@ -318,7 +357,7 @@ Route::middleware(\App\Http\Middleware\checkAdmin::class)->group(function() {
     Route::get('/crosspost/autoconnect/{name}', 'CrosspostController@autoconnect')->name('crosspostAutoconnect');
     Route::post('/crosspost/settings/{name}', 'CrosspostController@saveSettings')->name('crosspostSaveSettings');
 
-    //Route::get('/crosspost/redirect/{name}')->name('crosspostRedirectUri');
+    Route::get('/crosspost/redirect/{name}', 'CrosspostController@afterRedirect')->name('crosspostRedirectUri');
 });
 
 Auth::routes();

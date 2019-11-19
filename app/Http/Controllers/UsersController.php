@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Comment;
 use App\Helpers\BBCodesHelper;
+use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use App\Record;
 use App\User;
@@ -20,7 +21,18 @@ class UsersController extends Controller {
         }
         $videos = Record::where(['author_id' => $user->id, 'is_radio' => false])->get();
         $radio_recordings = Record::where(['author_id' => $user->id, 'is_radio' => true])->get();
+
+        $banned_till = null;
+        $is_banned_forever = $user->group_id == 255;
+        if ($user->warnings->count() > 0) {
+            $last_ban = $user->warnings->first();
+            if ($last_ban->weight == 1 && $last_ban->time_expires > time()) {
+                $banned_till = DatesHelper::formatTS($last_ban->time_expires);
+            }
+        }
         return view("pages.users.show", [
+            'banned_till' => $banned_till,
+            'is_banned_forever' => $is_banned_forever,
             'user' => $user,
             'radio_recordings' => $radio_recordings,
             'videos' => $videos,
@@ -166,6 +178,24 @@ class UsersController extends Controller {
         return [
             'status' => 1,
             'text' => 'Сохранено'
+        ];
+    }
+
+    public function autocomplete() {
+        $count = 30;
+        $users = User::select('id', 'username')->orderBy('was_online', 'desc');
+        if (request()->has('term')) {
+            $users = $users->where('username', 'LIKE', '%'.request()->input('term').'%');
+        }
+        $total = $users->count();
+        $page = request()->input('page', 1);
+        $users = $users->limit($count)->offset($count * ($page - 1))->get();
+        return [
+            'status' => 1,
+            'data' => [
+                'total' => $total,
+                'users' => $users
+            ]
         ];
     }
 }

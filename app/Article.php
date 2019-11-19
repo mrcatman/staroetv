@@ -25,10 +25,22 @@ class Article extends Model {
         if ($this->attributes['short_content'] != "") {
             return html_entity_decode($this->attributes['short_content']);
         }
-        $limit = 500;
+        $limit = 300;
         $content = $this->attributes['content'];
         $content = strip_tags($content);
-        return \Illuminate\Support\Str::limit($content, $limit, "...");
+        $content = html_entity_decode($content);
+        $sentences = explode(". ", $content);
+        $text = "";
+        $i = 0;
+        $total_length = 0;
+
+        while ($total_length < $limit && isset($sentences[$i])) {
+            $text.= $sentences[$i].". ";
+            $total_length += mb_strlen($sentences[$i].". ", "UTF-8");
+            $i++;
+        }
+        return $text;
+
     }
 
     public function getContentAttribute() {
@@ -47,7 +59,12 @@ class Article extends Model {
     }
 
     public function getMonthAttribute() {
-        $month = $this->attributes['month'];
+        if (!isset($this->attributes['month'])) {
+            $month = date('m', $this->created_at_original);
+        } else {
+            $month = $this->attributes['month'];
+        }
+
         if ($month < 10) {
             return "0".$month;
         }
@@ -55,20 +72,36 @@ class Article extends Model {
     }
 
     public function getDayAttribute() {
-        $day = $this->attributes['day'];
+        if (!isset($this->attributes['day'])) {
+            $day = date('d', $this->created_at_original);
+        } else {
+            $day = $this->attributes['day'];
+        }
         if ($day < 10) {
             return "0".$day;
         }
         return $day;
     }
 
+    public function getYearAttribute() {
+        if (!isset($this->attributes['year'])) {
+            return date('Y', $this->created_at_original);
+        } else {
+            return $this->attributes['year'];
+        }
+    }
+
     public function getUrlAttribute() {
+        $day = $this->day;
+        $month = $this->month;
+        $year = $this->year;
+
         if ($this->type_id == self::TYPE_NEWS) {
-            $path = "/news/".$this->year."-".$this->month."-".$this->day."-".$this->original_id;
+            $path = "/news/".$year."-".$month."-".$day."-".$this->original_id;
             return $path;
         }
         if ($this->type_id == self::TYPE_ARTICLES) {
-            $path = "/blog/".$this->year."-".$this->month."-".$this->day."-".$this->original_id;
+            $path = "/blog/".$year."-".$month."-".$day."-".$this->original_id;
             return $path;
         }
         if ($this->type_id == self::TYPE_BLOG) {
@@ -87,6 +120,13 @@ class Article extends Model {
             return "";
         }
         return DatesHelper::format($this->attributes['created_at']);
+    }
+
+    public function getCreatedAtOriginalAttribute() {
+        if (!isset($this->attributes['created_at'])) {
+            return 0;
+        }
+        return strtotime($this->attributes['created_at']);
     }
 
     public function coverPicture() {

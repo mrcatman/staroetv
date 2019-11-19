@@ -14,4 +14,10 @@ class UserMeta extends Model {
         $date = strtotime($date_of_birth) * 1000;
         return $date;
     }
+
+    public function getDateOfBirthFormattedAttribute(){
+        $date_of_birth = $this->attributes['date_of_birth'];
+        $date = strtotime($date_of_birth);
+        return date('d.m.Y', $date);
+    }
 }

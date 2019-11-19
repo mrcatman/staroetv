@@ -3,32 +3,38 @@
   margin: 0;
   padding: 0;
   position: relative;
-  .codeButtons {
-    font: 12px 'Tahoma';
-    color: #686868;
-    border-width: 1px;
-    border-style: solid;
-    border-color: #dddddd #c6c6c6 #c6c6c6 #c6c6c6;
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    cursor: pointer;
-    padding: 4px 5px;
-    background: #eee;
-  }
+  &__inner {
+    width: 100%;
+    .codeButtons {
+      font: 12px 'Tahoma';
+      color: #686868;
+      border-width: 1px;
+      border-style: solid;
+      border-color: #dddddd #c6c6c6 #c6c6c6 #c6c6c6;
+      border-radius: 5px;
+      -moz-border-radius: 5px;
+      cursor: pointer;
+      padding: 4px 5px;
+      background: #eee;
+    }
 
-  .codeButtons:hover {
-    background: #fafafa;
-  }
+    .codeButtons:hover {
+      background: #fafafa;
+    }
 
-  select {
-    font-size: 7pt;
-    background: #FAFCFE;
-    border: 1px solid #4D6D91;
-    height: 24px;
-    position: relative;
-    top: 1px;
+    select {
+      font-size: 7pt;
+      background: #FAFCFE;
+      border: 1px solid #4D6D91;
+      height: 24px;
+      position: relative;
+      top: 1px;
+    }
   }
-
+  &__input-container {
+    margin: .5em 0 0;
+    display: inline-block;
+  }
   &__text {
     flex: 1;
     border-radius: 4px;

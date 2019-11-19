@@ -71,7 +71,9 @@
                     <span class="input-container__message"></span>
                 </div>
             </div>
+            @if (isset($networks) && $networks)
             <crossposts-editor :crossposts="{{$crossposts}}" :article="{{$article}}" :networks="{{$networks}}"/>
+            @endif
             <button class="button">Сохранить</button>
         </div>
         @csrf

@@ -36,7 +36,7 @@ class TelegramCrossposter extends BaseCrossposter {
             throw new \Exception("Не указан id группы");
         }
         $params['chat_id'] = $group_id;
-        $params['parse_mode'] = "markdown";
+        $params['parse_mode'] = "html";
 
         $request_url = $this->base_url.$token."/".$url;
         $res = $this->client->request('POST', $request_url, [
@@ -56,6 +56,9 @@ class TelegramCrossposter extends BaseCrossposter {
             $text.= PHP_EOL.PHP_EOL.$link;
         }
         if ($picture != "") {
+            if ($picture[0] == "/") {
+                $picture = "http://staroetv.mrcatmann.ru".$picture;
+            }
             $url = "sendPhoto";
             $params = [
                 'photo' => $picture,
@@ -81,11 +84,16 @@ class TelegramCrossposter extends BaseCrossposter {
         if ($link != "") {
             $text.= PHP_EOL.PHP_EOL.$link;
         }
-        if ($picture != "") {
-            $this->request("editMessageCaption", [
-                'message_id' => $id,
-                'caption' => $text
-            ]);
+        if ($picture != "" && $post->needChangePicture()) {
+            if ($picture[0] == "/") {
+                $picture = "http://staroetv.mrcatmann.ru".$picture;
+            }
+            if ($post->needChangeText() || $post->needChangeLink()) {
+                $this->request("editMessageCaption", [
+                    'message_id' => $id,
+                    'caption' => $text
+                ]);
+            }
             $this->request("editMessageMedia", [
                 'message_id' => $id,
                 'media' => [
@@ -94,20 +102,21 @@ class TelegramCrossposter extends BaseCrossposter {
                 ]
             ]);
         } else {
-            $this->request("editMessageText", [
-                'message_id' => $id,
-                'text' => $text
-            ]);
+            if ($post->needChangeText() || $post->needChangeLink()) {
+                $this->request("editMessageText", [
+                    'message_id' => $id,
+                    'text' => $text
+                ]);
+            }
         }
         return $id;
     }
 
     public function deletePost($id) {
-        $params = [
-            'post_id' => $id,
-        ];
-        $response = $this->request("wall.delete", $params);
-        return $response->response->post_id;
+        $response = $this->request("deleteMessage", [
+            'message_id' => $id,
+        ]);
+        return $id;
     }
 
 }

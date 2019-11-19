@@ -121,7 +121,9 @@ let onReady = () => {
                         window[$(this).data('callback')](res);
                     }
                 }
-                $(this).find('.response')[0].scrollIntoView();
+                if (!$(this).data('noscroll')) {
+                    $(this).find('.response')[0].scrollIntoView();
+                }
             })
             .fail((xhr) => {
                 $(this).find('.form__preloader').remove();
@@ -135,7 +137,9 @@ let onReady = () => {
                         $(this).find('*[name=' + key + ']').parents('.input-container').addClass('input-container--with-errors').find('.input-container__message').html(error.errors[key].join("; "));
                     })
                 }
-                $(this).find('.response')[0].scrollIntoView();
+                if (!$(this).data('noscroll')) {
+                    $(this).find('.response')[0].scrollIntoView();
+                }
             });
     });
 
@@ -177,14 +181,15 @@ let onReady = () => {
 
     $(body).on('click', '.comment__edit', function() {
         let id = $(this).parents('.comment').eq(0).data('id');
-        $('#edit_form_container').html($('.comments > .comments__form').html());
-        $('#edit_form_container').find('input[name="parent_id"]').val(id);
-        $('#edit_form_container').find('textarea[name="message"]').attr('id', 'message_edit_modal');
-        $('#edit_form_container').find('textarea[name="message"]').val($(this).parents('.comment').eq(0).find('.comment__original-text').html().trim());
-        $('#edit_form_container').find('form').attr('action', '/comments/edit');
-        $('#edit_form_container').find('input[name="id"]').val(id);
+        let form = '#edit_form_container';
+        $(form).html($('.comments > .comments__form').html());
+        $(form).find('input[name="parent_id"]').val(id);
+        $(form).find('textarea[name="message"]').attr('id', 'message_edit_modal');
+        $(form).find('textarea[name="message"]').val($(this).parents('.comment').eq(0).find('.comment__original-text').html().trim());
+        $(form).find('form').attr('action', '/comments/edit');
+        $(form).find('input[name="id"]').val(id);
         $('.comments > .comments__form').append('<div class="comments__form__disable"></div>')
-        showModal('#edit_form_container', 'Редактировать комментарий', () => {
+        showModal(form, 'Редактировать комментарий', () => {
             bb.init('message');
             $('.comments__form__disable').remove();
         });
@@ -221,36 +226,63 @@ let onReady = () => {
     $(document).pjax('a[target!="_blank"]', '#pjax-container', {timeout: 10000});
     onPageChange();
     function onPageChange() {
-        let pathname = window.location.pathname;
-        $('a').removeClass('link--active');
-        $('a[href="'+pathname+'"]').addClass('link--active');
-        if ($('.user-page__info-container').length > 0) {
-            if ($('.user-page__avatar').length > 0) {
-                let height =  $('.user-page__info-container').height();
-                $('.user-page__avatar').css('height', height + 'px');
-                let img = new Image();
-                img.src = $('.user-page__avatar').attr('src');
-                img.onload = () => {
-                    $('.user-page__info-container').hide();
-                    $('.user-page__info-container').css('flex', 'auto').css('width', 'calc(100% - '+($('.user-page__avatar').width())+'px)')
-                    $('.user-page__info-container').show();
-                };
-            } else {
+        const onVueMounted = () => {
+            if ($('#editor').length > 0){
+                CKEDITOR.replace('editor');
+            }
+            let pathname = window.location.pathname;
+            $('a').removeClass('link--active');
+            $('a[href="'+pathname+'"]').addClass('link--active');
+            if ($('.user-page__info-container').length > 0) {
+                if ($('.user-page__avatar').length > 0) {
+                    let height =  $('.user-page__info-container').height();
+                    $('.user-page__avatar').css('height', height + 'px');
+                    let img = new Image();
+                    img.src = $('.user-page__avatar').attr('src');
+                    img.onload = () => {
+                        $('.user-page__info-container').hide();
+                        $('.user-page__info-container').css('flex', 'auto').css('width', 'calc(100% - '+($('.user-page__avatar').width())+'px)')
+                        $('.user-page__info-container').show();
+                    };
+                }
+            }
+            $('.comment__video-player, .forum-message__video-player').each(function() {
+                let params = $(this).data('params');
+                params = params.replace(/'/g, '"');
+                params = JSON.parse(params);
+                _uVideoPlayer(params, $(this).data('element'));
+            });
+
+            let usersAutocomplete = $('#users_autocomplete');
+            if ($(usersAutocomplete).length > 0) {
+                $(usersAutocomplete).select2({
+                    ajax: {
+                        method: 'POST',
+                        url: '/users/autocomplete',
+                        dataType: 'json',
+                        processResults: function (data) {
+                            return {
+
+                                results: data.data.users.map(user => {
+                                    return {
+                                        id: user.id,
+                                        text: user.username,
+                                    }
+                                }),
+                                pagination: {
+                                    more: data.data.users.length > 0
+                                }
+                            };
+                        },
+                    }
+                });
 
             }
         }
-        $('.comment__video-player, .forum-message__video-player').each(function() {
-            let params = $(this).data('params');
-            params = params.replace(/'/g, '"');
-            params = JSON.parse(params);
-            _uVideoPlayer(params, $(this).data('element'));
-        })
         const app = new Vue({
             el: '#app',
             mounted: () => {
-                if ($('#editor').length > 0){
-                    CKEDITOR.replace('editor');
-                }
+                onVueMounted();
             }
         });
     }
@@ -289,6 +321,9 @@ let onReady = () => {
             let height = 600;
             let windowWidth = $(window).width();
             let windowHeight = $(window).height();
+            if ($(elementName).length === 0) {
+                $(body).append('<div id="'+modalName+'" style="display:none"></div>')
+            }
             $(elementName).show().appendTo(modalContent);
             $(modal).css('width',  width + 'px');
             $(modal).css('left', ((windowWidth - width) / 2) + 'px');
@@ -304,6 +339,9 @@ let onReady = () => {
         $(content).html('<div class="modal-window__preloader-container"><img class="modal-window__preloader" src="/pictures/ajax.gif"></div>');
         fn.done((res) => {
             $(content).html(res.data.html);
+            if (res.data.title) {
+                $(content).parents('.modal-window').find('.modal-window__title').html(res.data.title);
+            }
         });
     };
 
@@ -327,35 +365,164 @@ let onReady = () => {
         }
     });
 
-    // MODAL TRIGGERS
+    // REPUTATION
 
     $(body).on('click', '.user-page__info-block__value--reputation', function() {
-        showModal('#reputation_history');
+        let user_id = $('.user-page').data('user-id');
+        showModalAjax($.post('/reputation/ajax', {user_id}), '#reputation_history_' + user_id, 'Репутация пользователя');
     });
-    $(body).on('click', '.user-page__info-block__value--warnings', function() {
-        showModal('#warnings_history');
+
+    $(body).on('click', '.forum-message__reputation__number', function() {
+        let user_id = $(this).data('user-id');
+        showModalAjax($.post('/reputation/ajax', {user_id}), '#reputation_history_' + user_id, 'Репутация пользователя');
     });
-    $(body).on('click', '.user-page__info-block__value--awards', function() {
-        showModal('#awards_history');
+    $(body).on('click', '.forum-message__reputation__change', function() {
+        let user_id = $(this).data('user-id');
+        let message_id = $(this).parents('.forum-message').attr('id');
+        showModal('#change_reputation');
+        $('#change_reputation input[name="user_id"]').val(user_id);
+        $('#change_reputation input[name="forum_message_id"]').val(message_id);
     });
+
     $(body).on('click', '.user-page__info-block__change--reputation', function() {
         showModal('#change_reputation');
-        $('#change_reputation input[name="user_id"]').val($(this).data('user-id'));
+        $('#change_reputation input[name="user_id"]').val($('.user-page').data('user-id'));
     });
+    $(body).on('click', '.reputation-history__item__button--edit', function() {
+        $(this).parents('.reputation-history__item').find('.reputation-history__item__form').show();
+        $(this).parents('.reputation-history__item').find('.reputation-history__item__comment').hide();
+    });
+
+    $(body).on('click', '.reputation-history__item__form .button--cancel', function() {
+        $(this).parents('.reputation-history__item').find('.reputation-history__item__form').hide();
+        $(this).parents('.reputation-history__item').find('.reputation-history__item__comment').show();
+    });
+    function editReputationCallback(res) {
+        let id = res.data.reputation_item.id;
+        let item = $('.reputation-history__item[data-id='+id+']');
+        $(item).find('.reputation-history__item__form').hide();
+        $(item).find('.reputation-history__item__comment').show().html(res.data.reputation_item.comment);
+    }
+    window.editReputationCallback = editReputationCallback;
+
+    $(body).on('click', '.reputation-history__item__button--reply', function() {
+        $(this).parents('.reputation-history__item').find('.reputation-history__item__reply-comment').hide();
+        $(this).parents('.reputation-history__item').find('.reputation-history__item__reply-form').show();
+    });
+
+    $(body).on('click', '.reputation-history__item__reply-form .button--cancel', function() {
+        $(this).parents('.reputation-history__item').find('.reputation-history__item__reply-form').hide();
+        if ($(this).parents('.reputation-history__item').find('.reputation-history__item__reply-comment__text').length > 0) {
+            $(this).parents('.reputation-history__item').find('.reputation-history__item__reply-comment').show();
+        }
+    });
+
+    function replyReputationCallback(res) {
+        let id = res.data.reputation_item.id;
+        let item = $('.reputation-history__item[data-id='+id+']');
+        $(item).find('.reputation-history__item__reply-form').hide();
+        $(item).find('.reputation-history__item__reply-comment').show();
+        $(item).find('.reputation-history__item__reply-comment__text').html(res.data.reputation_item.reply_comment);
+    }
+    window.replyReputationCallback = replyReputationCallback;
+
+    $(body).on('click', '.reputation-history__item__button--delete', function() {
+        let id = $(this).parents('.reputation-history__item').data('id');
+        if (confirm("Вы уверены, что хотите удалить это сообщение?")) {
+            $.post('/reputation/delete', {id}).done(res => {
+                if (res.status) {
+                   $(this).parents('.reputation-history__item').remove();
+                } else {
+                    alert(res.text);
+                }
+            })
+        }
+    });
+
+    // AWARDS
+
+    $(body).on('click', '.user-page__info-block__value--awards', function() {
+        let user_id = $('.user-page').data('user-id');
+        showModalAjax($.post('/awards/ajax', {user_id}), '#awards_history_' + user_id, 'Награды пользователя');
+    });
+
+    $(body).on('click', '.user-page__info-block__change--awards', function() {
+        let user_id = $('.user-page').data('user-id');
+        showModalAjax($.post('/awards/list', {user_id}), '#awards_list', 'Выдать награду');
+    });
+
+    $(body).on('click', '.awards-history__item__button--edit', function() {
+        $(this).parents('.awards-history__item').find('.awards-history__item__form').show();
+        $(this).parents('.awards-history__item').find('.awards-history__item__comment').hide();
+    });
+
+    $(body).on('click', '.awards-history__item__form .button--cancel', function() {
+        $(this).parents('.awards-history__item').find('.awards-history__item__form').hide();
+        $(this).parents('.awards-history__item').find('.awards-history__item__comment').show();
+    });
+    function editAwardCallback(res) {
+        let id = res.data.award.id;
+        let item = $('.awards-history__item[data-id='+id+']');
+        $(item).find('.awards-history__item__form').hide();
+        $(item).find('.awards-history__item__comment').show().html(res.data.award.comment);
+    }
+    window.editAwardCallback = editAwardCallback;
+    $(body).on('click', '.awards-history__item__button--delete', function() {
+        let id = $(this).parents('.awards-history__item').data('id');
+        if (confirm("Вы уверены, что хотите удалить эту награду?")) {
+            $.post('/awards/delete', {id}).done(res => {
+                if (res.status) {
+                    $(this).parents('.awards-history__item').remove();
+                } else {
+                    alert(res.text);
+                }
+            })
+        }
+    });
+
+    $(body).on('click', '.forum-message__awards__number', function() {
+        let user_id = $(this).data('user-id');
+        showModalAjax($.post('/awards/ajax', {user_id}), '#awards_history_' + user_id);
+    });
+
+
+    // WARNINGS
+
+    $(body).on('click', '.user-page__info-block__value--warnings', function() {
+        let user_id = $('.user-page').data('user-id');
+        showModalAjax($.post('/warnings/ajax', {user_id}), '#warnings_history_' + user_id, 'Замечания пользователя');
+    });
+
+    $(body).on('click', '.user-page__info-block__change--warnings', function() {
+        let user_id = $('.user-page').data('user-id');
+        showModalAjax($.post('/warnings/form', {user_id}), '#warnings_form', 'Выдать замечание');
+    });
+
 
     $(body).on('click', '.button--login', function(e) {
         showModal('#login');
         e.preventDefault();
     });
 
-    $(body).on('click', '.form__bottom__link', function(e) {
+    $(body).on('click', '.form__bottom__link', function() {
         $(this).parents('.modal-window').find('.modal-window__close').click();
+    });
+
+    $(body).on('click', '.awards-list__item', function() {
+       let id = $(this).data('id');
+       $(this).parents('.awards-list').find('input[name="award_id"]').val(id);
+       $(this).parents('.awards-list').find('.awards-list__form').show();
+    });
+
+    $(body).on('click', '.forum-message__warnings__number', function() {
+        let user_id = $(this).data('user-id');
+        showModalAjax($.post('/warnings/ajax', {user_id}), '#warnings_history_' + user_id);
     });
 
     // FORUM
 
     $(body).on('click', '.bb-editor__smiles__all', function() {
-        showModal('#all_smiles');
+        showModalAjax($.post('/smiles'), '#all_smiles');
     });
 
     $(body).on('click', '.forum-section__delete-topic', function() {
@@ -366,27 +533,6 @@ let onReady = () => {
     $(body).on('click', '.forum-section__move-topic', function() {
         showModal('#move_topic');
     });
-
-    $(body).on('click', '.forum-message__reputation__number', function() {
-        let user_id = $(this).data('user-id');
-        showModalAjax($.post('/reputation/ajax', {user_id}), '#reputation_history_' + user_id);
-    });
-    $(body).on('click', '.forum-message__reputation__change', function() {
-        let user_id = $(this).data('user-id');
-        let message_id = $(this).parents('.forum-message').attr('id');
-        showModal('#change_reputation');
-        $('#change_reputation input[name="user_id"]').val(user_id);
-        $('#change_reputation input[name="forum_message_id"]').val(message_id);
-    });
-    $(body).on('click', '.forum-message__awards__number', function() {
-        let user_id = $(this).data('user-id');
-        showModalAjax($.post('/awards/ajax', {user_id}), '#awards_history_' + user_id);
-    });
-    $(body).on('click', '.forum-message__warnings__number', function() {
-        let user_id = $(this).data('user-id');
-        showModalAjax($.post('/warnings/ajax', {user_id}), '#warnings_history_' + user_id);
-    });
-
 
 
     $(body).on('click', '.forum-message__edit', function() {
@@ -479,6 +625,20 @@ let onReady = () => {
             $('input[name="page_id"]').val($(this).data('id'));
         }
         showModal('#delete_page');
+    });
+
+    //ARTICLES
+    $(body).on('click', '.button--delete-article', function() {
+        if ($(this).data('id')) {
+            $('input[name="article_id"]').val($(this).data('id'));
+        }
+        showModal('#delete_article');
+    });
+    $(body).on('click', '.button--approve-article', function() {
+        if ($(this).data('id')) {
+            $('input[name="article_id"]').val($(this).data('id'));
+        }
+        showModal('#approve_article');
     });
 };
 $(document).ready(function() {

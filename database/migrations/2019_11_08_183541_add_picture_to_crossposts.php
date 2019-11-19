@@ -14,9 +14,9 @@ class AddPictureToCrossposts extends Migration
     public function up()
     {
         Schema::table('crossposts', function (Blueprint $table) {
-            $table->string('picture');
-            $table->string('link');
-            $table->text('text');
+            $table->string('picture')->nullable();
+            $table->string('link')->nullable();
+            $table->text('text')->nullable();
         });
     }
 

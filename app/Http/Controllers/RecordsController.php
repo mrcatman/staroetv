@@ -8,6 +8,7 @@ use App\Picture;
 use App\Program;
 use App\Record;
 use Carbon\Carbon;
+use function foo\func;
 
 class RecordsController extends Controller {
 
@@ -60,7 +61,7 @@ class RecordsController extends Controller {
             }
         }
         arsort($cities);
-        return view("pages.records.index", [
+         return view("pages.records.index", [
             'cities' => $cities,
             'data' => $params,
             'federal' => $federal,
@@ -71,6 +72,9 @@ class RecordsController extends Controller {
     }
 
     public function add($params) {
+        if (PermissionsHelper::isBanned()) {
+            return view('pages.errors.banned');
+        }
         return view ("pages.forms.record", [
             'data' => $params,
             'record' => null,
@@ -79,7 +83,13 @@ class RecordsController extends Controller {
     }
 
     public function edit($id) {
+        if (PermissionsHelper::isBanned()) {
+            return view('pages.errors.banned');
+        }
         $record = Record::with('channel','program', 'program.coverPicture')->find($id);
+        if (!$record->can_edit) {
+            return view('pages.errors.403');
+        }
         return view ("pages.forms.record", [
             'data' => [
                 'is_radio' => $record->is_radio
@@ -120,7 +130,7 @@ class RecordsController extends Controller {
     }
 
     public function save() {
-        if (!PermissionsHelper::allows('viadd')) {
+        if (!PermissionsHelper::allows('viadd') || PermissionsHelper::isBanned()) {
             return [
                 'status' => 0,
                 'text' => 'Ошибка доступа'
@@ -147,7 +157,7 @@ class RecordsController extends Controller {
                 'text' => 'Видео не найдено'
             ];
         }
-        if (!$record->can_edit) {
+        if (!$record->can_edit || PermissionsHelper::isBanned()) {
            return [
                'status' => 0,
                'text' => 'Ошибка доступа'
@@ -250,6 +260,115 @@ class RecordsController extends Controller {
         $params = request()->all();
         $search = request()->input('search');
         $records = Record::where(['is_radio' => $is_radio])->where('title', 'LIKE', '%'.$search.'%');
+        if (request()->has('channels')) {
+            $channels = request()->input('channels');
+            if (!is_array($channels)) {
+                $channels = explode(",", $channels);
+            }
+            $records = $records->whereIn('channel_id', $channels);
+        }
+        if (request()->has('programs')) {
+            $programs = request()->input('programs');
+            if (!is_array($programs)) {
+                $programs = explode(",", $programs);
+            }
+            $records = $records->whereIn('program_id', $programs);
+        }
+        if (request()->has('is_interprogram')) {
+            $records = $records->where(['is_interprogram' => request()->input('is_interprogram') === "true"]);
+        }
+        if (request()->has('is_advertising')) {
+            $records = $records->where(['is_advertising' => request()->input('is_advertising') === "true"]);
+        }
+        if (request()->has('date')) {
+            $records = $records->where(function($q) {
+                $date_start = null;
+                $date_end = null;
+                if (request()->has('date.year')) {
+                    $q->where(["year" => request()->input('date.year')]);
+                    $date = Carbon::createFromDate(request()->input('date.year'), 1, 1);
+                    $date_start = $date->copy()->startOfYear();
+                    $date_end = $date->copy()->endOfYear();
+                    if (request()->has('date.month')) {
+                        $date = Carbon::createFromDate(request()->input('date.year'), request()->input('date.month'), 1);
+                        $date_start = $date->copy()->startOfMonth();
+                        $date_end = $date->copy()->endOfMonth();
+                        if (request()->has('date.day')) {
+                            $date = Carbon::createFromDate(request()->input('date.year'), request()->input('date.month'), request()->input('date.day'));
+                            $date_start = $date->copy()->startOfDay();
+                            $date_end = $date->copy()->endOfDay();
+                        }
+                    }
+                }
+                if (request()->has('date.month')) {
+                    $q->where(["month" => request()->input('date.month')]);
+                }
+                if (request()->has('date.day')) {
+                    $q->where(["day" => request()->input('date.day')]);
+                }
+                if ($date_start && $date_end) {
+                    $q->orWhere(function($sub) use ($date_start, $date_end) {
+                        $sub->whereBetween('date', [$date_start, $date_end]);
+                    });
+                }
+            });
+        }
+        if (request()->has('dates_range')) {
+            if (request()->has('dates_range.start') && request()->has('dates_range.end')) {
+                $records = $records->where(function($q) {
+                    $start = Carbon::createFromTimestamp(request()->input('dates_range.start'));
+                    $end = Carbon::createFromTimestamp(request()->input('dates_range.end'));
+                    $q->whereBetween('date', [$start, $end]);
+                    $start_year = $start->year;
+                    $end_year = $end->year;
+                    if ($start_year != $end_year) {
+                        $full_years = [];
+                        for ($i = $start_year + 1; $i < $end_year; $i++) {
+                            $full_years[] = $i;
+                        }
+                        $q->orWhereIn('year', $full_years);
+                    }
+                    $start_month = $start->month;
+                    $end_month = $end->month;
+                    $start_year_months = [];
+                    $end_year_months = [];
+                    for ($i = $start_month + 1; $i <= 12; $i++) {
+                        $start_year_months[] = $i;
+                    }
+                    for ($i = 1; $i < $end_month; $i++) {
+                        $end_year_months[] = $i;
+                    }
+                    $q->orWhere(function($sub) use ($start_year, $start_year_months) {
+                        $sub->where(['year' => $start_year]);
+                        $sub->whereIn('month', $start_year_months);
+                    });
+                    $q->orWhere(function($sub) use ($end_year, $end_year_months) {
+                        $sub->where(['year' => $end_year]);
+                        $sub->whereIn('month', $end_year_months);
+                    });
+                    $start_day = $start->day;
+                    $end_day = $end->day;
+                    $start_month_days = [];
+                    $end_month_days = [];
+                    for ($i = $start_day + 1; $i <= date('t', $start_month); $i++) {
+                        $start_month_days[] = $i;
+                    }
+                    for ($i = 1; $i < $end_day; $i++) {
+                        $end_month_days[] = $i;
+                    }
+                    $q->orWhere(function($sub) use ($start_year, $start_month, $start_month_days) {
+                        $sub->where(['year' => $start_year]);
+                        $sub->where(['month' => $start_month]);
+                        $sub->whereIn('day', $start_month_days);
+                    });
+                    $q->orWhere(function($sub) use ($end_year, $end_month, $end_month_days) {
+                        $sub->where(['year' => $end_year]);
+                        $sub->where(['month' => $end_month]);
+                        $sub->whereIn('day', $end_month_days);
+                    });
+                });
+            }
+        }
         if (request()->has('sort')) {
             $sort = request()->input('sort');
             $order = request()->input('sort_order', 'desc');

@@ -10,5 +10,4 @@ class TelegramPost extends BasePost {
         $this->text = strip_tags($text);
         return $this;
     }
-
 }

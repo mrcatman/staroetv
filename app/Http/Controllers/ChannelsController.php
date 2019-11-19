@@ -177,6 +177,16 @@ class ChannelsController extends Controller {
         ];
     }
 
+    public function getAjaxList($is_radio = false) {
+        $channels = Channel::where(['is_radio' => $is_radio])->with(['names', 'logo'])->get();
+        return [
+            'status' => 1,
+            'data' => [
+                'channels' => $channels
+            ]
+        ];
+    }
+
     public function getPrograms($id) {
         $channel = Channel::find($id);
         if (!$channel) {

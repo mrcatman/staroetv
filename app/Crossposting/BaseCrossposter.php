@@ -6,10 +6,8 @@ class BaseCrossposter {
 
     public $name = null;
     public $public_name = null;
-
-
     public $can_auto_connect = true;
-    protected $can_edit_post = true;
+    public $can_edit_posts = true;
 
     public function __construct() {
         $this->client = new \GuzzleHttp\Client(['verify' => false]);
@@ -29,7 +27,7 @@ class BaseCrossposter {
 
     }
 
-    public function afterRedirect() {
+    public function afterRedirect($data) {
 
     }
 

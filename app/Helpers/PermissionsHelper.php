@@ -15,6 +15,24 @@ class PermissionsHelper {
         }
     }
 
+    public static function isBanned($user = null) {
+        if (!$user) {
+            $user = auth()->user();
+        }
+        if (!$user) {
+            return false;
+        }
+        $warnings = $user->warnings;
+        if (count($warnings) === 0) {
+            return false;
+        }
+        $warning = $warnings->first();
+        if ($warning->weight == 1 && ($warning->time_expires > time() || $warning->is_forever)) {
+            return true;
+        }
+        return false;
+    }
+
     public static function checkGroupAccess($type, $entity) {
         $data = $entity->{$type};
         if (!$data || $data == "0" || $data == "") {

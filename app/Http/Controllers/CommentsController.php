@@ -26,7 +26,7 @@ class CommentsController extends Controller {
     }
 
     public function add() {
-        if (PermissionsHelper::allows("comadd")) {
+        if (PermissionsHelper::allows("comadd") && !PermissionsHelper::isBanned()) {
             if (request()->has('material_type') && request()->has('material_id')) {
                 if (request()->has('message') && request()->input('message') != "") {
                     $text = BBCodesHelper::BBToHTML(request()->input('message'));
@@ -93,7 +93,7 @@ class CommentsController extends Controller {
     public function edit() {
         $id = request()->input('id');
         $comment = Comment::find($id);
-        if ($comment && $comment->can_edit) {
+        if ($comment && $comment->can_edit && !PermissionsHelper::isBanned()) {
               if (request()->has('message') && request()->input('message') != "") {
                     $original_text = request()->input('message');
                     $text = BBCodesHelper::BBToHTML($original_text);
@@ -130,7 +130,7 @@ class CommentsController extends Controller {
     public function delete() {
         $id = request()->input('id');
         $comment = Comment::find($id);
-        if ($comment && $comment->can_delete) {
+        if ($comment && $comment->can_delete && !PermissionsHelper::isBanned()) {
            $comment->delete();
            return [
                'status' => 1,

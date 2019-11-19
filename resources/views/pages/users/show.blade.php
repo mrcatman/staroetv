@@ -1,6 +1,6 @@
 @extends('layouts.default')
 @section('content')
-    <div class="inner-page user-page">
+    <div class="inner-page user-page" data-user-id="{{$user->id}}">
         <div class="user-page__top">
             @if ($user->avatar)
             <img class="user-page__avatar" src="{{$user->avatar->url}}"/>
@@ -21,6 +21,11 @@
                         <div class="user-info">
                             <div class="user-info__col">
                                 <img class="user-info__group-icon" src="{{$user->group_icon}}" />
+                                @if($banned_till)
+                                    <div class="user-info__ban">Пользователь заблокирован до {{$banned_till}}</div>
+                                @elseif ($is_banned_forever)
+                                    <div class="user-info__ban">Пользователь заблокирован надолго, т.к. признан ботом или злостным нарушителем.</div>
+                                @endif
                                 <div class="user-info__item">
                                     <strong>Имя: </strong>{{$user->name}}
                                 </div>
@@ -30,12 +35,15 @@
                                 <div class="user-info__item">
                                     <strong>Был на сайте: </strong>{{$user->was_online}}
                                 </div>
+                                @if (auth()->user() && auth()->user()->id != $user->id)
+                                <a href="/pm/send?user_id={{$user->id}}" class="button button--flat">Отправить личное сообщение</a>
+                                @endif
                             </div>
                             <div class="user-info__col">
                                 @if ($user->meta->date_of_birth)
                                     <div class="user-info__item">
                                         <div class="user-info__item__icon"><i class="fa fa-birthday-cake"></i></div>
-                                        {{$user->meta->date_of_birth}}
+                                        {{$user->meta->date_of_birth_formatted}}
                                     </div>
                                 @endif
                                 @if ($user->meta->yandex_video)
@@ -74,27 +82,31 @@
             </div>
         </div>
         <div class="row">
-            @if (\App\Helpers\PermissionsHelper::allows("readrep"))
             <div class="col">
                 <div class="user-page__info-block">
                     <div class="user-page__info-block__title">Репутация</div>
                     <a class="user-page__info-block__value user-page__info-block__value--reputation">{{$user->reputation_number}}</a>
                     @if ($user->can_change_reputation)
-                    <a class="user-page__info-block__change user-page__info-block__change--reputation" data-user-id="{{$user->id}}">±</a>
+                    <a class="user-page__info-block__change user-page__info-block__change--reputation">±</a>
                     @endif
                 </div>
             </div>
-            @endif
             <div class="col">
                 <div class="user-page__info-block">
                     <div class="user-page__info-block__title">Награды</div>
-                    <div class="user-page__info-block__value user-page__info-block__value--awards">{{count($user->awards)}}</div>
+                    <a class="user-page__info-block__value user-page__info-block__value--awards">{{count($user->awards)}}</a>
+                    @if (\App\Helpers\PermissionsHelper::allows('awado'))
+                        <a class="user-page__info-block__change user-page__info-block__change--awards">±</a>
+                    @endif
                 </div>
             </div>
             <div class="col">
                 <div class="user-page__info-block">
-                    <div class="user-page__info-block__title">Баны</div>
-                    <div class="user-page__info-block__value user-page__info-block__value--warnings">{{$user->ban_level}}%</div>
+                    <div class="user-page__info-block__title">Замечания</div>
+                    <a class="user-page__info-block__value user-page__info-block__value--warnings">{{$user->ban_level}}%</a>
+                    @if (\App\Helpers\PermissionsHelper::allows('doban'))
+                        <a class="user-page__info-block__change user-page__info-block__change--warnings">±</a>
+                    @endif
                 </div>
             </div>
             @include('blocks/user_page_modals', ['user' => $user])

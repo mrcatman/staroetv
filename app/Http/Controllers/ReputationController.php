@@ -21,10 +21,18 @@ class ReputationController extends Controller {
 
     public function ajax() {
         $user_id = request()->input('user_id');
+        $user = User::find($user_id);
+        if (!$user) {
+            return [
+                'status' => 0,
+                'text' => 'Пользователь не существует'
+            ];
+        }
         $reputation = UserReputation::where(['to_id' => $user_id])->orderBy('id', 'desc')->get();
         return [
             'status' => 1,
             'data' => [
+                'title' => 'Репутация пользователя '.$user->username.' ('.$user->reputation_number.')',
                 'html' => view("blocks/reputation_modal_content", ['ajax' => true, 'reputation' => $reputation])->render()
             ]
         ];
@@ -42,6 +50,12 @@ class ReputationController extends Controller {
             return [
                 'status' => 0,
                 'text' => 'Ошибка доступа'
+            ];
+        }
+        if (PermissionsHelper::isBanned()) {
+            return [
+                'status' => 0,
+                'text' => 'Вы забанены'
             ];
         }
         $last_change = UserReputation::where(['from_id' => auth()->user()->id, 'to_id' => $user->id])->orderBy('id', 'desc')->first();
@@ -96,9 +110,86 @@ class ReputationController extends Controller {
                     ]
                 ]
             ]
-
         ];
     }
 
+    public function edit() {
+        if (PermissionsHelper::allows('editrep')) {
+            $reputation_obj = UserReputation::find(request()->input('id'));
+            if (!$reputation_obj) {
+                return [
+                    'status' => 0,
+                    'text' => 'Ошибка: объект не найден'
+                ];
+            }
+            if (request()->has('comment')) {
+                $reputation_obj->comment = request()->input('comment');
+            }
+            $reputation_obj->save();
+            return [
+                'status' => 1,
+                'text' => 'Сохранено',
+                'data' => [
+                    'reputation_item' => $reputation_obj
+                ]
+            ];
+        } else {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+    }
+
+    public function delete() {
+        if (PermissionsHelper::allows('editrep')) {
+            $reputation_obj = UserReputation::find(request()->input('id'));
+            if (!$reputation_obj) {
+                return [
+                    'status' => 0,
+                    'text' => 'Ошибка: объект не найден'
+                ];
+            }
+            $reputation_obj->delete();
+            return [
+                'status' => 1,
+                'text' => 'Удалено',
+
+            ];
+        } else {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+    }
+
+    public function reply() {
+        $reputation_obj = UserReputation::find(request()->input('id'));
+        if (!$reputation_obj) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка: объект не найден'
+            ];
+        }
+        if (PermissionsHelper::allows('editrep') || auth()->user() && auth()->user()->id == $reputation_obj->to_id) {
+            if (request()->has('reply_comment')) {
+                $reputation_obj->reply_comment = request()->input('reply_comment');
+            }
+            $reputation_obj->save();
+            return [
+                'status' => 1,
+                'text' => 'Сохранено',
+                'data' => [
+                    'reputation_item' => $reputation_obj
+                ]
+            ];
+        } else {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+    }
 
 }

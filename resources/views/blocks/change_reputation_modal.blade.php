@@ -29,6 +29,5 @@
             <button class="button button--light">Применить</button>
             <div class="response response--light"></div>
         </div>
-
     </form>
 </div>

@@ -2,6 +2,8 @@
 
 namespace App\Crossposting;
 
+use Illuminate\Support\Facades\URL;
+
 class BasePost {
 
     protected $text = "";
@@ -37,16 +39,37 @@ class BasePost {
         return $this;
     }
 
-    public function doNotChangeText() {
-        $this->do_not_change['text'] = true;
+    public function doNotChangeText($state = true) {
+        $this->do_not_change['text'] = $state;
     }
 
-    public function doNotChangeLink() {
-        $this->do_not_change['link'] = true;
+    public function doNotChangeLink($state = true) {
+        $this->do_not_change['link'] = $state;
     }
 
-    public function doNotChangePicture() {
-        $this->do_not_change['picture'] = true;
+    public function doNotChangePicture($state = true) {
+        $this->do_not_change['picture'] = $state;
+    }
+
+    public function needChangeText() {
+        if (isset($this->do_not_change['text'])) {
+            return $this->do_not_change['text'];
+        }
+        return true;
+    }
+
+    public function needChangeLink() {
+        if (isset($this->do_not_change['link'])) {
+            return $this->do_not_change['link'];
+        }
+        return true;
+    }
+
+    public function needChangePicture() {
+        if (isset($this->do_not_change['picture'])) {
+            return $this->do_not_change['picture'];
+        }
+        return true;
     }
 
 

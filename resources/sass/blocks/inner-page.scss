@@ -89,6 +89,20 @@
     br + br + br {
       display: none;
     }
+    .sig {
+      width: 100%;
+      font-style: italic;
+      color: #777;
+    }
+
+    .sig img {
+      width: 100%!important;
+      height: auto!important;
+    }
+
+    li br {
+      display: none;
+    }
   }
   &__text-block {
     /* margin: -1em; */

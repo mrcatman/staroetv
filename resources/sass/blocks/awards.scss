@@ -2,15 +2,39 @@
   &__item {
     display: flex;
     align-items: center;
-    border-bottom: 1px dashed #c2c5ca;
-    padding: .5em;
-
+    &__comment {
+      font-size: .875em;
+      margin: .5em 0 0;
+    }
     &__texts {
+      flex: 1;
       padding: 0 0 0 .5em;
     }
 
     &__date {
       font-size: .875em;
     }
+  }
+}
+
+.awards-list {
+  &__form {
+    margin: -1em 0 0;
+    padding: 0 .5em .5em;
+  }
+  &__item {
+    display: inline-block;
+    padding: .5em;
+    cursor: pointer;
+    margin: 0 .25em .25em 0;
+    transition: all .35s;
+    border-radius: .25em;
+    &:hover {
+      background: rgba(255, 255, 255, 0.75);
+    }
+  }
+  &__inner {
+    display: flex;
+    flex-wrap: wrap;
   }
 }

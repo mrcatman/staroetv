@@ -96,7 +96,7 @@ return [
     'numeric'              => 'Поле :attribute должно быть числом.',
     'present'              => 'Поле :attribute должно присутствовать.',
     'regex'                => 'Поле :attribute имеет ошибочный формат.',
-    'required'             => 'Поле :attribute обязательно для заполнения.',
+    'required'             => 'Поле обязательно для заполнения.',
     'required_if'          => 'Поле :attribute обязательно для заполнения, когда :other равно :value.',
     'required_unless'      => 'Поле :attribute обязательно для заполнения, когда :other не равно :values.',
     'required_with'        => 'Поле :attribute обязательно для заполнения, когда :values указано.',

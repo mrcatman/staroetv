@@ -6,7 +6,9 @@
         <div v-if="visible">
             <vue-draggable-resizable class="modal-window modal-window--vue" :x="x" :y="y" :w="width" :h="height" @dragging="onDrag" @resizing="onResize">
                 <div class="modal-window__inner" ref="inner">
-                    <div class="form__preloader" v-show="loading"></div>
+                    <div class="form__preloader" v-show="loading">
+                        <img src="/pictures/ajax.gif"/>
+                    </div>
                     <div class="modal-window__top">
                         <div class="modal-window__title">{{title}}</div>
                         <div @click="hide()" class="modal-window__close">x</div>

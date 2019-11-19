@@ -19,5 +19,8 @@
         <a class="admin-panel__link" href="/admin/smiles">
             <i class="fa fa-smile"></i>Смайлы
         </a>
+        <a class="admin-panel__link" href="/admin/crossposting">
+            <i class="fa fa-share-square"></i>Кросспостинг
+        </a>
     </div>
 </div>

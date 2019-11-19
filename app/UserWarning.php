@@ -7,7 +7,6 @@ class UserWarning extends Model {
 
     public $table = "users_warnings";
     protected $guarded = [];
-    public $timestamps = false;
 
     public function getWeightAttribute() {
         $weight = $this->attributes['weight'];

@@ -11,7 +11,7 @@ class BaseSettingsManager {
     public function __construct($crossposter) {
         $this->crossposter = $crossposter;
     }
-    
+
     public function getFilePath() {
         return app_path("Crossposting/config/".$this->crossposter->id.".json");
     }
@@ -39,7 +39,7 @@ class BaseSettingsManager {
         }
     }
 
-    protected function saveSettingsToFile() {
+    public function saveSettingsToFile() {
         if ($this->settings_values === null) {
             $this->loadSettingsFromFile();
         }

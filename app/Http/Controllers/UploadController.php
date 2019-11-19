@@ -33,7 +33,10 @@ class UploadController extends Controller
     {
         if ($user = auth()->user()) {
             $picture_item = new Picture(['user_id' => $user->id]);
-            $url = request()->input('url');
+            $url = trim(request()->input('url'));
+            if ($url == "") {
+                return ['status'=>0,'text'=>'Введите адрес'];
+            }
             $picture_item->loadFromURL($url, md5($url), true, "uploads/" . date("dmY"));
             if (request()->has('tag')) {
                 $picture_item->tag = request()->input('tag');

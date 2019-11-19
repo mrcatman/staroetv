@@ -27,6 +27,8 @@ class VKSettingsManager extends BaseSettingsManager {
     public function saveSettingsFromRequest($data) {
         if (isset($data['group_url']) && $data['group_url'] != "") {
             $group_url = str_replace("https://vk.com/", "", $data['group_url']);
+            $group_url = str_replace("http://vk.com/", "", $group_url);
+            $group_url = str_replace("vk.com/", "", $group_url);
             if ($group_url != "") {
                 $resolve = $this->crossposter->request("utils.resolveScreenName", [
                     'screen_name' => $group_url

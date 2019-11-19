@@ -40,7 +40,7 @@
 }
 
 .modal-window {
-  font-family: Tahoma, Geneva, sans-serif;
+  font-family: Roboto, Tahoma, Geneva, sans-serif;
   position: fixed!important;
   z-index: 10000!important;
   &__form {
@@ -60,7 +60,7 @@
     display: flex;
     flex-direction: column;
     min-width: 300px;
-    min-height: 120px;
+    /*min-height: 120px;*/
     box-shadow: 5px 5px 16px rgba(0, 0, 0, 0.25);
     position: relative;
     width: 100%;
@@ -102,7 +102,7 @@
     border-right: 1px solid #c2c5ca;
     background: linear-gradient(45deg, #eaeaea, #e0e0e0);
     color: #000;
-    min-height: 100px;
+    /*min-height: 100px;*/
     max-height: 600px;
     &__inner {
       padding: 12px;
@@ -114,24 +114,24 @@
       height: calc(100% - 24px);
     }
   }
- &__close {
-   position: absolute;
-   top: 10px;
-   right: 12px;
-   width: 15px;
-   height: 15px;
-   color: #555;
-   font-weight: bold;
-   background: linear-gradient(#eee, #ccc, #eee);
-   border: 1px solid #aaa;
-   border-radius: 3px;
-   line-height: 12px;
-   text-align: center;
+   &__close {
+     position: absolute;
+     top: 10px;
+     right: 12px;
+     width: 15px;
+     height: 15px;
+     color: #555;
+     font-weight: bold;
+     background: linear-gradient(#eee, #ccc, #eee);
+     border: 1px solid #aaa;
+     border-radius: 3px;
+     line-height: 12px;
+     text-align: center;
 
-   &:hover {
-     filter: brightness(1.05);
+     &:hover {
+       filter: brightness(1.05);
+     }
    }
- }
   .input-container__label {
     min-width: 0;
     margin: .35em 0 0 0;
@@ -140,8 +140,12 @@
     font-size: 1em;
     font-weight: normal;
   }
-
+  .input-container--with-errors .input {
+    box-shadow: none;
+    border: 1px solid #f00;
+  }
   .input-container--vertical .input-container__label {
+    font-size: .875em;
     margin: 0 0 .5em;
   }
   .input-container--checkbox__element {
@@ -153,6 +157,32 @@
   }
   .input-container--checkbox .input-container__label {
     margin: 0 1em 0 .5em!important;
+  }
+
+  &__list-item {
+    border-bottom: 1px dashed #c2c5ca;
+    padding: 8px;
+    position: relative;
+  }
+  &__buttons {
+    position: absolute;
+    top: .5em;
+    right: .5em;
+  }
+
+  &__button {
+    position: relative;
+    cursor: pointer;
+    margin: 0 0 0 .5em;
+    color: #999;
+    text-shadow: 0 1px 1px #f5f5f5;
+    &:hover {
+      color: #777;
+    }
+    & > .tooltip {
+      top: -.5em;
+      right: 2em;
+    }
   }
 }
 
