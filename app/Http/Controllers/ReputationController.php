@@ -172,7 +172,7 @@ class ReputationController extends Controller {
                 'text' => 'Ошибка: объект не найден'
             ];
         }
-        if (PermissionsHelper::allows('editrep') || auth()->user() && auth()->user()->id == $reputation_obj->to_id) {
+        if (PermissionsHelper::allows('editrep') || (auth()->user() && auth()->user()->id == $reputation_obj->to_id)) {
             if (request()->has('reply_comment')) {
                 $reputation_obj->reply_comment = request()->input('reply_comment');
             }

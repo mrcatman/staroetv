@@ -42,6 +42,8 @@
         }
     });
 </script>
+@endif
 @yield('scripts')
+@if (!request()->header('X-PJAX', false))
 </html>
 @endif
