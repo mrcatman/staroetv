@@ -17,16 +17,22 @@
                     @include('blocks/forum_topic_panel', ['topic' => $topic])
                 </div>
             </div>
-            @if ($show_pager)
             <div class="forum-section__pager-container">
+                @if ($show_pager)
                 <div class="forum-section__pager">
                     {{$paginator->links()}}
                 </div>
+                @endif
                 <form action="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" method="GET" class="forum-section__search">
-                    <input class="input" name="s" value="{{$search}}">
+                    <input placeholder="Поиск по теме"  class="input" name="s" value="{{$search}}">
                     <button type="submit" class="button button--light">ОК</button>
                 </form>
             </div>
+
+            @if ($topic->questionnaire_data)
+                <div class="questionnaire__container">
+                @include('blocks/questionnaire', ['questionnaire' => $topic->questionnaire_data, 'show_results' => $show_results])
+                </div>
             @endif
             <div class="forum-section__messages">
                 @if ($fixed_message)
@@ -42,17 +48,18 @@
                 @if ($subforum) <a class="forum-section__breadcrumb" href="/forum/{{$subforum->id}}">{{$subforum->title}}</a> @endif
                 <a class="forum-section__breadcrumb" >{{$topic->title}}</a>
             </div>
-            @if ($show_pager)
-                <div class="forum-section__pager-container">
+            <div class="forum-section__pager-container">
+                @if ($show_pager)
                     <div class="forum-section__pager">
                         {{$paginator->links()}}
                     </div>
-                    <form action="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" method="GET" class="forum-section__search">
-                        <input class="input" name="s" value="{{$search}}">
-                        <button type="submit" class="button button--light">ОК</button>
-                    </form>
-                </div>
-            @endif
+                @endif
+                <form action="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" method="GET" class="forum-section__search">
+                    <input placeholder="Поиск по теме" class="input" name="s" value="{{$search}}">
+                    <button type="submit" class="button button--light">ОК</button>
+                </form>
+            </div>
+
             @if (\App\Helpers\PermissionsHelper::allows("frreply") || \App\Helpers\PermissionsHelper::allows("frcloset"))
                 <div class="forum-section__form">
                 @include('blocks/forum_form', ['topic_id' => $topic->id])
@@ -61,12 +68,6 @@
         </div>
     </div>
     @include('blocks/change_reputation_modal')
-
-    @foreach ($users as $user)
-        <div id="reputation_history_{{$user->id}}" data-title="Репутация пользователя {{$user->username}} ({{$user->reputation_number}})" style="display:none"></div>
-        <div id="warnings_history_{{$user->id}}" data-title="Баны пользователя {{$user->username}} ({{$user->ban_level}}%)" style="display:none"></div>
-        <div id="awards_history_{{$user->id}}" data-title="Награды пользователя {{$user->username}} ({{count($user->awards)}})" style="display:none"></div>
-    @endforeach
 @endsection
 @section ('scripts')
     <script>

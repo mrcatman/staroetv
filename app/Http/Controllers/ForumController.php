@@ -9,11 +9,14 @@ use App\Helpers\BBCodesHelper;
 use App\Helpers\DatesHelper;
 use App\Helpers\ForumPaginator;
 use App\Helpers\PermissionsHelper;
+use App\QuestionnaireAnswer;
 use App\User;
 use Carbon\Carbon;
 use http\Message;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class ForumController extends Controller {
@@ -23,43 +26,104 @@ class ForumController extends Controller {
     protected $cache_time = 3600;
     protected $online_time = 10;
 
-    public function index() {
-        $forums = Forum::where(['parent_id' => 0])->get();
-        $users_on_forum = User::where('last_page_seen', 'LIKE', '%forum%')->whereDate('was_online', '>=', Carbon::now()->subMinutes($this->online_time))->get();
-        $users_by_subforum = [];
-        foreach ($users_on_forum as $user) {
-            $last_page = $user->last_page_seen;
-            $last_page = explode("/", $last_page);
-            if (count($last_page) > 1) {
-                $subforum = explode("-", $last_page[1])[0];
-                if (!isset($users_by_subforum[$subforum])) {
-                    $users_by_subforum[$subforum] = [];
-                };
-                $users_by_subforum[$subforum][] = $user;
+    public function index()
+    {
+        $search = request()->input('s', '');
+        if ($search != "") {
+            $page = request()->input('page', 1);
+            $messages_view = (request()->input('type', '') == "messages") || request()->input('messages_view', false);
+            $subforum_ids = $this->filterSubforums(Forum::pluck('id'));
+            if (!$messages_view) {
+                $topics = ForumTopic::where(function ($q) use ($search) {
+                    $q->where('title', 'LIKE', '%' . $search . '%');
+                    $q->orWhere('description', 'LIKE', '%' . $search . '%');
+                })->whereIn('forum_id', $subforum_ids);
+                $total = $topics->count();
+                $topics_on_page = $this->topics_on_page;
+
+                $topics = $topics->limit($topics_on_page)->offset(($page - 1) * $topics_on_page)->orderBy('last_reply_at', 'DESC');
+                $topics = $topics->get();
+
+                $paginator = new ForumPaginator([], $total, $topics_on_page, $page, [
+                    'path' => ForumPaginator::resolveCurrentPath(),
+                ]);
+                $fixed_topics = [];
+                return view("pages.forum.subforum", [
+                    'messages_view' => false,
+                    'search' => $search,
+                    'paginator' => $paginator,
+                    'fixed_topics' => $fixed_topics,
+                    'topics' => $topics,
+                    'parent_forum' => null,
+                    'forum' => null,
+                ]);
+            } else {
+                Paginator::currentPageResolver(function () use ($page) {
+                    return $page;
+                });
+
+                $subforum_ids = $this->filterSubforums(Forum::pluck('id'));
+                $topic_ids = ForumTopic::whereIn('forum_id', $subforum_ids)->pluck('id');
+                $messages = ForumMessage::whereRaw("MATCH (content) AGAINST ('$search')");
+                $messages = $messages->whereIn('topic_id', $topic_ids);
+                $total = $messages->count();
+                $messages = $messages->orderBy('id', 'asc')->limit($this->messages_on_page)->offset(($page - 1) * $this->messages_on_page)->get();
+
+                //$messages = $messages->paginate($this->messages_on_page);
+                $paginator = new ForumPaginator([], $total, $this->messages_on_page, $page, [
+                    'path' => ForumPaginator::resolveCurrentPath(),
+                ]);
+                return view("pages.forum.subforum", [
+                    'messages_view' => true,
+                    'messages' => $messages,
+                    'search' => $search,
+                    'paginator' => $paginator,
+                    'fixed_topics' => [],
+                    'topics' => [],
+                    'parent_forum' => null,
+                    'forum' => null,
+                ]);
             }
+        } else {
+            $forums = Forum::where(['parent_id' => 0])->get();
+            $users_on_forum = User::where('last_page_seen', 'LIKE', '%forum%')->whereDate('was_online', '>=', Carbon::now()->subMinutes($this->online_time))->get();
+            $users_by_subforum = [];
+            foreach ($users_on_forum as $user) {
+                $last_page = $user->last_page_seen;
+                $last_page = explode("/", $last_page);
+                if (count($last_page) > 1) {
+                    $subforum = explode("-", $last_page[1])[0];
+                    if (!isset($users_by_subforum[$subforum])) {
+                        $users_by_subforum[$subforum] = [];
+                    };
+                    $users_by_subforum[$subforum][] = $user;
+                }
+            }
+            $forums->transform(function ($forum) use ($users_by_subforum) {
+                $forum->subforums = $forum->subforums->map(function ($subforum) use ($users_by_subforum) {
+                    if (isset($users_by_subforum[$subforum->id])) {
+                        $subforum->users = $users_by_subforum[$subforum->id];
+                    }
+                    return $subforum;
+                })->filter(function ($subforum) {
+                    return PermissionsHelper::checkGroupAccess('can_view', $subforum);
+                });
+                return $forum;
+            });
+            $stats = [
+                'messages_count' => ForumMessage::count(),
+                'topics_count' => ForumTopic::count(),
+                'users_count' => User::count(),
+                'last_user' => User::orderBy('id', 'desc')->first()
+            ];
+
+            return view("pages.forum.index", [
+                'search' => $search,
+                'stats' => $stats,
+                'users_on_forum' => $users_on_forum,
+                'forums' => $forums,
+            ]);
         }
-        $forums->transform(function($forum) use ($users_by_subforum) {
-             $forum->subforums = $forum->subforums->map(function($subforum) use($users_by_subforum) {
-                 if (isset($users_by_subforum[$subforum->id])) {
-                     $subforum->users = $users_by_subforum[$subforum->id];
-                 }
-                 return $subforum;
-             })->filter(function($subforum) {
-                 return PermissionsHelper::checkGroupAccess('can_view', $subforum);
-             });
-             return $forum;
-        });
-        $stats = [
-            'messages_count' => ForumMessage::count(),
-            'topics_count' => ForumTopic::count(),
-            'users_count' => User::count(),
-            'last_user' => User::orderBy('id', 'desc')->first()
-        ];
-        return view("pages.forum.index", [
-            'stats' => $stats,
-            'users_on_forum' => $users_on_forum,
-            'forums' => $forums,
-        ]);
     }
 
     public function subforum($id, $page = 1) {
@@ -68,52 +132,109 @@ class ForumController extends Controller {
         if (!PermissionsHelper::checkGroupAccess('can_view', $forum)) {
             return redirect('/forum');
         }
-        $topics = ForumTopic::where(['forum_id' => $forum->id, 'is_fixed' => false]);
-        $total = $topics->count();
-        $topics_on_page = $this->topics_on_page;
-        $topics = $topics->limit($topics_on_page)->offset(($page - 1) * $topics_on_page)->orderBy('last_reply_at', 'DESC')->get();
 
-        $users_on_forum = User::where('last_page_seen', 'LIKE', '%forum/'.$forum->id.'%')->whereDate('was_online', '>=', Carbon::now()->subMinutes($this->online_time))->get();
-        $users_by_topic = [];
-
-        foreach ($users_on_forum as $user) {
-            $last_page = $user->last_page_seen;
-            $last_page = explode("/", $last_page);
-            $topic = explode("-", $last_page[1]);
-            if (isset($topic[1])) {
-                $topic = $topic[1];
-                if (!isset($users_by_subforum[$topic])) {
-                    $users_by_topic[$topic] = [];
-                };
-                $users_by_topic[$topic][] = $user;
+        $search = request()->input('s', '');
+        $messages_view = ($search != "" && request()->input('type', '') == "messages") || request()->input('messages_view', false);
+        if (!$messages_view) {
+            $topics_on_page = $this->topics_on_page;
+            $subforum_ids = Forum::where(['parent_id' => $forum->id])->pluck('id');
+            $subforum_ids->push($forum->id);
+            $subforum_ids = $this->filterSubforums($subforum_ids);
+            $topics = ForumTopic::whereIn('forum_id', $subforum_ids);
+            if ($search != "") {
+                $topics = $topics->where(function ($q) use ($search) {
+                    $q->where('title', 'LIKE', '%' . $search . '%');
+                    $q->orWhere('description', 'LIKE', '%' . $search . '%');
+                });
+                $fixed_topics = [];
+            } else {
+                $topics = $topics->where(['is_fixed' => false]);
+                $fixed_topics = $forum->fixed_topics;
             }
+            $total = $topics->count();
+            $topics = $topics->limit($topics_on_page)->offset(($page - 1) * $topics_on_page)->orderBy('last_reply_at', 'DESC');
+            $topics = $topics->get();
+
+            $users_on_forum = User::where('last_page_seen', 'LIKE', '%forum/' . $forum->id . '%')->whereDate('was_online', '>=', Carbon::now()->subMinutes($this->online_time))->get();
+            $users_by_topic = [];
+
+            foreach ($users_on_forum as $user) {
+                $last_page = $user->last_page_seen;
+                $last_page = explode("/", $last_page);
+                $topic = explode("-", $last_page[1]);
+                if (isset($topic[1])) {
+                    $topic = $topic[1];
+                    if (!isset($users_by_subforum[$topic])) {
+                        $users_by_topic[$topic] = [];
+                    };
+                    $users_by_topic[$topic][] = $user;
+                }
+            }
+
+
+            foreach ($topics as $topic) {
+                if (isset($users_by_topic[$topic->id])) {
+                    $topic->users = $users_by_topic[$topic->id];
+                }
+            };
+
+            foreach ($fixed_topics as $topic) {
+                if (isset($users_by_topic[$topic->id])) {
+                    $topic->users = $users_by_topic[$topic->id];
+                }
+            };
+
+            $paginator = new ForumPaginator([], $total, $topics_on_page, $page, [
+                'path' => ForumPaginator::resolveCurrentPath(),
+                'forum_id' => $forum->id,
+            ]);
+
+            return view("pages.forum.subforum", [
+                'messages_view' => false,
+                'search' => $search,
+                'paginator' => $paginator,
+                'fixed_topics' => $fixed_topics,
+                'topics' => $topics,
+                'parent_forum' => $parent_forum,
+                'forum' => $forum,
+            ]);
+        } else {
+            Paginator::currentPageResolver(function () use ($page) {
+                return $page;
+            });
+
+            $messages_on_page = $this->messages_on_page;
+            $subforum_ids = Forum::where(['parent_id' => $forum->id])->pluck('id');
+            $subforum_ids->push($forum->id);
+            $subforum_ids = $this->filterSubforums($subforum_ids);
+            $topic_ids = ForumTopic::whereIn('forum_id', $subforum_ids)->pluck('id');
+            $messages = ForumMessage::whereRaw("MATCH (content) AGAINST ('$search')");
+            $messages = $messages->whereIn('topic_id', $topic_ids);
+            $total = $messages->count();
+            $messages = $messages->paginate($messages_on_page);
+            $paginator = new ForumPaginator([], $total, $messages_on_page, $page, [
+                'path' => ForumPaginator::resolveCurrentPath(),
+                'forum_id' => $forum->id,
+            ]);
+            return view("pages.forum.subforum", [
+                'messages_view' => true,
+                'messages' => $messages,
+                'search' => $search,
+                'paginator' => $paginator,
+                'fixed_topics' => [],
+                'topics' => [],
+                'parent_forum' => $parent_forum,
+                'forum' => $forum,
+            ]);
         }
+    }
 
-        $fixed_topics = $forum->fixed_topics;
-
-        foreach ($topics as $topic) {
-            if (isset($users_by_topic[$topic->id])) {
-                $topic->users = $users_by_topic[$topic->id];
-            }
-        };
-
-        foreach ($fixed_topics as $topic) {
-            if (isset($users_by_topic[$topic->id])) {
-                $topic->users = $users_by_topic[$topic->id];
-            }
-        };
-
-        $paginator = new ForumPaginator([], $total, $topics_on_page, $page, [
-            'path'  => ForumPaginator::resolveCurrentPath(),
-            'forum_id' => $forum->id,
-        ]);
-        return view("pages.forum.subforum", [
-            'paginator' => $paginator,
-            'fixed_topics' => $fixed_topics,
-            'topics' => $topics,
-            'parent_forum' => $parent_forum,
-            'forum' => $forum,
-        ]);
+    private function filterSubforums($forum_ids) {
+        $forums = Forum::whereIn('id', $forum_ids)->get();
+        $forums->filter(function($forum) {
+            return PermissionsHelper::checkGroupAccess('can_view', $forum);
+        });
+        return $forums->pluck('id');
     }
 
     public function showTopic($forum_id, $topic_id, $page = 1) {
@@ -133,6 +254,8 @@ class ForumController extends Controller {
         if (!$topic) {
             return redirect("/forum");
         }
+        $topic->views_count++;
+        $topic->save();
 
         $search = request()->input('s');
 
@@ -174,8 +297,13 @@ class ForumController extends Controller {
 
         $show_pager = $total > $messages_on_page;
         $users = $messages->pluck('user')->unique()->filter();
+        $show_results = null;
+        if ($topic->questionnaire_data) {
+            $show_results = !PermissionsHelper::allows('frdopoll') || QuestionnaireAnswer::where(['questionnaire_id' => $topic->questionnaire_data->id, 'user_id' => auth()->user()->id])->count() > 0;
+        }
 
         return view("pages.forum.topic", [
+            'show_results' => $show_results,
             'search' => $search,
             'show_pager' => $show_pager,
             'topic' => $topic,
@@ -195,6 +323,23 @@ class ForumController extends Controller {
         }
         $page = ceil( $message_index / $this->messages_on_page);
         return redirect("/forum/$forum_id-$topic_id-$page#$message_id");
+    }
+
+    public function redirectToMessageById($message_id) {
+        $message = ForumMessage::find($message_id);
+        if (!$message) {
+            return redirect("/forum");
+        }
+        $topic = ForumTopic::find($message->topic_id);
+        if (!$topic) {
+            return redirect("/forum");
+        }
+        $message_index = ForumMessage::where(['topic_id' => $message->topic_id])->pluck('id')->search($message_id);
+        if ($message_index === false) {
+            return redirect("/forum");
+        }
+        $page = ceil( $message_index / $this->messages_on_page);
+        return redirect("/forum/".$topic->forum_id."-".$topic->id."-".$page."#".$message_id);
     }
 
     public function redirectToLastMessage($forum_id, $topic_id) {
@@ -227,6 +372,9 @@ class ForumController extends Controller {
         Cache::forget($cache_tag);
         $total_tag = 'total_' . $topic_id . '_' . $page;
         Cache::forget($total_tag);
+        $topic = ForumTopic::find($topic_id);
+        $topic->answers_count = ForumMessage::where(['topic_id' => $topic->id])->count() - 1;
+        $topic->save();
     }
 
     private function getPageIndex($message) {
@@ -405,6 +553,7 @@ class ForumController extends Controller {
         $forum = Forum::find($id);
         $parent_forum = Forum::find($forum->parent_id);
         return view("pages.forum.topic_form", [
+            'questionnaire' => null,
             'forum_id' => $id,
             'topic' => null,
             'parent_forum' => $parent_forum,
@@ -416,12 +565,36 @@ class ForumController extends Controller {
         $topic = ForumTopic::find($id);
         $forum = Forum::find($topic->forum_id);
         $parent_forum = Forum::find($forum->parent_id);
+        $questionnaire = $topic->questionnaire_data;
+        $questionnaire->load('variants');
+        $questionnaire = $questionnaire->toArray();
         return view("pages.forum.topic_form", [
+            'questionnaire' => $questionnaire,
             'forum_id' => $id,
             'topic' => $topic,
             'parent_forum' => $parent_forum,
             'forum' => $forum,
         ]);
+    }
+
+    private function getTopicValidateRules($create = false) {
+        $rules = [
+            'title' => 'required|min:1',
+            'description' => 'sometimes',
+        ];
+        if ($create) {
+            $rules['message'] = 'required|min:1';
+        }
+        if (PermissionsHelper::allows('frmesont')) {
+            $rules['first_message_fixed'] = 'sometimes|boolean';
+        }
+        if (PermissionsHelper::allows('frmesont')) {
+            $rules['is_fixed'] = 'sometimes|boolean';
+        }
+        if (PermissionsHelper::allows('frmesont')) {
+            $rules['is_closed'] = 'sometimes|boolean';
+        }
+        return $rules;
     }
 
     public function createTopic($id) {
@@ -438,14 +611,7 @@ class ForumController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         }
-        $data = request()->validate([
-            'title' => 'required|min:1',
-            'description' => 'sometimes',
-            'message' => 'required|min:1',
-            'first_message_fixed' => 'sometimes|boolean',
-            'is_fixed' => 'sometimes|boolean',
-            'is_closed' => 'sometimes|boolean',
-        ]);
+        $data = request()->validate($this->getTopicValidateRules(true));
         $content = $data['message'];
         unset($data['message']);
 
@@ -472,6 +638,13 @@ class ForumController extends Controller {
             'user_id' => $user->id,
         ]);
         $message_obj->save();
+        if (request()->has('questionnaire_data') && PermissionsHelper::allows('frpoll')) {
+            try {
+                (new QuestionnairesController())->save($topic->id);
+            } catch (\Exception $e) {
+                return ['status' => 0, 'text' => $e->getMessage()];
+            }
+        }
         return [
             'status' => 1,
             'text' => 'Тема создана',
@@ -493,13 +666,16 @@ class ForumController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         }
-        $data = request()->validate([
-            'title' => 'required|min:1',
-            'description' => 'sometimes',
-            'first_message_fixed' => 'sometimes|boolean',
-            'is_fixed' => 'sometimes|boolean',
-            'is_closed' => 'sometimes|boolean',
-        ]);
+
+        $data = request()->validate($this->getTopicValidateRules(false));
+        if (request()->has('questionnaire_data') && PermissionsHelper::allows('frpoll')) {
+
+            try {
+                (new QuestionnairesController())->save($id);
+            } catch (\Exception $e) {
+                return ['status' => 0, 'text' => $e->getMessage()];
+            }
+        }
         $topic->fill($data);
         $topic->save();
         $this->deleteCache($topic->id, 1);

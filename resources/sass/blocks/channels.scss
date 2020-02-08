@@ -80,7 +80,7 @@
   }
 }
 
-.cities-list {
+.top-list {
   background: linear-gradient(to bottom, #ddd, #eee);
   margin: 0;
   padding: 1em;
@@ -94,13 +94,18 @@
     display: inline-block;
     cursor: pointer;
     color: #777;
+    text-decoration: none;
     &--active {
       color: #555;
       font-weight: 600;
       border-bottom: 1px solid #555;
     }
+    &__count {
+      font-size: .875em;
+      font-weight: 600;
+    }
     &--all {
-      font-size: 2em;
+      font-size: 1.75em;
     }
 
     &:hover {
@@ -112,5 +117,92 @@
 .channels-list-page {
   &__tabs {
     padding: 1em;
+    display: flex;
+    align-items: center;
   }
+  &__button--advertising {
+    margin: 0 0 0 .75em;
+  }
+}
+
+.channel-page {
+    &__top {
+        display: flex;
+        align-items: center;
+        margin: 0 0 1em;
+    }
+    &__description {
+        flex: 3;
+        padding: 0 0 0 1em;
+    }
+    &__selected-logo {
+        width: 15em;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0 1em 0 0;
+        &__picture {
+            width: 15em;
+            height: 15em;
+            background-size: contain;
+            background-position: center center;
+            background-repeat: no-repeat;
+            position: relative;
+            z-index: 1;
+            &--shadow {
+                position: absolute;
+                top: 0;
+                left: 0;
+                filter: blur(10px) brightness(0.5);
+                z-index: 0;
+                opacity: 0.5;
+            }
+            &__container {
+                position: relative;
+            }
+        }
+
+        &__years {
+            font-style: italic;
+            font-size: .875em;
+        }
+    }
+    &__logos {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        &__list {
+            max-height: 20em;
+            overflow: auto;
+            display: block;
+            border-left: 1px solid #ccc;
+            padding: 0 1em;
+            &__inner {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                margin: 0 0.5em;
+            }
+            &__item {
+                width: 2em;
+                height: 2em;
+                background-color: #eee;
+                display: inline-block;
+                background-size: contain;
+                background-position: center center;
+                background-repeat: no-repeat;
+                border: 1px solid #ccc;
+                margin: .25em 0;
+                cursor: pointer;
+                padding: .25em;
+                &:hover {
+                    border-color: #777;
+                }
+                &--selected {
+                    border-color: #333;
+                }
+            }
+        }
+    }
 }

@@ -1,3 +1,4 @@
+import replaceDom from './replaceDom';
 import { showModal } from './modals';
 let body = $('body');
 
@@ -62,3 +63,11 @@ function forumMessageCallback(res) {
     }
 }
 window.forumMessageCallback = forumMessageCallback;
+
+$(body).on('change', 'input[name="questionnaire"]', function() {
+    $(this).is(':checked') ? $('#questionnaire_editor_container').show() : $('#questionnaire_editor_container').hide();
+});
+
+$(body).on('click', '.forum-page .page-link', function() {
+    $('.forum-page').append('<div class="form__preloader"><img src="/pictures/ajax.gif"></div>');
+});

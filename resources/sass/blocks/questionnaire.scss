@@ -1,0 +1,76 @@
+.questionnaire {
+  margin: 0 auto;
+  text-align: center;
+
+  &__container {
+    position: relative;
+    background: rgba(34, 32, 29, 0.75);
+  }
+
+  &__variants {
+    position: unset;
+    display: inline-block;
+  }
+
+  &__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1em 0 0;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1em;
+  }
+
+  &__total {
+    margin: 0 1em 0 0;
+  }
+
+  &__title {
+    padding: .5em 0 0;
+    font-size: 1.5em;
+    font-weight: 500;
+    margin: 0 0 .5em;
+  }
+
+  &__result {
+    display: flex;
+    align-items: center;
+    padding: .25em 1em;
+
+    &:nth-of-type(2n) {
+      background: #c4bd971f;
+    }
+
+    &__title {
+      font-size: 1.25em;
+      font-weight: 400;
+      width: 180px;
+    }
+
+    &__count {
+      font-size: 1.35em;
+      font-weight: 500;
+      margin: 0 0 0 .5em;
+      width: 80px;
+      text-align: center;
+    }
+
+    &__bar {
+      margin: 0 1em;
+      height: 1em;
+      background: #c4bd97;
+      border-radius: .25em;
+      box-shadow: -1px -1px inset #ded9bf;
+    }
+  }
+
+  &__results {
+    display: block;
+    text-align: left;
+  }
+  &__vote {
+    &__button {
+      margin: 0 0 1em;
+    }
+  }
+}

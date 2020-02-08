@@ -23,6 +23,7 @@ require('./modules/pages');
 require('./modules/reputation');
 require('./modules/tabs');
 require('./modules/warnings');
+require('./modules/pm');
 
 let onVueMounted = require('./modules/onmounted');
 
@@ -30,6 +31,12 @@ let onReady = () => {
     $(document).pjax('a[target!="_blank"]', '#pjax-container', {timeout: 10000});
     onPageChange();
     function onPageChange() {
+        let script = $('#pjax_scripts_container').data('script');
+        if (script) {
+            script = script.replace('<script>', '');
+            script = script.replace('</script>', '');
+            eval(script);
+        }
         window._vm = new Vue({
             el: '#app',
             mounted: () => {

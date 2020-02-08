@@ -3,11 +3,19 @@
         <div class="forum__info">
             <a href="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" class="forum__title">
                 @if ($topic->is_closed)<i class="fa fa-lock"></i>@endif
-                {{$topic->title}}
+                @if (isset($search) && $search)
+                   {!! \App\Helpers\HighlightHelper::highlight($topic->title, $search, true) !!}
+                @else
+                   {{ $topic->title }}
+                @endif
             </a>
             @if ($topic->description != "")
             <a href="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" class="forum__description">
-                {{$topic->description}}
+                @if (isset($search) && $search)
+                    {!! \App\Helpers\HighlightHelper::highlight($topic->description, $search, true) !!}
+                @else
+                    {{ $topic->description }}
+                @endif
             </a>
             @endif
             @if (isset($topic->users))

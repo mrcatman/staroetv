@@ -1,12 +1,22 @@
 @extends('layouts.default')
 @section('content')
     <div class="forum-page">
-        <div class="forum-section__title forum-section__title--main-page">
-            <div class="forum-section__title__inner">Форум</div>
-            <div class="forum-section__title__buttons">
-                @if (\App\Helpers\PermissionsHelper::allows('fredit'))
-                    <a class="button" href="/forum/0/new">Новый форум</a>
-                @endif
+        <div class="forum-section">
+            <div class="forum-section__breadcrumbs forum-section__breadcrumbs--index forum-section__breadcrumbs--with-search">
+                <a class="forum-section__breadcrumb" href="/forum">Форум</a>
+                <div class="forum-section__title__buttons">
+                    @if (\App\Helpers\PermissionsHelper::allows('fredit'))
+                        <a class="button" href="/forum/0/new">Новый форум</a>
+                    @endif
+                </div>
+                <form action="/forum/" method="GET" class="forum-section__search forum-section__search--subforum">
+                    <input placeholder="Поиск по форуму" class="input" name="s" value="{{$search}}">
+                    <select class="select-classic" name="type">
+                        <option value="topics" @if (!isset($messages_view) || !$messages_view) selected @endif>Темы</option>
+                        <option value="messages" @if (isset($messages_view) && $messages_view) selected @endif>Сообщения</option>
+                    </select>
+                    <button type="submit" class="button button--light">ОК</button>
+                </form>
             </div>
         </div>
         @foreach ($forums as $forum)

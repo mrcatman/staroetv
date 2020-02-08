@@ -71,13 +71,14 @@
             <div class="input-container__inner">
                 <div class="input-container__element-outer">
                     <div class="input-container__overlay-outer">
-                        <div class="input-container__disabled-overlay" v-if="data.is_interprogram || data.program.unknown || data.is_advertising"></div>
+                        <div class="input-container__disabled-overlay" v-if="data.is_interprogram || data.is_clip || data.program.unknown || data.is_advertising"></div>
                         <input class="input" v-model="data.program.name"/>
                     </div>
                     <div class="input-container__toggle-buttons">
                         <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.program.unknown}" @click="setUnknownProgram()">Программа неизвестна</a>
                         <a title="Заставки, анонсы и т.д." class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_interprogram}" @click="setInterprogram()">Межпрограммное пространство</a>
                         <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_advertising}" @click="setAdvertising()">Реклама</a>
+                        <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_clip}" @click="setClip()">Клип</a>
                     </div>
                     <div class="autocomplete__items" v-show="!data.is_interprogram && !data.program.unknown">
                         <a @click="selectProgram(programItem)" class="autocomplete__item" :class="{'autocomplete__item--selected': data.program.id === programItem.id}" v-for="(programItem, $index) in filteredPrograms" :key="$index">
@@ -85,6 +86,7 @@
                             <span class="autocomplete__item__name">{{programItem.name}}</span>
                         </a>
                     </div>
+                    <!--
                     <div v-if="data.is_interprogram" class="record-form__interprogram-packages">
                         <div @click="data.interprogram_package_id = item.id" v-for="(item, $index) in interprogramPackages" :key="$index"  class="record-form__interprogram-package" :class="{'record-form__interprogram-package--selected': data.interprogram_package_id === item.id}">
                             <div class="record-form__interprogram-package__cover" :style="{backgroundImage: 'url('+item.cover_picture+')'}"></div>
@@ -95,6 +97,7 @@
                             <div class="record-form__interprogram-package__name">Другое</div>
                         </div>
                     </div>
+                    -->
                 </div>
                 <span class="input-container__message">{{errors.program}}</span>
             </div>
@@ -197,6 +200,7 @@
     import Response from "./Response";
     let defaultData = {
         is_interprogram: false,
+        is_clip: false,
         interprogram_package_id: null,
         cover: '',
         is_advertising: false,
@@ -231,6 +235,7 @@
             if (this.record) {
                 this.data = {
                     is_interprogram: this.record.is_interprogram,
+                    is_clip: this.record.is_clip,
                     interprogram_package_id:  this.record.interprogram_package_id,
                     cover: this.record.cover,
                     record: {
@@ -249,7 +254,7 @@
                         name: this.record.program ? this.record.program.name : '',
                         id: this.record.program ? this.record.program.id : null,
                         cover_picture: this.record.program ? this.record.program.cover_picture : null,
-                        unknown: !(this.record.program_id > 0) && !this.record.is_interprogram,
+                        unknown: !(this.record.program_id > 0) && !this.record.is_interprogram  && !this.record.is_clip  && !this.record.is_advertising,
                     },
                     channel: {
                         name: this.record.channel ? this.record.channel.name : '',
@@ -288,19 +293,31 @@
                     }
                 });
             },
+            setClip() {
+                this.data.is_clip = !this.data.is_clip;
+                if (this.data.is_clip) {
+                    this.data.is_advertising = false;
+                    this.data.is_interprogram = false;
+                    this.data.program.unknown = false;
+                }
+            },
             setAdvertising() {
                 this.data.is_advertising = !this.data.is_advertising;
-                if (this.data.is_interprogram) {
+                if (this.data.is_advertising) {
+                    this.data.is_clip = false;
+                    this.data.is_interprogram = false;
                     this.data.program.unknown = false;
                 }
             },
             setInterprogram() {
                 this.data.is_interprogram = !this.data.is_interprogram;
                 if (this.data.is_interprogram) {
+                    this.data.is_advertising = false;
+                    this.data.is_clip = false;
                     this.data.program.unknown = false;
                     if (this.data.channel.id) {
                         if (!this.isRadio) {
-                            this.loadInterprogramPackages();
+                            //this.loadInterprogramPackages();
                         }
                     }
                 }
@@ -312,6 +329,8 @@
                 this.data.program.unknown = !this.data.program.unknown;
                 if (this.data.program.unknown) {
                     this.data.is_interprogram = false;
+                    this.data.is_clip = false;
+                    this.data.is_advertising = false;
                 }
             },
             setUnknownChannel() {
@@ -384,13 +403,17 @@
                         }
                     });
                     console.log(parsed);
-                    let interprogram_keys = ["анонс","вещани","реклам","заставк","ролик","программа передач","погод","эфира","спонсор", "часы"];
+                    let interprogram_keys = ["анонс","вещани","заставк","ролик","программа передач","погод","эфира","спонсор", "часы"];
                     let program_lower = parsed[4].toLowerCase();
-                    interprogram_keys.forEach(interprogram_key => {
-                        if (program_lower.indexOf(interprogram_key) !== -1) {
-                            this.data.is_interprogram = true;
-                        }
-                    })
+                    if (program_lower.indexOf("реклам") !== -1) {
+                        this.data.is_advertising = true;
+                    } else {
+                        interprogram_keys.forEach(interprogram_key => {
+                            if (program_lower.indexOf(interprogram_key) !== -1) {
+                                this.data.is_interprogram = true;
+                            }
+                        })
+                    }
                     if (this.data.channel.name === "") {
                         this.data.channel.name = parsed[5];
                         if (this.allChannelNames[parsed[5]]) {
@@ -417,7 +440,7 @@
                         this.data.short_description = parsed[7];
                     }
                     if (this.data.is_interprogram && this.data.channel.id) {
-                        this.loadInterprogramPackages();
+                        //this.loadInterprogramPackages();
                     }
                     let date = parsed[6];
                     let year_end;

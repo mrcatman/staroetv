@@ -1,0 +1,30 @@
+.breadcrumbs {
+    background: #eee;
+    padding: .5em 1em;
+    font-size: 1.125em;
+    &__item {
+        color: #9c673e;
+        text-decoration: none;
+        cursor: pointer;
+        &:after {
+            content: "/";
+            margin: 0 .5em;
+            color: #333;
+        }
+        &:hover {
+            text-decoration: underline;
+        }
+        &--current {
+            color: #333;
+            cursor: default;
+
+            &:after {
+                display: none;
+            }
+
+            &:hover {
+                text-decoration: none;
+            }
+        }
+    }
+}

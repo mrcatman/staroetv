@@ -8,10 +8,11 @@ Vue.component('names-history-editor', require('./components/NamesHistoryEditor.v
 Vue.component('picture-uploader', require('./components/PictureUploader.vue').default);
 Vue.component('record-form', require('./components/RecordForm.vue').default);
 Vue.component('user-groups-select', require('./components/UserGroupsSelect.vue').default);
-Vue.component('datepicker', require('vuejs-datepicker').default);
+Vue.component('datepicker', require('./components/datepicker/components/Datepicker').default);
 Vue.component('pagination', require('laravel-vue-pagination'));
 Vue.component('records-search', require('./components/RecordsSearch').default);
 Vue.component('crossposts-editor', require('./components/CrosspostsEditor').default);
+Vue.component('questionnaire-editor', require('./components/QuestionnaireEditor').default);
 
 Vue.component('permissions-manager', require('./components/admin/PermissionsManager.vue').default);
 Vue.component('channels-manager', require('./components/admin/ChannelsManager.vue').default);

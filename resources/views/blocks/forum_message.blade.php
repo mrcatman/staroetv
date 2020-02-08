@@ -53,6 +53,7 @@
     <div class="forum-message__right">
         <div class="forum-message__date">
             {{$message->created_at}}
+            <a class="forum-message__link" target="_blank" href="/forum/0-{{$message->id}}">[ссылка]</a>
         </div>
         <div class="forum-message__content">
             @if (isset($highlight) && $highlight)

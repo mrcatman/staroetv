@@ -1,6 +1,15 @@
 @extends('layouts.default')
 @section('content')
     <form class="form box" method="POST">
+        <div class="breadcrumbs">
+            <a class="breadcrumbs__item" href="{{$is_radio ? "/radio" : "/video"}}">Архив</a>
+            @if ($channel)
+                <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
+                <a class="breadcrumbs__item breadcrumbs__item--current">Редактировать</a>
+            @else
+                <a class="breadcrumbs__item breadcrumbs__item--current">{{$is_radio ? "Новая радиостанция" : "Новый канал"}}</a>
+            @endif
+        </div>
         <div class="box__heading">
             {{ $is_radio ? ($channel ? "Редактировать радиостанцию: ".$channel->name : "Добавить радиостанцию") : ($channel ? "Редактировать канал: ".$channel->name : "Добавить канал") }}
         </div>
@@ -29,7 +38,7 @@
                 </div>
             </div>
             <div class="input-container">
-                <label class="input-container__label">Лого</label>
+                <label class="input-container__label">Логотип</label>
                 <div class="input-container__inner">
                     <picture-uploader type="logo" :channelid="{{$channel ? $channel->id : "null"}}" name="logo_id" :data="{{$channel && $channel->logo ? $channel->logo : "null"}}"/>
                     <span class="input-container__message"></span>

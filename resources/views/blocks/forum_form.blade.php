@@ -1,4 +1,5 @@
 <form class="form bb-editor" data-callback="forumMessageCallback" @if (isset($edit_id)) action="/forum/edit-message" @else  action="/forum/post-message" @endif method="POST" data-reset="1" data-auto-close-modal="1">
+    <div class="bb-editor__inner">
     @if (isset($edit_id))
     <input type="hidden" name="message_id" value="{{$edit_id}}"/>
     @endif
@@ -125,4 +126,5 @@
         <div class="response response--light"></div>
     </div>
     @endif
+    </div>
 </form>

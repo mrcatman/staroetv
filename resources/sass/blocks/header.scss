@@ -1,5 +1,7 @@
 .top-menu {
   background: linear-gradient(#403c36 0%, #696259 48%, #262320 52%, #282521 100%);
+  max-width: 1400px;
+  margin: 0 auto;
   &__inner {
     display: flex;
     text-align: left;
@@ -36,6 +38,8 @@
   background: repeating-linear-gradient(90deg, #9e734c, #9d734b 49%, #d19964 49%, #d59c66 100% 50px);
   position: relative;
   background-size: 5em;
+  max-width: 1400px;
+  margin: 0 auto;
   &__logo {
     height: 2em;
   }
@@ -86,7 +90,7 @@
     text-decoration: none;
     font-weight: bold;
     margin: 0;
-    padding: .5em 0;
+    padding: .5em;
     text-align: center;
     color: #eee;
     text-shadow: 0 .25em .75em #000;
@@ -106,6 +110,7 @@
   display: flex;
   align-items: center;
   border-radius: 5em;
+  margin: 0 1em 0 0;
   @include mobile() {
     margin: 0 0 1em;
   }
@@ -137,5 +142,13 @@
   &__username {
     font-weight: bold;
     color: $main-links;
+  }
+  &__pm {
+    font-size: .875em;
+    padding: .125em 0;
+    &--unread {
+       color: #f00;
+       font-weight: bold;
+    }
   }
 }

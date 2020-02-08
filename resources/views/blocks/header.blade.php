@@ -9,6 +9,7 @@
                     <a class="auth-panel__avatar" href="/users/{{auth()->user()->id}}" style="background-image:url({{auth()->user()->avatar ? auth()->user()->avatar->url : ''}})"></a>
                     <div class="auth-panel__texts">
                         <a href="{{auth()->user()->url}}" class="auth-panel__username">{{auth()->user()->username}}</a>
+                        @include('blocks.pm')
                         <a class="auth-panel__logout" onclick="event.preventDefault();document.getElementById('logout-form').submit();">
                             Выход
                         </a>

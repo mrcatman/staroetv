@@ -1,14 +1,14 @@
 <template>
     <div class="user-groups-select">
         <input type="hidden" :name="name" v-model="value"/>
-        <div class="user-groups-select__default-settings">
+        <div class="user-groups-select__default-settings" v-show="showDefaultSettings">
             <label class="input-container input-container--checkbox">
                 <input type="checkbox" v-model="defaultSettings">
                 <div class="input-container--checkbox__element"></div>
                 <div class="input-container__label">Настройки по умолчанию</div>
             </label>
         </div>
-        <div class="user-groups-select__items" v-show="!defaultSettings">
+        <div class="user-groups-select__items" v-show="!defaultSettings || !showDefaultSettings">
             <div class="user-groups-select__item" v-for="(group, $index) in groups" :key="$index" >
                 <label class="input-container input-container--checkbox">
                     <input type="checkbox" v-model="dataByGroup[group.id]">
@@ -49,10 +49,10 @@
 </style>
 <script>
     export default {
-        props: ['name', 'data', 'groups'],
+        props: ['name', 'data', 'groups', 'showDefaultSettings'],
         computed: {
             value() {
-                if (this.defaultSettings) {
+                if (this.defaultSettings && this.showDefaultSettings) {
                     return "0";
                 }
                 let groups = [];

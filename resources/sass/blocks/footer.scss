@@ -2,7 +2,8 @@
   background: repeating-linear-gradient(90deg, #473422, #473422 49%, #36271a 49%, #36271a 100% 50px);
   background-size: 5em;
   position: relative;
-
+  max-width: 1400px;
+  margin: 0 auto;
   &:before {
     content: "";
     display: block;

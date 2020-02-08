@@ -8,7 +8,7 @@
                     @if ($data['is_radio'])
                         <a class="button button--light" href="/radio-recordings/add">Добавить радиозапись</a>
                     @else
-                        <a class="button button--light" href="/videos/add">Добавить видео</a>
+                        <a class="button button--light" href="/video/add">Добавить видео</a>
                     @endif
                 @endif
                 @if (\App\Helpers\PermissionsHelper::allows('channelsown'))
@@ -29,6 +29,7 @@
                     <a class="tab" data-content="abroad">Зарубежные</a>
                     <a class="tab" data-content="other">Другие</a>
                 </div>
+                <a class="button button--light channels-list-page__button--advertising" @if ($data['is_radio']) href="/radio/advertising" @else href="/video/advertising" @endif>Рекламные ролики</a>
             </div>
             <div class="tab-content" data-id="channels" data-tab="federal">
                 <div class="channels-list">
@@ -38,12 +39,12 @@
                 </div>
             </div>
             <div style="display: none" class="tab-content" data-id="channels" data-tab="regional">
-                <div class="cities-list">
-                    <a class="cities-list__item cities-list__item--all">Все</a>
+                <div class="top-list">
+                    <a class="top-list__item top-list__item--all">Все</a>
                     @foreach ($cities as $city => $count)
-                        <a class="cities-list__item" data-city="{{$city}}">
-                            <span class="cities-list__item__name">{{$city}}</span>
-                            <span class="cities-list__item__count">{{$count}}</span>
+                        <a class="top-list__item" data-city="{{$city}}">
+                            <span class="top-list__item__name">{{$city}}</span>
+                            <span class="top-list__item__count">{{$count}}</span>
                         </a>
                     @endforeach
                 </div>

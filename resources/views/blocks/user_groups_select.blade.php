@@ -1,1 +1,1 @@
-<user-groups-select name="{{$name}}" data="{{$data}}" :groups="{{\App\UserGroup::all()}}" />
+<user-groups-select name="{{$name}}" data="{{$data}}" :groups="{{\App\UserGroup::all()}}" :show-default-settings="{{isset($default_settings) ? ($default_settings ? "true" : "false") : "false" }}" />

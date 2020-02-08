@@ -4,6 +4,16 @@
 @endsection
 @section('content')
     <div class="inner-page record-page">
+        <div class="breadcrumbs">
+            @if ($record->channel)
+            <a class="breadcrumbs__item" href="{{$record->channel->is_radio ? "/radio" : "/video"}}">Архив</a>
+            <a class="breadcrumbs__item" href="{{$record->channel->full_url}}">{{$record->channel->name}}</a>
+            @endif
+            @if ($record->program)
+            <a class="breadcrumbs__item" href="{{$record->program->full_url}}">{{$record->program->name}}</a>
+            @endif
+            <a class="breadcrumbs__item breadcrumbs__item--current">{{$record->title}}</a>
+        </div>
         <div class="row row--stretch">
             <div class="col col--3">
                 <div class="inner-page__header">
@@ -20,12 +30,14 @@
                     </div>
                     @endif
                     <div class="record-page__bottom">
+                        @if ($record->channel)
                         <a href="/channels/{{$record->channel->id}}" class="record-page__channel">
                             <div class="record-page__channel__logo" style="background-image: url({{$record->getChannelLogo()}})"></div>
                             <div class="record-page__channel__name">
                                 {{$record->getChannelName()}}
                             </div>
                         </a>
+                        @endif
                         <div class="inner-page__icon-blocks-container">
                             <a @if ($record->user) href="{{$record->user->url}}" @endif class="inner-page__icon-block">
                                 <i class="fa fa-user"></i>

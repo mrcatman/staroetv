@@ -24,20 +24,23 @@ Route::get('/new-design', function () {
 Route::get('/video', function () {
     return (new \App\Http\Controllers\RecordsController())->index(['is_radio' => false]);
 });
-Route::get('/videos', function () {
+Route::get('/video', function () {
     return (new \App\Http\Controllers\RecordsController())->index(['is_radio' => false]);
 });
-Route::get('/videos/add', function () {
+Route::get('/video/add', function () {
     return (new \App\Http\Controllers\RecordsController())->add(['is_radio' => false]);
 });
-Route::any('/videos/search', function () {
+Route::any('/video/advertising', function () {
+    return (new \App\Http\Controllers\RecordsController())->advertising(['is_radio' => false]);
+});
+Route::any('/video/search', function () {
     return (new \App\Http\Controllers\RecordsController())->search(['is_radio' => false]);
 });
-Route::get('/videos/edit/{id}', 'RecordsController@edit');
-Route::get('/videos/{id}', 'RecordsController@show');
+Route::get('/video/edit/{id}', 'RecordsController@edit');
+Route::get('/video/{id}', 'RecordsController@show');
 Route::get('/video/vip/{id}/{channel?}/{url}', 'RecordsController@showOld');
 Route::get('/video/vip/{id}//{url}', 'RecordsController@showOld');
-Route::post('/videos/getinfo', 'RecordsController@getInfo');
+Route::post('/video/getinfo', 'RecordsController@getInfo');
 
 
 // RADIO
@@ -46,6 +49,9 @@ Route::get('/dir', function () {
 });
 Route::get('/radio', function () {
     return (new \App\Http\Controllers\RecordsController())->index(['is_radio' => true]);
+});
+Route::any('/radio/advertising', function () {
+    return (new \App\Http\Controllers\RecordsController())->advertising(['is_radio' => true]);
 });
 Route::get('/radio-recordings/add', function () {
     return (new \App\Http\Controllers\RecordsController())->add(['is_radio' => true]);
@@ -61,6 +67,13 @@ Route::post('/records/add', 'RecordsController@save');
 Route::post('/records/{id}/edit', 'RecordsController@update');
 
 Route::get('/programs/{id}', 'ProgramsController@show');
+Route::get('/programs/add', 'ChannelsController@add');
+Route::post('/programs/add', 'ChannelsController@save');
+Route::get('/programs/{id}/edit', 'ProgramsController@edit');
+Route::post('/programs/{id}/edit', 'ProgramsController@update');
+Route::post('/programs/merge', 'ProgramsController@merge');
+Route::post('/programs/delete', 'ProgramsController@delete');
+
 
 Route::get('/channels/add', 'ChannelsController@add');
 Route::post('/channels/add', 'ChannelsController@save');
@@ -79,6 +92,13 @@ Route::get('/channels/{id}/interprogram-packages', 'ChannelsController@getInterp
 Route::post('/channels/{id}/edit', 'ChannelsController@update');
 Route::post('/channels/merge', 'ChannelsController@merge');
 Route::post('/channels/delete', 'ChannelsController@delete');
+
+Route::post('/channels/{id}/graphics/add', 'InterprogramPackagesController@save');
+Route::get('/channels/{id}/graphics/add', 'InterprogramPackagesController@add');
+Route::get('/channels/{id}/graphics/edit/{package_id}', 'InterprogramPackagesController@edit');
+Route::post('/channels/{id}/graphics/edit/{package_id}', 'InterprogramPackagesController@update');
+Route::get('/channels/{id}/graphics', 'InterprogramPackagesController@show');
+Route::post('/graphics/delete', 'InterprogramPackagesController@delete');
 
 Route::post('/upload/pictures/by-url', 'UploadController@uploadPicturesByURL');
 Route::get('/upload/pictures/getbychannel/{id}', 'UploadController@getPicturesByChannel');
@@ -256,6 +276,7 @@ Route::post('/forum/post-message', 'ForumController@postMessage');
 Route::post('/forum/edit-message', 'ForumController@editMessage');
 Route::post('/forum/delete-message', 'ForumController@deleteMessage');
 
+Route::get('/forum/0-{message_id}', 'ForumController@redirectToMessageById');
 Route::get('/forum/{id}-0-{page_id}', 'ForumController@subforum');
 Route::get('/forum/{forum_id}-{topic_id}-0-17-1', 'ForumController@redirectToLastMessage');
 Route::get('/forum/{forum_id}-{topic_id}-{message_id}-{time}', 'ForumController@redirectToMessage');
@@ -264,6 +285,9 @@ Route::get('/forum/{forum_id}-{topic_id}-{page_id}', 'ForumController@showTopic'
 Route::get('/forum/{forum_id}-{topic_id}', 'ForumController@showTopic');
 Route::get('/forum/{id}', 'ForumController@subforum');
 Route::post('/forum/get-edit-form', 'ForumController@getEditForm');
+
+Route::post('/questionnaire/vote', 'QuestionnairesController@vote');
+Route::post('/questionnaire/form', 'QuestionnairesController@form');
 
 Route::post('reputation/ajax', 'ReputationController@ajax');
 Route::post('reputation/change', 'ReputationController@change');
@@ -301,8 +325,11 @@ Route::get('/users/comments/{id}', 'UsersController@comments');
 // PM
 Route::get('/pm', 'PrivateMessagesController@index');
 Route::get('/index/14', 'PrivateMessagesController@index');
+Route::post('/pm/update', 'PrivateMessagesController@update');
 Route::get('/pm/send', 'PrivateMessagesController@send');
 Route::post('/pm/send', 'PrivateMessagesController@post');
+Route::post('/pm/delete', 'PrivateMessagesController@delete');
+Route::post('/pm/cancel', 'PrivateMessagesController@cancel');
 Route::get('/pm/{id}', 'PrivateMessagesController@show');
 
 Route::any('/smiles', function() {

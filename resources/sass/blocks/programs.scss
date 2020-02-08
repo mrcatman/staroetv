@@ -1,47 +1,72 @@
+.channel-page__description {
+    flex: 3;
+    padding: 0 0 0 1em;
+}
+
+.programs-list {
+    /* height: 50em; */
+    /* flex-direction: column; */
+    justify-content: flex-start;
+}
+
+a.program {
+
+}
+
+span.program__cover {
+    width: 6em;
+    height: 4em;
+    margin: 0;
+}
+
+span.program__name {
+    background: none;
+    color: #333;
+    display: block;
+    padding: 0 0 0 1em;
+    text-align: left;
+    font-size: 1em;
+}
+
 .program {
-  min-width: 10em;
-  flex: auto;
-  margin: .25em;
-  color: #fff;
-  text-decoration: none;
-  box-shadow: 0 .5em .5em -.5em #000;
-  border-radius: .25em;
-  max-width: 20em;
-  background: repeating-linear-gradient(90deg, #3f3b35 0px, #3f3b35 20px, #23211e 21px, #201f1c 40px);
-  display: flex;
-  flex-direction: column;
-  &__name {
-    font-size: 1.125em;
-    color: #c4bd97;
-    font-weight: 500;
-    text-align: center;
-    background: repeating-linear-gradient(90deg, #3f3b35 0px, #3f3b35 20px, #23211e 21px, #201f1c 40px);
-    padding: 0 1em .25em;
-    border-bottom-left-radius: .5em;
-    border-bottom-right-radius: .5em;
-    flex: 1;
+    margin: .25em;
+    color: #fff;
+    text-decoration: none;
     display: flex;
     align-items: center;
-    justify-content: center;
-  }
-
-  &__cover {
-    margin: .5em;
-    display: block;
-    height: 7em;
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-  }
-  &:hover &__cover {
-    box-shadow: 0 0 1em #ad7447;
-  }
+    background: none;
+    width: calc(25% - 1em);
+    border-bottom: 1px solid #ccc;
+    border-radius: 0;
+    padding: 0 0 .5em;
+    &__name {
+        background: none;
+        color: #333;
+        display: block;
+        padding: 0 0 0 1em;
+        text-align: left;
+        font-weight: 500;
+        border-bottom-left-radius: .5em;
+        border-bottom-right-radius: .5em;
+        flex: 1;
+    }
+    &__cover {
+        display: block;
+        width: 6em;
+        height: 4em;
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+    }
+    &:hover &__cover {
+        box-shadow: 0 0 1em #ad7447;
+    }
 }
 
 .programs-list {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 

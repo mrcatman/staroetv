@@ -16,6 +16,9 @@
   &--vertical {
     flex-direction: column;
   }
+  &--vertical &__label {
+      margin-bottom: .5em;
+  }
   &--checkbox {
     align-items: center;
     cursor: pointer;
@@ -42,6 +45,40 @@
     background: #555;
     margin: .25em;
   }
+  &--radio {
+    align-items: center;
+    cursor: pointer;
+    input[type=radio] {
+      display: none;
+    }
+    &__element {
+      width: 1em;
+      height: 1em;
+      border-radius: 50%;
+      background: #fff;
+      margin: 0 0 0 1em;
+      border: 1px solid #ccc;
+    }
+  }
+
+  &--radio &__label {
+    min-width: 0;
+    margin: 0 1em 0 0.5em;
+  }
+
+
+
+  &--radio input[type=radio]:checked + &--radio__element:before {
+    content: "";
+    display: block;
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: #555;
+    margin: 0.25em;
+  }
+
+
   &__checkboxes-row {
     display: flex;
     margin: -.5em 0 0;
@@ -62,7 +99,7 @@
   &__label {
     min-width: 10em;
     font-size: 1.125em;
-    font-weight: bold;
+    font-weight: 400;
     margin: .5em 1em 0 0;
   }
 
@@ -82,7 +119,7 @@
   }
   &__preloader {
     position: absolute;
-    top: .25em;
+    top: .5em;
     right: 1.5em;
     span {
       display: inline-block;
@@ -475,6 +512,7 @@ textarea.input {
 
 .tooltip {
   position: absolute;
+  white-space: nowrap;
   right: 0;
   top: -2.5em;
   background: #333;

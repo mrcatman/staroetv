@@ -42,4 +42,8 @@ class ForumTopic extends Model {
         }
         return false;
     }
+
+    public function questionnaire_data() {
+        return $this->hasOne(Questionnaire::class, 'topic_id', 'id');
+    }
 }

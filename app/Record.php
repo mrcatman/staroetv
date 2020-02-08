@@ -40,7 +40,7 @@ class Record extends Model {
         if ($this->is_radio) {
             return "/radio-recordings/" . $this->id;
         } else {
-            return "/videos/" . $this->id;
+            return "/video/" . $this->id;
         }
     }
 
@@ -50,6 +50,9 @@ class Record extends Model {
     }
 
     public function getCoverAttribute() {
+        if ($this->attributes['original_cover'] != "") {
+            return $this->attributes['original_cover'];
+        }
         if ($this->attributes['cover'] != "") {
             return $this->attributes['cover'];
         }

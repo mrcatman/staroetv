@@ -9,13 +9,27 @@
             <form method="POST" class="form">
                 <div class="input-container">
                     <label class="input-container__label">Пользователь<span class="input-container__required">*</span></label>
-                    <div class="input-container__inner">
-                        <select name="to_id" id="users_autocomplete">
-                            @if ($user)
-                                <option value="{{$user->id}}">{{$user->username}}</option>
-                            @endif
-                        </select>
-                        <span class="input-container__message"></span>
+                    <div class="input-container__element-outer">
+                        <div class="input-container__overlay-outer">
+                            <div class="input-container__disabled-overlay" style="display: none"></div>
+                            <div class="input-container__inner">
+                                <select name="to_id" id="users_autocomplete">
+                                    @if ($user)
+                                        <option value="{{$user->id}}">{{$user->username}}</option>
+                                    @endif
+                                </select>
+                                <span class="input-container__message"></span>
+                            </div>
+                        </div>
+                        @if ($can_mass_send)
+                            <input type="hidden" name="is_group" value="0"/>
+                            <div class="input-container__toggle-buttons">
+                                <a class="input-container__toggle-button input-container__toggle-button--mass-send" >Групповая рассылка</a>
+                            </div>
+                            <div style="display:none" id="users_groups_select_container">
+                                @include('blocks/user_groups_select', ['name' => 'group_ids', 'data' => "0", 'default_settings' => false])
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -33,6 +47,7 @@
                         <span class="input-container__message"></span>
                     </div>
                 </div>
+
             </form>
         </div>
     </div>

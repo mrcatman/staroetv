@@ -33,10 +33,9 @@
 .private-message {
   background: #dfdfdf;
   font-size: 1.125em;
-  padding: .5em;
   display: flex;
-  align-items: flex-end;
-
+  align-items: center;
+  border-bottom: 1px solid #ccc;
   &:nth-of-type(2n) {
     background: #e8e8e8;
   }
@@ -44,6 +43,9 @@
   &__title {
     color: #333;
     font-size: 1.125em;
+    text-decoration: none;
+    font-weight: 500;
+    margin: .75em;
   }
 
   &__time {
@@ -51,9 +53,25 @@
     margin-left: auto;
     font-weight: 500;
   }
+  &__right {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    margin: 0 .5em 0 0;
+  }
+  &__button {
+    border: none;
+    padding: .5em 1em;
+    color: #555;
+    font-size: 1em;
+    margin: 0 0 0 .5em;
+    cursor: pointer;
+    background: no-repeat;
+    &:hover {
+      background: #d3d3d3;
+    }
+  }
 }
-
-
 
 .private-message-page {
   padding: 1.25em 0 0;
@@ -72,8 +90,7 @@
       font-size: 1.125em;
     }
     &__inner {
-      padding: 1.25em;
-
+      padding:  0 1.25em 1.25em;
     }
   }
 }

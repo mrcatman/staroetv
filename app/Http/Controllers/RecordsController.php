@@ -8,7 +8,7 @@ use App\Picture;
 use App\Program;
 use App\Record;
 use Carbon\Carbon;
-use function foo\func;
+
 
 class RecordsController extends Controller {
 
@@ -61,13 +61,39 @@ class RecordsController extends Controller {
             }
         }
         arsort($cities);
-         return view("pages.records.index", [
+        return view("pages.records.index", [
             'cities' => $cities,
             'data' => $params,
             'federal' => $federal,
             'regional' => $regional,
             'abroad' => $abroad,
             'other' => $other,
+        ]);
+    }
+
+    public function advertising($params) {
+        $records = Record::where($params)->where(['is_advertising' => true]);
+        $total_count = $records->count();
+        $other_count = Record::where($params)->where(['is_advertising' => true])->where('year', '<=', '0')->count();
+        $base_link = $params['is_radio'] ? "/radio/advertising" : "/video/advertising";
+        $year = null;
+        if (request()->has('year')) {
+            $year = request()->input('year');
+            if ($year != "0") {
+                $records = $records->where(['year' => $year]);
+            } else {
+                $records = $records->where('year', '<=', "0");
+            }
+        }
+        $records = $records->paginate(24);
+        $years = Record::where($params)->where(['is_advertising' => true])->where('year','>','0')->selectRaw('count(*) as count_year, year')->groupBy('year')->orderBy('count_year', 'desc')->pluck('count_year', 'year');
+        return view("pages.records.advertising", [
+            'selected_year' => $year,
+            'years' => $years,
+            'records' => $records,
+            'total_count' => $total_count,
+            'other_count' => $other_count,
+            'base_link' => $base_link,
         ]);
     }
 
@@ -104,7 +130,7 @@ class RecordsController extends Controller {
         if (request()->has('vk_video_id')) {
             $vk_id = request()->input('vk_video_id');
             $token = config('tokens.vk');
-            $data = json_decode(file_get_contents("https://api.vk.com/method/record.get?access_token=$token&v=5.101&videos=$vk_id&extended=1"));
+            $data = json_decode(file_get_contents("https://api.vk.com/method/video.get?access_token=$token&v=5.101&videos=$vk_id&extended=1"));
             return [
                 'status' => 1,
                 'data' => [
@@ -187,10 +213,14 @@ class RecordsController extends Controller {
         }
         $is_interprogram = request()->input('is_interprogram', false);
         $record->is_interprogram = $is_interprogram === "true" || $is_interprogram == 1;
-        if (!request()->input('program.name') && request()->input('program.unknown') !== 'true' && !$is_interprogram) {
+        $is_clip = request()->input('is_clip', false);
+        $record->is_clip = $is_clip === "true" || $is_clip == 1;
+        $is_advertising = request()->input('is_advertising', false);
+        $record->is_advertising = $is_advertising === "true" || $is_advertising == 1;
+        if (!request()->input('program.name') && request()->input('program.unknown') !== 'true' && (!$is_interprogram && !$is_clip && !$is_advertising)) {
             $errors['program'] = "Выберите программу";
         } else {
-            if (!$record->is_interprogram) {
+            if (!$record->is_interprogram && !$record->is_advertising && !$record->is_clip) {
                 if (request()->input('program.id') > 0) {
                     $record->program_id = request()->input('program.id');
                 } else {

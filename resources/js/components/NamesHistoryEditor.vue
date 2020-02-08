@@ -2,37 +2,49 @@
     <div class="channel-names">
         <input type="hidden" name="channel_names" :value="namesJson" />
         <div class="channel-names__inner">
-            <div class="row channel-names__row" v-for="(name, $index) in this.names" :key="$index">
-                <div class="col">
-                    <div class="input-container input-container--vertical">
-                        <label class="input-container__label">Название</label>
-                        <div class="input-container__inner">
-                            <input v-model="name.name" class="input"/>
+            <div  v-for="(name, $index) in this.names" :key="$index">
+                <div class="row channel-names__row">
+                    <div class="col">
+                        <div class="input-container input-container--vertical">
+                            <label class="input-container__label">Название</label>
+                            <div class="input-container__inner">
+                                <input v-model="name.name" class="input"/>
+                            </div>
+                        </div>
+                        <a class="button button--light" @click="deleteItem($index)">Удалить</a>
+                    </div>
+                    <div class="col channel-names__datepicker-container">
+                        <div class="input-container input-container--vertical">
+                            <label class="input-container__label">Начальная дата</label>
+                            <div class="input-container__inner">
+                                <Datepicker v-model="name.date_start"/>
+                            </div>
                         </div>
                     </div>
-                    <a class="button button--light" @click="deleteItem($index)">Удалить</a>
-                </div>
-                <div class="col channel-names__datepicker-container">
-                    <div class="input-container input-container--vertical">
-                        <label class="input-container__label">Начальная дата</label>
-                        <div class="input-container__inner">
-                            <Datepicker v-model="name.date_start"/>
+                    <div class="col channel-names__datepicker-container">
+                        <div class="input-container input-container--vertical">
+                            <label class="input-container__label">Конечная дата</label>
+                            <div class="input-container__inner">
+                                <Datepicker v-model="name.date_end"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="input-container input-container--vertical">
+                            <label class="input-container__label">Лого</label>
+                            <div class="input-container__inner channel-names__picture-uploader-container">
+                                <PictureUploader :key="name.id" :light="true" tag="logo" :data="name.logo" v-model="name.logo_id" :channelid="channelid"/>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col channel-names__datepicker-container">
-                    <div class="input-container input-container--vertical">
-                        <label class="input-container__label">Конечная дата</label>
-                        <div class="input-container__inner">
-                            <Datepicker v-model="name.date_end"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="input-container input-container--vertical">
-                        <label class="input-container__label">Лого</label>
-                        <div class="input-container__inner channel-names__picture-uploader-container">
-                            <PictureUploader :key="name.id" :light="true" tag="logo" :data="name.logo" v-model="name.logo_id" :channelid="channelid"/>
+                <div class="row channel-names__row">
+                    <div class="col">
+                        <div class="input-container input-container--vertical">
+                            <label class="input-container__label">Описание</label>
+                            <div class="input-container__inner">
+                                <textarea v-model="name.comment" class="input"></textarea>
+                            </div>
                         </div>
                     </div>
                 </div>

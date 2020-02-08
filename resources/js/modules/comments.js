@@ -1,3 +1,4 @@
+import replaceDom from './replaceDom';
 import { showModal, showModalAjax } from './modals';
 let body = $('body');
 

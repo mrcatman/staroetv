@@ -46,6 +46,15 @@
                         <label class="input-container__label">Опции темы</label>
                         <div class="input-container__inner">
                             <div class="input-container__checkboxes-row">
+                                @if (\App\Helpers\PermissionsHelper::allows('frpoll') && !$topic)
+                                    <div class="input-container__checkboxes-row__col">
+                                        <label class="input-container input-container--checkbox">
+                                            <input type="checkbox" name="questionnaire" {{$questionnaire ? "checked" : ""}}>
+                                            <div class="input-container--checkbox__element"></div>
+                                            <div class="input-container__label">Опрос</div>
+                                        </label>
+                                    </div>
+                                @endif
                                 @if (\App\Helpers\PermissionsHelper::allows('frmesont'))
                                     <div class="input-container__checkboxes-row__col">
                                         <label class="input-container input-container--checkbox">
@@ -75,6 +84,11 @@
                                 @endif
                             </div>
                             <span class="input-container__message"></span>
+                        </div>
+                    </div>
+                    <div id="questionnaire_editor_container" @if(!$questionnaire) style="display: none;"@endif class="input-container">
+                        <div class="input-container__inner">
+                            <questionnaire-editor :data="{{json_encode($questionnaire)}}"/>
                         </div>
                     </div>
                     <button class="button">Сохранить</button>

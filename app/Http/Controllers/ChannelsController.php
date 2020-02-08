@@ -173,7 +173,7 @@ class ChannelsController extends Controller {
         return [
             'status' => 1,
             'text' => 'Канал объединен',
-            'redirect_to' => '/videos'
+            'redirect_to' => '/video'
         ];
     }
 
@@ -234,9 +234,17 @@ class ChannelsController extends Controller {
             ];
         }
         $channel->delete();
-        return [
-            'status' => 1,
-            'text' => 'Канал удален'
-        ];
+        if (request()->input('_from_confirm_form')) {
+            return [
+                'status' => 1,
+                'text' => 'Канал удален',
+                'redirect_to' => '/video'
+            ];
+        } else {
+            return [
+                'status' => 1,
+                'text' => 'Канал удален'
+            ];
+        }
     }
 }

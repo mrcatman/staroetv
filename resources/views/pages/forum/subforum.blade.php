@@ -2,11 +2,24 @@
 @section('content')
     <div class="forum-page">
         <div class="forum-section">
-            <div class="forum-section__breadcrumbs">
+            <div class="forum-section__breadcrumbs forum-section__breadcrumbs--with-search">
                 <a class="forum-section__breadcrumb" href="/forum">Форум</a>
                 @if ($parent_forum) <a class="forum-section__breadcrumb" href="/forum/{{$parent_forum->id}}">{{$parent_forum->title}}</a> @endif
-                <a class="forum-section__breadcrumb" >{{$forum->title}}</a>
+                @if (!$forum && $search)
+                    <a class="forum-section__breadcrumb" href="/forum/">Поиск: {{$search}}</a>
+                @else
+                    <a class="forum-section__breadcrumb" href="/forum/{{$forum->id}}">{{$forum->title}}</a>
+                @endif
+                <form @if (!$forum && $search) action="/forum" @else action="/forum/{{$forum->id}}" @endif method="GET" class="forum-section__search forum-section__search--subforum">
+                    <input placeholder="Поиск по подфоруму" class="input" name="s" value="{{$search}}">
+                    <select class="select-classic" name="type">
+                        <option value="topics" @if (!isset($messages_view) || !$messages_view) selected @endif>Темы</option>
+                        <option value="messages" @if (isset($messages_view) && $messages_view) selected @endif>Сообщения</option>
+                    </select>
+                    <button type="submit" class="button button--light">ОК</button>
+                </form>
             </div>
+            @if ($forum)
             <div class="forum-section__title">
                 <div class="forum-section__title__inner">{{$forum->title}}</div>
                 <div class="forum-section__title__buttons">
@@ -21,7 +34,20 @@
                     @endif
                 </div>
             </div>
+            @endif
+            @if ($messages_view)
+                <div class="forum-section__pager-container">
+                    <div class="forum-section__pager">
+                        {{$paginator->links()}}
+                    </div>
+                </div>
+            @endif
             <div class="forum-section__children">
+                @if (isset($messages_view) && $messages_view)
+                    @foreach ($messages as $message)
+                        @include('blocks/forum_message', ['fixed' => false, 'message' => $message, 'highlight' => $search])
+                    @endforeach
+                @else
                 @if (count($fixed_topics) > 0)
                 <div class="forum-section__subsection">
                     <div class="forum-section__subsection__title">Важные темы</div>
@@ -42,10 +68,11 @@
                     </div>
                 </div>
                 @endif
-                @if (count($forum->subforums) > 0)
+                @if ($forum && count($forum->subforums) > 0 && (!$search || $search == ""))
                    @foreach ($forum->subforums as $subforum)
                       @include('blocks/subforum', ['$subforum' => $subforum])
                    @endforeach
+                @endif
                 @endif
             </div>
             <div class="forum-section__pager-container">

@@ -42,9 +42,13 @@ function showModalAjax(fn, elementName, title = null, onClose = null) {
     let content = $(".modal-window[data-selector='"+elementName+"']").find('.modal-window__content');
     $(content).html('<div class="modal-window__preloader-container"><img class="modal-window__preloader" src="/pictures/ajax.gif"></div>');
     fn.done((res) => {
-        $(content).html(res.data.html);
-        if (res.data.title) {
-            $(content).parents('.modal-window').find('.modal-window__title').html(res.data.title);
+        if (res.data) {
+            $(content).html(res.data.html);
+            if (res.data.title) {
+                $(content).parents('.modal-window').find('.modal-window__title').html(res.data.title);
+            }
+        } else {
+            $(content).html(res);
         }
     });
 };

@@ -40,6 +40,7 @@
 @endsection
 @section ('scripts')
     <script>
+        window.pm.updateCount();
         var bb = new bbCodes();
         bb.init('message');
     </script>

@@ -124,4 +124,14 @@ class User extends Authenticatable
         return BBCodesHelper::HTMLToBB($this->signature);
     }
 
+    public function unreadMessages() {
+        $user = $this;
+        $messages_in = PrivateMessage::where(['to_id' => $user->id, 'is_deleted_receiver' => false, 'is_read' => false])->get();
+        $messages_group = PrivateMessage::where(['is_group' => true])->where('group_ids', 'like', "%".$user->group_id.",%")->where(function($q) use($user) {
+            $q->whereNull('deleted_ids');
+            $q->orWhere('deleted_ids', 'not like', "%".$user->id.",%");
+        })->where('read_ids', 'not like', "%".$user->id.",%")->get();
+        return count($messages_in) + count($messages_group);
+    }
+
 }

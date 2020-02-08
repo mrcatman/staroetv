@@ -1,4 +1,4 @@
-@if (!request()->header('X-PJAX', false))
+@if (!request()->header('X-PJAX', false) && !request()->input('X-PJAX', false))
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -25,7 +25,7 @@
         <div class="container @yield('container-class')" id="pjax-container">
             @yield('content')
         </div>
-        @if (!request()->header('X-PJAX', false))
+        @if (!request()->header('X-PJAX', false) && !request()->input('X-PJAX', false))
     </div>
     @include('blocks/footer')
 </body>
@@ -43,7 +43,11 @@
     });
 </script>
 @endif
+@if (!request()->header('X-PJAX', false) && !request()->input('X-PJAX', false))
 @yield('scripts')
-@if (!request()->header('X-PJAX', false))
+@else
+<div data-script="@yield('scripts')" id="pjax_scripts_container"></div>
+@endif
+@if (!request()->header('X-PJAX', false) && !request()->input('X-PJAX', false))
 </html>
 @endif

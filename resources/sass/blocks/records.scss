@@ -140,3 +140,63 @@
   }
 }
 
+.small-videos-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.small-video {
+    width: 12em;
+    text-decoration: none;
+    margin: 0 0 1em;
+
+    &__cover {
+        padding-top: 60%;
+        background-size: cover;
+        background-position: center center;
+        width: calc(100% - .5em);
+    }
+
+    &__title {
+        font-size: .875em;
+        max-height: 3.75em;
+        display: block;
+        margin: .5em 0;
+        overflow: hidden;
+    }
+}
+
+.records-list--thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    .record-item {
+        flex-direction: column;
+        max-width: calc(100% / 6);
+        overflow: hidden;
+        align-items: flex-start;
+
+        &__info {
+            display: none;
+        }
+
+        &__texts {
+            max-width: unset;
+            margin: 0 0 .5em;
+            font-size: .75em;
+        }
+
+        &__cover {
+            width: calc(100% - 1em);
+            margin: .25em .5em;
+            padding-top: 60%;
+            height: auto;
+        }
+
+        &__title {
+            max-height: 3.785em;
+            font-size: 1.125em;
+            margin: 0 .5em;
+        }
+    }
+}
