@@ -1,7 +1,9 @@
 <template>
     <div class="form record-form">
-        <div class="form__preloader" v-show="loading"></div>
-        <Response :data="response"/>
+        <div class="form__preloader" v-show="loading">
+            <img src="/pictures/ajax.gif">
+        </div>
+        <Response :data="response" v-if="!inModal"/>
         <div class="input-container">
             <label class="input-container__label" v-if="!isRadio">Ссылка на видео</label>
             <label class="input-container__label" v-else>Ссылка на запись</label>
@@ -43,8 +45,19 @@
                 <span class="input-container__message">{{errors.code}}</span>
             </div>
         </div>
+        <div class="input-container" >
+            <label class="input-container__label">Заголовок</label>
+            <div class="input-container__inner">
+                <div class="input-container__element-outer">
+                    <div class="input-container__overlay-outer">
+                        <input class="input" v-model="data.record.title"/>
+                    </div>
+                </div>
+                <span class="input-container__message">{{errors.title}}</span>
+            </div>
+        </div>
 
-        <div class="input-container">
+        <div class="input-container" v-if="!params.channel_id">
             <label class="input-container__label" v-if="!isRadio">Канал</label>
             <label class="input-container__label" v-else>Радиостанция</label>
             <div class="input-container__inner">
@@ -66,7 +79,7 @@
                 <span class="input-container__message">{{errors.channel}}</span>
             </div>
         </div>
-        <div class="input-container">
+        <div class="input-container" v-if="!(params.is_interprogram || params.program_id | params.is_clip || params.is_advertising)">
             <label class="input-container__label">Программа</label>
             <div class="input-container__inner">
                 <div class="input-container__element-outer">
@@ -80,7 +93,7 @@
                         <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_advertising}" @click="setAdvertising()">Реклама</a>
                         <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_clip}" @click="setClip()">Клип</a>
                     </div>
-                    <div class="autocomplete__items" v-show="!data.is_interprogram && !data.program.unknown">
+                    <div class="autocomplete__items" v-show="!data.is_interprogram && !data.is_clip && !data.is_advertising && !data.program.unknown">
                         <a @click="selectProgram(programItem)" class="autocomplete__item" :class="{'autocomplete__item--selected': data.program.id === programItem.id}" v-for="(programItem, $index) in filteredPrograms" :key="$index">
                             <span v-if="programItem.cover_picture" class="autocomplete__item__logo" :style="{backgroundImage: 'url('+programItem.cover_picture.url+')'}"></span>
                             <span class="autocomplete__item__name">{{programItem.name}}</span>
@@ -134,8 +147,11 @@
                 <span class="input-container__message">{{errors.short_description}}</span>
             </div>
         </div>
+        <div class="form__bottom">
+            <a class="button" :class="{'button--light': inModal}" @click="save()">Сохранить</a>
+            <Response :light="true" v-if="inModal" :data="response"></Response>
+        </div>
 
-        <a class="button" @click="save()">Сохранить</a>
     </div>
 </template>
 <style lang="scss">
@@ -155,7 +171,7 @@
                 box-shadow: 0 0 0.5em #000;
             }
             &:hover {
-                border: 2px dashed #555;
+                border: 2px solid #555;
             }
         }
         &__player-container {
@@ -231,7 +247,9 @@
         }
     };
     export default {
-        mounted() {
+        async mounted() {
+            let yearOptions = this.yearOptions;
+            await this.$nextTick();
             if (this.record) {
                 this.data = {
                     is_interprogram: this.record.is_interprogram,
@@ -268,12 +286,26 @@
             }
         },
         components: {Response},
-        props: ['channels', 'record', 'meta'],
+        props: {
+            inModal: {},
+            channels: {},
+            record: {},
+            meta: {},
+            params: {
+                type: Object,
+                required: false,
+                default: () => {
+                    return {}
+                }
+            }
+        },
         methods: {
             save() {
                 this.loading = true;
                 this.data.is_radio = this.isRadio;
-                $.post(this.record ? '/records/' + this.record.id + '/edit' : '/records/add', this.data).done(res => {
+                let data = JSON.parse(JSON.stringify(this.data));
+                data = {...data, ...this.params};
+                $.post(this.record ? '/records/' + this.record.id + '/edit' : '/records/add', data).done(res => {
                     this.loading = false;
                     this.response = res;
                     this.errors = res.errors || {};
@@ -284,6 +316,7 @@
                         } else {
                             this.response.text+= `<a target=_blank href='${res.data.record.url}'>Перейти к видеозаписи</a>`;
                         }
+                        this.$emit('save', res.data.record);
 
                         if (!this.record) {
                             this.data = JSON.parse(JSON.stringify(defaultData));
@@ -349,7 +382,7 @@
                         this.data.record.covers.push(`https://img.youtube.com/vi/${id}/${frame}.jpg`);
                     });
                     this.isLoadingRecordInfo = true;
-                    $.post('/records/getinfo', {youtube_record_id: id}).done(async res => {
+                    $.post('/records/getinfo', {youtube_video_id: id}).done(async res => {
                         this.isLoadingRecordInfo = false;
                         if (res.status && res.data.youtube_response && res.data.youtube_response.items && res.data.youtube_response.items.length > 0) {
                             let record = res.data.youtube_response.items[0].snippet;
@@ -371,7 +404,7 @@
                     }
                     if (id) {
                         this.isLoadingRecordInfo = true;
-                        $.post('/records/getinfo', {vk_record_id: id}).done(async res => {
+                        $.post('/records/getinfo', {vk_video_id: id}).done(async res => {
                             this.isLoadingRecordInfo = false;
                             if (res.status && res.data.vk_response && res.data.vk_response.response && res.data.vk_response.response.items.length > 0) {
                                 let record = res.data.vk_response.response.items[0];

@@ -50,10 +50,10 @@ class Record extends Model {
     }
 
     public function getCoverAttribute() {
-        if ($this->attributes['original_cover'] != "") {
+        if (isset($this->attributes['original_cover']) && $this->attributes['original_cover'] != "") {
             return $this->attributes['original_cover'];
         }
-        if ($this->attributes['cover'] != "") {
+        if (isset($this->attributes['cover']) && $this->attributes['cover'] != "") {
             return $this->attributes['cover'];
         }
         if ($this->coverPicture) {

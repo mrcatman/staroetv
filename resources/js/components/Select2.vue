@@ -15,7 +15,7 @@
             let customOptions = this.customOptions || {};
             let vm = this;
             $(this.$el).select2({ data: this.options, theme : this.theme, ...customOptions }).val(this.value).trigger('change').on('change', function() {
-                console.log('selected', $(this).val());
+                //console.log('selected', $(this).val());
                 vm.$emit('input', $(this).val())
             });
             setTimeout(() => {
@@ -27,7 +27,7 @@
                 if (this.ready) {
                     this.$emit('change', this.value)
                 }
-                //$(this.$el).val(value).trigger('change')
+                $(this.$el).val(value).trigger('change')
             },
             options(options) {
                 $(this.$el).empty().select2({ data: options });

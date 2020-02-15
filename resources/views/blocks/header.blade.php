@@ -4,7 +4,7 @@
             <a href="/" class="header__title">
                 <img class="header__logo" src="/pictures/logo.png"/>
             </a>
-            <div class="auth-panel">
+            <div class="auth-panel @auth auth-panel--logged-in @endauth">
                 @auth
                     <a class="auth-panel__avatar" href="/users/{{auth()->user()->id}}" style="background-image:url({{auth()->user()->avatar ? auth()->user()->avatar->url : ''}})"></a>
                     <div class="auth-panel__texts">

@@ -33,7 +33,7 @@
             <div class="input-container">
                 <label class="input-container__label">Описание</label>
                 <div class="input-container__inner">
-                    <textarea class="input input--textarea" name="description">{{$channel ? $channel->description : ""}}</textarea>
+                    <textarea id="editor" class="input input--textarea" name="description">{{$channel ? $channel->description : ""}}</textarea>
                     <span class="input-container__message"></span>
                 </div>
             </div>

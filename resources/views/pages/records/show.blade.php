@@ -9,6 +9,9 @@
             <a class="breadcrumbs__item" href="{{$record->channel->is_radio ? "/radio" : "/video"}}">Архив</a>
             <a class="breadcrumbs__item" href="{{$record->channel->full_url}}">{{$record->channel->name}}</a>
             @endif
+            @if ($record->is_interprogram || $record->interprogram_package_id)
+            <a class="breadcrumbs__item" href="{{$record->channel->full_url}}/graphics">Оформление</a>
+             @endif
             @if ($record->program)
             <a class="breadcrumbs__item" href="{{$record->program->full_url}}">{{$record->program->name}}</a>
             @endif
@@ -61,6 +64,14 @@
                 </div>
             </div>
             <div class="col col--2 record-page__related-container">
+                @if ($record->can_edit)
+                <div class="inner-page__header">
+                    <div class="inner-page__header__title">Действия</div>
+                    <div class="inner-page__header__right">
+                        <a class="button button--light" href="{{$record->channel->is_radio ? "/radio" : "/video"}}/{{$record->id}}/edit">Редактировать</a>
+                    </div>
+                </div>
+                @endif
                 @if ($related_program)
                 <div class="box">
                     <div class="box__heading box__heading--small">
@@ -77,11 +88,27 @@
                     </div>
                 </div>
                 @endif
+                    @if ($related_interprogram)
+                        <div class="box">
+                            <div class="box__heading box__heading--small">
+                                <div class="box__heading__inner">
+                                    Еще записи этого оформления
+                                </div>
+                            </div>
+                            <div class="box__inner">
+                                <div class="record-page__related">
+                                    @foreach ($related_interprogram as $record)
+                                        @include('blocks/record', ['record' => $record])
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 @if ($related_channel)
                 <div class="box">
                     <div class="box__heading box__heading--small">
                         <div class="box__heading__inner">
-                            Видео с канала <span class="box__heading__count">{{$record->channel->name}}</span>
+                            Еще записи с канала <span class="box__heading__count">{{$record->channel->name}}</span>
                         </div>
                     </div>
                     <div class="box__inner">

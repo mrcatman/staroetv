@@ -264,6 +264,13 @@ textarea.input {
 .vdp-datepicker {
   flex: 1;
   width: 100%;
+  &__reset {
+    position: absolute;
+    top: .5em;
+    right: .5em;
+    text-decoration: underline;
+    cursor: pointer;
+  }
   & > div {
     flex: 1;
   }
@@ -303,7 +310,9 @@ textarea.input {
   &__bottom {
     display: flex;
     align-items: center;
-
+    &--with-margin {
+      margin-bottom: 1em;
+    }
     .button {
       margin: 0 .75em 0 0;
     }
@@ -525,4 +534,12 @@ textarea.input {
 }
 *:hover > .tooltip {
   display: block;
+}
+
+.modal-window .input-container__toggle-button {
+    color: #333;
+    border-bottom: 1px dashed #333;
+}
+.vdp-datepicker + .input-container__message {
+    right: 4em;
 }

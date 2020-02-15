@@ -41,8 +41,9 @@
                  <label class="input-container__label">Жанр</label>
                  <div class="input-container__inner">
                      <select class="select-classic" name="genre_id">
+                         <option value="">Не выбран</option>
                          @foreach(\App\Genre::all() as $genre)
-                             <option value="{{$genre->id}}">{{$genre->name}}</option>
+                             <option value="{{$genre->id}}" @if ($program && $program->genre_id == $genre->id) selected="selected" @endif>{{$genre->name}}</option>
                          @endforeach
                      </select>
                      <span class="input-container__message"></span>
@@ -69,7 +70,7 @@
                      <div class="input-container input-container--vertical">
                          <label class="input-container__label">Дата последнего эфира</label>
                          <div class="input-container__inner">
-                             <Datepicker can_be_now="true" name="date_of_closedown" value="{{$program ? $program->date_of_start : ''}}"></Datepicker>
+                             <Datepicker can_be_now="true" name="date_of_closedown" value="{{$program ? $program->date_of_closedown : ''}}"></Datepicker>
                              <span class="input-container__message"></span>
                          </div>
                      </div>

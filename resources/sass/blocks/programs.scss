@@ -9,51 +9,32 @@
     justify-content: flex-start;
 }
 
-a.program {
-
-}
-
-span.program__cover {
-    width: 6em;
-    height: 4em;
-    margin: 0;
-}
-
-span.program__name {
-    background: none;
-    color: #333;
-    display: block;
-    padding: 0 0 0 1em;
-    text-align: left;
-    font-size: 1em;
-}
 
 .program {
     margin: .25em;
     color: #fff;
     text-decoration: none;
     display: flex;
+    flex-direction: column;
+    width: calc(100% / 6 - .5em);
+    border-bottom: none;
+    padding: 0;
     align-items: center;
     background: none;
-    width: calc(25% - 1em);
-    border-bottom: 1px solid #ccc;
     border-radius: 0;
-    padding: 0 0 .5em;
     &__name {
         background: none;
         color: #333;
         display: block;
-        padding: 0 0 0 1em;
-        text-align: left;
+        text-align: center;
         font-weight: 500;
-        border-bottom-left-radius: .5em;
-        border-bottom-right-radius: .5em;
         flex: 1;
     }
     &__cover {
         display: block;
-        width: 6em;
-        height: 4em;
+        width: 100%;
+        height: 7em;
+        background-color: #ccc;
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;
@@ -67,6 +48,6 @@ span.program__name {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
+  padding: 1em;
 }
-
 

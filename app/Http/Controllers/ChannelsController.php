@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Channel;
 use App\ChannelName;
+use App\Genre;
 use App\Helpers\PermissionsHelper;
 use App\InterprogramPackage;
 use App\Program;
@@ -22,9 +23,43 @@ class ChannelsController extends Controller {
         }
         $records = Record::where(['channel_id' => $channel->id])->orderBy('id', 'desc')->paginate(30);
         $records_count = Record::where(['channel_id' => $channel->id])->count();
+        $genre_ids = $channel->programs->sortBy('order')->pluck('genre_id')->unique();
+        $genres = Genre::whereIn('id', $genre_ids)->get();
+        foreach ($genres as &$genre) {
+            $genre->programs = $channel->programs->filter(function($program) use ($genre) {
+                return $program->genre_id == $genre->id;
+            });
+        }
+        $no_genre_programs = $channel->programs->filter(function($program) {
+            return $program->genre_id == null;
+        });
+        if (count($no_genre_programs) > 0) {
+            $no_genre = (object)[
+                'id' => -1,
+                'url' => 'unspecified',
+                'name' => 'Другое',
+                'programs' => $no_genre_programs
+            ];
+            $genres->push($no_genre);
+        }
+        $interprogram_packages = $channel->interprogramPackages;
+        foreach ($interprogram_packages as $interprogram_package) {
+            $interprogram_package->records = $interprogram_package->records->shuffle();
+        }
+        $not_sorted_interprogram = $channel->records->filter(function($record) {
+            return $record->is_interprogram && !$record->interprogram_package_id;
+        })->shuffle();
+        $interprogram_packages->push(new InterprogramPackage([
+            'id' => 0,
+            'name' => 'Прочее',
+            'pictures' => [],
+            'years_range' => '',
+            'records' => $not_sorted_interprogram
+        ]));
         return view("pages.channels.show", [
             'channel' => $channel,
-            'programs' => $channel->programs,
+            'programs' => $genres,
+            'interprogram_packages' => $interprogram_packages,
             'records' => $records,
             'records_count' => $records_count,
         ]);

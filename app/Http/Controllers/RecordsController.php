@@ -16,14 +16,19 @@ class RecordsController extends Controller {
         $record = Record::where(['id' => $id])->first();
         $related_program = null;
         $related_channel = null;
+        $related_interprogram = null;
         if ($record->program) {
             $related_program = Record::where(['program_id' => $record->program_id])->inRandomOrder()->limit(6)->get();
         }
         if ($record->channel) {
             $related_channel = Record::where(['channel_id' => $record->channel_id])->inRandomOrder()->limit(6)->get();
         }
+        if ($record->interprogram_package_id) {
+            $related_interprogram = Record::where(['interprogram_package_id' => $record->interprogram_package_id])->inRandomOrder()->limit(6)->get();
+        }
         return view("pages.records.show", [
             'record' => $record,
+            'related_interprogram' => $related_interprogram,
             'related_program' => $related_program,
             'related_channel' => $related_channel,
         ]);
@@ -61,6 +66,8 @@ class RecordsController extends Controller {
             }
         }
         arsort($cities);
+        $channel_ids = Channel::where($params)->pluck('id');
+        $last_records = Record::whereIn('channel_id', $channel_ids)->orderBy('id', 'desc')->paginate(60);
         return view("pages.records.index", [
             'cities' => $cities,
             'data' => $params,
@@ -68,6 +75,7 @@ class RecordsController extends Controller {
             'regional' => $regional,
             'abroad' => $abroad,
             'other' => $other,
+            'last_records' => $last_records
         ]);
     }
 
@@ -194,7 +202,7 @@ class RecordsController extends Controller {
 
     private function fillData($record) {
         $user = auth()->user();
-        $is_radio = request()->input('is_radio', false);
+        $is_radio = request()->input('is_radio', false) === "true";
         $errors = [];
         if (!request()->input('channel.name') && request()->input('channel.unknown') !== 'true') {
             if ($is_radio) {
@@ -205,6 +213,8 @@ class RecordsController extends Controller {
         } else {
             if (request()->input('channel.id') > 0) {
                 $record->channel_id = request()->input('channel.id');
+            } elseif (request()->input('channel_id') > 0) {
+                $record->channel_id = request()->input('channel_id');
             } else {
                 $channel = new Channel(['author_id' => $user->id, 'name' => request()->input('channel.name'),'is_regional' => false, 'is_abroad' => false, 'pending' => true]);
                 $channel->save();
@@ -230,7 +240,7 @@ class RecordsController extends Controller {
                 }
             }
         }
-        if (!request()->input('record.code')) {
+        if (request()->input('record.code') == "") {
             $errors['url'] = "Укажите ссылку на видео";
         } else {
             $record->embed_code = request()->input('record.code');
@@ -267,7 +277,11 @@ class RecordsController extends Controller {
                 $record->cover_id = $cover->id;
             }
         }
-        $record->title = $record->generateTitle();
+        if (request()->input("record.title", "") != "") {
+            $record->title = request()->input('record.title');
+        } else {
+            $record->title = $record->generateTitle();
+        }
         if (count($errors) > 0) {
             return [
                 'status' => 0,
@@ -276,6 +290,8 @@ class RecordsController extends Controller {
             ];
         }
         $record->save();
+
+        $cover = $record->cover;
         return [
             'status' => 1,
             'text' => $is_radio ? 'Радиозапись добавлена' : 'Видео добавлено',
@@ -285,17 +301,28 @@ class RecordsController extends Controller {
         ];
     }
 
-    public function search($params) {
-        $is_radio = $params['is_radio'];
+    public function search($initial_params) {
+        if (isset($initial_params['is_radio'])) {
+            $records = Record::where(['is_radio' => $initial_params['is_radio']]);
+        } else {
+            $records = Record::where('id', '>', 0);
+        }
+        if (request()->has('search')) {
+            $records->where('title', 'LIKE', '%'. request()->input('search').'%');
+        }
         $params = request()->all();
-        $search = request()->input('search');
-        $records = Record::where(['is_radio' => $is_radio])->where('title', 'LIKE', '%'.$search.'%');
         if (request()->has('channels')) {
             $channels = request()->input('channels');
             if (!is_array($channels)) {
                 $channels = explode(",", $channels);
             }
             $records = $records->whereIn('channel_id', $channels);
+        }
+        if (request()->has('channel_id')) {
+            $records = $records->where('channel_id', request()->input('channel_id'));
+        }
+        iF (request()->has('exclude_ids')) {
+            $records = $records->whereNotin('id', request()->input('exclude_ids'));
         }
         if (request()->has('programs')) {
             $programs = request()->input('programs');
@@ -410,11 +437,35 @@ class RecordsController extends Controller {
             'params' => $params,
             'records' => $records->appends(request()->except('page')),
             'records_count' => $records_count,
-            'is_radio' => $is_radio
+            'is_radio' => isset($params['is_radio']) ? $params['is_radio'] : null
         ];
         if (request()->isMethod('post')) {
-            return $data;
+            return ['status' => 1, 'data' => $data];
         }
         return view("pages.records.search", $data);
+    }
+
+    public function massEdit() {
+        if (PermissionsHelper::allows('viedit')) {
+            $ids = request()->input('ids', []);
+            $params = request()->input('params', []);
+            Record::whereIn('id', $ids)->update($params);
+            return ['status' => 1, 'text' => 'Обновлено'];
+        } else {
+            return ['status' => 0, 'text' => 'Ошибка доступа'];
+        }
+    }
+
+    public function delete() {
+        $record = Record::find(request()->input('id'));
+        if (!$record) {
+            return ['status' => 0, 'text' => 'Запись не найдена'];
+        }
+        if ($record->can_edit) {
+            $record->delete();
+            return ['status' => 1, 'text' => 'Удалено'];
+        } else {
+            return ['status' => 0, 'text' => 'Ошибка доступа'];
+        }
     }
 }

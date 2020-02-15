@@ -801,7 +801,10 @@ class ForumController extends Controller {
             'move_to' => 'sometimes',
             'move_subforums_to' => 'sometimes'
         ]);
-        $forum->fill($data);
+        $fill_data = $data;
+        unset($fill_data['move_to']);
+        unset($fill_data['move_subforums_to']);
+        $forum->fill($fill_data);
         if (isset($data['move_subforums_to']) && $data['move_subforums_to'] > 0) {
             $move_to = Forum::find($data['move_subforums_to']);
             if (!$move_to) {

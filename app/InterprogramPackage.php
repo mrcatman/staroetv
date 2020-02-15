@@ -14,7 +14,7 @@ class InterprogramPackage extends Model {
     public function getNameAttribute() {
         $name = $this->attributes['name'];
         if (!$name || $name == "") {
-            return $this->year_start . "-" . $this->year_end;
+            //return $this->year_start . "-" . $this->year_end;
         }
         return $name;
     }

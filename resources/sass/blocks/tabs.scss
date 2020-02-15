@@ -34,3 +34,13 @@
     border-bottom-right-radius: 1em;
   }
 }
+
+.tabs {
+    &--full-size {
+        display: flex;
+    }
+    .tab {
+        flex: 1;
+        text-align: center;
+    }
+}

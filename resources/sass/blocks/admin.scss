@@ -116,7 +116,7 @@
 
     }
 
-    tbody td:nth-of-type(1) {
+    &__first-col {
       max-width: 18em;
       white-space: nowrap;
       overflow: hidden;
@@ -188,7 +188,7 @@
 }
 
 .container--admin-panel {
-  max-width: unset;
+
 }
 
 

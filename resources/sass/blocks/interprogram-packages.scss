@@ -1,0 +1,68 @@
+.interprogram-package {
+    width: calc(100% / 4 - 1em);
+    display: inline-block;
+    text-decoration: none;
+    padding: .5em;
+    text-align: center;
+
+    &__cover {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: stretch;
+        background: #111;
+
+        &__picture {
+            /* flex: 1; */
+            padding-top: 7em;
+            max-width: 50%;
+            width: 100%;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+    }
+    &:hover &__cover {
+        box-shadow: 0 0 1em #ad7447;
+    }
+
+    &__name {
+        font-size: 1.125em;
+    }
+
+    &__years {
+        margin: 0 0 .5em;
+        font-size: 1.25em;
+        font-weight: 500;
+        color: #333;
+    }
+}
+.interprogram-packages-list {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+.interprogram-packages-list-item {
+    border-bottom: 1px solid #ccc;
+    margin: 0 0 1em;
+    position: relative;
+    &__description {
+        margin: 0 0 1em;
+    }
+    &__date {
+        font-size: 2em;
+        font-weight: bold;
+    }
+
+    &__author {
+        font-style: italic;
+        margin: 0 0 1em;
+    }
+
+    &__options {
+        position: absolute;
+        top: .5em;
+        right: .5em;
+    }
+}
+

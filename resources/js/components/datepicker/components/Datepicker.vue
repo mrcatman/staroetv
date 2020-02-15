@@ -1,5 +1,6 @@
 <template>
   <div class="vdp-datepicker" :class="[wrapperClass, isRtl ? 'rtl' : '']">
+    <a @click="reset()" class="vdp-datepicker__reset">Сброс</a>
     <date-input
       :selectedDate="selectedDate"
       :resetTypedDate="resetTypedDate"
@@ -116,7 +117,7 @@ export default {
     id: String,
     format: {
       type: [String, Function],
-      default: 'dd MMM yyyy'
+      default: 'dd.MM.yyyy'
     },
     language: {
       type: Object,
@@ -229,6 +230,9 @@ export default {
     }
   },
   methods: {
+    reset() {
+        this.clearDate();
+    },
     /**
      * Called in the event that the user navigates to date pages and
      * closes the picker without selecting a date.

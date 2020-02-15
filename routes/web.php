@@ -36,12 +36,10 @@ Route::any('/video/advertising', function () {
 Route::any('/video/search', function () {
     return (new \App\Http\Controllers\RecordsController())->search(['is_radio' => false]);
 });
-Route::get('/video/edit/{id}', 'RecordsController@edit');
+Route::get('/video/{id}/edit', 'RecordsController@edit');
 Route::get('/video/{id}', 'RecordsController@show');
 Route::get('/video/vip/{id}/{channel?}/{url}', 'RecordsController@showOld');
 Route::get('/video/vip/{id}//{url}', 'RecordsController@showOld');
-Route::post('/video/getinfo', 'RecordsController@getInfo');
-
 
 // RADIO
 Route::get('/dir', function () {
@@ -61,14 +59,24 @@ Route::get('/radio-recordings/{id}/edit', 'RecordsController@edit');
 Route::any('/radio/search', function () {
     return (new \App\Http\Controllers\RecordsController())->search(['is_radio' => true]);
 });
-
-
+Route::any('/records/search', function () {
+    return (new \App\Http\Controllers\RecordsController())->search([]);
+});
+Route::post('/records/mass-edit', 'RecordsController@massEdit');
 Route::post('/records/add', 'RecordsController@save');
 Route::post('/records/{id}/edit', 'RecordsController@update');
+Route::post('/records/getinfo', 'RecordsController@getInfo');
+Route::post('/records/delete', 'RecordsController@delete');
 
 Route::get('/programs/{id}', 'ProgramsController@show');
-Route::get('/programs/add', 'ChannelsController@add');
-Route::post('/programs/add', 'ChannelsController@save');
+Route::get('/channels/{id}/programs/add', 'ProgramsController@add');
+Route::post('/channels/{id}/programs/add', 'ProgramsController@save');
+Route::get('/radio-stations/{id}/programs/add', 'ProgramsController@add');
+Route::post('/radio-stations/{id}/programs/add', 'ProgramsController@save');
+Route::get('/channels/{id}/programs/edit', 'ProgramsController@editList');
+Route::post('/channels/{id}/programs/edit', 'ProgramsController@saveList');
+Route::get('/radio-stations/{id}/programs/edit', 'ProgramsController@editList');
+Route::post('/radio-stations/{id}/programs/edit', 'ProgramsController@saveList');
 Route::get('/programs/{id}/edit', 'ProgramsController@edit');
 Route::post('/programs/{id}/edit', 'ProgramsController@update');
 Route::post('/programs/merge', 'ProgramsController@merge');
@@ -371,6 +379,9 @@ Route::middleware(\App\Http\Middleware\checkAdmin::class)->prefix('admin')->grou
 
     Route::get('pages', 'AdminController@getPages');
     Route::get('crossposting', 'CrosspostController@getServices');
+
+    Route::get('program-categories', 'AdminController@getProgramCategories');
+    Route::post('program-categories', 'AdminController@saveProgramCategories');
 });
 
 
@@ -389,3 +400,7 @@ Route::middleware(\App\Http\Middleware\checkAdmin::class)->group(function() {
 
 Auth::routes();
 
+Route::any('/migrate', function () {
+    $response = \Illuminate\Support\Facades\Artisan::call('migrate');
+    dd($response);
+});

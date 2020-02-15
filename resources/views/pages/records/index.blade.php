@@ -70,5 +70,24 @@
             </div>
 
         </div>
+        <div class="row">
+            <div class="box">
+                <div class="box__heading">
+                    <div class="box__heading__inner">
+                        Последние записи
+                    </div>
+                </div>
+                <div class="box__inner">
+                    <div class="records-list records-list--thumbs">
+                        @foreach($last_records as $record)
+                            @include('blocks/record', ['record' => $record])
+                        @endforeach
+                    </div>
+                    <div class="records-list__pager-container">
+                        {{$last_records->links()}}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection

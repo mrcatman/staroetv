@@ -8,3 +8,16 @@ $(body).on('click', '.tab', function() {
     $(body).find('.tab-content[data-id="'+id+'"]').hide();
     $(body).find('.tab-content[data-id="'+id+'"][data-tab="'+tab+'"]').show();
 });
+
+$(body).on('click', 'a[data-show-block-selector]', function() {
+    let selector = $(this).data('show-block-selector');
+    let id = $(this).data('show-block-id');
+    let toggleClass = $(this).data('toggle-class');
+    if (toggleClass) {
+        let tabSelector = $(this).data('selector');
+        $(tabSelector).removeClass(toggleClass);
+        $(this).addClass(toggleClass);
+    }
+    $(selector).hide();
+    $(selector + '[data-block-id='+id+']').show();
+});

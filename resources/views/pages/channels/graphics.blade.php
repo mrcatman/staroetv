@@ -4,7 +4,7 @@
         <div class="breadcrumbs">
             <a class="breadcrumbs__item" href="/{{$channel->is_radio ? "radio" : "video"}}">Архив</a>
             <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
-            <a class="breadcrumbs__item breadcrumbs__item--current">Графика</a>
+            <a class="breadcrumbs__item breadcrumbs__item--current">Оформление</a>
         </div>
         <div class="inner-page__header">
             <div class="inner-page__header__title">Графическое оформление канала {{$channel->name}}</div>
@@ -14,11 +14,11 @@
          </div>
         <div class="inner-page__content">
            @foreach ($packages as $package)
-                <div class="graphics-package">
-                    <div class="graphics-package__date">{{$package->years_range}}</div>
-                    <div class="graphics-package__author">Автор: <strong>{{$package->author}}</strong></div>
+                <div class="interprogram-packages-list-item" id="package_{{$package->id}}">
+                    <div class="interprogram-packages-list-item__date">{{$package->name != "" ? ($package->name . ($package->years_range != "" ? " (".$package->years_range.")" : "")) : $package->years_range}}</div>
+                    @if ($package->author != "")<div class="interprogram-packages-list-item__author">Автор: <strong>{{$package->author}}</strong></div>@endif
                     @if ($package->can_edit)
-                        <div class="graphics-package__options">
+                        <div class="interprogram-packages-list-item__options">
                             <span class="button button--light button--dropdown" >
                                 <span class="button--dropdown__text">Опции</span>
                             <span class="button--dropdown__icon">
@@ -31,10 +31,10 @@
                             </span>
                         </div>
                     @endif
-                    <div class="graphics-package__description">{{$package->description}}</div>
-                    <div class="graphics-package__videos">
+                    <div class="interprogram-packages-list-item__description">{{$package->description}}</div>
+                    <div class="interprogram-packages-list-item__videos">
                         <div class="small-videos-list">
-                            @foreach($package->records_list as $record)
+                            @foreach($package->records as $record)
                                 @include('blocks/video_small', ['video' => $record])
                             @endforeach
                         </div>

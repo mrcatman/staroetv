@@ -36,6 +36,7 @@
     background: #eee;
     color: #000;
     overflow: hidden;
+
   }
 }
 
@@ -94,6 +95,7 @@
 
   &__content {
     overflow: auto;
+    overflow-x: hidden;
     flex: 1;
     padding: 3px;
     border-left: 1px solid #eaebec;
@@ -102,8 +104,9 @@
     border-right: 1px solid #c2c5ca;
     background: linear-gradient(45deg, #eaeaea, #e0e0e0);
     color: #000;
-    /*min-height: 100px;*/
-    max-height: 600px;
+    /*min-height: 100px;
+    max-height: 600px;*/
+    max-height: 75vh;
     &__inner {
       padding: 12px;
       &--no-padding {

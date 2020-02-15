@@ -76,8 +76,8 @@
                         let height = this.$refs.sizeTester.offsetHeight;
                        // this.width = width + 40;
                         //this.height = height + 70;
-                        this.width = 640;
-                        this.height = height > 360 ? 360 : height + 70;
+                        this.width = 800;
+                        this.height = height > 600 ? 600 : height + 70;
                         this.testingSizes = false;
                         this.x = (window.innerWidth - this.width) / 2;
                         this.y = (window.innerHeight - this.height) / 2;
@@ -88,7 +88,6 @@
             onResize(x, y, width, height) {
                 this.x = x;
                 this.y = y;
-
             },
             onDrag(x, y) {
                 this.x = x

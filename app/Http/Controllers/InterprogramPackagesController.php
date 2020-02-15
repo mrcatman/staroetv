@@ -12,6 +12,7 @@ use App\User;
 use App\UserAward;
 use App\UserReputation;
 use Carbon\Carbon;
+use Illuminate\Validation\Rules\In;
 
 
 class InterprogramPackagesController extends Controller {
@@ -23,10 +24,21 @@ class InterprogramPackagesController extends Controller {
         }
         $packages = $channel->interprogramPackages;
         foreach ($packages as $package) {
-            $records = $package->records;
-            $records = $records->merge($this->getPackageRecordsByDate($package));
-            $package->records_list = $records;
+            $package->records = $package->records->sortByDesc('id');
+            //$records = $records->merge($this->getPackageRecordsByDate($package));
+            //$package->records_list = $records;
         }
+        $not_sorted_interprogram = $channel->records->sortByDesc('id')->filter(function($record) {
+            return $record->is_interprogram && !$record->interprogram_package_id;
+        });
+        $packages->push(new InterprogramPackage([
+            'id' => 0,
+            'name' => 'Прочее',
+            'pictures' => [],
+            'years_range' => '',
+            'records' => $not_sorted_interprogram
+        ]));
+
         return view('pages.channels.graphics', [
             'channel' => $channel,
             'packages' => $packages
@@ -38,7 +50,7 @@ class InterprogramPackagesController extends Controller {
         if (!PermissionsHelper::allows('additionalown') && !PermissionsHelper::allows('additional')) {
             return view("pages.errors.403");
         }
-        $channel = Channel::find($channel_id);
+        $channel = Channel::findByIdOrUrl($channel_id);
         if (!$channel) {
             return redirect("/");
         }
@@ -118,7 +130,7 @@ class InterprogramPackagesController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         }
-        $channel = Channel::find($channel_id);
+        $channel = Channel::findByIdOrUrl($channel_id);
         if (!$channel || !$channel->can_edit) {
             return [
                 'status' => 0,
@@ -197,6 +209,9 @@ class InterprogramPackagesController extends Controller {
             'date_end' => 'required|date',
         ]);
         $package->fill($data);
+        if(request()->input('name', '') == "") {
+            $package->name = "";
+        }
         $package->date_start = Carbon::parse($data['date_start']);
         $package->date_end = Carbon::parse($data['date_end']);
         $package->save();

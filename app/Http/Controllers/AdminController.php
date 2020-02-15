@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Channel;
 use App\ChannelName;
 use App\Comment;
+use App\Genre;
 use App\Helpers\CommentsHelper;
 use App\Page;
 use App\Program;
@@ -120,13 +121,6 @@ class AdminController extends Controller {
     }
 
 
-    public function getSmiles() {
-        $smiles = Smile::with('picture')->get();
-        return view("pages.admin.smiles", [
-            'smiles' => $smiles
-        ]);
-    }
-
     public function getChannelsOrder() {
         $channels = Channel::with('logo')->orderBy('order', 'ASC')->get();
         return view("pages.admin.channels_order", [
@@ -142,6 +136,13 @@ class AdminController extends Controller {
             'status' => 1,
             'text' => 'Сохранено',
         ];
+    }
+
+    public function getSmiles() {
+        $smiles = Smile::with('picture')->get();
+        return view("pages.admin.smiles", [
+            'smiles' => $smiles
+        ]);
     }
 
     public function saveSmiles() {
@@ -204,5 +205,41 @@ class AdminController extends Controller {
         return view("pages.admin.static_pages", [
             'static_pages' => $static_pages,
         ]);
+    }
+
+    public function getProgramCategories() {
+        $program_categories = Genre::all();
+        return view("pages.admin.program-categories", [
+            'program_categories' => $program_categories
+        ]);
+    }
+
+
+
+    public function saveProgramCategories() {
+        $categories = collect(request()->input('categories'));
+        $ids = $categories->pluck('id')->toArray();
+        foreach ($categories as $category) {
+            unset($category['created_at']);
+            unset($category['updated_at']);
+            if (isset($category['id'])) {
+                $category_obj = Genre::find($category['id']);
+                $category_obj->fill($category);
+                $category_obj->save();
+            } else {
+                $category_obj = new Genre($category);
+                $category_obj->save();
+                $ids[] = $category_obj->id;
+            }
+        }
+        Genre::whereNotIn('id', $ids)->delete();
+        $all_categories = Genre::all();
+        return [
+            'status' => 1,
+            'text' => 'Сохранено',
+            'data' => [
+                'categories' => $all_categories
+            ]
+        ];
     }
 }

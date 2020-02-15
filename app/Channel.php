@@ -45,17 +45,28 @@ class Channel extends Model {
         return false;
     }
 
+    public function getBaseUrlAttribute() {
+        if ($this->is_radio) {
+            return "/radio-stations/";
+        } else {
+            return "/channels/";
+        }
+    }
 
     public function getFullUrlAttribute() {
         $url = $this->url;
         if (!$url) {
             $url = $this->id;
         }
-        if ($this->is_radio) {
-            return "/radio-stations/" .$url;
-        } else {
-            return "/channels/" . $url;
+        return $this->base_url.$url;
+    }
+
+    public static function findByIdOrUrl($id) {
+        $channel = Channel::find($id);
+        if (!$channel) {
+            $channel = Channel::where(['url' => $id])->first();
         }
+        return $channel;
     }
 
 }

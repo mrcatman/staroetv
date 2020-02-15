@@ -10,6 +10,9 @@
         <a class="admin-panel__link" href="/admin/channels/order">
             <i class="fa fa-sort-amount-up"></i>Порядок каналов
         </a>
+        <a class="admin-panel__link" href="/admin/program-categories">
+            <i class="fa fa-clipboard-list"></i>Категории программ
+        </a>
         <a class="admin-panel__link" href="/admin/users">
             <i class="fa fa-user"></i>Пользователи
         </a>

@@ -32,7 +32,7 @@
             <div class="box">
                 <div class="box__heading">
                     <div class="box__heading__inner">
-                        Видео <span class="box__heading__count">{{count($records)}}</span>
+                        Видео <span class="box__heading__count">{{($records_count)}}</span>
                     </div>
 
                 </div>
@@ -41,6 +41,9 @@
                         @foreach($records as $record)
                             @include('blocks/record', ['record' => $record])
                         @endforeach
+                    </div>
+                    <div class="records-list__pager-container">
+                        {{$records->links()}}
                     </div>
                 </div>
             </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Channel;
 use App\ChannelName;
+use App\Genre;
 use App\Helpers\PermissionsHelper;
 use App\InterprogramPackage;
 use App\Program;
@@ -14,9 +15,18 @@ class ProgramsController extends Controller {
 
     public function show($id) {
         $program = Program::find($id);
+        if (!$program) {
+            $program = Program::where(['url' => $id])->first();
+        }
+        if (!$program) {
+            return redirect("/");
+        }
+        $records = Record::where(['program_id' => $program->id])->paginate(60);
+        $records_count =  Record::where(['program_id' => $program->id])->count();
         return view("pages.programs.show", [
             'program' => $program,
-            'records' => $program->records,
+            'records' => $records,
+            'records_count' => $records_count
         ]);
     }
 
@@ -24,7 +34,7 @@ class ProgramsController extends Controller {
         if (!PermissionsHelper::allows('programsown') && !PermissionsHelper::allows('programs')) {
             return view("pages.errors.403");
         }
-        $channel = Channel::find($channel_id);
+        $channel = Channel::findByIdOrUrl($channel_id);
         if (!$channel || !$channel->can_edit) {
             return view("pages.errors.403");
         }
@@ -52,8 +62,16 @@ class ProgramsController extends Controller {
         ]);
     }
 
-    public function save() {
+    public function save($channel_id) {
         if (!PermissionsHelper::allows('programsown') && !PermissionsHelper::allows('programs')) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+
+        $channel = Channel::findByIdOrUrl($channel_id);
+        if (!$channel || !$channel->can_edit) {
             return [
                 'status' => 0,
                 'text' => 'Ошибка доступа'
@@ -82,62 +100,36 @@ class ProgramsController extends Controller {
 
     private function fillData($program) {
         $data = request()->validate([
-            'name' => 'sometimes|min:1',
+            'name' => 'required|min:1',
             'description' => 'sometimes',
-            'logo_id' => 'sometimes',
-            'is_regional' => 'sometimes',
-            'is_federal' => 'sometimes',
-            'is_abroad' => 'sometimes',
-            'country' => 'sometimes',
-            'city' => 'sometimes',
-            'is_radio' => 'sometimes',
+            'date_of_start' => 'sometimes',
+            'date_of_closedown' => 'sometimes',
+            'genre_id' => 'sometimes',
+            'cover_id' => 'sometimes',
             'url' => 'sometimes'
         ]);
-
-        foreach(['is_regional', 'is_abroad', 'is_federal'] as $key) {
-            if (isset($data[$key])) {
-                $data[$key] = ($data[$key] === "true" || $data[$key] === true) ? 1 : 0;
-            }
+        if (isset($data['date_of_start'])) {
+            $data['date_of_start'] = Carbon::parse($data['date_of_start']);
+        } else {
+            $data['date_of_start'] = null;
         }
-        $channel->fill($data);
-        $channel->save();
-        if (request()->has('channel_names')) {
-            $names = request()->input('channel_names');
-            $names = json_decode($names);
-            $ids = [];
-            foreach ($names as $name) {
-                $start = Carbon::parse($name->date_start);
-                $end = Carbon::parse($name->date_end);
-
-                $name_data = [
-                    'channel_id' => $channel->id,
-                    'name' => $name->name,
-                    'logo_id' => $name->logo_id,
-                    'date_start' => !$start->isToday() ? $start  : null,
-                    'date_end' => !$end->isToday() ? $end : null
-                ];
-                if (!isset($name->id)) {
-                    $name = new ChannelName($name_data);
-                    $name->save();
-                    $ids[] = $name->id;
-                } else {
-                    $ids[] = $name->id;
-                    $name = ChannelName::find($name->id);
-                    $name->fill($name_data);
-                    $name->save();
-                }
-            }
-            ChannelName::where(['channel_id' => $channel->id])->whereNotIn('id', $ids)->delete();
+        if (isset($data['date_of_closedown'])) {
+            $data['date_of_closedown'] = Carbon::parse($data['date_of_closedown']);
+        } else {
+            $data['date_of_closedown'] = null;
         }
+        $program->fill($data);
+        $program->save();
         return [
             'status' => 1,
-            'text' => 'Информация о канале обновлена',
-            'redirect_to' => '/channels/'.$channel->id.'/edit'
+            'text' => 'Информация о программе обновлена',
+            'redirect_to' => '/programs/'.$program->id.'/edit'
         ];
     }
 
     public function merge() {
         $original = Program::find(request()->input('original_id'));
+        $merged = null;
         if (!$original) {
             return [
                 'status' => 0,
@@ -150,20 +142,23 @@ class ProgramsController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         }
-
-        $merged = Program::find(request()->input('merged_id'));
-        if (!$merged) {
-            return [
-                'status' => 0,
-                'text' => 'Программа для объединения не найдена'
-            ];
+        if (request()->input('is_interprogram')) {
+            Record::where(['program_id' => $original->id])->update(['program_id' => null, 'is_interprogram' => true]);
+        } else {
+            $merged = Program::find(request()->input('merged_id'));
+            if (!$merged) {
+                return [
+                    'status' => 0,
+                    'text' => 'Программа для объединения не найдена'
+                ];
+            }
+            Record::where(['program_id' => $original->id])->update(['program_id' => $merged->id]);
         }
-        Record::where(['program_id' => $original->id])->update(['program_id' => $merged->id]);
         $original->delete();
         return [
             'status' => 1,
             'text' => 'Программа объединена',
-            'redirect_to' => '/video'
+            'redirect_to' => $merged ? '/programs/'.$merged->id.'/edit' : '/video'
         ];
     }
 
@@ -183,6 +178,7 @@ class ProgramsController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         }
+        Record::where(['program_id' => $program->id])->update(['program_id' => -1]);
         $program->delete();
         if (request()->input('_from_confirm_form')) {
             return [
@@ -196,5 +192,61 @@ class ProgramsController extends Controller {
                 'text' => 'Программа удалена'
             ];
         }
+    }
+
+    public function editList($channel_id) {
+        if (!PermissionsHelper::allows('programs')) {
+            return redirect('/');
+        }
+
+        $channel = Channel::findByIdOrUrl($channel_id);
+        if (!$channel || !$channel->can_edit) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+        $programs = $channel->programs->sortBy('order')->values();
+        unset($channel->programs);
+        $genres = Genre::all();
+        return view('pages.forms.programs-list', [
+            'channel' => $channel,
+            'programs' => $programs,
+            'genres' => $genres
+        ]);
+    }
+
+    public function saveList($channel_id) {
+        if (!PermissionsHelper::allows('programs')) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+        $channel = Channel::findByIdOrUrl($channel_id);
+        if (!$channel || !$channel->can_edit) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+        $order = request()->input('order');
+        $i = 0;
+        foreach ($order as $genre_id => $programs) {
+
+            foreach ($programs as $program_id) {
+                $program = Program::find($program_id);
+                if ($program && $program->channel_id == $channel->id) {
+                    $program->order = $i;
+                    $program->genre_id = $genre_id != -1 ? $genre_id : null;
+                    $program->save();
+                }
+                $i++;
+            }
+        }
+        return [
+            'status' => 1,
+            'text' => 'Обновлено'
+        ];
     }
 }

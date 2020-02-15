@@ -418,7 +418,7 @@
                 params = params.toString();
                 window.history.replaceState({}, '', `${location.pathname}?${params}`);
                 $.post(this.action, data).done((res) => {
-                    this.resultsList = res.records;
+                    this.resultsList = res.data.records;
                     this.isLoading = false;
                     window.scrollTo(0, 0);
                 })
