@@ -1,0 +1,80 @@
+.main-page {
+    &__intro {
+        margin: 6em 0 1em;
+        position: relative;
+        overflow: hidden;
+        background-image: url(/splashscreen/splashscreen.png);
+        background-size: cover;
+        background-position: center;
+        height: unset;
+        padding-top: 41.66%;
+        @include mobile() {
+            background-size: 150%;
+            padding-top: 70%;
+            background-position: 55% 50%;
+        }
+        &__overlay {
+            background-image: url(/splashscreen/splashscreen_overlay.png);
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: absolute;
+            z-index: 1;
+        }
+        &__video {
+            position: absolute;
+            z-index: 0;
+        }
+        &__overlay, &__video {
+            width: 32em;
+            height: 19.5em;
+            top: 5.85em;
+            right: 20.15em;
+            @media screen and (max-width: 1400px) {
+                width: 26vw;
+                height: 20.5vw;
+                top: 5.35vw;
+                right: 23.2vw;
+            }
+            @include mobile() {
+                width: 40vw;
+                height: 29.5vw;
+                top: 12.25vw;
+                right: 11.75vw;
+            }
+        }
+
+        &__text {
+            position: absolute;
+            bottom: 0;
+            font-size: 3em;
+            color: #fff;
+            background: linear-gradient(0deg, black 50%, transparent);
+            padding: 1em 1em .5em;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+            z-index: 10;
+            @include mobile() {
+                font-size: 1.5em;
+                padding: 1em .5em;
+            }
+        }
+    }
+    &__site-description {
+        padding: .5em;
+        font-size: 1.5em;
+        line-height: 1.5;
+        @include mobile() {
+            font-size: 1.25em;
+        }
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}

@@ -1,0 +1,77 @@
+.radio-recording {
+    margin: .5em 0;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    padding: .5em;
+    background: rgba(0, 0, 0, 0);
+    transition: all .25s;
+    width: 100%;
+    @include mobile() {
+        font-size: .75em;
+    }
+    &:hover {
+        background: var(--box-color-hover);
+    }
+    &__button {
+        color: #fff;
+        width: 4em;
+        height: 4em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary);
+    }
+
+    &__title {
+        font-size: 1.125em;
+        font-weight: bold;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        overflow: hidden;
+        margin: 0 0 .5em;
+    }
+
+    &__texts {
+        max-width: calc(100% - 5em);
+        margin: 0 0 0 1em;
+    }
+
+    &__info {
+        i {
+            margin: 0 .5em 0 0;
+        }
+
+        span {
+            margin: 0 .5em 0 0;
+        }
+    }
+    &__timecodes {
+        &__line {
+            margin: .5em 0;
+
+            &__text {
+                margin: 0 .5em;
+            }
+        }
+    }
+}
+
+.record-page__related {
+    .radio-recording {
+        border-bottom: 1px solid var(--border-color);
+        margin: 0;
+        padding: 1em;
+
+        &:last-of-type {
+            border-bottom: 0px;
+        }
+    }
+}
+
+.box--dark .radio-recording {
+    &:hover {
+        background: var(--box-color-hover-dark);
+    }
+}

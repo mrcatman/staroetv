@@ -1,0 +1,8 @@
+$links: #ccc;
+$linkshover: #ddd;
+$main-links: #ffa400;
+@mixin mobile() {
+    @media screen and (max-width: 768px) {
+        @content;
+    }
+}

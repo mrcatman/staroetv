@@ -1,0 +1,85 @@
+.regions {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 1.5em 0 -1.5em;
+    &__container {
+        @include mobile() {
+            font-size: .875em;
+        }
+    }
+    &__search {
+        padding: 1.5em 0 0;
+        font-size: 1.25em;
+        .input {
+            width: calc(100% - 1.5em);
+        }
+    }
+}
+
+.region {
+    display: flex;
+    align-items: center;
+    margin: 0 .75em .75em 0;
+    background: var(--bg-darker);
+    padding: .5em .75em;
+    border-radius: .25em;
+    flex-wrap: wrap;
+
+    &__name {
+        font-size: 1.25em;
+        cursor: pointer;
+        font-weight: 600;
+        @include mobile() {
+            margin: 0 .5em 0 0;
+        }
+    }
+
+    &__count {
+        margin: 0 .25em;
+    }
+
+    &__city {
+        cursor: pointer;
+        font-size: 1.25em;
+        &--active {
+            font-weight: bold;
+            color: #fff;
+        }
+        &__count {
+            opacity: .5;
+            margin: 0 0 0 .25em;
+        }
+        &--active &__count {
+            opacity: 1;
+            color: var(--primary);
+        }
+    }
+    &--active &__count {
+        color: var(--primary);
+    }
+
+    &__name + &__cities &__city {
+        font-size: 1em;
+        cursor: pointer;
+        line-height: 1;
+        margin: .25em 0 0 1em;
+        @include mobile() {
+            margin: .5em 1em 0 0;
+        }
+    }
+
+
+    &__cities {
+        display: flex;
+        align-items: center;
+
+        &:empty {
+            width: 0;
+        }
+    }
+    &--active {
+        background: #333;
+        color: #d6d6d6;
+    }
+}
+

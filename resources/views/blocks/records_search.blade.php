@@ -1,0 +1,1 @@
+<records-search :is-radio="{{$is_radio ? "true" : "false"}}" :show-results="{{isset($show_results) && $show_results ? 'true' : 'false'}}" :results='@json(isset($results) ? $results : [])' :params='{!! isset($params) ? json_encode($params) : '{}' !!}' action="{{$is_radio ? "/radio/search" : "/video/search"}}"></records-search>

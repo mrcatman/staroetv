@@ -1,0 +1,312 @@
+.comment {
+    padding: .5em 0;
+    margin: 0;
+    position: relative;
+
+    &:nth-of-type(2n) {
+       /* background: var(--bg-darker); */
+    }
+    &__inner {
+        padding: 0 1em;
+        font-size: .9375rem;
+        /* font-size: .875rem; */
+        display: flex;
+        align-items: flex-start;
+        margin: 0;
+        @include mobile {
+            font-size: .75rem;
+        }
+    }
+
+    .smile {
+        max-height: 1.75em;
+    }
+
+    &__top {
+        margin: 0 0 .5em;
+        border: none;
+        display: flex;
+        flex-wrap: wrap;
+        @include mobile {
+            position: unset;
+        }
+    }
+
+
+    &__date {
+
+    }
+
+    &__children {
+        margin: 0.5em 0 -0.5em 2em;
+        &:empty {
+            display: none;
+        }
+        .comment {
+
+        }
+
+    }
+
+    &__avatar {
+        margin: 0 1em 0 0;
+        height: auto;
+        width: 3em;
+        background-position: center center;
+        background-size: contain;
+        background-repeat: no-repeat;
+    }
+
+    &__texts {
+        width: 100%;
+
+        &--with-avatar {
+            max-width: calc(100% - 4em);
+        }
+    }
+
+    &__text {
+        line-height: 1.5;
+        img {
+            max-width: 100%;
+        }
+
+        .bbQuoteName {
+            color: #333;
+            padding-left: 5px;
+            font-size: .875em !important;
+            font-weight: bold;
+            padding-top: 7px;
+            padding-bottom: 7px;
+            margin: 0 auto;
+            border-width: 1px 1px 0px 4px;
+            border-style: dotted dotted;
+            border-color: rgb(0, 0, 0) rgb(0, 0, 0);
+            border-image: initial;
+            border-bottom: 0px;
+            border-left: 4px solid rgb(131, 148, 178);
+            background: #e4eaf2;
+        }
+
+        .quoteMessage {
+            color: rgb(70, 85, 132);
+            font-size: .875em !important;
+            background: #fff;
+            padding: 3px;
+            border-width: 0 1px 1px 4px !important;
+            border-style: dotted dotted !important;
+            border-color: rgb(0, 0, 0) rgb(0, 0, 0) !important;
+            border-image: initial !important;
+            border-left: 4px solid rgb(131, 148, 178) !important;
+            border-top: 0 !important;
+        }
+
+        .uSpoilerButton {
+            background: #eee;
+            color: #686868;
+            border-width: 1px;
+            border-style: solid;
+            border-color: #dddddd #c6c6c6 #c6c6c6 #c6c6c6;
+            border-radius: 5px;
+            -moz-border-radius: 5px;
+            cursor: pointer;
+            padding: .25em .5em;
+            font: inherit;
+            margin: .25em 0;
+
+            &:hover {
+                background: #ddd;
+            }
+        }
+
+        &--negative {
+            opacity: .5;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+
+
+    &__rating {
+        display: flex;
+        align-items: center;
+        position: absolute;
+        top: .5em;
+        right: 1em;
+        font-size: 1em;
+
+        &__button {
+            width: .75em;
+            height: .75em;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 0;
+            border-radius: .5em;
+            cursor: pointer;
+            font-size: .75em;
+            transition: all .35s;
+            opacity: 0;
+            margin: 0 .5em;
+            &:hover {
+
+            }
+
+            &--plus {
+                color: #218d20;
+            }
+
+            &--minus {
+                color: #c34b4c;
+            }
+        }
+
+
+        &__number {
+            margin: 0 .5em;
+             &--positive {
+                color: #218d20;
+            }
+
+            &--negative {
+                color: #c34b4c;
+            }
+        }
+    }
+
+    &__top:hover &__rating__button {
+        opacity: 1;
+    }
+
+    &__username {
+        font-weight: bold;
+        width: 100%;
+    }
+
+    &__material-link {
+        margin: 0 0 0 .5em;
+        cursor: pointer;
+        font-size: 0.875em;
+        text-decoration: none;
+        &:hover {
+            border-bottom: 1px solid;
+        }
+    }
+
+    &__reply {
+        text-decoration: none;
+        display: inline-block;
+        cursor: pointer;
+        border-radius: .25em;
+        box-shadow: none;
+        margin: .5em 0 0;
+        font-size: .875em;
+        font-weight: bold;
+         &:hover {
+
+        }
+    }
+
+    &__edit {
+        margin: 0 .5em;
+        cursor: pointer;
+        font-size: .875em;
+        color: var(--text-lighter);
+        text-decoration: underline;
+    }
+
+    &__delete {
+        cursor: pointer;
+        font-size: .875em;
+        color: #bf2b2b;
+        text-decoration: underline;
+    }
+}
+.box--comments {
+    margin: 0 0 1em;
+    height: auto!important;
+}
+.box .comments {
+    flex: 1;
+    margin: -1em;
+}
+
+.comments {
+    position: relative;
+    &__preloader {
+        padding: 5em 0 2.5em;
+        text-align: center;
+    }
+    &__list {
+        margin: 0 0 -1em;
+        &:empty {
+            margin: -2em 0 0;
+        }
+    }
+
+    &__pages {
+        background: linear-gradient(#000000, rgba(38, 38, 38, 0.9) 49%, rgba(7, 7, 7, 0.9) 50%, rgb(12, 12, 12));
+        padding: .25em 1em 1em;
+    }
+    .box .response {
+        margin: -1em -1em 1em;
+    }
+    &__form {
+        overflow: hidden;
+        border-bottom: 1px solid var(--border-color);
+        padding: 1.25em;
+        position: relative;
+        background: var(--bg-darker);
+        @include mobile {
+            font-size: .875em;
+        }
+        &__disable {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.75));
+        }
+
+        &__register {
+            font-size: 1.125em;
+            border-radius: 0;
+            background: var(--box-color-dark);
+            color: var(--box-text-color-dark);
+            margin: -1.25em;
+            padding: 1.25em 1.75em;
+            a {
+                color: var(--primary);
+                font-weight: bold;
+            }
+        }
+    }
+    &__pager {
+        margin: 1em -1em 0;
+        border-top: 1px solid var(--border-color);
+        padding: 1em 2em 0;
+        &:empty {
+            display: none;
+        }
+    }
+    &__reply-form-container {
+        padding: .5em;
+
+        &:empty {
+            padding: 0;
+        }
+    }
+
+    &__edit-form-container {
+        padding: .5em;
+
+        &:empty {
+            padding: 0;
+        }
+    }
+}

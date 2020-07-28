@@ -1,0 +1,131 @@
+.private-messages {
+    &__inner {
+        padding: 1.25em;
+    }
+
+    &__list {
+        margin: -1em;
+    }
+    &__empty {
+        font-size: 1.25em;
+        padding: 1.25em;
+        color: var(--text-lightest);
+    }
+    &__heading {
+        display: flex;
+        align-items: center;
+        margin: 0 0 -1.25em;
+        padding: 1.25em;
+
+        &__text {
+            margin: 0 1em 0 0;
+            font-weight: 500;
+            font-size: 1.25em;
+        }
+
+        &__right {
+            flex: 1;
+            text-align: right;
+
+            .button {
+                margin: 0 0 0 1em;
+            }
+        }
+    }
+}
+
+
+.private-message {
+    font-size: 1.125em;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding: .125em .5em;
+    &:hover {
+        background: var(--box-color-hover);
+    }
+    &:nth-of-type(2n) {
+        background: var(--bg-darker);
+    }
+    &:empty {
+        display: none;
+    }
+    &--unread {
+        border-left: .25em solid var(--primary);
+        background: var(--bg-darker-2)!important;
+    }
+
+    &__title {
+        font-size: 1.125em;
+        text-decoration: none;
+        font-weight: 500;
+        margin: .75em;
+    }
+
+    &__time {
+        display: inline-block;
+        margin-left: auto;
+        font-weight: 500;
+    }
+
+    &__right {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        margin: 0 .5em 0 0;
+    }
+
+    &__button {
+        border: none;
+        padding: .5em 1em;
+        color: #555;
+        font-size: 1em;
+        margin: 0 0 0 .5em;
+        cursor: pointer;
+        background: no-repeat;
+
+        &:hover {
+            background: #d3d3d3;
+        }
+    }
+}
+
+.private-message-page {
+
+    &__text {
+        word-break: break-all;
+        font-size: 1.125em;
+        padding: .25em;
+    }
+
+    &__form {
+        margin: 0;
+
+        &__title {
+            padding: 1em;
+            background: var(--bg-darkest);
+            font-weight: 500;
+            font-size: 1.125em;
+        }
+
+        &__inner {
+
+        }
+    }
+
+    &__info {
+        margin: -1em -1em 1em;
+        padding: 1em;
+        background: var(--bg-darker);
+        border-bottom: 1px solid var(--border-color);
+
+        &__item {
+            text-decoration: none;
+            font-size: 1.25em;
+            margin: 0 .75em 0 0;
+            i {
+                margin: 0 .25em 0 0;
+            }
+        }
+    }
+}
