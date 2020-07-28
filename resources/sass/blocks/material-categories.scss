@@ -1,0 +1,33 @@
+.material-categories {
+    &__section {
+        margin: 0 0 .5em;
+        padding: 0 0 .5em;
+        list-style-type: none;
+        font-size: 1.25em;
+        line-height: 1.75;
+        border-bottom: 1px solid var(--border-color);
+        &:last-of-type {
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+        a {
+            display: block;
+            color: unset;
+            text-decoration: none;
+        }
+    }
+
+    &__section-heading {
+        font-size: 1.25em;
+        font-weight: 600;
+    }
+    li {
+        padding: 0 .5em;
+        transition: all .35s;
+
+        &:hover {
+            background: var(--box-color-hover);
+        }
+    }
+}

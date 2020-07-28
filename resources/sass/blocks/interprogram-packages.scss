@@ -1,0 +1,89 @@
+.interprogram-package {
+    width: calc(100% / 3);
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+    @include mobile {
+        width: 100%;
+    }
+    &__cover {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: stretch;
+        background: #111;
+        width: calc(100% - .5em);
+        min-width: calc(100% - .5em);
+        min-height: 16em;
+        background: var(--bg-darker);
+        &__picture {
+            /* flex: 1; */
+            padding-top: 8em;
+            max-width: 50%;
+            width: 100%;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            &:only-of-type {
+                max-width: 100%;
+            }
+            &--big {
+                max-width: 100%;
+                padding-top: 16em;
+            }
+        }
+    }
+    &:hover &__cover {
+        filter: brightness(1.1);
+    }
+
+    &__name {
+        font-size: 1.25em;
+        font-weight: bold;
+        margin: .5em 0;
+    }
+
+    &__years {
+        margin: 0 0 1em;
+        font-size: 1.25em;
+        font-weight: 500;
+        color: var(--text-lighter);
+    }
+}
+.interprogram-packages-list {
+    margin: 1em 0 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.interprogram-packages-list-item {
+    position: relative;
+    margin: 1em 0 0;
+    justify-content: space-between;
+    &__description {
+        margin: 0;
+        padding: 0 0 1em;
+        font-size: 1.125em;
+        &:empty {
+            display: none;
+        }
+        p {
+            margin: 0 0 1em;
+        }
+    }
+    &__date {
+        font-size: 2em;
+        font-weight: bold;
+    }
+
+    &__author {
+        margin: .5em 0 0;
+        font-size: .875em;
+    }
+
+    &__options {
+
+    }
+    &__videos {
+        margin: 0 0 -2em;
+    }
+}

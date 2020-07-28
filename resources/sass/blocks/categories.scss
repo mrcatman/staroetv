@@ -1,0 +1,34 @@
+.category {
+    background: var(--bg-darker-2);
+    text-decoration: none;
+    border-radius: 5em;
+    padding: .5em 1.25em;
+    margin: .5em .5em .5em 0;
+    display: inline-block;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--bg-darker-3);
+    }
+
+    &--active {
+        background: var(--primary)!important;
+        color: var(--button-active-text);
+    }
+   &__count {
+        font-weight: bold;
+        margin: 0 0 0 .25em;
+    }
+}
+
+
+.categories-list {
+    padding: 1em;
+    box-shadow: var(--block-box-shadow);
+    background: var(--bg-darker);
+    white-space: nowrap;
+    overflow: auto;
+    @include mobile() {
+        font-size: .875em;
+    }
+}

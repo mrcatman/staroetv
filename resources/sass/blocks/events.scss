@@ -1,0 +1,150 @@
+.event {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding: .75em 0;
+    &--pending {
+        opacity: .5;
+    }
+    @include mobile() {
+        font-size: .875em;
+    }
+    &__cover {
+        margin: 0 1em 0 0;
+        width: 9em;
+        height: 6em;
+        background-size: cover;
+        background-position: center;
+    }
+
+    &__title {
+        font-size: 1.25em;
+        text-decoration: none;
+        border-bottom: 1px solid;
+        &:hover {
+            color: var(--primary);
+        }
+    }
+    &__texts {
+       max-width: calc(100% - 10em);
+    }
+
+    &__date {
+        display: block;
+        margin: .5em 0 0;
+        color: var(--text-lighter);
+        font-size: 1.125em;
+    }
+    &__short-description {
+        color: var(--text-lightest);
+        margin: .5em 0 0;
+    }
+
+    &--big &__cover {
+        width: 12em;
+        height: 7em;
+    }
+
+    &--big &__texts {
+        max-width: calc(100% - 12em);
+    }
+
+    &:first-of-type {
+        padding: 0 0 .75em;
+    }
+    &:last-of-type {
+        border: none;
+        padding: .75em 0 0;
+    }
+}
+
+.event-page {
+    &__content {
+        font-size: 1.5em;
+        padding: 1em 1em 0;
+    }
+
+    &__block-content {
+        font-size: 1.25em;
+        padding: 0 .5em .75em;
+        line-height: 1.75;
+        border-bottom: 1px solid var(--border-color-dark);
+        margin: 0 0 1em;
+    }
+
+    &__block {
+        margin: 1em 0;
+    }
+
+    &__records {
+        &--multiple {
+            display: flex;
+            flex-wrap: wrap;
+        }
+    }
+    &__records--multiple &__player-container__outer {
+        width: calc(50% - 1em);
+        margin: .5em;
+    }
+
+    &__player-container {
+        &__outer {
+            width: 60%;
+        }
+        &__description {
+            font-size: 1.25em;
+            color: var(--text-lightest);
+            margin: 1em 0 0;
+        }
+    }
+}
+
+.events-list-page {
+    &__top {
+        display: flex;
+        margin: 0 0 1em;
+        padding: 0 0 1.5em;
+        border-bottom: 1px solid var(--border-color);
+        @include mobile() {
+            display: block;
+        }
+    }
+
+    &__big-event {
+        width: 35%;
+        position: relative;
+        background-size: cover;
+        background-position: center;
+        margin: 0 1em 0 0;
+        cursor: pointer;
+        display: block;
+        @include mobile() {
+            width: 100%;
+            margin: 0 0 1em;
+            height: 18em;
+        }
+        &:hover {
+            filter: brightness(1.1);
+        }
+
+        &__texts {
+            background: var(--box-color-dark);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            padding: .75em;
+            width: 100%;
+            box-sizing: border-box;
+            color: var(--box-text-color-dark);
+        }
+
+        &__title {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        &__description {
+            font-size: 1.125em;
+        }
+    }
+}

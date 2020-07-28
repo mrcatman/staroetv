@@ -1,0 +1,99 @@
+.footer {
+    position: relative;
+    margin: 0 auto;
+    z-index: 10;
+    &__menu {
+        position: relative;
+        padding: .5em .5em .5em 1em;
+        background: var(--box-color-dark);
+        box-shadow: var(--block-box-shadow);
+        &__inner {
+            margin: 0 auto;
+            max-width: 1400px;
+            display: flex;
+            align-items: center;
+            @include mobile() {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+        &__link {
+            display: inline-block;
+            font-size: 1.25em;
+            text-decoration: none;
+            color: var(--box-text-color-dark);
+            margin: 0 1em 0 0;
+            &:hover {
+                border-bottom: 1px solid;
+            }
+            @include mobile() {
+                font-size: 1em;
+                padding: .5em 0;
+            }
+        }
+    }
+
+    &__copyright {
+        box-shadow: var(--block-box-shadow);
+        position: relative;
+        color: var(--text-lightest);
+        background: var(--box-color);
+        text-align: left;
+        padding: 1em;
+        font-size: 1em;
+
+        &__text {
+            max-width: calc(100% - 4em);
+        }
+
+        &__inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 0 auto;
+            max-width: 1400px;
+        }
+    }
+
+    > .container {
+        background: rgba(0, 0, 0, 0.35);
+    }
+
+    &__social {
+        margin-left: auto;
+        @include mobile() {
+            margin: .5em 0;
+        }
+    }
+    &__light-switch {
+        box-shadow: var(--block-box-shadow);
+        cursor: pointer;
+        display: block;
+        width: 4em;
+        height: 4em;
+        background: url("/img/light-switch.png") no-repeat center center;
+        background-size: cover;
+    }
+}
+
+.theme-dark .footer__light-switch {
+    background-image: url("/img/light-switch--inactive.png");
+}
+
+.social-links {
+    display: flex;
+    flex: 1;
+}
+
+.social-link {
+    display: inline-block;
+    height: 2.5em;
+    &:hover {
+        filter: brightness(1.1);
+    }
+    &__icon {
+        width: 2.5em;
+    }
+}

@@ -1,0 +1,226 @@
+.own-player {
+    width: 100%;
+}
+.plyr {
+    --plyr-color-main: var(--primary);
+    &__time-container {
+        display: flex;
+        margin-left: auto;
+        padding-left: 1.5em;
+    }
+
+    &__time+.plyr__time::before {
+        margin: 0 .5em;
+    }
+
+    &__time--duration {
+        margin: 0 .5em 0 0;
+    }
+    &__progress {
+        flex: 1;
+        margin: 0 .5em 0;
+    }
+
+    &__site-logo {
+        position: absolute;
+        top: 2em;
+        left: 2em;
+        width: 7.5%;
+        z-index: 1000;
+        fill: rgba(255, 255, 255, 0.25);
+        cursor: pointer;
+        transition: all .25s;
+        opacity: 1;
+
+        &:hover {
+            fill: rgba(255, 255, 255, 0.5);
+        }
+    }
+
+    &--hide-controls &__site-logo {
+        opacity: 0;
+    }
+    &--video &__title {
+        display: none;
+    }
+    &--video &__controls__outer {
+        width: 100%;
+    }
+    &--video &__controls__inner {
+        align-items: center;
+        display: flex;
+        justify-content: flex-end;
+        text-align: center;
+        flex: 1;
+    }
+
+    &--audio &__control--play-button {
+        width: 6em;
+        height: 6em;
+        text-align: center;
+        background: var(--primary);
+        color: var(--button-active-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        svg {
+            width: 1.75em;
+            height: 1.75em;
+        }
+    }
+
+    &--audio &__controls__inner {
+        flex: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    &--audio &__controls__outer {
+        flex: 1;
+        text-align: left;
+        max-width: calc(100% - 6em);
+        padding: 0 0 0 .5em;
+    }
+
+    &--audio &__title {
+        display: flex;
+        font-size: 1.125em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin: 0 .5em;
+        &__inner {
+            max-width: calc(100% - 5em);
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    &--audio &__controls {
+        background: var(--box-color);
+        border: 1px solid var(--border-color);
+    }
+    &--audio &__site-logo {
+        position: unset;
+        fill: var(--text-color);
+        width: auto;
+        padding: 0 0 0 .5em;
+        opacity: .5;
+        margin-left: auto;
+        z-index: 0;
+
+        &:hover {
+            fill: var(--text-color);
+            opacity: .75;
+        }
+
+        svg {
+            height: 1em;
+        }
+    }
+}
+
+.embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #fff;
+    z-index: 10;
+
+    &__inner {
+        max-width: 75%;
+    }
+
+    &__copy {
+        font-size: 1.5em;
+        margin: 1em 0;
+
+
+        &__text {
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.25em;
+            opacity: .75;
+            transition: opacity .25s;
+
+            &:hover {
+                opacity: 1;
+            }
+
+            &--small {
+                font-size: .875em;
+            }
+        }
+    }
+
+    &__description {
+        opacity: .5;
+    }
+
+}
+
+.plyr--audio {
+    .embed {
+        background: var(--bg-darker);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        font-size: .875em;
+        display: unset;
+
+        &__inner {
+            font-size: .75em;
+            /* display: flex; */
+            max-width: unset;
+            width: 100%;
+            text-align: left;
+            padding: .25em 1.5em;
+        }
+
+        &__copy {
+            display: flex;
+            align-items: center;
+            margin: .25em 0;
+
+            &__title {
+                white-space: nowrap;
+                margin: 0 1em 0 0;
+            }
+
+            &__text {
+                font-size: 1em;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                background: rgba(17, 17, 17, 0.07);
+                padding: .25em .5em;
+                flex: 1;
+                border-radius: .25em;
+                font-weight: 600;
+            }
+        }
+
+        &__description {
+            font-size: 1.25em;
+            padding: .25em 0 0;
+        }
+
+    }
+}
+
+.embed-page {
+    font-size: 16px;
+    width: 100vw;
+    height: 100vh;
+    .own-player {
+        height: 100%;
+    }
+}
+
+

@@ -1,0 +1,122 @@
+.box {
+    padding: 0;
+    margin: var(--col-margin) 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--box-color);
+    box-shadow: var(--block-box-shadow);
+    @include mobile() {
+        margin: .5em 0;
+    }
+    &--dark {
+        background: var(--box-color-dark);
+        color: var(--box-text-color-dark);
+    }
+
+    &--stretch {
+        height: calc(100% - var(--col-margin) * 2);
+    }
+
+    &__heading {
+        min-height: 1em;
+        text-align: left;
+        font-size: 1.5em;
+        display: flex;
+        text-decoration: none;
+        align-items: center;
+        justify-content: space-between;
+        border: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 1em;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        transition: all .25s;
+        &__inner {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        &:hover {
+
+        }
+        @include mobile {
+            overflow: auto;
+            align-items: flex-start;
+            font-size: 1.125em;
+            flex-direction: column;
+        }
+        &__right {
+            font-size: .75em;
+            &:empty {
+                display: none;
+            }
+            @include mobile {
+                margin: 1em 0 0;
+            }
+        }
+        &__count {
+            font-size: 1.125em;
+            margin: 0 0 0 .25em;
+        }
+        &__link {
+            font-size: .75em;
+        }
+
+        &--small {
+            font-size: 1.125em;
+            padding: 1em;
+        }
+
+        &__count {
+            font-weight: bold;
+        }
+    }
+
+    &__inner + &__heading {
+        border-top: 1px solid var(--border-color);
+    }
+
+    &--dark &__heading {
+        color: var(--box-text-color-dark);
+        border-bottom: 1px solid var(--border-color-dark);
+        &:hover {
+
+        }
+    }
+
+    &__inner {
+        flex: 1;
+        padding: 1em;
+        position: relative;
+        &--no-padding {
+            padding: 0;
+        }
+    }
+}
+a.box__heading:hover {
+    background: var(--box-color-hover);
+}
+.box--dark a.box__heading:hover {
+    background: var(--box-color-hover-dark);
+}
+
+a.box__heading .box__heading__inner:after {
+    font-family: "Font Awesome 5 Free";
+    content: "\f054";
+    font-weight: 900;
+    margin: 0 0 0 .5em;
+    opacity: .1;
+    transition: opacity .25s;
+}
+a.box__heading:hover .box__heading__inner:after {
+    opacity: .175;
+}
+
+
+.col > .box, .row > .box {
+    width: 100%;
+}
+
+.col .box__inner {
+
+}

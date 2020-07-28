@@ -1,0 +1,155 @@
+
+.bb-editor {
+    margin: 0;
+    padding: 0;
+    position: relative;
+
+    &__inner {
+        width: 100%;
+
+        .codeButtons {
+            font: inherit;
+            border-radius: .25em;
+            cursor: pointer;
+            min-width: 2.5em;
+            text-align: center;
+            width: auto !important;
+            padding: .5em;
+            color: unset;
+            border: 1px solid var(--border-color);
+            height: 2.5em;
+            background: var(--box-color);
+        }
+
+        .codeButtons:hover {
+            background: var(--box-color-hover);
+        }
+
+        select {
+            font-size: 7pt;
+            border: none;
+            border-bottom: 1px solid;
+            position: relative;
+            top: 1px;
+        }
+    }
+
+    &__input-container {
+        margin: 0;
+        font-size: .875em;
+        display: inline-block;
+    }
+
+    &__text {
+        width: 100%;
+        flex: 1;
+        border-radius: .25em;
+        font: inherit;
+        color: unset;
+        border: 1px solid var(--border-color);
+        margin: 1em 0;
+        background: var(--box-color);
+        padding: 1em;
+        @include mobile {
+            box-sizing: border-box;
+            flex: unset;
+            width: 100%;
+        }
+    }
+
+
+    &__text-container {
+        align-items: center;
+        display: flex;
+        @include mobile() {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    &__smiles {
+        margin: 0 0 0 1em;
+        @include mobile() {
+            width: 100%;
+            margin: 0;
+        }
+    }
+
+    &__cancel {
+        margin: 0 .5em 0 0;
+    }
+
+    &__submit {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        &__button {
+            margin: 0 .75em 0 0;
+        }
+    }
+
+    &--inline &__submit {
+        font-size: .75em;
+    }
+
+    &__smile {
+        width: calc(100% / 3);
+        text-align: center;
+        cursor: pointer;
+        @include mobile() {
+            width: unset;
+            margin: 0 1em .5em 0;
+        }
+        &__picture {
+            max-height: 1.75em;
+        }
+
+        &--with-text {
+            width: auto;
+            height: 5em;
+            margin: 0 0 0 1em;
+            padding: 0 .5em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                background: rgba(255, 255, 255, .1);
+            }
+        }
+
+        &--with-text &__picture {
+            min-height: 1.25em;
+        }
+    }
+
+    &__all-smiles {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    &__smiles {
+        &__list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        &__all {
+            display: block;
+            text-align: center;
+            font-size: .875em;
+            padding: .5em;
+            color: var(--text-lighter);
+            text-decoration: underline;
+            cursor: pointer;
+            @include mobile() {
+                font-size: 1.125em;
+                text-align: left;
+                padding: 0;
+                margin: 0 0 1em;
+            }
+        }
+    }
+}
