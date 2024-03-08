@@ -44,7 +44,7 @@
                                     <a class="tab" data-content="other">Другие</a>
                                 </div>
 
-                                @if (!$params['is_radio'])<a class="button channels-list-page__button--other"  href="/video/other" >Прочее</a>@endif
+                                @if (!$params['is_radio'])<a class="button button--light channels-list-page__button--other"  href="/video/other" >Прочее</a>@endif
 
                             </div>
                             <div class="tab-content" data-id="channels" data-tab="federal">
@@ -69,7 +69,7 @@
                             </div>
                         </div>
                     </div>
-                    @if (!$params['is_radio'])
+                    @if (!$params['is_radio'] && count($events) > 0)
                     <div class="box">
                         <a href="/events" class="box__heading">
                             <div class="box__heading__inner">

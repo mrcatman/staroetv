@@ -140,6 +140,7 @@ class AdminController extends Controller {
     public function setChannelsOrder() {
         foreach (request()->input('order') as $channel_id => $order) {
             Channel::where(['id' => $channel_id])->update(['order' => $order]);
+
         }
         return [
             'status' => 1,

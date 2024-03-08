@@ -1,5 +1,5 @@
 @if ($topic->can_edit || $topic->can_delete)
-    <span class="button button--dropdown" >
+    <span class="button button--light button--dropdown" >
         <span class="button--dropdown__text">Действия</span>
         <span class="button--dropdown__icon">
             <i class="fa fa-chevron-down"></i>

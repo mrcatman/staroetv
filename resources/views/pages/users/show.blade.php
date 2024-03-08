@@ -1,6 +1,8 @@
 @extends('layouts.default')
 @section('content')
     <div class="inner-page user-page" data-user-id="{{$user->id}}">
+
+
         <div class="user-page__top">
             <div class="user-page__left">
                 @if ($user->avatar)
@@ -32,22 +34,31 @@
             </div>
             @include('blocks/user_page_modals', ['user' => $user])
             <div class="user-page__info-container">
+
                 <div class="inner-page__header">
                     <div class="inner-page__header__title">Пользователь <strong>{{$user->username}}</strong></div>
                     <div class="user-info__right">
                         @if (auth()->user() && $user->id == auth()->user()->id)
-                            <a href="/profile/edit" class="button">Изменить профиль</a>
+                            <a href="/profile/edit" class="button">Обновить профиль</a>
+                            <a href="/profile/password" class="button">Сменить пароль</a>
                             @elseif (\App\Helpers\PermissionsHelper::allows('usedita'))
-                            <a href="/profile/edit/{{$user->id}}" class="button">Изменить профиль</a>
+                            <a href="/profile/edit/{{$user->id}}" class="button">Обновить профиль</a>
                         @endif
                     </div>
                 </div>
                 <div class="inner-page__content user-page__info-container__inner">
                     <div class="box">
                         <div class="box__inner">
+                            @if (\Session::has('after_confirm'))
+                            <div class="response response--success">
+                                E-mail адрес подтвержден
+                            </div>
+                            @endif
                             <div class="user-info">
                                 <div class="user-info__col">
-                                    <img class="user-info__group-icon" src="{{$user->group_icon}}" />
+                                    <div class="user-info__group-icon-container">
+                                        {!!  $user->group_icon !!}
+                                    </div>
                                     <br>
                                     @if (\App\Helpers\PermissionsHelper::allows('usrepl') && auth()->user()->id != $user->id)
                                         <select data-user-id="{{$user->id}}" name="user_group" class="select-classic">
@@ -82,6 +93,9 @@
                                             @if (\App\Helpers\PermissionsHelper::allows('redactorbar'))
                                                 <a href="/redactor-panel" class="button button--flat">Панель редактора</a>
                                             @endif
+                                                @if (\App\Helpers\PermissionsHelper::allows('crosspost'))
+                                                    <a href="/crossposts" class="button button--flat">Управление постами в соцсетях</a>
+                                                @endif
                                         @endif
                                     </div>
                                 </div>
@@ -140,11 +154,14 @@
                     </div>
                 </a>
                 <div class="box__inner">
-                    <div class="records-list records-list--thumbs records-list__outer--full-page ">
-                        @foreach ($videos->take(12) as $record)
-                            @include('blocks/record', ['record' => $record])
-                        @endforeach
+                    <div class="records-list__outer--full-page">
+                        <div class="records-list records-list--thumbs ">
+                            @foreach ($videos->take(12) as $record)
+                                @include('blocks/record', ['record' => $record])
+                            @endforeach
+                        </div>
                     </div>
+
                 </div>
             </div>
         @endif

@@ -30,14 +30,17 @@ class VKSettingsManager extends BaseSettingsManager {
             $group_url = str_replace("http://vk.com/", "", $group_url);
             $group_url = str_replace("vk.com/", "", $group_url);
             if ($group_url != "") {
-                $resolve = $this->crossposter->request("utils.resolveScreenName", [
-                    'screen_name' => $group_url
-                ], false);
-                if (!isset($resolve->response->type) || $resolve->response->type !== "group") {
-                    throw new \Exception("Такой группы не существует");
+                if (isset($data['access_token'])) {
+                    $this->set('access_token', $data['access_token']);
+                    $resolve = $this->crossposter->request("utils.resolveScreenName", [
+                        'screen_name' => $group_url
+                    ], false);
+                    if (!isset($resolve->response->type) || $resolve->response->type !== "group") {
+                        throw new \Exception("Такой группы не существует");
+                    }
+                    $this->set('group_id', $resolve->response->object_id);
                 }
                 $this->set('group_url', $data['group_url']);
-                $this->set('group_id', $resolve->response->object_id);
             }
         }
         return parent::saveSettingsFromRequest($data);

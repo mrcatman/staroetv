@@ -48,7 +48,9 @@
                     <div class="forum-message__user-comment">{{$message->user->user_comment}}</div>
                 @endif
                 @if ($message->user)
-                    <img class="forum-message__group-icon" src="{{$message->user->group_icon}}"/>
+                    <div class="forum-message__group-icon-container">
+                        {!! $message->user->group_icon !!}
+                    </div>
                 @endif
                 @if ($message->user)
                     <span class="forum-message__reputation">
@@ -61,6 +63,12 @@
                         ±
                         </a>
                         @endif
+                    </span>
+                @endif
+                @if ($message->user)
+                   <span class="forum-message__count">
+                        Сообщений:
+                        <strong>{{$message->user->forum_messages_count}}</strong>
                     </span>
                 @endif
                 @if ($message->user)
@@ -98,6 +106,7 @@
                 Сообщение отредактировал <span class="forum-message__edited-by__username">{{$message->edited_by}}</span> - {{$message->edited_at}}
             </div>
             @endif
+                @if (request()->has('test'))@json($message->ip)@endif
         </div>
         <div class="forum-message__edit-form" style="display:none"></div>
         @if ($message->user && $message->user->signature != "")

@@ -68,15 +68,22 @@
         <span class="bb-editor__input-container">
             <input type="button" title="Right" style="width:20px;text-align:right;" value="···" onclick="bb.simpletag('r','cdr','···','message')" class="codeButtons" id="cdr">
         </span>
+        <!--
         <span class="bb-editor__input-container">
             <input type="button" title="All codes" style="width:60px;" value="All codes" onclick="window.open('/index/17', 'bbcodes', 'scrollbars=1, width=550, height=450, left=0, top=0');" class="codeButtons">
         </span>
+        -->
         <span class="bb-editor__input-container">
             <input style="font-weight:bold;width:20px" type="button" value="/" class="codeButtons codeCloseAll" title="Close all opened codes" onclick="bb.closeall('');">
         </span>
+        <span class="bb-editor__input-container">
+            <input type="button" value="Смайлы" class="codeButtons bb-editor__smiles__all">
+        </span>
+
         <input type="hidden" id="tagcount" value="">
         <div class="bb-editor__text-container">
-            <textarea class="bb-editor__text" rows="8" name="message" id="message" cols="93"></textarea>
+            <textarea class="bb-editor__text" rows="1" placeholder="Введите ваш комментарий..." name="message" id="message" ></textarea>
+            <!--
             <div class="bb-editor__smiles">
                 <div class="bb-editor__smiles__list">
                     @foreach (\App\Smile::where(['show_in_panel' => true])->get() as $smile)
@@ -87,6 +94,7 @@
                 </div>
                 <a class="bb-editor__smiles__all">Все смайлы</a>
             </div>
+            -->
         </div>
         <div class="bb-editor__submit">
             <input class="button button--light bb-editor__submit__button" type="submit" name="submit" value="Отправить">

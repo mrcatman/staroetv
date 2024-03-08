@@ -55,7 +55,9 @@ class BBCodesHelper {
             $videoId = substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length/strlen($x)) )),1, $length);
             return "<!--BBvideo--><span id=\"scr$videoId\"></span><script type=\"text/javascript\">_uVideoPlayer({'url':'$videoLink','width':'640','height':'360'},'scr$videoId');</script><!--/BBvideo-->";
         }, $text);
-
+        $text = preg_replace_callback("/\[url\=(.*?)](.*?)\[\/url]/", function($urlData) {
+            return '<!--uSpoiler--><a class="link" href="'.$urlData[1].'" target="_blank">'.$urlData[2].'</a>';
+        }, $text);
 
         $text = preg_replace_callback("/\[quote(.*?)](.*?)\[\/quote]/", function($quoteData) {
             $quoteInfo = explode("=", $quoteData[1]);
@@ -89,14 +91,18 @@ class BBCodesHelper {
         if ($text == "") {
             return "";
         }
+
         $text = preg_replace('/<!--(.*)-->/Uis', '', $text);
         $document = new \DOMDocument();
         try {
+            libxml_use_internal_errors(true);
             $document->loadHTML('<?xml encoding="UTF-8">' . $text);
             $document->encoding = 'UTF-8';
             $root = $document->getElementsByTagName('html')->item(0);
             $rootElement = new Element($root);
+
             foreach ($rootElement->getChildren() as $child) {
+
                 self::convertChildren($child);
             }
             $bbcode = self::convertToBBCode($rootElement);
@@ -114,7 +120,13 @@ class BBCodesHelper {
             }
         }
         $bbcode = self::convertToBBCode($element);
-        $element->setFinalBBCode($bbcode);
+        if (is_array($bbcode)) {
+            $element->setFinalBBCode($bbcode[0]);
+        } else {
+            $element->setFinalBBCode($bbcode);
+        }
+
+
     }
 
     protected static function convertToBBCode(Element $element)
@@ -141,6 +153,7 @@ class BBCodesHelper {
             return "[list]".$element->getValue()."[/list]";
         } elseif ($tag === "div") {
             $style = $element->node->getAttribute('style');
+
             if (!$style || $style == "") {
                 $class = $element->node->getAttribute('class');
                 if ($class === "uSpoilerButBl") {
@@ -150,6 +163,7 @@ class BBCodesHelper {
                     return "[spoiler]".$spoilerContents->getValue()."[/spoiler]";
                 } elseif ($class === "bbQuoteBlock") {
                     $quote = $element->getChildren()[0]->node->wholeText;
+
                     $regex = "/(.*?)<span>(.*?)<\/span> \((.*?)\[url=(.*?)\]\[img](.*?)\[\/img]\[\/url\]<\/span>\) (.*?)/";
                     preg_match($regex, $quote, $matches);
                     if (count($matches) == 0) {
@@ -158,20 +172,32 @@ class BBCodesHelper {
                         if (count($matches) === 4) {
                             $regex = '/\/(.*?)<span>(.*?)<\/span> \((.*?)\[url=(.*?)\]\[img](.*?)\[\/img]\[\/url\]<\/span>\)/';
                             preg_match($regex, $quote, $matches);
-                            $text = preg_split($regex, $quote)[1];
-                            $name = $matches[2];
-                            $message_id = explode("/", $matches[4]);
-                            $message_id = explode("-", $message_id[(count($message_id) - 1)]);
-                            $message_id = $message_id[2];
-                            return "[quote=".$name.";".$message_id."]".$text."[/quote]";
+                            if (count($matches) === 0) {
+                                $regex = '/\/(.*?)<span>(.*?)<\/span>\)(.*)/';
+                                preg_match($regex, $quote, $matches);
+                                $name = $matches[2];
+                                $text = $matches[3];
+
+                                return "[quote=" . $name . "]" . $text . "[/quote]";
+                            } else {
+                                $text = preg_split($regex, $quote)[1];
+                                $name = $matches[2];
+                                $message_id = explode("/", $matches[4]);
+                                $message_id = explode("-", $message_id[(count($message_id) - 1)]);
+                                $message_id = $message_id[2];
+                                return "[quote=" . $name . ";" . $message_id . "]" . $text . "[/quote]";
+                            }
                         } else {
                             $text = preg_split($regex, $quote);
                             if (isset($text[1])) {
                                 $name = $matches[2];
                                 return "[quote=" . $name . "]" . $text[1] . "[/quote]";
                             } else {
-                                $text = preg_split('/\[b]Цитата\[\/b](.*?)/', $quote)[1];
-                                return "[quote]" . $text . "[/quote]";
+                                $text = preg_split('/\[b]Цитата\[\/b](.*?)/', $quote);
+                                if (isset($text[1])) {
+                                    return "[quote]" . $text . "[/quote]";
+                                }
+                                return $text;
                             }
                         }
                     } else {

@@ -30,38 +30,42 @@
             </div>
         </div>
 
-        <div class="history-event-editor__block" v-for="(block, $index) in blocks" :key="$index">
-            <div class="history-event-editor__block__top">
-                <div class="row">
-                    <div class="col">
-                        <div class="input-container input-container--vertical">
-                            <label class="input-container__label">Описание блока записей</label>
-                            <div class="input-container__inner">
-                                <textarea v-model="block.description" class="input" ></textarea>
+        <draggable v-model="blocks">
+            <div class="history-event-editor__block" v-for="(block, $index) in blocks" :key="block.id">
+                <div class="history-event-editor__block__top">
+                    <div class="row">
+                        <div class="col">
+                            <div class="input-container input-container--vertical">
+                                <label class="input-container__label">Описание блока записей</label>
+                                <div class="input-container__inner">
+                                    <wysiwyg v-model="block.description" ></wysiwyg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col col--button">
+                            <div class="history-event-editor__delete" @click="blocks.splice($index, 1)">
+                                <a class="button">
+                                    <i class="fa fa-trash"></i>
+                                    Удалить блок
+                                </a>
                             </div>
                         </div>
                     </div>
-                    <div class="col col--button">
-                        <div class="history-event-editor__delete" @click="blocks.splice($index, 1)">
-                            <a class="button">
-                                <i class="fa fa-trash"></i>
-                                Удалить блок
-                            </a>
-                        </div>
-                    </div>
+                </div>
+                <div class="history-event-editor__records-picker">
+                    <records-list-picker :key="block.id" @selected="(records) => setRecords(block, records)" :descriptions="true" :list="block.records" :meta="{}" :manual="true" :select="{}"/>
+
                 </div>
             </div>
-            <div class="history-event-editor__records-picker">
-                <records-list-picker @selected="(records) => setRecords(block, records)" :hide-selected-button="true" :descriptions="true" :list="block.records" :meta="{}" :manual="true" :select="{}"/>
+        </draggable>
 
-            </div>
-        </div>
         <div class="history-event-editor__add-block" @click="addBlock()">
             <a class="button">Добавить еще блок записей</a>
         </div>
     </div>
 </template>
 <style lang="scss">
+    @import "~vue-wysiwyg/dist/vueWysiwyg.css";
     .history-event-editor {
         &__block {
             padding: 0 0 1em;
@@ -83,6 +87,9 @@
     }
 </style>
 <script>
+    import wysiwyg from "vue-wysiwyg";
+    Vue.use(wysiwyg, {});
+
     import Datepicker from './datepicker/components/Datepicker';
     export default  {
         computed: {

@@ -4,7 +4,7 @@ use App\Comment;
 
 class ViewsHelper {
 
-    public static function increment($material, $type) {
+    public static function increment($material, $type, $column = null) {
         $time_limit = 360;
         $max_count = 10;
         $last_views = request()->session()->get('last_views', []);
@@ -27,7 +27,10 @@ class ViewsHelper {
         if (!$page_found_in_last_views) {
             $last_views[time()] = $key;
             request()->session()->put('last_views', $last_views);
-            $material->views++;
+            if (!$column) {
+                $column = 'views';
+            }
+            $material->{$column}++;
             $material->save();
         }
 

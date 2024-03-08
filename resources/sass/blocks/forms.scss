@@ -16,7 +16,7 @@
     &__description {
         font-size: .875em;
         margin: .25em 0 0;
-        color: #aaa;
+        color: var(--text-lighter);
     }
 
     &--vertical {
@@ -44,6 +44,9 @@
             background: var(--box-color);
             margin: 0 0 0 1em;
             border: 1px solid var(--border-color);
+            @include mobile() {
+                margin: 0;
+            }
         }
     }
 
@@ -83,7 +86,7 @@
 
     &--radio &__label {
         min-width: 0;
-        margin: 0 1em 0 0.5em;
+        margin: 0 1em 0 .5em;
     }
 
 
@@ -102,6 +105,9 @@
         display: flex;
         margin: -.5em 0 0;
         font-size: .875em;
+        @include mobile() {
+            display: block;
+        }
     }
 
     &__checkboxes-row__col:first-of-type &--checkbox__element {
@@ -120,7 +126,11 @@
         min-width: 10em;
         font-size: 1.125em;
         font-weight: 400;
-        margin: .5em 1em 0 .5em;
+        margin: .5em 1em 0 0;
+
+        @include mobile() {
+            margin: 0 0 .5em;
+        }
     }
 
     &__message {
@@ -130,11 +140,19 @@
         position: absolute;
         right: .5em;
         top: 0;
+        @include mobile() {
+            bottom: -1.75em;
+            top: unset;
+            left: 0;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 
     &__element-outer {
         flex: 1;
-
         .input {
             width: calc(100% - 18px);
         }
@@ -227,15 +245,14 @@
     cursor: pointer;
     margin: 0 .5em 0 0;
 }
-.input {
+.input, .vdp-datepicker input {
     flex: 1;
     font: inherit;
-    padding: .55em 0;
+    padding: .55em;
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
     height: 1.35em;
-    background: none;
-    border: none;
     box-shadow: none;
-    border-bottom: 1px solid;
     color: inherit;
     border-radius: 0;
     &:focus {
@@ -243,6 +260,14 @@
         border-bottom-color: var(--primary);
     }
 }
+
+.box--dark {
+    .input, .vdp-datepicker input {
+        background: var(--box-color-dark);
+        border-color: var(--border-color-dark);
+    }
+}
+
 
 .input-container--with-errors .input {
     border-bottom-width: 2px;
@@ -257,10 +282,13 @@ textarea.input {
     font-size: 1.125em;
     display: none;
     border-radius: 0;
-    margin: -1em -1em 1em;
+    margin: -.875em -.875em .875em;
     color: var(--box-text-color-dark);
     padding: 1em 1.5em;
     font-weight: bold;
+    @include mobile(){
+        padding: 1em;
+    }
     a {
         color: unset;
         font-weight: bold;
@@ -295,6 +323,11 @@ textarea.input {
     &--light.response--success {
         color: blue;
     }
+    &--with-errors {
+        @include mobile() {
+            margin: 1em 0 2.5em;
+        }
+    }
 }
 
 #cke_editor {
@@ -305,6 +338,10 @@ textarea.input {
     flex: 1;
     width: 100%;
     height: 2.25em;
+    input {
+        box-sizing: content-box;
+        width: calc(100% - 1em);
+    }
     &__reset {
         position: absolute;
         top: .5em;
@@ -320,28 +357,7 @@ textarea.input {
 
     &__calendar {
         height: unset!important;
-    }
-
-    input {
-        flex: 1;
-        font: inherit;
-        padding: 0.55em;
-        background: none;
-        border: none;
-        box-shadow: none;
-        border-bottom: 1px solid;
-        color: inherit;
-        border-radius: 0;
-        width: 100%;
-        height: 100%;
-        &:focus {
-            outline: none;
-            border-bottom-color: var(--primary);
-        }
-    }
-
-    &__calendar {
-        color: #000;
+        color: var(--text-color);
     }
 }
 
@@ -456,25 +472,26 @@ textarea.input {
 .select-classic {
     flex: 1;
     font: inherit;
-    padding: .5em;
+    padding: .55em;
     background: none;
     color: inherit;
     border-radius: 0;
-    border: none;
-    border-bottom: 1px solid;
-    height: 2.5em;
-    option {
-        color: #000;
-    }
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    height: 2.65em;
 
     &__option-group-title {
-        background: #eaeaea;
+        background: var(--bg-darker-2);
         font-weight: bold;
     }
 
     &__option-group-value {
         padding: 0 0 0 .5em;
     }
+}
+.box--dark .select-classic {
+    background: var(--box-color-hover-dark);
+    border-color: var(--border-color-dark);
 }
 .select2-container {
     flex: 1;
@@ -490,8 +507,8 @@ textarea.input {
         display: flex !important;
         align-items: center !important;
         background: none!important;
-        border: 0!important;
-        border-bottom: 1px solid!important;
+        border: 1px solid var(--border-color)!important;
+        background: var(--bg-darker)!important;
         .select2-selection__rendered {
             color: inherit !important;
             line-height: 1 !important;
@@ -506,14 +523,24 @@ textarea.input {
         flex: 1;
         font: inherit;
         color: inherit;
-        background: none!important;
         border-radius: 0!important;
-        border: none!important;
-        border-bottom: 1px solid!important;
+        background: var(--bg-darker)!important;
+        border: 1px solid var(--border-color)!important;
         padding: 0;
         .select2-selection__choice {
             border: 1px solid var(--border-color) !important;
-            background: var(--bg-darker) !important;
+            background-color: var(--primary)!important;
+            color: var(--button-active-text);
+            font-size: .875em;
+            margin: .5em 0 0 .25em;
+            &__remove  {
+                color: var(--button-active-text);
+                font-size: 1.25em;
+                &:hover {
+                    color: var(--button-active-text);
+                    opacity: .75;
+                }
+            }
         }
     }
 }
@@ -549,9 +576,6 @@ textarea.input {
 .select2-container--default .select2-results__option[aria-selected=true] {
     background-color: var(--bg-darker)!important;
 }
-.select2-container--open .select2-dropdown--below {top: -2.25em;}
-
-
 
 .inputs-line {
     display: flex;
@@ -584,6 +608,8 @@ textarea.input {
     }
 }
 
+
+
 .autocomplete {
     &__items {
         display: flex;
@@ -594,12 +620,14 @@ textarea.input {
         display: flex;
         align-items: center;
         cursor: pointer;
-        margin: .25em 0;
-        font-size: .875em;
-
+        margin: 0 1em .5em 0;
+        &:hover {
+            opacity: .75;
+        }
         &__logo {
-            width: 3em;
-            height: 3em;
+            margin: 0 .5em 0 0;
+            width: 2em;
+            height: 2em;
             display: inline-block;
             background-size: contain;
             background-position: center center;
@@ -608,7 +636,6 @@ textarea.input {
 
         &__name {
             border-bottom: 1px dashed;
-            margin: 0 .5em;
         }
 
         &--selected &__name {
@@ -622,7 +649,9 @@ textarea.input {
 .inputs-group {
     margin: 0 -1em;
     padding: 0 0 1em;
-
+    @include light() {
+        margin: 0;
+    }
     &__title {
         border: none;
         background: var(--box-color-dark);
@@ -630,14 +659,33 @@ textarea.input {
          padding: .75em 1.25em;
         font-size: 1.25em;
         font-weight: 500;
-        border-bottom: 1px solid #3c3c3c;
+        border-bottom: 1px solid var(--border-color-dark);
+        @include light() {
+            background: none;
+            color: unset;
+            padding: 1em 0;
+            font-weight: 500;
+        }
     }
 
     &__contents {
         padding: 0 1.25em .5em;
+        @include light() {
+            padding: 0;
+        }
+    }
+}
+.box__inner .response + .inputs-group {
+    margin-top: -1em;
+    @include light() {
+        margin-top: -1.125em;
     }
 }
 
+
+.box__inner .response--success + .inputs-group, .box__inner .response--error + .inputs-group {
+    margin-top: 0;
+}
 
 
 .tooltip {

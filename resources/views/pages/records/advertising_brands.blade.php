@@ -27,11 +27,14 @@
                        @foreach ($brands as $brand)
                            <a class="commercials-brands__item" href="{{$base_url}}?id={{$brand->id}}">
                                <div class="commercials-brands__item__cover" style="background-image:url({{$brand->cover}})"></div>
-                               @if ($search != '')
-                                   {!! \App\Helpers\HighlightHelper::highlight($brand->advertising_brand, $search, true) !!}
-                               @else
-                                   {{$brand->advertising_brand}}
-                               @endif
+                               <div class="commercials-brands__item__name">
+                                   @if ($search != '')
+                                       {!! \App\Helpers\HighlightHelper::highlight($brand->advertising_brand, $search, true) !!}
+                                   @else
+                                       {{$brand->advertising_brand}}
+                                   @endif
+                               </div>
+
 
                            </a>
                        @endforeach

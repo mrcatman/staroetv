@@ -40,13 +40,16 @@ class importReputation extends Command
      */
     public function handle()
     {
-        $reputation = CSVHelper::transform(public_path("data/repute.csv"), [
+        $reputation = CSVHelper::transform(public_path("data_new/repute.txt"), [
             'id', 'to_id', 'from_id', 'weight', 'created_at', 'comment', 'link', 'reply_comment'
         ], true);
         foreach ($reputation as $reputation_item) {
             $created_at = $reputation_item['created_at'];
             unset($reputation_item['created_at']);
-            $reputation_obj = new UserReputation($reputation_item);
+            $reputation_obj = UserReputation::find($reputation_item['id']);
+            if (!$reputation_obj) {
+                $reputation_obj = new UserReputation($reputation_item);
+            }
             $reputation_obj->created_at = Carbon::createFromTimestamp($created_at);
             $reputation_obj->save();
             echo "Added reputation for user ".$reputation_item['to_id']." from ".$reputation_item['from_id'].PHP_EOL;

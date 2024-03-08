@@ -60,16 +60,17 @@
 
 .event-page {
     &__content {
-        font-size: 1.5em;
+        line-height: 1.75;
+        font-size: 1.25em;
         padding: 1em 1em 0;
     }
 
     &__block-content {
-        font-size: 1.25em;
-        padding: 0 .5em .75em;
+        padding: 0;
         line-height: 1.75;
-        border-bottom: 1px solid var(--border-color-dark);
-        margin: 0 0 1em;
+        .q {
+            margin: 1em 0 0;
+        }
     }
 
     &__block {
@@ -77,19 +78,24 @@
     }
 
     &__records {
-        &--multiple {
+        border-top: 1px solid var(--border-coloк);
+        margin: 1em 0 0;
+        &:empty {
+            display: none;
+        }
+        &--many {
             display: flex;
             flex-wrap: wrap;
         }
     }
-    &__records--multiple &__player-container__outer {
+    &__records--many &__player-container__outer {
         width: calc(50% - 1em);
         margin: .5em;
     }
 
     &__player-container {
         &__outer {
-            width: 60%;
+            width: 100%;
         }
         &__description {
             font-size: 1.25em;

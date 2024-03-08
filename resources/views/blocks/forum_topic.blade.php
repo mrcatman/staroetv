@@ -1,7 +1,7 @@
-<div class="forum @if($topic->is_closed) forum--closed @endif @if($topic->is_fixed) forum--fixed @endif">
+<div class="forum @if($topic->is_closed) forum--closed @endif @if($topic->is_fixed) forum--fixed @endif @if(!$topic->is_read) forum--unread @endif">
     <div class="forum__top">
         <div class="forum__info">
-            <a href="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" class="forum__title">
+            <a href="/forum/{{$topic->forum_id}}-{{$topic->id}}-0-17-1" class="forum__title">
                 @if ($topic->is_closed)
                     <div class="forum__locked">
                         <i class="fa fa-lock"></i>

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
 
 class ForgotPasswordController extends Controller
 {
@@ -19,6 +21,25 @@ class ForgotPasswordController extends Controller
     */
 
     use SendsPasswordResetEmails;
+
+    public function sendResetLinkEmail(Request $request)
+    {
+        $this->validateEmail($request);
+
+        $response = $this->broker()->sendResetLink(
+            $this->credentials($request)
+        );
+
+        return $response == Password::RESET_LINK_SENT
+            ? [
+                'status' => 1,
+                'text' => 'Ссылка отправлена на вашу почту'
+            ]
+            : $this->sendResetLinkFailedResponse($request, $response);
+    }
+
+
+
 
     public function showLinkRequestForm() {
         return view('pages.auth.forgot-password');

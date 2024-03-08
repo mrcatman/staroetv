@@ -17,11 +17,13 @@ class VideoCutController extends Controller {
     public function showForm($id) {
         $video = Record::find($id);
         if (!$video || !PermissionsHelper::allows('viadd')) {
-            return redirect("/");
+            return redirect("https://staroetv.su/");
         }
         $cut = VideoCut::where(['video_id' => $id])->first();
         if ($cut) {
-            return redirect("/cut/".$cut->id);
+            if (!request()->has('reload')) {
+                return redirect("https://staroetv.su/cut/" . $cut->id);
+            }
         }
         return view ('pages.cut.index', [
             'cut' => null,
@@ -32,7 +34,7 @@ class VideoCutController extends Controller {
     public function show($id) {
         $cut = VideoCut::find($id);
         if (!PermissionsHelper::allows('viadd') || !$cut) {
-            return redirect("/");
+            return redirect("https://staroetv.su/");
         }
         $video = $cut->video;
         $channel = null;
@@ -54,12 +56,15 @@ class VideoCutController extends Controller {
             ];
         }
         $cut = VideoCut::find($id);
-       if (!$cut) {
+        if (!$cut) {
             return [
                 'status' => 0,
                 'text' => 'Данные обрезки не найдены'
             ];
         };
+        if ($cut->download_status === 0 ) {
+            return $this->start($id);
+        }
         if (!$cut->video) {
             if (request()->has('channel_id')) {
                 $cut->channel_id = request()->input('channel_id');
@@ -73,6 +78,7 @@ class VideoCutController extends Controller {
         if (!$old_cuts) {
             $old_cuts = [];
         }
+
         $cut->data = $cuts;
         $cut->save();
 
@@ -132,7 +138,12 @@ class VideoCutController extends Controller {
         }
         if (!$video->use_own_player) {
             preg_match('/<iframe(.*?)src="(.*?)" /', $video->embed_code, $output);
-
+            if (count($output) != 3) {
+                preg_match('/<iframe(.*?)src=(.*?) (.*?) /', $video->embed_code, $output);
+                if (isset($output[3])) {
+                    unset($output[3]);
+                }
+            }
             if (count($output) != 3) {
                 return [
                     'status' => 0,
@@ -157,13 +168,19 @@ class VideoCutController extends Controller {
         if ($video->use_own_player) {
             $this->onDownloaded($cut->id, 1);
         } else {
-            $command = "youtube-dl -i '$url' --output $output_path && curl http://staroetv.mrcatmann.ru/cut/downloaded/" . $cut->id . "?status=1 || curl http://staroetv.mrcatmann.ru/cut/downloaded/" . $cut->id . "?status=0";
-            shell_exec($command);
+            $command = "youtube-dl -i '$url' --output $output_path && curl https://staroetv.su/cut/downloaded/" . $cut->id . "?status=1 || curl https://staroetv.su/cut/downloaded/" . $cut->id . "?status=0";
+             $output = shell_exec($command);
+            if (strpos($output, ".mkv") !== false) {
+                $mkv_path = str_replace(".mp4", ".mkv", $output_path);
+                $convert_command = "ffmpeg -y -i $mkv_path -c:v libx264 $output_path && rm $mkv_path";
+                shell_exec($convert_command);
+            }
         }
         return [
             'status' => 1,
             'text' => $video->use_own_player ? 'Перенаправление...' : 'Видео поставлено в очередь загрузки',
-            'redirect_to' => '/cut/' . $cut->id
+            'command' => $command,
+          //  'redirect_to' => '/cut/' . $cut->id
         ];
     }
 
@@ -209,7 +226,7 @@ class VideoCutController extends Controller {
             ];
         };
         $cut_results = $cut->data ? $cut->data : [];
-        $data_only = !!request()->input('data_only', false);
+        $data_only = request()->input('data_only', false) === true || request()->input('data_only', false) == 1;
         if (isset($cut_results[$index])) {
             $user = auth()->user();
 
@@ -262,15 +279,26 @@ class VideoCutController extends Controller {
                     'views' => 0,
                  ]);
             }
+            $set_old_date = request()->input('set_old_date') === '1';
             if ($original_video) {
+                $video->author_id = $original_video->author_id;
+                $video->author_username = $original_video->author_username;
                 $video->channel_id = $original_video->channel_id;
+                if ($set_old_date) {
+                    $video->created_at = $original_video->getOriginal('created_at');
+                    $video->original_added_at = $original_video->getOriginal('original_added_at');
+                }
             } else {
                 $video->channel_id = $cut->channel_id;
+                if ($set_old_date) {
+                    $video->created_at = Carbon::createFromDate(2020, 8, 1);
+                    $video->original_added_at = Carbon::createFromDate(2020, 8, 1);
+                }
             }
 
             $middle = ($start_frame + (($end_frame - $start_frame) / 2)) / $cut->fps;
 
-            $screenshot_path = "/pictures/video_covers/$filename.png";
+            $screenshot_path = "/pictures/video_covers/$filename.jpg";
             $screenshot_command = "ffmpeg -y -ss $middle -i $input_path -vframes 1 ".public_path($screenshot_path);
             shell_exec($screenshot_command);
 
@@ -307,7 +335,9 @@ class VideoCutController extends Controller {
                 $video->is_advertising = true;
                 $video->advertising_type = isset($data['advertising_type']) && $data['advertising_type'] > 0 ? $data['advertising_type'] : null;
                 $video->advertising_brand = $data['advertising_brand'];
-                $video->title = "Реклама ".$data['advertising_brand']." (".$year.")";
+                $video->title = $data['advertising_brand'].' ('.$year.')';
+                $video->short_description = isset($data['short_description']) ? $data['short_description'] : "";
+                $video->description = isset($data['short_description']) ? $data['short_description'] : "";
                 if (isset($data['region'])) {
                     $video->region = $data['region'];
                 }
@@ -374,11 +404,12 @@ class VideoCutController extends Controller {
             $cut->download_path = $path;
             $cut->data = [];
             $cut->save();
-            $command = "youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' -i '$url' --output $output_path && curl http://staroetv.mrcatmann.ru/cut/downloaded/" . $cut->id . "?status=1 || curl http://staroetv.mrcatmann.ru/cut/downloaded/" . $cut->id . "?status=0";
-            shell_exec($command);
+            $command = "youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' -i '$url' --output $output_path && curl http://staroetv.su/cut/downloaded/" . $cut->id . "?status=1 || curl http://staroetv.su/cut/downloaded/" . $cut->id . "?status=0";
+            exec('bash -c "exec nohup setsid '.$command.' > /dev/null 2>&1 &"');
+
             return [
                 'status' => 1,
-                'text' => 'Видео поставлено в очередь загрузки',
+                'text' => 'Видео загружено',
                 'redirect_to' => '/cut/' . $cut->id
             ];
         }

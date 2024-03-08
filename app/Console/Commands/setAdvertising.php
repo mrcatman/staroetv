@@ -37,6 +37,11 @@ class setAdvertising extends Command
         parent::__construct();
     }
 
+    function startsWithUpper($str) {
+        $chr = mb_substr ($str, 0, 1, "UTF-8");
+        return mb_strtolower($chr, "UTF-8") != $chr;
+    }
+
     /**
      * Execute the console command.
      *
@@ -44,19 +49,35 @@ class setAdvertising extends Command
      */
     public function handle()
     {
-        $records = Record::where('title', 'LIKE', 'Реклама (19%')->orWhere('title', 'LIKE', 'Реклама (20%')->get();
+       // $records = Record::where(['is_advertising' => false])->where('title', 'LIKE', 'Реклама %')->where('title', 'NOT LIKE', 'Реклама (%')->where('title', 'NOT LIKE', 'Реклама и %')->get();
+        $records = Record::where(function($q) {
+            $q->where('title', 'LIKE', 'Реклама%(Кострома%)');
+        })->get();
         foreach ($records as $record) {
-            preg_match('/Реклама \((.*?)\)(.*)/', $record->title, $output_array);
+            preg_match('/Реклама \(Кострома, ~(.*?)\) (.*)/', $record->title, $output_array);
             $record->is_interprogram = false;
             $record->channel_id = null;
             $record->is_advertising = true;
-            $record->advertising_brand = trim($output_array[2]);
-            $year = $output_array[1];
+            $brand = trim($output_array[2]);
+            if (mb_strpos($brand, "(", 0, "UTF-8") !== false) {
+                $brand = mb_substr($brand, 0, mb_strpos($brand, "(", 0, "UTF-8") - 1);
+            }
+
+            $record->advertising_brand = $brand;
+            $year = explode(" ",$output_array[1])[1];
+
+
             $splitted = explode("-", $year);
             if (count($splitted) == 2) {
-                $record->year = $splitted[0];
-                $record->year_start = $splitted[0];
-                $record->year_end = $splitted[1];
+                if ($year == "1990-ые") {
+                    $record->year = null;
+                    $record->year_start = null;
+                    $record->year_end = null;
+                } else {
+                    $record->year = $splitted[0];
+                    $record->year_start = $splitted[0];
+                    $record->year_end = $splitted[1];
+                }
             } else {
                 if (strpos($year, "?") !== false) {
                     $record->year = null;

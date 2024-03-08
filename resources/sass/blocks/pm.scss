@@ -4,8 +4,9 @@
     }
 
     &__list {
-        margin: -1em;
+
     }
+
     &__empty {
         font-size: 1.25em;
         padding: 1.25em;
@@ -59,7 +60,7 @@
         font-size: 1.125em;
         text-decoration: none;
         font-weight: 500;
-        margin: .75em;
+        margin: .75em .75em .75em 0;
     }
 
     &__time {

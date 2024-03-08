@@ -7,7 +7,7 @@
             @elseif (isset($title))
                 {!!  $title !!}
             @else
-                {{ $record->title }}
+                {!!  $video->title !!}
             @endif
         </span>
     </div>

@@ -1,1 +1,1 @@
-<div class="share-buttons" data-services="vkontakte,facebook,twitter,telegram,odnoklassniki"></div>
+<div class="share-buttons" data-services="vkontakte,facebook,twitter,telegram,odnoklassniki" @if (isset($share_title)) data-title="{{$share_title}}" @endif @if (isset($share_url)) data-url="{{$share_url}}" @endif></div>

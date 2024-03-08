@@ -1,13 +1,22 @@
 .breadcrumbs {
-    padding: .5em 1em;
-    font-size: 1.5em;
-    background: var(--box-color-dark);
-    color: var(--box-text-color-dark);
+    padding: 1rem 1rem 0;
+    font-size: 1em;
+    background: var(--box-color);
+    color: var(--text-lightest);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    border: 1px solid var(--border-color);
+    border-bottom: 0;
+    @include light() {
+        padding: 1rem 0 0;
+        border: none;
+    }
     @include mobile {
         font-size: 1.125em;
+        @include light() {
+            padding: 0;
+        }
     }
     &__item {
         color: inherit;
@@ -16,7 +25,7 @@
         &:after {
             color: inherit;
             content: "/";
-            margin: 0 .5em;
+            margin: 0 0.5em 0 0.7em;
         }
         &:hover {
             text-decoration: underline;
@@ -25,7 +34,7 @@
             display: none;
         }
         &--current {
-            color: #d2d2d2;
+            color: var(--links-color);
             cursor: default;
 
             &:after {

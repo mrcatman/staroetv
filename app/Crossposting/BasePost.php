@@ -8,9 +8,9 @@ class BasePost {
 
     protected $text = "";
     protected $link = "";
-    protected $picture = "";
-
-    protected $do_not_change = [];
+    protected $media = [];
+    protected $media_cache = [];
+    protected $fields_to_update = [];
 
     public function getText() {
         return $this->text;
@@ -25,52 +25,66 @@ class BasePost {
         return $this->link;
     }
 
+    public function getLinkValue() {
+        if (is_array($this->link)) {
+            return $this->link[0];
+        } else {
+            return $this->link;
+        }
+    }
+
+    public function getLinkText() {
+        if (is_array($this->link)) {
+            return $this->link[1].PHP_EOL.$this->link[0];
+        } else {
+            return $this->link;
+        }
+    }
+
     public function setLink($link) {
         $this->link = $link;
         return $this;
     }
 
-    public function getPicture() {
-        return $this->picture;
+    public function getMedia() {
+        return $this->media;
     }
 
-    public function setPicture($picture) {
-        $this->picture = $picture;
+    public function setMedia($media) {
+        $this->media = $media;
         return $this;
     }
 
-    public function doNotChangeText($state = true) {
-        $this->do_not_change['text'] = $state;
+    public function setFieldsToUpdate($fields = []) {
+        $this->fields_to_update = $fields;
     }
 
-    public function doNotChangeLink($state = true) {
-        $this->do_not_change['link'] = $state;
-    }
-
-    public function doNotChangePicture($state = true) {
-        $this->do_not_change['picture'] = $state;
-    }
-
-    public function needChangeText() {
-        if (isset($this->do_not_change['text'])) {
-            return $this->do_not_change['text'];
+    public function needUpdateField($field) {
+        if (isset($this->fields_to_update[$field])) {
+            return $this->fields_to_update[$field];
         }
-        return true;
+        return false;
     }
 
-    public function needChangeLink() {
-        if (isset($this->do_not_change['link'])) {
-            return $this->do_not_change['link'];
-        }
-        return true;
+    public function getMediaCache() {
+        return $this->media_cache;
     }
 
-    public function needChangePicture() {
-        if (isset($this->do_not_change['picture'])) {
-            return $this->do_not_change['picture'];
-        }
-        return true;
+    public function setMediaCache($cache) {
+        $this->media_cache = $cache;
     }
+
+    public function setMediaCacheForUrl($url, $value) {
+        $this->media_cache[$url] = $value;
+    }
+
+    public function getMediaCacheForUrl($url) {
+        if (isset($this->media_cache[$url])) {
+            return $this->media_cache[$url];
+        }
+        return null;
+    }
+
 
 
 }

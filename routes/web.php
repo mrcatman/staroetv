@@ -11,17 +11,46 @@
 |
 */
 
+
+use App\User;
+use Carbon\Carbon;
+
 Route::get('/', function () {
-    $data = [];
-    $data['events'] = \App\HistoryEvent::where(['pending' => false])->orderBy('created_at', 'desc')->limit(8)->get();
-    $data['first_articles'] = \App\Article::where(['type_id' => \App\Article::TYPE_ARTICLES, 'pending' => false])->orderBy('created_at', 'desc')->limit(2)->get();
-    $data['articles'] = \App\Article::where(['type_id' => \App\Article::TYPE_ARTICLES, 'pending' => false])->orderBy('created_at', 'desc')->limit(6)->offset(2)->get();
-    $data['news'] = \App\Article::whereIn('type_id', [\App\Article::TYPE_NEWS, \App\Article::TYPE_BLOG])->where(['pending' => false])->orderBy('created_at', 'desc')->limit(4)->get();
-    $data['records'] = \App\Record::where(['is_radio' => false, 'pending' => false])->orderBy('created_at', 'desc')->limit(16)->get();
+    $data = []; // , \App\Article::TYPE_BLOG
+    $data['users_on_site'] = User::where('was_online', '>', Carbon::now()->subMinutes(15))->orderBy('was_online', 'desc')->get();
+
+    $data['events'] = []; \App\HistoryEvent::where(['pending' => false])->orderBy('created_at', 'desc')->limit(8)->get();
+
+    $data['first_news'] = \App\Article::where(['pending' => false])->whereNotNull('cover_id')->orderBy('created_at', 'desc')->limit(2)->get();
+    $data['news'] = \App\Article::where(['pending' => false])->orderBy('created_at', 'desc')->whereNotIn('id',  $data['first_news']->pluck('id'))->limit(8)->get();
+    $data['records'] = \App\Record::where(['is_radio' => false, 'pending' => false])->orderBy('original_added_at', 'desc')->limit(22)->get();
     $data['forum_topics'] = \App\ForumTopic::orderBy('last_reply_at', 'DESC')->limit(6)->get();
+    $data['in_this_day'] = null;
+
+    $last_viewed_limit = 5;
+    $last_viewed = \App\Record::where(['is_radio' => false])->orderBy('updated_at', 'desc')->limit($last_viewed_limit)->get();
+    $data['last_viewed'] = $last_viewed;
+
+
+    $in_this_day_limit = 5;
+    $records = \App\Record::where(['is_radio' => false, 'is_interprogram' => false, 'day' => date('d', time()), 'month' => date('m', time())])->inRandomOrder()->limit($in_this_day_limit)->get();
+    $data['in_this_day'] = $records;
+
+    $month_names = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+    $date_text = date('d', time()).' '.($month_names[date('m', time()) - 1]);
+    $data['date_text'] = $date_text;
+
+    $data['comments'] = \App\Comment::orderBy('id', 'desc')->limit(5)->get();
+    $data['news_view'] = true;
     return view('index', $data);
 });
-
+Route::get('/new-comments', function () {
+    $comments = \App\Comment::orderBy('id', 'desc')->where('material_type', '!=', '3')->paginate(24);
+    return view("pages.users.comments", [
+        'comments' => $comments,
+        'user' => null,
+    ]);
+});
 
 Route::get('/new-design', function () {
     return view('new-design');
@@ -60,18 +89,41 @@ Route::any('/video/other', function () {
 });
 
 Route::any('/video/graphics', function () {
+    return (new \App\Http\Controllers\RecordsController())->interprogramV2(['is_radio' => false]);
+});
+Route::any('/video/graphics/programs', function () {
+    return (new \App\Http\Controllers\RecordsController())->programsGraphics(['is_radio' => false]);
+});
+
+Route::any('/video/graphics_old', function () {
     return (new \App\Http\Controllers\RecordsController())->interprogram(['is_radio' => false]);
 });
 
+Route::any('/video/youtube-ids/{author_id}', function ($author_id) {
+    return (new \App\Http\Controllers\RecordsController())->getYoutubeVideoIds($author_id);
+});
 
-Route::get('/video/programs', 'ProgramsController@index');
+
+Route::get('/video/programs', function () {
+    return (new \App\Http\Controllers\ProgramsController())->index(['is_radio' => false]);
+});
+Route::get('/video/programs/ajax', function () {
+    return (new \App\Http\Controllers\ProgramsController())->loadAll(['is_radio' => false]);
+});
+Route::get('/video/calendar', 'RecordsController@calendar');
+Route::get('/video/calendar/{year}', 'RecordsController@calendarYear');
+Route::get('/video/calendar/{year}/{month}', 'RecordsController@calendarMonth');
 Route::get('/video/{id}/edit', 'RecordsController@edit');
 Route::get('/video/{id}', 'RecordsController@show');
 Route::get('/video/vip/{id}/{channel?}/{url}', 'RecordsController@showOld');
 Route::get('/video/vip/{id}//{url}', 'RecordsController@showOld');
 
 Route::get('/mass-upload', 'MassUploadController@index');
+Route::get('/mass-upload-list', 'MassUploadController@fetchList');
 Route::post('/mass-upload', 'MassUploadController@fetchList');
+Route::get('/mass-upload/from-device', 'MassUploadController@uploadFromDevice');
+Route::get('/mass-upload/import-from-telegram', 'MassUploadController@importFromTelegram');
+Route::get('/mass-upload/import-old-from-telegram', 'MassUploadController@importOldFromTelegram');
 
 // RADIO
 Route::get('/dir', function () {
@@ -80,6 +132,7 @@ Route::get('/dir', function () {
 Route::get('/radio', function () {
     return (new \App\Http\Controllers\RecordsController())->index(['is_radio' => true]);
 });
+
 Route::any('/radio/search', function () {
     return (new \App\Http\Controllers\RecordsController())->search(['is_radio' => true]);
 });
@@ -101,6 +154,12 @@ Route::get('/radio/add', function () {
 Route::any('/radio/jingles', function () {
     return (new \App\Http\Controllers\RecordsController())->interprogram(['is_radio' => true]);
 });
+Route::get('/radio/programs', function () {
+    return (new \App\Http\Controllers\ProgramsController())->index(['is_radio' => true]);
+});
+Route::get('/radio/programs/ajax', function () {
+    return (new \App\Http\Controllers\ProgramsController())->loadAll(['is_radio' => true]);
+});
 Route::get('/radio/{id}', 'RecordsController@show');
 Route::get('/radio/{id}/edit', 'RecordsController@edit');
 
@@ -111,15 +170,18 @@ Route::any('/records/search', function () {
     return (new \App\Http\Controllers\RecordsController())->search([]);
 });
 Route::post('/records/upload', 'RecordsController@upload');
+Route::any('/records/after-upload', 'RecordsController@afterUpload');
 Route::post('/records/download', 'RecordsController@download');
 Route::post('/records/mass-edit', 'RecordsController@massEdit');
 Route::post('/records/add', 'RecordsController@save');
 Route::post('/records/{id}/edit', 'RecordsController@update');
-Route::post('/records/getinfo', 'RecordsController@getInfo');
+Route::any('/records/getinfo', 'RecordsController@getInfo');
 Route::post('/records/delete', 'RecordsController@delete');
 Route::get('/records/categories', 'RecordsController@categories');
 Route::any('/records/ajax', 'RecordsController@ajax');
 Route::post('/records/screenshot', 'RecordsController@screenshot');
+Route::post('/records/set-telegram-id', 'RecordsController@setTelegramID');
+Route::get('/records/playlist-ajax/{id}','RecordsController@playlistAjax');
 
 Route::post('/programs/approve', 'ProgramsController@approve');
 Route::get('/programs/{id}', 'ProgramsController@show');
@@ -142,6 +204,7 @@ Route::post('/channels/add', 'ChannelsController@save');
 Route::get('/channels/ajax',  function () {
     return (new \App\Http\Controllers\ChannelsController())->getAjaxList(false);
 });
+Route::post('/channels/autocomplete', 'ChannelsController@autocomplete');
 Route::get('/radio-stations/ajax',  function () {
     return (new \App\Http\Controllers\ChannelsController())->getAjaxList(true);
 });
@@ -149,17 +212,50 @@ Route::get('/radio-stations/{id}', 'ChannelsController@show');
 Route::get('/channels/{id}', 'ChannelsController@show');
 Route::get('/radio-stations/{id}', 'ChannelsController@show');
 Route::get('/channels/{id}/edit', 'ChannelsController@edit');
-Route::get('/channels/{id}/programs', 'ChannelsController@getPrograms');
 Route::post('/channels/{id}/edit', 'ChannelsController@update');
 Route::post('/channels/merge', 'ChannelsController@merge');
 Route::post('/channels/delete', 'ChannelsController@delete');
+Route::get('/channels/{id}/programs', 'ChannelsController@getPrograms');
 
-Route::get('/channels/{id}/interprogram-packages', 'InterprogramPackagesController@ajax');
-Route::post('/channels/{id}/graphics/add', 'InterprogramPackagesController@save');
-Route::get('/channels/{id}/graphics/add', 'InterprogramPackagesController@add');
-Route::get('/channels/{id}/graphics/edit/{package_id}', 'InterprogramPackagesController@edit');
-Route::post('/channels/{id}/graphics/edit/{package_id}', 'InterprogramPackagesController@update');
+Route::get('/channels/{id}/graphics', function($id) {
+    return (new \App\Http\Controllers\InterprogramPackagesController())->showAll(['channel_id' => $id]);
+});
+
+Route::get('/channels/{id}/graphics/ajax', function($id) {
+    return (new \App\Http\Controllers\InterprogramPackagesController())->ajax(['channel_id' => $id]);
+});
+Route::get('/channels/{id}/graphics/add', function($id) {
+    return (new \App\Http\Controllers\InterprogramPackagesController())->add(['channel_id' => $id]);
+});
+Route::post('/channels/{id}/graphics/add', function($id) {
+    return (new \App\Http\Controllers\InterprogramPackagesController())->save(['channel_id' => $id]);
+});
+Route::get('/channels/{id}/graphics/edit/{package_id}', function($id, $package_id) {
+    return (new \App\Http\Controllers\InterprogramPackagesController())->edit(['channel_id' => $id], $package_id);
+});
+Route::post('/channels/{id}/graphics/edit/{package_id}', function($id, $package_id) {
+    return (new \App\Http\Controllers\InterprogramPackagesController())->update(['channel_id' => $id], $package_id);
+});
+
+Route::get('/programs/{id}/graphics/ajax', function($id) {
+    return (new \App\Http\Controllers\InterprogramPackagesController())->ajax(['program_id' => $id]);
+});
+Route::get('/programs/{id}/graphics/add', function($id) {
+    return (new \App\Http\Controllers\InterprogramPackagesController())->add(['program_id' => $id]);
+});
+Route::post('/programs/{id}/graphics/add', function($id) {
+    return (new \App\Http\Controllers\InterprogramPackagesController())->save(['program_id' => $id]);
+});
+Route::get('/programs/{id}/graphics/edit/{package_id}', function($id, $package_id) {
+    return (new \App\Http\Controllers\InterprogramPackagesController())->edit(['program_id' => $id], $package_id);
+});
+Route::post('/programs/{id}/graphics/edit/{package_id}', function($id, $package_id) {
+    return (new \App\Http\Controllers\InterprogramPackagesController())->update(['program_id' => $id], $package_id);
+});
+Route::post('/programs/autocomplete', 'ProgramsController@autocomplete');
+
 Route::get('/channels/{id}/graphics/{package_id}', 'InterprogramPackagesController@show');
+Route::get('/programs/{id}/graphics', 'InterprogramPackagesController@showByProgram');
 Route::post('/graphics/delete', 'InterprogramPackagesController@delete');
 
 Route::post('/upload/pictures/by-url', 'UploadController@uploadPicturesByURL');
@@ -173,121 +269,64 @@ Route::post('/comments/delete', 'CommentsController@delete');
 Route::any('/comments/original/{id}', 'CommentsController@getOriginal');
 Route::post('/comments/rating', 'CommentsController@rating');
 
+Route::get('articles', 'ArticlesController@list');
+Route::get('/blog', function () {
+    return redirect('https://staroetv.su/articles');
+});
+Route::get('/news', function () {
+    return redirect('https://staroetv.su/articles');
+});
 
-Route::get('/news/add', function () {
-    return (new \App\Http\Controllers\ArticlesController())->add(['type_id' => \App\Article::TYPE_NEWS]);
-});
-Route::get('/blog/add', function () {
-    return (new \App\Http\Controllers\ArticlesController())->add(['type_id' => \App\Article::TYPE_BLOG]);
-});
+Route::get('/articles/add', 'ArticlesController@add');
 Route::get('/articles/crosspost', 'ArticlesController@getCrosspostParameters');
 Route::post('/articles/crosspost', 'ArticlesController@crosspost');
 Route::post('/articles/delete', 'ArticlesController@delete');
 Route::post('/articles/approve', 'ArticlesController@approve');
 Route::post('/articles/actions', 'ArticlesController@getActions');
 Route::post('/articles/change-type', 'ArticlesController@changeType');
-
-Route::get('/articles/add', function () {
-    return (new \App\Http\Controllers\ArticlesController())->add(['type_id' => \App\Article::TYPE_ARTICLES]);
-});
 Route::post('/articles/add', 'ArticlesController@save');
-
-Route::get('/news/edit/{id}', function ($id) {
-    return (new \App\Http\Controllers\ArticlesController())->edit(['original_id' => $id, 'type_id' => \App\Article::TYPE_NEWS]);
-});
-Route::get('/blog/edit/{id}', function ($id) {
-    return (new \App\Http\Controllers\ArticlesController())->edit(['original_id' => $id, 'type_id' => \App\Article::TYPE_BLOG]);
-});
-Route::get('/articles/edit/{id}', function ($id) {
-    return (new \App\Http\Controllers\ArticlesController())->edit(['original_id' => $id, 'type_id' => \App\Article::TYPE_ARTICLES]);
-});
+Route::get('/articles/edit/{id}', 'ArticlesController@edit');
 Route::post('/articles/edit/{id}', 'ArticlesController@update');
 Route::post('/articles/delete', 'ArticlesController@delete');
-
-Route::get('/news/{id}', function ($path) {
-    $data = explode("-", $path);
-    if (!isset($data[3])) {
-        return redirect("/news");
-    }
-    return (new \App\Http\Controllers\ArticlesController())->show([
-        'type_id' => \App\Article::TYPE_NEWS,
-        'original_id' => $data[3]
-    ]);
-});
+Route::get('/articles/{id}', 'ArticlesController@show');
 
 Route::get('/blog/{id}', function ($path) {
     $data = explode("-", $path);
     if (!isset($data[3])) {
-        return redirect("/articles");
+        return redirect("https://staroetv.su/articles");
     }
-    return (new \App\Http\Controllers\ArticlesController())->show([
+    return (new \App\Http\Controllers\ArticlesController())->redirect([
         'type_id' => \App\Article::TYPE_ARTICLES,
         'original_id' => $data[3]
     ]);
 });
 
-Route::get('/articles/{id}', function ($path) {
+Route::get('/news/{id}', function ($path) {
     $data = explode("-", $path);
     if (!isset($data[3])) {
-        return redirect("/articles");
+        return redirect("https://staroetv.su/articles");
     }
-    return (new \App\Http\Controllers\ArticlesController())->show([
-        'type_id' => \App\Article::TYPE_ARTICLES,
+    return (new \App\Http\Controllers\ArticlesController())->redirect([
+        'type_id' => \App\Article::TYPE_NEWS,
         'original_id' => $data[3]
     ]);
 });
 
 
 Route::get('/stuff/{category_id}-1-0-{id}', function ($category_id, $id) {
-    return (new \App\Http\Controllers\ArticlesController())->show([
+    return (new \App\Http\Controllers\ArticlesController())->redirect([
         'type_id' => \App\Article::TYPE_BLOG,
         'original_id' => $id
     ]);
 });
 
 
-Route::get('/news', function () {
-    return (new \App\Http\Controllers\ArticlesController())->list([
-        'type_id' => \App\Article::TYPE_NEWS,
-    ]);
-});
-
-
-Route::get('/blog', function () {
-    return (new \App\Http\Controllers\ArticlesController())->list([
-        'type_id' => \App\Article::TYPE_BLOG,
-    ]);
-});
-
-Route::get('/articles', function () {
-    return (new \App\Http\Controllers\ArticlesController())->list([
-        'type_id' => \App\Article::TYPE_ARTICLES,
-    ]);
-});
-
-Route::get('/news/category/{id}', function ($category_id) {
-    return (new \App\Http\Controllers\ArticlesController())->list([
-        'type_id' => \App\Article::TYPE_NEWS,
-        'category_id' => $category_id,
-    ]);
-});
-Route::get('/blog/category/{id}', function ($category_id) {
-    return (new \App\Http\Controllers\ArticlesController())->list([
-        'type_id' => \App\Article::TYPE_BLOG,
-        'category_id' => $category_id,
-    ]);
-});
-Route::get('/articles/category/{id}', function ($category_id) {
-    return (new \App\Http\Controllers\ArticlesController())->list([
-        'type_id' => \App\Article::TYPE_ARTICLES,
-        'category_id' => $category_id,
-    ]);
-});
 
 
 // FORUM
 
 Route::get('/forum', 'ForumController@index');
+Route::any('/forum/get-edit-form', 'ForumController@getEditForm');
 
 Route::get('/forum/{id}/new-topic', 'ForumController@newTopic');
 Route::post('/forum/{id}/new-topic', 'ForumController@createTopic');
@@ -308,7 +347,7 @@ Route::post('/forum/edit-message', 'ForumController@editMessage');
 Route::post('/forum/delete-message', 'ForumController@deleteMessage');
 
 Route::get('/forum/0-0-1-34', function () {
-    return redirect("/forum/last-topics");
+    return redirect("https://staroetv.su/forum/last-topics");
 });
 
 Route::get('/forum/last-topics', 'ForumController@lastTopics');
@@ -320,9 +359,8 @@ Route::get('/forum/{forum_id}-{topic_id}-{message_id}-{time}', 'ForumController@
 Route::get('/forum/{forum_id}-{topic_id}-{message_id}-{page_id}-{time}', 'ForumController@redirectToMessage');
 Route::get('/forum/{forum_id}-{topic_id}-{page_id}', 'ForumController@showTopic');
 Route::get('/forum/{forum_id}-{topic_id}', 'ForumController@showTopic');
-Route::get('/forum/{id}', 'ForumController@subforum');
-Route::post('/forum/get-edit-form', 'ForumController@getEditForm');
 
+Route::get('/forum/{id}', 'ForumController@subforum');
 Route::post('/questionnaire/vote', 'QuestionnairesController@vote');
 Route::post('/questionnaire/form', 'QuestionnairesController@form');
 
@@ -341,6 +379,13 @@ Route::post('awards/delete', 'AwardsController@delete');
 Route::post('warnings/ajax', 'WarningsController@ajax');
 Route::post('warnings/form', 'WarningsController@form');
 Route::post('warnings/add', 'WarningsController@add');
+
+
+// CONTACT FORM
+Route::get('/index/0-3', 'ContactFormController@show');
+Route::get('/contact', 'ContactFormController@show');
+Route::post('contact', 'ContactFormController@send');
+
 //PAGES
 Route::get('/index/0-{id}', 'PagesController@show');
 Route::get('/pages/add', 'PagesController@add');
@@ -349,7 +394,7 @@ Route::get('/pages/{url}', 'PagesController@showByURL');
 Route::get('/pages/{id}/edit', 'PagesController@edit');
 Route::post('/pages/{id}/edit', 'PagesController@update');
 Route::post('/pages/delete', 'PagesController@delete');
-
+Route::get('/team', 'PagesController@team');
 //USERS
 
 Route::post('/users/autocomplete', 'UsersController@autocomplete');
@@ -393,8 +438,11 @@ Route::get('/index/11-{id}-0-1', 'UsersController@edit');
 Route::get('/profile/edit', 'UsersController@edit');
 Route::get('/profile/edit/{id}', 'UsersController@edit');
 Route::post('/profile/edit', 'UsersController@save');
+Route::get('/profile/password', 'UsersController@editPassword');
+Route::post('/profile/password', 'UsersController@savePassword');
 Route::get('/index/34-{id}', 'UsersController@comments');
 
+Route::get('/users/change-email/{code}', 'UsersController@changeEmail');
 Route::get('/users/{id}/comments', 'UsersController@comments');
 Route::get('/users/{id}/videos', 'UsersController@videos');
 Route::get('/users/{id}/radio', 'UsersController@radioRecordings');
@@ -441,6 +489,7 @@ Route::any('/top-list/reputation', 'TopListController@reputation');
 //REDACTOR
 Route::get('/redactor-panel', 'AdminController@editorPanel');
 
+
 Route::any('/smiles', function() {
     $smiles = \App\Smile::all();
     return [
@@ -454,15 +503,53 @@ Route::any('/smiles', function() {
 
 Route::get('/go', function () {
     $path = explode("/go?",$_SERVER['REQUEST_URI'])[1];
-    return redirect($path);
+    return view('pages.redirect', ['path' => $path]);
+    //return redirect($path);
 });
 
 
+Route::any('/site-search', 'SiteSearchController@search');
+
 // ADMIN
+Route::get('/records/dailymotion', function () {
+    $record_ids = \App\Record::where('embed_code', 'LIKE', '%dailymotion%')->where(['use_own_player' => false])->where(function($q) {
+        $q->where(['is_interprogram' => true]);
+        $q->orWhere(['is_advertising' => true]);
+    })->pluck('id');
+    return $record_ids;
+});
+Route::get('/records/get-download-ids', function () {
+    $record_ids = \App\Record::where(['interprogram_package_id' => 1, 'use_own_player' => false])->pluck('id');
+    return $record_ids;
+});
+Route::get('/records/dailymotion_list', function () {
+    $records = \App\Record::where('embed_code', 'LIKE', '%dailymotion%')->where(['use_own_player' => false])->where(function($q) {
+        $q->where(['is_interprogram' => false]);
+        $q->where(['is_advertising' => false]);
+       // $q->whereNotIn('program_id',  [1541, 643]);
+    })->whereDate('supposed_date','<', \Carbon\Carbon::createFromDate(2008, 1, 1))->pluck('title');
+    echo implode("<br>", $records->toArray());
+});
+
+
+Route::get('/records/dailymotion_download', function () {
+    ini_set('max_execution_time', '600');
+    $record_ids = \App\Record::where('embed_code', 'LIKE', '%dailymotion%')->where(['use_own_player' => false])->pluck('id');
+    $index = request()->input('index', 0);
+    $response = (new \App\Http\Controllers\RecordsController())->download($record_ids[$index]);
+    $record = \App\Record::find($record_ids[$index]);
+    var_dump($record->title, $response);
+    $index++;
+    return "<meta http-equiv='refresh' content='1;url=/records/dailymotion_download?index=$index' />";
+});
+
+Route::any('admin-login', function() {
+    return view("pages.maintenance_login");
+});
 
 Route::middleware(\App\Http\Middleware\checkAdmin::class)->prefix('admin')->group(function () {
 	Route::get('', function() {
-		return redirect("/admin/pages");
+		return redirect("https://staroetv.su/admin/pages");
 	});
 
     Route::get('smiles', 'AdminController@getSmiles');
@@ -497,26 +584,26 @@ Route::middleware(\App\Http\Middleware\checkAdmin::class)->prefix('admin')->grou
     });
 });
 
-
 // CROSSPOST
+Route::middleware(\App\Http\Middleware\checkCanCrosspost::class)->group(function() {
+    Route::get('/crossposts', 'CrosspostController@index');
+    Route::get('/crossposts/add', 'CrosspostController@add');
+    Route::post('/crossposts/add', 'CrosspostController@save');
+    Route::get('/crossposts/{id}/edit', 'CrosspostController@edit');
+    Route::post('/crossposts/{id}/edit', 'CrosspostController@update');
+    Route::any('/crossposts/{id}/make-post/{service}', 'CrosspostController@makePost');
+    Route::any('/crossposts/{id}/delete-post/{service}', 'CrosspostController@deletePost');
+    Route::post('/crossposts/delete', 'CrosspostController@delete');
+});
+
 Route::middleware(\App\Http\Middleware\checkAdmin::class)->group(function() {
-    Route::get('/crosspost/test', function() {
-        $crossposter = new \App\Crossposting\VKCrossposter();
-        $crossposter->deletePost(62);
-        return [];
-    });
     Route::get('/crosspost/autoconnect/{name}', 'CrosspostController@autoconnect')->name('crosspostAutoconnect');
     Route::post('/crosspost/settings/{name}', 'CrosspostController@saveSettings')->name('crosspostSaveSettings');
-
     Route::get('/crosspost/redirect/{name}', 'CrosspostController@afterRedirect')->name('crosspostRedirectUri');
 });
 Route::get('forgot-password', 'Auth\ForgotPasswordController@showLinkRequestForm');
 Route::post('forgot-password', 'Auth\ForgotPasswordController@sendResetLinkEmail');
 Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm');
 Route::post('password/reset', 'Auth\ResetPasswordController@reset');
+Route::get('/confirm-account/{code}', 'Auth\RegisterController@confirm');
 Auth::routes();
-
-Route::any('/migrate', function () {
-    $response = \Illuminate\Support\Facades\Artisan::call('migrate');
-    dd($response);
-});

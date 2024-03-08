@@ -1,17 +1,16 @@
 let body = $('body');
-
-
-window.execOnMounted.push(function() {
-   if ($('.programs-list--auto-hide').length > 0) {
-       let programsCount = $('.programs-list--auto-hide').find('.program').length;
-       if (programsCount > 15) {
-           $('.programs-list--auto-hide').css('height', $('.program').height() * 3 + 16).addClass('programs-list--hidden');
-           $('.programs-list--auto-hide').append('<div class="programs-list__show-all"><a class="button">Показать все</a></div>');
-       }
-   }
-});
+import replaceDom from './replaceDom';
 
 $(body).on('click', '.programs-list__show-all .button', function() {
-    $(this).parents('.programs-list__show-all').hide();
-    $(this).parents('.programs-list--auto-hide').removeClass('programs-list--hidden').css('height', 'auto');
-})
+    $(this).parents('.programs-list').append(' <div class="form__preloader"><img src="/pictures/ajax.gif"></div>');
+    let url = $(this).data('is-radio') ? '/radio/programs/ajax' : '/video/programs/ajax';
+    if ($(this).data('category')) {
+        url+= '?category='+ $(this).data('category');
+    }
+    $.get(url).then(res => {
+        $(this).parents('.programs-list').find('.form__preloader').remove();
+        if (res.status) {
+            replaceDom(res.data.dom);
+        }
+    })
+});

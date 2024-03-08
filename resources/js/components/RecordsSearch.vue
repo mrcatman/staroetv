@@ -2,9 +2,8 @@
     <form @submit="onSubmit" ref="form" method="GET" :action="action" class="records-search--container">
         <div class="records-search">
             <div class="records-search__inner">
-                <div class="records-search__title">Поиск по записям</div>
                 <div class="records-search__input-container">
-                    <input v-model="data.search" class="input" placeholder="" name="search"/>
+                    <input v-model="data.search" class="input" placeholder="Поиск по записям" name="search"/>
                 </div>
                 <button class="button button--light">Найти</button>
                 <a class="records-search__expand" @click="extend()">
@@ -82,6 +81,12 @@
         </div>
         <div class="records-search__result" v-if="showResults">
             <div class="form__preloader" v-show="isLoading"><img src="/pictures/ajax.gif"></div>
+            <div class="records-search__programs" v-if="programsList && programsList.length > 0">
+                <a :href="'/programs/' + program.id" class="program" v-for="program in programsList" :key="program.id">
+                    <div class="program__cover" :style="{backgroundImage: `url(${program.cover})`}"></div>
+                    <div class="program__name">{{program.name}}</div>
+                </a>
+            </div>
             <div class="row">
                 <div class="box box--dark">
                     <div class="box__inner">
@@ -150,16 +155,28 @@
         box-shadow: var(--block-box-shadow);
         border-bottom: 1px solid var(--border-color);
         background: var(--box-color);
+        @include light() {
+            box-shadow: none;
+            border: none;
+        }
         &__inner {
             padding: 1.75em;
             display: flex;
             align-items: center;
             background: var(--bg-darker);
+            @include light() {
+                background: none;
+                padding: 1.75em 0;
+                box-shadow: none;
+            }
             @include mobile {
                 padding: 1em 1em .5em .5em;
                 justify-content: flex-end;
                 font-size: .75em;
                 flex-wrap: wrap;
+                @include light() {
+                    padding: 1em 0;
+                }
             }
         }
 
@@ -182,7 +199,7 @@
 
         &__input-container {
             flex: 1;
-            margin: 0 1.75em 0 1em;
+            margin: 0 2.5em 0 0;
             .input {
                 flex: 1;
                 width: 100%;
@@ -222,6 +239,9 @@
                 flex: 1;
                 padding: 1em 1.5em;
                 display: flex;
+                @include light() {
+                    padding: 1em 0;
+                }
                 .inputs-line {
                     flex: 1;
                 }
@@ -244,7 +264,10 @@
             background: var(--bg-darker);
             border-top: 1px solid var(--border-color);
             padding: 1em 1.25em;
-
+            @include light() {
+                background: none;
+                padding: 1em 0;
+            }
             &__title {
                 margin: 0 .5em 0 0;
                 font-weight: bold;
@@ -252,14 +275,19 @@
 
             &__option {
                 color: var(--text-lighter);
-
+                margin: 0 .75em 0 0;
                 &--active {
+                    color: var(--primary);
                     border-bottom: 1px dashed;
+                }
+                &__arrow {
+                    margin: 0 -.25em;
                 }
                 &__title {
                     margin: 0 .5em 0 0;
                     cursor: pointer;
                 }
+
             }
         }
         &__channel {
@@ -284,6 +312,31 @@
         &__result {
             .record-item {
                 font-size: 1.125em;
+            }
+        }
+
+
+        &__programs {
+            display: flex;
+            flex-wrap: wrap;
+            overflow: auto;
+            font-size: .75em;
+            background: var(--box-color-dark);
+            padding: 2em 2em 0;
+            .program {
+                width: calc(100% / 5 - 1em);
+                cursor: pointer;
+
+                &:hover {
+                    opacity: .75;
+                }
+                @include mobile() {
+                    width: calc(100% / 2 - 1em);
+                }
+                &__name {
+                    font-size: 1.5em;
+                    color: var(--box-text-color-dark);
+                }
             }
         }
     }
@@ -371,7 +424,7 @@
             },
             yearOptions() {
                 let years = [{id: -1, text: 'Неизвестно'}];
-                for (let i = 1950; i < 2009; i++) {
+                for (let i = 1950; i < 2011; i++) {
                     years.push({id: i, text: i.toString()});
                 }
                 return years;
@@ -406,7 +459,7 @@
                             this.$set(this.programs.cache, channelId, res.data.programs);
                             this.reloadProgramsCache();
                             loadedCount++;
-                            if (loadedCount === countToLoad) {
+                            if (loadedCount >= countToLoad) {
                                 this.programs.loading = false;
                             }
                         })
@@ -537,6 +590,7 @@
                 params = params.toString();
                 window.history.replaceState({}, '', `${location.pathname}?${params}`);
                 $.post(this.action, data).done((res) => {
+                    this.programsList = res.data.programs;
                     this.resultsList = res.data.records;
                     this.isLoading = false;
                     window.scrollTo(0, 0);
@@ -694,6 +748,7 @@
                 showExtended: this.showResults,
                 isLoading: false,
                 resultsList: this.results,
+                programsList: this.recommendedPrograms,
                 lastSearch: '',
                 data: JSON.parse(JSON.stringify(this.params)),
                 sortOptions: [
@@ -706,10 +761,10 @@
                 ],
                 disabledDates: {
                     to: new Date(1950, 0, 1),
-                    from: new Date(2009, 0, 1),
+                    from: new Date(2011, 0, 1),
                 }
             }
         },
-        props: ['action', 'params', 'showResults', 'results', 'isRadio'],
+        props: ['action', 'params', 'showResults', 'results', 'recommendedPrograms', 'isRadio'],
     }
 </script>

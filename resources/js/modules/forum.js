@@ -68,7 +68,7 @@ $(body).on('change', 'input[name="questionnaire"]', function() {
     $(this).is(':checked') ? $('#questionnaire_editor_container').show() : $('#questionnaire_editor_container').hide();
 });
 
-$(body).on('click', '.forum-page .page-link', function() {
+$(body).on('click', '.forum-page a.page-link', function() {
     $('.forum-page').append('<div class="form__preloader"><img src="/pictures/ajax.gif"></div>');
 });
 
@@ -84,3 +84,17 @@ window.execOnMounted.push(() => {
         index--;
     })
 })
+
+window.execOnMounted.push(() => {
+    let max = 0;
+    let titles = $('.questionnaire__result__title');
+    if ($(titles).length > 0) {
+        $(titles).each(function () {
+            let width = $(this).width();
+            if (width > max) {
+                max = width;
+            }
+        });
+        $(titles).css('width', max + 'px');
+    }
+});

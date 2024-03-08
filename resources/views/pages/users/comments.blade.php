@@ -1,8 +1,12 @@
 @extends('layouts.default')
 @section('content')
-    <div class="inner-page">
+    <div class="inner-page comments-page">
         <div class="inner-page__header">
+            @if ($user)
             <div class="inner-page__header__title">Комментарии пользователя <a href="{{$user->url}}">{{$user->username}}</a></div>
+            @else
+                <div class="inner-page__header__title">Последние комментарии на сайте</div>
+            @endif
         </div>
         <div class="inner-page__content">
             <div class="box">
@@ -13,7 +17,7 @@
                         @endforeach
                     </div>
                     <div class="comments__pager">
-                        {{$comments->append(request()->except('_token'))->links()}}
+                        {{$comments->appends(request()->except('_token'))->links()}}
                     </div>
                 </div>
             </div>

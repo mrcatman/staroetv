@@ -3,12 +3,22 @@
     text-decoration: none;
     color: inherit;
     display: flex;
+    align-items: center;
     padding: .5em;
     background: rgba(0, 0, 0, 0);
     transition: all .25s;
     width: 100%;
+    &--pending {
+        opacity: .5;
+    }
     @include mobile() {
         font-size: .75em;
+    }
+    @include light() {
+        margin: 0 .5em .5em;
+        padding: .5em;
+        box-sizing: border-box;
+        width: calc(100% - 1em);
     }
     &:hover {
         background: var(--box-color-hover);
@@ -30,7 +40,6 @@
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 3;
         overflow: hidden;
-        margin: 0 0 .5em;
     }
 
     &__texts {
@@ -39,6 +48,7 @@
     }
 
     &__info {
+        margin: .5em 0 0;
         i {
             margin: 0 .5em 0 0;
         }

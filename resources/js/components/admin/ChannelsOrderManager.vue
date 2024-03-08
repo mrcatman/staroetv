@@ -52,6 +52,10 @@
                 this.loading = true;
                 let order = {};
                 this.channelsList.forEach((channel, index) => {
+                    if (channel.is_federal && !channel.is_radio) {
+                        console.log(channel.name, index);
+                    }
+
                     order[channel.id] = index;
                 });
                 $.post('/admin/channels/order', {order}).done(res => {

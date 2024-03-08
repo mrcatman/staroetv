@@ -14,13 +14,13 @@ class AddOrder extends Migration
     public function up()
     {
         Schema::table('channels', function (Blueprint $table) {
-            $table->boolean('order')->nullable();
+            $table->integer('order')->nullable();
         });
         Schema::table('programs', function (Blueprint $table) {
-            $table->boolean('order')->nullable();
+            $table->integer('order')->nullable();
         });
         Schema::table('videos', function (Blueprint $table) {
-            $table->boolean('order')->nullable();
+            $table->integer('order')->nullable();
         });
     }
 

@@ -1,11 +1,15 @@
 .interprogram-package {
-    width: calc(100% / 3);
+    width: calc(100% / 4);
     display: inline-block;
     text-decoration: none;
     text-align: center;
+    @media screen and (max-width: 1367px) {
+        width: calc(100% / 3);
+    }
     @include mobile {
         width: 100%;
     }
+
     &__cover {
         display: flex;
         flex-wrap: wrap;
@@ -14,7 +18,8 @@
         width: calc(100% - .5em);
         min-width: calc(100% - .5em);
         min-height: 16em;
-        background: var(--bg-darker);
+        background: url('/img/noise.jpg') no-repeat center center;
+        background-size: cover;
         &__picture {
             /* flex: 1; */
             padding-top: 8em;
@@ -31,6 +36,9 @@
                 padding-top: 16em;
             }
         }
+        &[data-pictures-count='3'] &__picture:nth-of-type(3n) {
+            max-width: 100%;
+        }
     }
     &:hover &__cover {
         filter: brightness(1.1);
@@ -45,12 +53,11 @@
     &__years {
         margin: 0 0 1em;
         font-size: 1.25em;
-        font-weight: 500;
+        font-weight: 300;
         color: var(--text-lighter);
     }
 }
 .interprogram-packages-list {
-    margin: 1em 0 0;
     display: flex;
     flex-wrap: wrap;
 }
@@ -85,5 +92,26 @@
     }
     &__videos {
         margin: 0 0 -2em;
+    }
+}
+
+.interprogram-page {
+    &__hide-unsorted {
+        font-size: .675em;
+    }
+}
+
+.interprogram-annotation {
+    width: 100%;
+    border-top: 1px solid var(--border-color);
+    padding: 1em 0;
+
+    &__title {
+        font-size: 2em;
+        font-weight: bold;
+    }
+
+    &__text {
+        font-size: 1.25em;
     }
 }

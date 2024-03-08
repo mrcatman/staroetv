@@ -24,7 +24,7 @@ class HistoryEvent extends Model {
     }
 
     public function blocks() {
-        return $this->hasMany(HistoryEventBlock::class, 'event_id', 'id');
+        return $this->hasMany(HistoryEventBlock::class, 'event_id', 'id')->orderBy('order', 'asc');
     }
 
     public function coverPicture() {

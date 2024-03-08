@@ -3,19 +3,19 @@ namespace App\Helpers;
 
 use App\Article;
 use App\Record;
-use Illuminate\Filesystem\Cache;
+use Illuminate\Support\Facades\Cache;
 
 class SidebarHelper {
 
-    public static function getArticles() {
-        //$articles = Cache::remember('sidebar_articles', 120, function () {
-            return Article::where(['pending' => false])->orderBy('id', 'desc')->limit(5)->get();
-       // });
+    public static function getArticles($count = 5) {
+        return Cache::remember('sidebar_articles'."_".$count, 120, function () use($count) {
+            return Article::where(['pending' => false])->where('type_id', '!=', Article::TYPE_BLOG)->orderBy('id', 'desc')->limit($count)->get();
+        });
     }
-    public static function getRecords($is_radio = false) {
-        //$articles = Cache::remember('sidebar_articles', 120, function () {
-        return Record::where(['is_radio' => $is_radio])->inRandomOrder()->limit(10)->get();
-        // });
+    public static function getRecords($is_radio = false, $count = 10) {
+        return Cache::remember('sidebar_records_'.($is_radio ? 'radio' : 'video')."_".$count, 120, function () use ($is_radio, $count) {
+            return Record::where(['is_radio' => $is_radio])->inRandomOrder()->limit($count)->get();
+        });
     }
 
 

@@ -4,6 +4,9 @@ namespace App\Console\Commands;
 
 use App\API\UcozAPI;
 use App\Channel;
+use App\ChannelName;
+use App\Helpers\CSVHelper;
+use App\Picture;
 use App\Program;
 use App\Record;
 use Carbon\Carbon;
@@ -41,14 +44,19 @@ class ImportVideos extends Command
      *
      * @return mixed
      */
-    public function handle()
-    {
-        $api = new UcozAPI();
-        $start_page = 1;
-        $end_page = 120;
-        $ucoz_domain = "http://s67.ucoz.net";
 
-        $interprogram_keys = ["анонс","вещани","реклам","заставк","ролик","программа передач","погод","эфира","спонсор", "часы"];
+    public function saveCover($url) {
+        $cover = Picture::where(['url' => $url])->first();
+        if (!$cover) {
+            $cover = new Picture();
+            $cover->url = $url;
+            $cover->save();
+        }
+        return $cover->id;
+    }
+
+    public function handle() {
+        $interprogram_keys = ["анонс", "вещани", "реклам", "заставк", "ролик", "программа передач", "погод", "эфира", "спонсор", "часы"];
 
         $programs_data = Program::all();
         $programs = [];
@@ -60,29 +68,47 @@ class ImportVideos extends Command
         }
 
         $channels = Channel::pluck('id', 'name');
-        $ucoz_ids = Record::pluck('ucoz_id')->where(['is_radio' => false])->toArray();
+        foreach (ChannelName::all() as $name) {
+            $channels[$name->name] = $name->channel_id;
+        }
+        $ucoz_ids = Record::pluck('ucoz_id')->toArray();
 
-        for ($i = $start_page; $i <= $end_page; $i++) {
-            $videos = $api->getVideos($i);
-            echo "Страница: ".$i.PHP_EOL;
-            foreach ($videos as $video) {
-                $cover = str_replace($ucoz_domain, "", $video->screenshot);
+        $videos = CSVHelper::transform(public_path("data_new/video.txt"), [
+            'ucoz_id', '', '', 'created_at',  '', '', '', '', '', '', '', 'views', '', 'description', 'title', '', '', '', '', '', '', 'cover', '', '', '', 'author_username', '', '', '', 'embed_code', '', '', '', '', '',  '', '', '', '', '', 'author_id', '', '', 'ucoz_url'
+        ], false);
+        //$videos = array_slice($videos, 1000, 10);
+
+        foreach ($videos as $video) {
+           // $record = Record::where(['ucoz_id' => $video['ucoz_id']])->first();
+            if (in_array($video['ucoz_id'], $ucoz_ids)) {
+              //  $record = Record::where(['ucoz_id' => $video['ucoz_id']])->first();
+              //  $record->created_at = $video['created_at'];
+               // $record->save();
+               // echo "Record: ".$record->title." Created at:".$video['created_at'].PHP_EOL;
+            } else {
+                if ($video['created_at'] < 1567167825) {
+                    continue;
+                }
+                var_dump($video['title']);
+                continue;
+                $video['embed_code'] = html_entity_decode($video['embed_code']);
                 $obj = new Record([
                     'is_from_ucoz' => true,
-                    'original_added_at' => Carbon::createFromTimestamp($video->add_date_ts),
-                    'author_username' => $video->author,
-                    'title' => $video->title,
-                    'description' => $video->description,
-                    'embed_code' => $video->embobject,
-                    'views' => $video->reads,
-                    'cover' => $cover,
-                    'ucoz_id' => $video->id,
-                    'ucoz_url' => $video->entry_url
+                    'original_added_at' => Carbon::createFromTimestamp($video['created_at']),
+                    'author_username' => $video['author_username'],
+                    'author_id' => $video['author_id'],
+                    'title' => $video['title'],
+                    'description' => $video['description'],
+                    'embed_code' => $video['embed_code'],
+                    'views' => $video['views'],
+                    'ucoz_id' => $video['ucoz_id'],
+                    'ucoz_url' => $video['ucoz_url'],
+                    'cover_id' => $this->saveCover($video['cover'])
                 ]);
-                preg_match('/(.*?)\((.*?), (.*?)\)(.*)/', $video->title, $matches);
+                preg_match('/(.*?)\((.*?), (.*?)\)(.*)/', $video['title'], $matches);
                 if (count($matches) < 3) {
-                    echo "Нераспознанное название: ".$video->title.PHP_EOL;
-                    preg_match('/(.*?)\((.*?)\)(.*)/', $video->title, $matches);
+                    echo "Нераспознанное название: " . $video['title'] . PHP_EOL;
+                    preg_match('/(.*?)\((.*?)\)(.*)/', $video['title'], $matches);
                     if (count($matches) > 3) {
                         $matches[4] = $matches[3];
                         $matches[3] = "";
@@ -131,7 +157,7 @@ class ImportVideos extends Command
                             $program_item = new Program([
                                 'name' => $program,
                                 'channel_id' => $channel_id,
-                                'cover' => $cover
+                                'cover_id' => $this->saveCover($video['cover'])
                             ]);
                             $program_item->save();
                             if (!isset($programs[$channel_id])) {
@@ -150,7 +176,7 @@ class ImportVideos extends Command
                         $date = trim($date);
                         echo "Дата: " . $date . PHP_EOL;
                         $date = explode(";", $date)[0];
-                        $date = str_replace("–","-",$date);
+                        $date = str_replace("–", "-", $date);
                         $splitted_min = explode("-", $date);
                         if (count($splitted_min) === 2) {
                             $splitted_min_end = explode(".", $splitted_min[1]);
@@ -182,7 +208,7 @@ class ImportVideos extends Command
                             }
                         } else {
                             $date = trim($date);
-                            $date = explode(" ",$date)[0];
+                            $date = explode(" ", $date)[0];
 
                             $date = preg_replace('/[^0-9.]+/', '', $date);
                             $obj->date = Carbon::createFromFormat("d.m.Y", $date);
@@ -193,21 +219,19 @@ class ImportVideos extends Command
                         }
                     }
                     $additional_description = trim($matches[4]);
-                    echo "Доп.описание: ".$additional_description.PHP_EOL;
+                    echo "Доп.описание: " . $additional_description . PHP_EOL;
                     $obj->short_description = $additional_description;
                 }
 
-                if (!in_array($video->id, $ucoz_ids)) {
+                if (!in_array($video['ucoz_id'], $ucoz_ids)) {
                     echo "Сохраняем видео";
                     $obj->save();
+                    $obj->setSupposedDate();
                 } else {
-                    DB::table('videos')->where(['ucoz_id' => $video->id])->update($obj->toArray());
                     echo "Видео уже в базе";
                 }
-                echo PHP_EOL.PHP_EOL;
+                echo PHP_EOL . PHP_EOL;
             }
-            echo "Страница: ".$i.PHP_EOL;
-            sleep(1);
         }
     }
 }

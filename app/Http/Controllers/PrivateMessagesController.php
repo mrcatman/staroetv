@@ -18,25 +18,25 @@ class PrivateMessagesController extends Controller {
     public function index() {
         $user = auth()->user();
         if (!$user) {
-            return redirect("/");
+            return redirect("https://staroetv.su/");
         }
         $messages = collect();
         if (request()->input('type') != "out") {
-            $messages_in = PrivateMessage::where(['to_id' => $user->id, 'is_deleted_receiver' => false])->get();
+            $messages_in = PrivateMessage::where(['to_id' => $user->id, 'is_deleted_receiver' => false])->orderBy('id', 'desc')->get();
             $messages = $messages->merge($messages_in);
-            $messages_group = PrivateMessage::where(['is_group' => true])->where('group_ids', 'like', "%".$user->group_id.",%")->where(function($q) use($user) {
+            $messages_group = PrivateMessage::where(['is_group' => true])->orderBy('id', 'desc')->where('group_ids', 'like', "%".$user->group_id.",%")->where(function($q) use($user) {
                 $q->whereNull('deleted_ids');
                 $q->orWhere('deleted_ids', 'not like', "%".$user->id.",%");
             })->get();
             $messages = $messages->merge($messages_group);
         }
         if (request()->input('type', '') != "") {
-            $messages_out = PrivateMessage::where(['from_id' => $user->id, 'is_deleted_sender' => false])->get();
+            $messages_out = PrivateMessage::where(['from_id' => $user->id, 'is_deleted_sender' => false])->orderBy('id', 'desc')->get();
             $messages = $messages->merge($messages_out);
         }
 
         $users_cache = [];
-        $messages = $messages ->sortByDesc('created_at')->transform(function($message) use($users_cache, $user) {
+        $messages = $messages ->sortByDesc('id')->transform(function($message) use($users_cache, $user) {
             if ($message->to_id == $user->id || $message->is_group) {
                 $id = $message->from_id;
             } else {
@@ -63,12 +63,12 @@ class PrivateMessagesController extends Controller {
     public function show($id) {
         $user = auth()->user();
         if (!$user) {
-            return redirect("/");
+            return redirect("https://staroetv.su/");
         }
         $message = PrivateMessage::find($id);
         $is_group = $message->is_group && strpos($message->group_ids, $user->group_id.",") !== false;
         if (!$message || ($message->from_id != $user->id && $message->to_id != $user->id && !$is_group)) {
-            return redirect("/");
+            return redirect("https://staroetv.su/");
         }
         if ($message->to_id == $user->id || $is_group) {
             $id = $message->from_id;
@@ -96,7 +96,7 @@ class PrivateMessagesController extends Controller {
     public function send() {
         $user = auth()->user();
         if (!$user) {
-            return redirect("/");
+            return redirect("https://staroetv.su/");
         }
         $to_user = null;
         if (request()->has('user_id')) {
@@ -116,6 +116,12 @@ class PrivateMessagesController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         };
+        if (PermissionsHelper::isBanned()) {
+            return [
+                'status' => 0,
+                'text' => 'Вы забанены'
+            ];
+        }
         $data = request()->validate([
             'title' => 'sometimes',
             'text' => 'required|min:1',
@@ -241,7 +247,7 @@ class PrivateMessagesController extends Controller {
             'data' => [
                 'dom' => [
                     [
-                        'replace' => ".auth-panel__button--pm .auth-panel__button__count",
+                        'replace' => ".auth-panel__button--pm .auth-panel__button__count, .mobile-menu__item--pm .mobile-menu__item__count",
                         'html' => $user->unreadMessages()
                     ]
                 ]

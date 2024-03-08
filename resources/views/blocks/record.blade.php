@@ -16,6 +16,14 @@
             <span class="record-item__date"><i class="fa fa-calendar"></i>{{$record->created_at}}</span>
             <span class="record-item__views"><i class="fa fa-eye"></i>{{$record->views}}</span>
             <span class="record-item__comments"><i class="fa fa-comment"></i>{{count($record->comments)}}</span>
+            <div class="record-item__tags" >
+                @if ($record->is_advertising)
+                    <span class="record-item__tag">Рекламный ролик</span>
+                @endif
+                @if ($record->is_interprogram && $record->interprogram_name != "")
+                    <span class="record-item__tag">{{$record->interprogram_name}}</span>
+                @endif
+            </div>
         </div>
     </div>
 </a>

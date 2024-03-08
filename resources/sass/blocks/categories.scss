@@ -1,9 +1,8 @@
 .category {
     background: var(--bg-darker-2);
     text-decoration: none;
-    border-radius: 5em;
     padding: .5em 1.25em;
-    margin: .5em .5em .5em 0;
+    margin: .5em 0;
     display: inline-block;
     cursor: pointer;
 
@@ -24,11 +23,24 @@
 
 .categories-list {
     padding: 1em;
-    box-shadow: var(--block-box-shadow);
     background: var(--bg-darker);
     white-space: nowrap;
     overflow: auto;
+    &--multiline {
+        display: flex;
+        flex-wrap: wrap;
+        .category {
+            margin: 0 .5em .5em 0;
+        }
+    }
+    @include light() {
+        padding: .5em 0 0;
+        background: none;
+    }
     @include mobile() {
         font-size: .875em;
     }
 }
+
+
+

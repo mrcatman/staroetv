@@ -6,6 +6,31 @@
             <img src="/pictures/ajax.gif">
         </div>
         <Response :data="response" v-if="!inModal"/>
+
+        <div class="input-container" v-if="record && canEditAll">
+            <label class="input-container__label">Дата добавления видео</label>
+            <div class="input-container__inner">
+                <div class="input-container__element-outer">
+                    <div class="input-container__overlay-outer">
+                        <Datepicker v-model="data.original_added_at"></Datepicker>
+                    </div>
+                </div>
+                <span class="input-container__message">{{errors.original_added_at}}</span>
+            </div>
+        </div>
+
+        <div class="input-container" v-if="record && canEditAll">
+            <label class="input-container__label">Изменить автора на</label>
+            <div class="input-container__inner">
+                <div class="input-container__element-outer">
+                    <div class="input-container__overlay-outer">
+                        <select2 theme="default" :customOptions="usersAutocompleteOptions" v-model="data.author_id"></select2>
+                    </div>
+                </div>
+                <span class="input-container__message">{{errors.author_id}}</span>
+            </div>
+        </div>
+
          <div class="input-container" v-show="!record || record.source_type !== 'local'">
             <label class="input-container__label" v-if="!isRadio">Ссылка на видео</label>
             <label class="input-container__label" v-else>Ссылка на аудиозапись</label>
@@ -74,7 +99,7 @@
 
 
 
-        <div class="input-container" v-if="!params.channel_id">
+        <div class="input-container" v-if="!params.channel_id" v-show="!data.is_advertising">
             <label class="input-container__label" v-if="!isRadio">Канал</label>
             <label class="input-container__label" v-else>Радиостанция</label>
             <div class="input-container__inner">
@@ -91,7 +116,7 @@
                     <div class="autocomplete__items" v-show="!data.channel.unknown">
                         <a @click="selectChannel(channelItem)" class="autocomplete__item" :class="{'autocomplete__item--selected': data.channel.id === channelItem.id}" v-for="(channelItem, $index) in filteredChannels" :key="$index">
                             <span v-if="channelItem.logo" class="autocomplete__item__logo" :style="{backgroundImage: 'url('+channelItem.logo.url+')'}"></span>
-                            <span class="autocomplete__item__name">{{channelItem.name}}</span>
+                            <span class="autocomplete__item__name">{{channelItem.full_name}}</span>
                         </a>
                     </div>
                 </div>
@@ -108,20 +133,20 @@
                     </div>
                     <div class="input-container__toggle-buttons">
                         <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.program.unknown}" @click="setUnknownProgram()">Программа неизвестна</a>
-                        <a title="Заставки, анонсы и т.д." class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_interprogram}" @click="setInterprogram()">Межпрограммное пространство</a>
+                        <a title="Заставки, анонсы и т.д." class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_interprogram && !data.is_program_design}" @click="setInterprogram()">Межпрограммное пространство</a>
                         <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_advertising}" @click="setAdvertising()">Рекламный ролик</a>
                         <a title="Заставки, титры и т.д." class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_program_design}" @click="setIsProgramDesign()">Оформление программы</a>
-                <!--        <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_clip}" @click="setClip()">Клип</a> -->
+                        <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': data.is_clip}" @click="setClip()">Клип</a>
                     </div>
-                    <div class="autocomplete__items" v-show="!data.is_program_design || (data.is_interprogram && !data.is_clip && !data.is_advertising && !data.program.unknown)">
+                    <div class="autocomplete__items" v-show="data.is_program_design || (!data.is_interprogram && !data.is_clip && !data.is_advertising && !data.program.unknown)">
                         <a @click="selectProgram(programItem)" class="autocomplete__item" :class="{'autocomplete__item--selected': data.program.id === programItem.id}" v-for="(programItem, $index) in filteredPrograms" :key="$index">
                             <span v-if="programItem.cover_picture" class="autocomplete__item__logo" :style="{backgroundImage: 'url('+programItem.cover_picture.url+')'}"></span>
                             <span class="autocomplete__item__name">{{programItem.name}}</span>
                         </a>
                     </div>
-                    <div v-if="data.is_interprogram && !data.is_program_design && !data.is_other" class="record-form__interprogram-packages">
-                        <div @click="data.interprogram_package_id = item.id" v-for="(item, $index) in interprogramPackages" :key="$index"  class="record-form__interprogram-package" :class="{'record-form__interprogram-package--selected': data.interprogram_package_id === item.id}">
-                            <div class="record-form__interprogram-package__cover" :style="{backgroundImage: 'url('+(item.coverPicture ? item.coverPicture.url : '')+')'}"></div>
+                    <div v-if="data.is_interprogram && !data.is_other && !data.is_advertising" class="record-form__interprogram-packages">
+                        <div @click="data.interprogram_package_id = item.id" v-for="(item, $index) in graphics" :key="$index"  class="record-form__interprogram-package" :class="{'record-form__interprogram-package--selected': data.interprogram_package_id === item.id}">
+                            <div class="record-form__interprogram-package__cover" :style="{backgroundImage: 'url('+(item.cover)+')'}"></div>
                             <div class="record-form__interprogram-package__name">{{item.name ? item.name : item.years_range}}</div>
                         </div>
                         <div class="record-form__interprogram-package" @click="data.interprogram_package_id = null"  :class="{'record-form__interprogram-package--selected': data.interprogram_package_id === null}">
@@ -142,7 +167,7 @@
                 <span class="input-container__message">{{errors.other_category_id}}</span>
             </div>
         </div>
-        <div class="input-container" v-show="data.is_interprogram || params.interprogram_package_id">
+        <div class="input-container" v-show="!data.is_other && (data.is_interprogram || params.interprogram_package_id)">
             <label class="input-container__label">Тип</label>
             <div class="input-container__inner">
                 <div class="input-container__element-outer" v-if="interprogramTypes.length > 0">
@@ -239,7 +264,7 @@
                 <span class="input-container__message">{{errors.short_description}}</span>
             </div>
         </div>
-        <div class="input-container" v-if="dataIsSet">
+        <div class="input-container" v-if="dataIsSet" v-show="!isRadio">
             <label class="input-container__label">Обложка</label>
             <div class="input-container__inner">
                 <div class="input-container__element-outer">
@@ -293,6 +318,9 @@
         }
         &__player-container {
             width: 100%;
+            iframe {
+                min-height: 400px;
+            }
             &__outer {
                 display: flex;
                 padding: 1em;
@@ -331,8 +359,32 @@
     }
 </style>
 <script>
+    const tus = require("tus-js-client");
     import Response from "./Response";
     import Snackbar from "./Snackbar";
+    import Datepicker from 'vuejs-datepicker';
+
+    const usersAutocompleteOptions = {
+        ajax: {
+            method: 'POST',
+            url: '/users/autocomplete',
+            dataType: 'json',
+            processResults: function (data) {
+                return {
+                    results: data.data.users.map(user => {
+                        return {
+                            id: user.id,
+                            text: user.username,
+                        }
+                    }),
+                    pagination: {
+                        more: data.data.users.length > 0
+                    }
+                };
+            },
+        }
+    };
+
     let defaultData = {
         is_interprogram: false,
         is_clip: false,
@@ -376,6 +428,8 @@
             await this.$nextTick();
             if (this.record) {
                 this.data = {
+                    original_added_at: new Date(this.record.original_added_at_ts * 1000),
+                    author_id: this.record.author_id,
                     is_interprogram: this.record.is_interprogram,
                     is_clip: this.record.is_clip,
                     is_advertising: this.record.is_advertising,
@@ -390,12 +444,15 @@
                     use_own_player: this.record.use_own_player,
                     is_other: !this.record.channel_id && !this.data.program_id && !this.record.is_advertising,
                     other_category_id: this.record.other_category_id,
+                    is_program_design: this.record.program_id && this.record.is_interprogram,
                     record: {
                         title: this.record.title,
                         url: this.record.original_url,
                         id: null,
                         code: this.record.embed_code,
-                        covers: []
+                        covers: [],
+                        use_own_player: this.record.use_own_player,
+                        source_path: this.record.source_path
                     },
                     short_description:  this.record.short_description,
                     description:  this.record.description,
@@ -422,7 +479,7 @@
                     this.loadPrograms();
                     if (this.record.is_interprogram) {
                         if (!this.isRadio) {
-                            this.loadInterprogramPackages();
+                            this.loadGraphics();
                         }
                     }
                 }
@@ -435,11 +492,14 @@
             this.loadCategories();
             if (!this.channelsList || this.channelsList.length === 0) {
                 this.loadChannels();
+            } else{
+                this.setChannelFullNames();
             }
         },
-        components: {Snackbar, Response},
+        components: {Datepicker, Snackbar, Response},
         props: {
             canUpload: {},
+            canEditAll: {},
             inModal: {},
             channels: {},
             record: {},
@@ -453,15 +513,75 @@
             }
         },
         methods: {
+            setChannelFullNames() {
+                this.channelsList.forEach(channel => {
+                    let mainName = channel.name;
+                    if (channel.city && channel.city !== '') {
+                        this.$set(channel, 'full_name', mainName + ' (' + channel.city + ')');
+                    } else {
+                        if (channel.country && channel.country !== '') {
+                            this.$set(channel, 'full_name', mainName + ' (' + channel.country + ')');
+                        } else {
+                            let additionalNames = channel.names.filter(name => name.name && name.name !== '' && name.name !== mainName).map(name => name.name);
+                            additionalNames = [...new Set(additionalNames)];
+                            this.$set(channel, 'full_name', mainName + (additionalNames.length > 0 ? (' (' + additionalNames.join(',') + ')') : ''));
+                        }
+                    }
+                });
+            },
             uploadRecord() {
                 return new Promise((resolve, reject) => {
                     let record = this.$refs.files.files[0];
                     if (!record) {
                         resolve();
                     }
-                    let fd = new FormData();
-                    fd.append('record', record);
+                    //let fd = new FormData();
+                    //fd.append('record', record);
+                    //fd.append('is_radio', this.isRadio ? "1" : "0");
                     this.fileUploadInfo.isUploading = true;
+
+
+                   this.tusUpload = new tus.Upload(record, {
+                        endpoint: 'https://media.staroetv.su/files/',
+                        retryDelays: [0, 1000, 3000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000],
+                        chunkSize: 10 * 1048576,
+                        metadata: {
+                            filename: record.name,
+                        },
+                        onError: (error) => {
+                            reject();
+                            this.$refs.snackbar.show({
+                                status: 0,
+                                text: 'Ошибка загрузки, попробуйте еще раз или напишите администратору'
+                            });
+                        },
+                        onProgress: (bytesUploaded, bytesTotal) => {
+                            this.fileUploadInfo.percent = Math.floor((bytesUploaded / bytesTotal) * 10000) / 100;
+                        },
+                        onSuccess: async (e) => {
+                            let server_upload_id = this.tusUpload.url.split("/");
+                            server_upload_id = server_upload_id[server_upload_id.length - 1];
+                            $.post('/records/after-upload', {
+                                server_upload_id,
+                                is_radio: this.isRadio
+                            }).done(res => {
+                                this.fileUploadInfo.isUploading = false;
+                                resolve(res.data);
+                                this.fileUploadInfo.url = res.data.url;
+                                this.fileUploadInfo.screenshot = res.data.screenshot;
+                            }).fail(e => {
+                                console.log('fail', e);
+                                this.fileUploadInfo.isUploading = false;
+                                this.$refs.snackbar.show({
+                                    status: 0,
+                                    text: e.responseJSON ? (e.responseJSON.message && e.responseJSON.message !== "" ? e.responseJSON.message : e.responseJSON.exception) : "Ошибка загрузки"
+                                });
+                                reject();
+                            });
+                        }
+                    });
+                    this.tusUpload.start();
+                    return;
                     $.ajax({
                         xhr: () => {
                             let xhr = new window.XMLHttpRequest();
@@ -554,7 +674,7 @@
                         if (!this.record) {
                             this.data = JSON.parse(JSON.stringify(defaultData));
                             this.programs = [];
-                            this.interprogramPackages = [];
+                            this.graphics = [];
                         }
                     }
                 });
@@ -578,16 +698,18 @@
             setIsProgramDesign() {
                 this.$set(this.data, 'is_program_design', !this.data.is_program_design);
                 this.data.is_interprogram = true;
+                this.loadGraphics();
             },
             setInterprogram() {
-                this.data.is_interprogram = !this.data.is_interprogram;
+                this.data.is_interprogram = this.data.is_program_design ? true : !this.data.is_interprogram;
                 if (this.data.is_interprogram) {
+                    this.data.is_program_design = false;
                     this.data.is_advertising = false;
                     this.data.is_clip = false;
                     this.data.program.unknown = false;
                     if (this.data.channel.id) {
                         if (!this.isRadio) {
-                            this.loadInterprogramPackages();
+                            this.loadGraphics();
                         }
                     }
                 }
@@ -707,6 +829,7 @@
                     }
                     if (this.data.channel.name === "") {
                         this.data.channel.name = parsed[5];
+                        console.log(parsed[5], this.allChannelNames[parsed[5]], this.allChannelNames);
                         if (this.allChannelNames[parsed[5]]) {
                             this.data.channel.id = this.allChannelNames[parsed[5]];
                             await this.loadPrograms();
@@ -732,7 +855,7 @@
                     }
                     if (this.data.is_interprogram && this.data.channel.id) {
                         if (!this.isRadio) {
-                            this.loadInterprogramPackages();
+                            this.loadGraphics();
                         }
                     }
                     let date = parsed[6];
@@ -805,13 +928,22 @@
                     }
                 }
             },
-            loadInterprogramPackages() {
-                return new Promise((resolve) => {
-                    $.get('/channels/'+this.data.channel.id+'/interprogram-packages').done(res => {
-                        this.interprogramPackages = res.data.interprogram_packages;
-                        resolve(res.data.interprogramPackages);
+            loadGraphics() {
+                if (this.data.is_program_design) {
+                    return new Promise((resolve) => {
+                        $.get('/programs/' + this.data.program.id + '/graphics/ajax').done(res => {
+                            this.graphics = res.data.graphics;
+                            resolve(res.data.graphics);
+                        })
                     })
-                })
+                } else {
+                    return new Promise((resolve) => {
+                        $.get('/channels/' + this.data.channel.id + '/graphics/ajax').done(res => {
+                            this.graphics = res.data.graphics;
+                            resolve( res.data.graphics);
+                        })
+                    })
+                }
             },
             loadCategories() {
                 $.get('/records/categories').done(res => {
@@ -821,6 +953,7 @@
             loadChannels() {
                 $.get('/channels/ajax').then(res => {
                     this.channelsList = res.data.channels;
+                    this.setChannelFullNames();
                 })
             },
             loadPrograms() {
@@ -848,7 +981,9 @@
             "data.record.url"() {
                 clearTimeout(this.changeUrlTimeout);
                 this.changeUrlTimeout = setTimeout(() => {
-                    this.getRecordData();
+                    if (this.dataIsSet) {
+                        this.getRecordData();
+                    }
                 }, 500)
             }
         },
@@ -911,7 +1046,7 @@
                    names[channel.name] = channel.id;
                    if (channel.names) {
                        channel.names.forEach(channelName => {
-                           names[channelName.name] = name.channel_id;
+                           names[channelName.name] = channelName.channel_id;
                        })
                    }
                });
@@ -940,7 +1075,7 @@
             },
             yearOptions() {
                 let years = [{id: -1, text: 'Неизвестно'}];
-                for (let i = 1950; i < 2009; i++) {
+                for (let i = 1950; i < 2011; i++) {
                     years.push({id: i, text: i.toString()});
                 }
                 return years;
@@ -979,6 +1114,7 @@
                         return false;
                     });
                 }
+
             }
         },
         data() {
@@ -987,7 +1123,7 @@
                 errors: {},
                 loading: false,
                 response: null,
-                interprogramPackages: [],
+                graphics: [],
                 isLoadingRecordInfo: false,
                 changeUrlTimeout: null,
                 data: JSON.parse(JSON.stringify(defaultData)),
@@ -1001,7 +1137,9 @@
                     screenshot: null,
                     percent: 0,
                     isUploading: false,
-                }
+                },
+                usersAutocompleteOptions,
+                tusUpload: null
             }
         }
     }

@@ -1,4 +1,7 @@
 .material-categories {
+    @include light() {
+        margin: -1.75em 0 -1em;
+    }
     &__section {
         margin: 0 0 .5em;
         padding: 0 0 .5em;
@@ -6,6 +9,9 @@
         font-size: 1.25em;
         line-height: 1.75;
         border-bottom: 1px solid var(--border-color);
+        @include light() {
+            border-bottom: none;
+        }
         &:last-of-type {
             border: none;
             padding: 0;
@@ -20,12 +26,18 @@
 
     &__section-heading {
         font-size: 1.25em;
-        font-weight: 600;
+        font-weight: 500;
+        @include light() {
+            border-bottom: 2px solid var(--primary);
+            padding: 0 0 .25em;
+        }
     }
     li {
         padding: 0 .5em;
         transition: all .35s;
-
+        @include light() {
+            padding: .25em 0 0;
+        }
         &:hover {
             background: var(--box-color-hover);
         }

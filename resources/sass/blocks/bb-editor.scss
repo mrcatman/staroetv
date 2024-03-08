@@ -42,6 +42,7 @@
 
     &__text {
         width: 100%;
+        box-sizing: border-box;
         flex: 1;
         border-radius: .25em;
         font: inherit;
@@ -59,12 +60,7 @@
 
 
     &__text-container {
-        align-items: center;
-        display: flex;
-        @include mobile() {
-            flex-direction: column;
-            align-items: flex-start;
-        }
+        display: block;
     }
 
     &__smiles {
@@ -93,9 +89,12 @@
     }
 
     &__smile {
-        width: calc(100% / 3);
-        text-align: center;
+        width: auto;
+        margin: 0 .5em;
         cursor: pointer;
+        &:hover {
+            filter: brightness(1.1);
+        }
         @include mobile() {
             width: unset;
             margin: 0 1em .5em 0;
@@ -131,25 +130,18 @@
     }
 
     &__smiles {
+        margin: 0 0 1em;
+        display: flex;
+        align-items: center;
         &__list {
             display: flex;
+            justify-content: flex-start;
             flex-wrap: wrap;
         }
-
         &__all {
-            display: block;
-            text-align: center;
-            font-size: .875em;
-            padding: .5em;
-            color: var(--text-lighter);
             text-decoration: underline;
             cursor: pointer;
-            @include mobile() {
-                font-size: 1.125em;
-                text-align: left;
-                padding: 0;
-                margin: 0 0 1em;
-            }
         }
     }
 }
+

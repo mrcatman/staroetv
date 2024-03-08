@@ -1,4 +1,14 @@
 @extends('layouts.default')
+@section('page-title')
+    {{$event->title}}
+@endsection
+@section('head')
+    <meta property="og:title" content="{{$event->title}}" />
+    <meta property="og:description" content="{{$event->short_description}}" />
+    @if ($event->coverPicture)
+    <meta property="og:image" content="https://staroetv.su/{{$event->coverPicture->url}}" />
+    @endif
+@endsection
 @section('content')
     <div class="inner-page event-page">
         <div class="row row--align-start">
@@ -33,10 +43,14 @@
                     @endif
                 </div>
                 @foreach ($event->blocks as $block)
-                <div class="box box--dark event-page__block">
+                <div class="box event-page__block">
                     <div class="box__inner">
-                        <div class="event-page__block-content"> {!! $block->description !!}</div>
-                        <div class="event-page__records @if (count($block->records) > 1) event-page__records--multiple @endif">
+                        <div class="event-page__block-content">
+                            <div class="inner-page__text">
+                                {!! $block->description !!}
+                            </div>
+                        </div>
+                        <div class="event-page__records @if (count($block->records) > 1) event-page__records--many @endif">
                             @foreach($block->records as $record)
                                 <div class="event-page__player-container__outer">
                                 <div class="event-page__player-container">
@@ -60,9 +74,7 @@
                     @include('blocks/comments', ['class' => 'event-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\HistoryEvent::TYPE_HISTORY_EVENT, 'material_id' => $event->id]])
                 </div>
             </div>
-            <div class="col col--sidebar">
-                @include('blocks/generic_sidebar', [ 'is_radio' => false])
-            </div>
+
         </div>
 
     </div>

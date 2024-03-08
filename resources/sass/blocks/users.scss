@@ -1,9 +1,12 @@
 .user-info {
     display: flex;
     font-size: 1.125em;
-    @include mobile {
+    @include mobile(){
         font-size: 1em;
         flex-direction: column;
+        @include light() {
+            margin: -1em 0;
+        }
     }
     &__col {
         flex: 1;
@@ -19,10 +22,10 @@
         }
 
         &__icon {
-            background: #1f1f1f;
+            background: var(--box-color-dark);
             border-radius: .125em;
             font-size: 1.25em;
-            color: #fff;
+            color: var(--box-text-color-dark);
             width: 1.75em;
             height: 1.75em;
             display: flex;
@@ -48,9 +51,21 @@
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-
+        @include mobile() {
+            margin: 0 0 1em;
+        }
         .button {
             margin: .75em 0 0;
+            @include mobile() {
+                font-size: 1em;
+            }
+        }
+    }
+    &__group-icon-container {
+        width: 35%;
+        padding: 1em 0 0;
+        @include mobile() {
+            width: 50%;
         }
     }
 }
@@ -58,8 +73,18 @@
     &__top {
         display: flex;
         overflow: visible;
-        padding: 0;
-        margin: 0 0 -1em;
+        padding: calc(var(--col-margin) * 2) 0;
+        margin: 0 0 calc(var(--col-margin) * -2);
+        .inner-page__header {
+            border-top: 1px solid var(--border-color);
+            @include light() {
+                border-top: none;
+                margin: -1em 0;
+                @include mobile() {
+                    margin: -1em 0 0;
+                }
+            }
+        }
         @include mobile {
             margin: 0;
             flex-direction: column-reverse;
@@ -92,7 +117,12 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-
+        @include light() {
+            padding: 0 0 0 1em;
+            @include mobile() {
+                padding: 1em 0 0;
+            }
+        }
         &__inner {
             flex: 1;
 
@@ -108,6 +138,9 @@
 
     &__info-blocks {
         box-shadow: var(--block-box-shadow);
+        @include light() {
+            box-shadow: none;
+        }
     }
 
     &__info-block {
@@ -118,7 +151,11 @@
         background: var(--box-color);
         border-top: 1px solid var(--border-color);
         margin: 0;
-
+        &:first-of-type {
+            @include light() {
+                border-top: none;
+            }
+        }
         &__title {
             font-size: 1.25em;
         }
@@ -282,6 +319,9 @@
 
 .users-list {
     padding: 1.25em;
+    @include light() {
+        padding: 0;
+    }
     &__link {
         color: var(--text-lighter);
     }
@@ -291,6 +331,9 @@
         background: var(--bg-darker);
         border-left: 1px solid var(--border-color);
         border-right: 1px solid var(--border-color);
+        @include light() {
+            border: 1px solid var(--border-color);
+        }
         &__inner {
             display: flex;
         }
@@ -311,6 +354,9 @@
         background: var(--box-color);
         padding: .5em;
         border: 1px solid var(--border-color);
+        @include light() {
+            border: none;
+        }
     }
 
     &__table {
@@ -321,7 +367,10 @@
         border: 1px solid var(--border-color);
         border-radius: 0;
         margin: -1px 0 0;
-
+        @include light() {
+            padding: 0;
+            border: none;
+        }
         td {
             padding: .25em 1em;
             border-bottom: 1px solid var(--border-color);
@@ -337,6 +386,10 @@
                 font-size: 1.125em;
                 padding: .75em 0;
                 font-weight: bold;
+                @include light() {
+                    padding: .5em 1.25em;
+                    font-size: 1em;
+                }
             }
         }
     }
@@ -344,12 +397,24 @@
     &__pager {
         padding: 1em 1em 0;
         font-size: .875em;
-       background: var(--box-color);
+        background: var(--box-color);
         border: 1px solid var(--border-color);
+        @include light() {
+            border: none;
+            padding: 1em 0 0;
+        }
     }
 
     &__avatar {
         height: 3.5em;
+    }
+    &__group-icon-container {
+        height: 2em;
+        display: flex;
+        .group-icon svg {
+            height: 1em;
+            padding: .5em 0;
+        }
     }
 }
 
@@ -424,5 +489,37 @@
         &__awards-user {
             margin: 0 .5rem .5rem 0;
         }
+    }
+}
+
+.user-online {
+    font-weight: 300;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+
+    &[data-group-id="4"] {
+        font-weight: bold;
+        color: #900020;
+    }
+    &[data-group-id="8"] {
+        color: darkgreen;
+    }
+
+    &[data-group-id="6"] {
+        color: #d00f0f;
+    }
+
+    &[data-group-id="5"] {
+        color: #6729a3;
+    }
+
+    &[data-group-id="3"] {
+        color: #ad32aa;
+    }
+
+    &[data-group-id="251"] {
+        color: #0072cc;
     }
 }

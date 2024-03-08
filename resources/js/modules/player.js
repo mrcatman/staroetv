@@ -4,7 +4,20 @@ let body = $('body');
 
 const generateControls = (title = null) => {
     const titleEl = title ? `<div class="plyr__title"><span class="plyr__title__inner">${title}</span></div>` : '';
+    const rightControls = `<button type="button" class="plyr__control plyr__control--embed">
+                    <i class="fa fa-code"></i>
+                    <span class="plyr__tooltip" role="tooltip">Код для вставки</span>
+               </button>
+
+                <button type="button" class="plyr__control plyr__control--fullscreen" data-plyr="fullscreen">
+                    <svg class="icon--pressed" role="presentation"><use xlink:href="#plyr-exit-fullscreen"></use></svg>
+                    <svg class="icon--not-pressed" role="presentation"><use xlink:href="#plyr-enter-fullscreen"></use></svg>
+                    <span class="label--pressed plyr__tooltip" role="tooltip">Развернуть</span>
+                    <span class="label--not-pressed plyr__tooltip" role="tooltip">Свернуть</span>
+                </button>`;
+    let isMobile = $(window).width() <= 768;
     return `
+    ${isMobile ? rightControls : ''}
     <div class="plyr__controls">
         <button type="button" class="plyr__control plyr__control--play-button" aria-label="Play, {title}" data-plyr="play">
             <svg class="icon--pressed" role="presentation"><use xlink:href="#plyr-pause"></use></svg>
@@ -20,13 +33,13 @@ const generateControls = (title = null) => {
                     <progress class="plyr__progress__buffer" min="0" max="100" value="0">% buffered</progress>
                     <span role="tooltip" class="plyr__tooltip">00:00</span>
                 </div>
-              
+
                 <div class="plyr__time-container">
                      <span class="plyr__time plyr__time--current" aria-label="Current time">00:00</span>
                     <span class="plyr__time plyr__time--duration" aria-label="Duration">00:00</span>
                 </div>
-            
-                <button type="button" class="plyr__control" aria-label="Mute" data-plyr="mute">
+
+                <button type="button" class="plyr__control plyr__control--mute" aria-label="Mute" data-plyr="mute">
                     <svg class="icon--pressed" role="presentation"><use xlink:href="#plyr-muted"></use></svg>
                     <svg class="icon--not-pressed" role="presentation"><use xlink:href="#plyr-volume"></use></svg>
                     <span class="label--pressed plyr__tooltip" role="tooltip">Отключить звук</span>
@@ -35,29 +48,38 @@ const generateControls = (title = null) => {
                 <div class="plyr__volume">
                     <input data-plyr="volume" type="range" min="0" max="1" step="0.05" value="1" autocomplete="off" aria-label="Громкость">
                 </div>
-                <button type="button" class="plyr__control plyr__control--embed">
-                    <i class="fa fa-code"></i>
-                    <span class="plyr__tooltip" role="tooltip">Код для вставки</span>     
-                 </button>
-               
-                <button type="button" class="plyr__control" data-plyr="fullscreen">
-                    <svg class="icon--pressed" role="presentation"><use xlink:href="#plyr-exit-fullscreen"></use></svg>
-                    <svg class="icon--not-pressed" role="presentation"><use xlink:href="#plyr-enter-fullscreen"></use></svg>
-                    <span class="label--pressed plyr__tooltip" role="tooltip">Развернуть</span>
-                    <span class="label--not-pressed plyr__tooltip" role="tooltip">Свернуть</span>
-                </button>
+                ${!isMobile ? rightControls : ''}
             </div>
         </div>
     </div>
     `;
 }
 
-window.execOnMounted.push(function() {
+window.initOwnPlayer = () => {
     $('.own-player').each(function() {
         let playerEl = this;
         let title = $(playerEl).data('title');
         const player = new Plyr(playerEl, {
             controls: generateControls(title)
+        });
+        window.player = player;
+        player.on('ready', function(event){
+            const instance = event.detail.plyr;
+            let hlsSource = null;
+            const sources = instance.media.querySelectorAll('source');
+            for (let i = 0; i < sources.length; i++) {
+                if(sources[i].src.indexOf('.m3u8') > -1){
+                    hlsSource = sources[i].src;
+                }
+            }
+            if (hlsSource !== null && Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(hlsSource);
+                hls.attachMedia(instance.media);
+                hls.on(Hls.Events.MANIFEST_PARSED,function() {
+                    console.log('MANIFEST_PARSED');
+                });
+            }
         });
         playerEl.addEventListener('ready', event => {
             if ($(playerEl).hasClass('own-player--radio')) {
@@ -74,20 +96,28 @@ window.execOnMounted.push(function() {
                 </a>`);
             }
         });
+        playerEl.addEventListener('ended', event => {
+           if (window.onRecordEnded) {
+               window.onRecordEnded();
+           }
+        });
     });
+};
+window.execOnMounted.push(function() {
+    window.initOwnPlayer();
 });
 
 $(body).on('click', '.plyr__control--embed', function() {
     let player = $(this).parents('.plyr');
-    let playerEl = $(player).find('.player-el');
+    let playerEl = $(player).find('.own-player');
     let id = $(playerEl).data('id');
-    let url = 'http://staroetv.su' + $(playerEl).data('url');
-    let code = $(player).hasClass('own-player--radio') ? `<iframe frameborder="0" src="http://staroetv.su/embed/${id}" width="640" height="105" allowfullscreen></iframe>` : `<iframe frameborder="0" src="http://staroetv.su/embed/${id}" width="640" height="480" allowfullscreen></iframe>`;
+    let url = 'https://staroetv.su' + $(playerEl).data('url');
+    let code = $(player).hasClass('own-player--radio') ? `<iframe frameborder="0" src="https://staroetv.su/embed/${id}" width="640" height="105" allowfullscreen></iframe>` : `<iframe frameborder="0" src="http://staroetv.su/embed/${id}" width="640" height="480" allowfullscreen></iframe>`;
     code = code.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
         return '&#' + i.charCodeAt(0) + ';';
     });
-    $('.plyr').append(`<div class="embed">        
-        <div class="embed__inner">   
+    $('.plyr').append(`<div class="embed">
+        <div class="embed__inner">
             <div class="embed__copy">
                 <div class="embed__copy__title">Код для вставки</div>
                 <div class="embed__copy__text embed__copy__text--small">${code}</div>

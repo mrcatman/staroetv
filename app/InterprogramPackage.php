@@ -4,13 +4,14 @@ namespace App;
 use App\Helpers\PermissionsHelper;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class InterprogramPackage extends Model {
 
     protected $guarded = [];
 
     protected $with = ['coverPicture'];
-    protected $appends = ['years_range'];
+    protected $appends = ['years_range', 'cover'];
 
     const TYPE_INTERPROGRAM = 102;
 
@@ -27,29 +28,62 @@ class InterprogramPackage extends Model {
         return $this->hasOne('App\Picture', 'id', 'cover_id');
     }
 
-    public function getCoverWithRandomAttribute() {
+    public function getCoverAttribute() {
         if ($this->coverPicture) {
             return $this->coverPicture->url;
         } else {
-            $record = Record::where(['interprogram_package_id' => $this->id])->whereNotNull('cover_id')->inRandomOrder()->first();
-            if ($record) {
-                return $record->coverPicture->url;
-            }
-            return "";
+            return null;
         }
     }
 
+    public function getOneCoverAttribute() {
+        if ($this->cover) {
+            return $this->cover;
+        }
+        $pictures = $this->random_pictures;
+        if (count($pictures) > 0) {
+            return $pictures[0];
+        }
+        return '/img/noise.jpg';
+    }
+
+    public function getRandomPicturesAttribute() {
+        return Cache::remember('interprogram_random_pictures_'.$this->id, 60 * 30, function () {
+            $records = Record::where(['interprogram_package_id' => $this->id])->whereNotNull('cover_id')->where(function ($q) {
+                $q->whereNotIn('interprogram_type', [11, 22]);
+                $q->orWhereNull('interprogram_type');
+            })->inRandomOrder()->limit(12)->get();
+            $pictures = [];
+            foreach ($records as $record) {
+                if (count($pictures) < 4) {
+                    if ($record && $record->cover && $record->cover != '/Obloshki/Zastavka.PNG') {
+                        $pictures[] = $record->cover;
+                    }
+                }
+            }
+            return $pictures;
+        });
+    }
+
+
     public function channel() {
         return $this->belongsTo('App\Channel');
+    }
+
+    public function program() {
+        return $this->belongsTo('App\Program');
     }
 
     public function pictures() {
         return $this->hasMany('App\InterprogramPackagePicture', 'package_id', 'id');
     }
 
-
     public function records() {
         return $this->hasMany('App\Record', 'interprogram_package_id', 'id')->orderBy('internal_order', 'ASC');
+    }
+
+    public function annotations() {
+        return $this->hasMany('App\Annotation', 'interprogram_package_id', 'id')->orderBy('order', 'ASC');
     }
 
     public function getYearsRangeAttribute() {
@@ -93,8 +127,11 @@ class InterprogramPackage extends Model {
 
     public function getFullUrlAttribute() {
         $url = $this->url ? $this->url : $this->id;
+        if ($this->program) {
+            return $this->program->full_url."/graphics#".$this->id;
+        }
         $channel = $this->channel;
-        return "/".($channel->is_radio ? "radio-stations" : "channels") . "/".$channel->url."/".($channel->is_radio ? "jingles" : "graphics") . "/" . $url;
+        return $channel->full_url."/".($channel->is_radio ? "jingles" : "graphics") . "/" . $url;
     }
 
     public function getFullNameAttribute() {

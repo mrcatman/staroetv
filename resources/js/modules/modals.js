@@ -11,7 +11,7 @@ function showModal(elementName, title = null, onClose = null) {
     title = title || $(elementName).data('title') || "";
     if ($('.modal-window[data-name="'+modalName+'"]').length === 0) {
         $(body).append('<div class="modal-window" data-name="'+modalName+'" data-selector="'+elementName+'"><div class="modal-window__inner">' +
-            '<div class="modal-window__top"><div class="modal-window__title">'+title+'</div><div class="modal-window__close">x</div></div>' +
+            '<div class="modal-window__top"><div class="modal-window__title">'+title+'</div><div class="modal-window__close"><i class="fa fa-times"></div></div>' +
             '<div class="modal-window__content"></div>' +
             '</div></div>');
         let modal = $('.modal-window[data-name="'+modalName+'"]');
@@ -32,10 +32,11 @@ function showModal(elementName, title = null, onClose = null) {
         $(modal).css('width',  width + 'px');
         $(modal).css('left', ((windowWidth - width) / 2) + 'px');
         $(modal).css('top', ((windowHeight - height) / 2) + 'px');
-        $(modal).draggable();
+        $(modal).draggable({ cancel: '.modal-window__content, .modal-window__content *' });
         $(modalInner).resizable();
     }
 }
+
 
 function showModalAjax(fn, elementName, title = null, onClose = null) {
     showModal(elementName, title, onClose);
@@ -53,7 +54,8 @@ function showModalAjax(fn, elementName, title = null, onClose = null) {
     });
 };
 
-
+window.showModal = showModal;
+window.showModalAjax = showModalAjax;
 
 $(body).on('dragstart', '.modal-window', function() {
     $('.modal-window').removeClass('modal-window--top');

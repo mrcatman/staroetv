@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Forum;
 use App\ForumMessage;
 use App\ForumTopic;
+use App\ForumTracking;
 use App\Helpers\BBCodesHelper;
 use App\Helpers\DatesHelper;
 use App\Helpers\ForumPaginator;
 use App\Helpers\PermissionsHelper;
+use App\Helpers\ViewsHelper;
 use App\Notifications\NewForumReply;
 use App\QuestionnaireAnswer;
 use App\User;
@@ -87,7 +89,8 @@ class ForumController extends Controller {
             }
         } else {
             $forums = Forum::where(['parent_id' => 0])->get();
-            $users_on_forum = User::where('last_page_seen', 'LIKE', '%forum%')->whereDate('was_online', '>=', Carbon::now()->subMinutes($this->online_time))->get();
+
+            $users_on_forum = User::where('last_page_seen', 'LIKE', '%forum%')->where('was_online', '>=', Carbon::now()->subMinutes($this->online_time))->get();
             $users_by_subforum = [];
             foreach ($users_on_forum as $user) {
                 $last_page = $user->last_page_seen;
@@ -131,7 +134,7 @@ class ForumController extends Controller {
         $forum = Forum::find($id);
         $parent_forum = Forum::find($forum->parent_id);
         if (!PermissionsHelper::checkGroupAccess('can_view', $forum)) {
-            return redirect('/forum');
+            return redirect('https://staroetv.su/forum');
         }
 
         $search = request()->input('s', '');
@@ -238,24 +241,37 @@ class ForumController extends Controller {
         return $forums->pluck('id');
     }
 
+    private function updateTracking($topic) {
+        if ($user = auth()->user()) {
+            $topic_tracking = ForumTracking::firstOrNew(['user_id' => $user->id, 'is_forum' => false, 'entity_id' => $topic->id]);
+            $topic_tracking->timestamp = time();
+            $topic_tracking->save();
+        }
+    }
+
     public function showTopic($forum_id, $topic_id, $page = 1) {
+        $page = (int)$page;
         $forum = null;
         $subforum = Forum::find($forum_id);
         if ($subforum) {
             $forum = Forum::find($subforum->parent_id);
             if (!PermissionsHelper::checkGroupAccess('can_view', $subforum)) {
-                return redirect('/forum');
+                return redirect('https://staroetv.su/forum');
             }
         }
 
         $cache_time = $this->cache_time;
         $messages_on_page = $this->messages_on_page;
 
-        $topic = ForumTopic::where(['id' => $topic_id, 'forum_id' => $forum_id])->first();
+        $topic = ForumTopic::where(['id' => $topic_id])->first();
         if (!$topic) {
-            return redirect("/forum");
+            return redirect("https://staroetv.su/forum");
         }
-        $topic->views_count++;
+        if ($topic->forum_id != $forum_id) {
+            return redirect("https://staroetv.su/forum/$topic->forum_id-$topic_id-1");
+        }
+        $this->updateTracking($topic);
+        ViewsHelper::increment($topic, 'forum_topics', 'views_count');
         $topic->save();
 
         $search = request()->input('s');
@@ -272,6 +288,7 @@ class ForumController extends Controller {
         if (!$search) {
             $messages = Cache::get($cache_tag);
         }
+
         if (!$messages) {
             $messages = ForumMessage::where(['topic_id' => $topic_id]);
             if ($fixed_message) {
@@ -290,11 +307,17 @@ class ForumController extends Controller {
         } else {
             $total = Cache::get($total_tag);
         }
+        if ($page > floor($total / $messages_on_page)) {
+            Cache::forget($total_tag);
+            Cache::forget($cache_tag);
+        }
+
         $paginator = new ForumPaginator([], $total, $messages_on_page, $page, [
             'path'  => ForumPaginator::resolveCurrentPath(),
             'forum_id' => $subforum->id,
             'topic_id' => $topic->id,
         ]);
+
 
         $show_pager = $total > $messages_on_page;
         $users = $messages->pluck('user')->unique()->filter();
@@ -320,37 +343,50 @@ class ForumController extends Controller {
     public function redirectToMessage($forum_id, $topic_id, $message_id) {
         $message_index = ForumMessage::where(['topic_id' => $topic_id])->pluck('id')->search($message_id);
         if ($message_index === false) {
-            return redirect("/forum");
+            return redirect("https://staroetv.su/forum");
+        }
+        $topic = ForumTopic::find($topic_id);
+        if ($topic->first_message_fixed) {
+            $message_index--;
         }
         $page = ceil( $message_index / $this->messages_on_page);
-        return redirect("/forum/$forum_id-$topic_id-$page#$message_id");
+        return redirect("https://staroetv.su/forum/$forum_id-$topic_id-$page#$message_id");
     }
 
     public function redirectToMessageById($message_id) {
         $message = ForumMessage::find($message_id);
         if (!$message) {
-            return redirect("/forum");
+            return redirect("https://staroetv.su/forum");
         }
         $topic = ForumTopic::find($message->topic_id);
         if (!$topic) {
-            return redirect("/forum");
+            return redirect("https://staroetv.su/forum");
         }
         $message_index = ForumMessage::where(['topic_id' => $message->topic_id])->pluck('id')->search($message_id);
         if ($message_index === false) {
-            return redirect("/forum");
+            return redirect("https://staroetv.su/forum");
+        }
+        if ($topic->first_message_fixed) {
+            $message_index--;
         }
         $page = ceil( $message_index / $this->messages_on_page);
-        return redirect("/forum/".$topic->forum_id."-".$topic->id."-".$page."#".$message_id);
+
+        return redirect("https://staroetv.su/forum/".$topic->forum_id."-".$topic->id."-".$page."#".$message_id);
     }
 
     public function redirectToLastMessage($forum_id, $topic_id) {
         $messages = ForumMessage::where(['topic_id' => $topic_id])->pluck('id');
-        if ($messages === 0) {
-            return redirect("/forum");
+        if (count($messages) === 0) {
+            return redirect("https://staroetv.su/forum");
         }
+        $topic = ForumTopic::find($topic_id);
         $message_id = $messages->last();
-        $page = ceil( count($messages) / $this->messages_on_page);
-        return redirect("/forum/$forum_id-$topic_id-$page#$message_id");
+        $messages_count = count($messages);
+        if ($topic->first_message_fixed) {
+            $messages_count--;
+        }
+        $page = ceil( $messages_count / $this->messages_on_page);
+        return redirect("https://staroetv.su/forum/$forum_id-$topic_id-$page#$message_id");
     }
 
     public function getEditForm() {
@@ -418,13 +454,19 @@ class ForumController extends Controller {
         ];
     }
 
-    private function recalculateLastMessage($forum) {
+    private function recalculateLastMessage($topic, $forum) {
+        if ($topic) {
+            $last_message = ForumMessage::where(['topic_id' => $topic->id])->orderBy('id', 'desc')->first();
+            $topic->topic_last_username = $last_message->username;
+            $topic->last_reply_at = Carbon::createFromTimestamp($last_message->created_at_ts);
+            $topic->save();
+        }
         $topic_ids = ForumTopic::where(['forum_id' => $forum->id])->pluck('id');
         $last_message = ForumMessage::whereIn('topic_id', $topic_ids)->orderBy('id', 'desc')->first();
         $forum->last_username = $last_message->username;
         $forum->last_topic_id = $last_message->topic->id;
         $forum->last_topic_name = $last_message->topic->title;
-        $forum->last_reply_at = $last_message->created_at;
+        $forum->last_reply_at =  Carbon::createFromTimestamp($last_message->created_at_ts);
         $forum->save();
     }
 
@@ -446,7 +488,7 @@ class ForumController extends Controller {
         $message->delete();
         $this->deleteCache($message->topic_id, $page);
         if ($message_id == $last_message_id) {
-            $this->recalculateLastMessage($message->topic->forum);
+            $this->recalculateLastMessage($message->topic, $message->topic->forum);
         }
         return [
             'status' => 1,
@@ -485,8 +527,9 @@ class ForumController extends Controller {
         if ($content == "") {
             return ['status' => 0, 'text' => 'Введите сообщение'];
         }
-        $quoteUsers = [];
+        $quote_users = [];
         $quotes = [];
+        $users_not_to_reply = [];
         foreach (explode(PHP_EOL, $content) as $line) {
             preg_match('/\[quote(.*?)](.*?)\[\/quote(.*?)\]/', $line, $quoteData);
             if (count($quoteData) >= 3) {
@@ -497,9 +540,10 @@ class ForumController extends Controller {
 
                     if (count($quoteParams) === 1) {
                         $quoteName = $quoteParams[0];
-                        $user = User::where(['username' => $quoteName])->first();
-                        if ($user) {
-                            $quoteUsers[] = $user;
+                        $userData = User::where(['username' => $quoteName])->first();
+                        if ($userData && $userData->id !== $user->id && !in_array($userData->id, $users_not_to_reply)) {
+                            $quote_users[] = $userData;
+                            $users_not_to_reply[] = $userData->id;
                         }
                     }
                     $message = ForumMessage::find($quoteParams[1]);
@@ -526,11 +570,12 @@ class ForumController extends Controller {
         } else {
             $contentWithoutQuotes = "";
         }
+
         foreach ($quotes as &$quote) {
-            $user = $quote['user'];
-            $content = $contentWithoutQuotes;
+            $userData = $quote['user'];
+            $contentData = $contentWithoutQuotes;
             foreach ($contentByLines as $index => $line) {
-                if (mb_strpos($line, $user->username, 0, "UTF-8") !== false) {
+                if (mb_strpos($line, $userData->username, 0, "UTF-8") !== false) {
                     $stringIndex = $index + 1;
                     $quoteResponse = null;
                     while (isset($contentByLines[$stringIndex]) && !$quoteResponse) {
@@ -540,11 +585,11 @@ class ForumController extends Controller {
                         $stringIndex++;
                     }
                     if ($quoteResponse) {
-                        $content = $quoteResponse;
+                        $contentData = $quoteResponse;
                     }
                 }
             }
-            $quote['text'] = $content;
+            $quote['text'] = $contentData;
         }
         $last_message = null;
         if (PermissionsHelper::allows('frmerge')) {
@@ -556,6 +601,7 @@ class ForumController extends Controller {
             $messages = ForumMessage::where(['topic_id' => $topic->id])->get();
             $page = ceil(count($messages) / $this->messages_on_page);
             $this->deleteCache($topic->id, $page);
+            $this->updateTracking($topic);
 
             return [
                 'status' => 1,
@@ -578,18 +624,36 @@ class ForumController extends Controller {
             'content' => $content,
             'username' => $user->username,
             'edited_by' => '',
-            'ip' => request()->ip(),
+            'ip' => request()->header('x-real-ip', request()->ip()),
             'questionnaire' => '',
             'user_id' => $user->id,
         ]);
         $message_obj->save();
+
+        $topic->topic_last_username = $user->username;
+        $topic->last_reply_at = Carbon::now();
+        $topic->save();
+
         $subforum->last_username = $user->username;
         $subforum->last_topic_id = $topic->id;
         $subforum->last_topic_name = $topic->title;
         $subforum->last_reply_at = Carbon::now();
         $subforum->save();
+
+       // $forum = Forum::find($subforum->parent_id);
+
+       // $forum->last_username = $user->username;
+       // $forum->last_topic_id = $topic->id;
+       // $forum->last_topic_name = $topic->title;
+       // $forum->last_reply_at = Carbon::now();
+       // $forum->save();
+
         $messages = ForumMessage::where(['topic_id' => $topic->id])->get();
-        $page = ceil(count($messages) / $this->messages_on_page);
+        $messages_count = count($messages);
+        if ($topic->first_message_fixed) {
+            $messages_count--;
+        }
+        $page = ceil($messages_count / $this->messages_on_page);
         $this->deleteCache($topic->id, $page);
 
         foreach ($quotes as $quote) {
@@ -628,8 +692,10 @@ class ForumController extends Controller {
         $forum = Forum::find($topic->forum_id);
         $parent_forum = Forum::find($forum->parent_id);
         $questionnaire = $topic->questionnaire_data;
-        $questionnaire->load('variants');
-        $questionnaire = $questionnaire->toArray();
+        if ($questionnaire) {
+            $questionnaire->load('variants');
+            $questionnaire = $questionnaire->toArray();
+        }
         return view("pages.forum.topic_form", [
             'questionnaire' => $questionnaire,
             'forum_id' => $id,
@@ -688,7 +754,6 @@ class ForumController extends Controller {
         $topic->forum_id = $forum->id;
         $topic->save();
 
-        $this->recalculateLastMessage($topic->forum_id);
 
         $message_obj = new ForumMessage([
             'topic_id' => $topic->id,
@@ -696,18 +761,20 @@ class ForumController extends Controller {
             'content' => BBCodesHelper::BBToHTML($content),
             'username' => $user->username,
             'edited_by' => '',
-            'ip' => request()->ip(),
+            'ip' => request()->header('x-real-ip', request()->ip()),
             'questionnaire' => '',
             'user_id' => $user->id,
         ]);
         $message_obj->save();
-        if (request()->has('questionnaire_data') && PermissionsHelper::allows('frpoll')) {
+        if (request()->input('questionnaire') && PermissionsHelper::allows('frpoll')) {
             try {
                 (new QuestionnairesController())->save($topic->id);
             } catch (\Exception $e) {
                 return ['status' => 0, 'text' => $e->getMessage()];
             }
         }
+        $this->recalculateLastMessage(null, $topic->forum);
+        $this->updateTracking($topic);
         return [
             'status' => 1,
             'text' => 'Тема создана',
@@ -765,7 +832,7 @@ class ForumController extends Controller {
         }
         $topic->delete();
         ForumMessage::where(['topic_id' => $topic->id])->delete();
-        $this->recalculateLastMessage($topic->forum_id);
+        $this->recalculateLastMessage(null, $topic->forum);
         return [
             'status' => 1,
             'text' => 'Тема удалена',
@@ -987,7 +1054,7 @@ class ForumController extends Controller {
     public function userMessages($user_id) {
         $user = User::find($user_id);
         if (!$user) {
-            return redirect('/forum');
+            return redirect('https://staroetv.su/forum');
         }
         $forums = Forum::all()->filter(function ($forum) {
             return PermissionsHelper::checkGroupAccess('can_view', $forum);
@@ -995,10 +1062,10 @@ class ForumController extends Controller {
         $topic_ids = ForumTopic::whereIn('forum_id', $forums->pluck('id'))->pluck('id');
 
         $messages_on_page = $this->messages_on_page;
-        $messages = ForumMessage::whereIn('topic_id', $topic_ids)->where(['user_id' => $user->id])->paginate($messages_on_page);
+        $messages = ForumMessage::whereIn('topic_id', $topic_ids)->where(['user_id' => $user->id])->orderBy('id', 'asc')->paginate($messages_on_page);
 
         return view("pages.forum.subforum", [
-            'title' => 'Записи участника <strong>'.strip_tags($user->username).'</strong>',
+            'title' => '<div>Записи участника <strong> '.strip_tags($user->username).'</strong></div>',
             'messages_view' => true,
             'messages' => $messages,
             'search' => null,

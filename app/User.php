@@ -5,9 +5,12 @@ namespace App;
 use App\Helpers\BBCodesHelper;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
+use App\Mail\ResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
 
 class User extends Authenticatable
 {
@@ -93,7 +96,11 @@ class User extends Authenticatable
     }
 
     public function getGroupIconAttribute() {
-        return $this->group->icon;
+        if ($this->group->icon_svg_code) {
+            return "<div class='group-icon group-icon--".$this->group->id." group-icon--svg'>".$this->group->icon_svg_code."</div>";
+        } else {
+            return "<div class='group-icon group-icon--".$this->group->id."'><img src='".$this->group->icon."' /></div>";
+        }
     }
 
     public function group() {
@@ -136,6 +143,17 @@ class User extends Authenticatable
             $q->orWhere('deleted_ids', 'not like', "%".$user->id.",%");
         })->where('read_ids', 'not like', "%".$user->id.",%")->get();
         return count($messages_in) + count($messages_group);
+    }
+
+    public function sendPasswordResetNotification($token){
+        $url = route('password.reset', ['token' => $token, 'email' => $this->email]);
+        Mail::to($this)->send(new ResetPassword($this, $url));
+    }
+
+    public function getForumMessagesCountAttribute() {
+        return Cache::remember('forum_messages'.$this->id, 60 * 30, function () {
+            return ForumMessage::where(['user_id' => $this->id])->count();
+        });
     }
 
 }

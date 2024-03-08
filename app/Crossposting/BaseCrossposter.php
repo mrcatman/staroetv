@@ -8,6 +8,7 @@ class BaseCrossposter {
     public $public_name = null;
     public $can_auto_connect = true;
     public $can_edit_posts = true;
+    public $can_delete_posts = true;
 
     public function __construct() {
         $this->client = new \GuzzleHttp\Client(['verify' => false]);
@@ -44,8 +45,15 @@ class BaseCrossposter {
 
     }
 
-    public function makeLinkById($id) {
-
+    public function makeLinks($ids) {
+        return [];
     }
 
+
+    protected function getPictureFullUrl($url) {
+        if ($url && $url[0] == "/") {
+            $url = "https://staroetv.su" . $url;
+        }
+        return $url;
+    }
 }

@@ -79,12 +79,13 @@
                 </td>
                 @if ($is_moderator)
                 <td>
-                    {{$user->ip_address_reg}}
+                    {{$user->ip_address}}
                 </td>
                 @endif
                 <td>
-                    <div class="users__list__group-name">{{$user->group->name}}</div>
-                    <img class="users-list__group-icon" src="{{$user->group->icon}}"/>
+                   <div class="users-list__group-icon-container">
+                        {!!  $user->group_icon !!}
+                    </div>
                 </td>
                 <td>
                     {{$user->was_online}}

@@ -39,7 +39,7 @@
         </select>
     </span>
     <span class="bb-editor__input-container">
-        <select id="ffont" class="codeButtons" onchange="alterfont(this.options[this.selectedIndex].value, 'font','message','');this.selectedIndex=0;">
+        <select id="ffont" class="codeButtons" onchange="bb.alterfont(this.options[this.selectedIndex].value, 'font','message','');this.selectedIndex=0;">
             <option value='0'>FAMILY</option>
             <option value="Arial">Arial</option>
             <option value="Times">Times</option>
@@ -95,9 +95,11 @@
     <span class="bb-editor__input-container">
         <input type="button" align="top" value="video" onclick="bb.simpletag('video','','',''); " class="codeButtons" title="video" name="hide" />
     </span>
+        <!--
     <span class="bb-editor__input-container">
         <input type="button" title="All codes" style="width:60px;" value="All codes" onclick="window.open('/index/17', 'bbcodes', 'scrollbars=1, width=550, height=450, left=0, top=0');" class="codeButtons">
     </span>
+    -->
 
     <span class="bb-editor__input-container">
         <input style="font-weight:bold;width:20px" type="button" value="/" class="codeButtons codeCloseAll" title="Close all opened codes" onclick="bb.closeall('');">

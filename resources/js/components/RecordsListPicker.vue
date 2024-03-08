@@ -1,22 +1,21 @@
 <template>
     <div>
         <snackbar ref="snackbar"></snackbar>
-        <input type="hidden" v-if="name" :name="name" :value="idsList">
+        <input type="hidden" v-if="name" :name="name" :value="dataList">
         <modal ref="searchRecordsModal" title="Поиск записей" :loading="searchPanel.loading">
-            <div class="records-list-picker__search">
+            <form class="records-list-picker__search">
                 <div class="input-container records-list-picker__search__input">
                     <label class="input-container__label">Поиск</label>
                     <div class="input-container__inner">
-                        <input class="input" v-model="searchPanel.search"/>
+                        <input @keyup.stop = "() => {}" @keydown.stop = "() => {}"  @keypress.stop = "() => {}"  class="input" v-model="searchPanel.search"/>
                     </div>
+                    <input type="text" hidden style="display:none;">
                 </div>
                 <div class="records-list records-list-picker__search__list" v-if="searchPanel.list && searchPanel.list.data" >
                     <div class="record-item" @click="onSelectRecord(record)" :class="{'record-item--selected': selectedIds.indexOf(record.id) !== -1}" v-for="(record, $index) in searchPanel.list.data">
-                        <div class="record-item__cover" :style="{backgroundImage: `url(${(record.cover_picture ? record.cover_picture.url : record.cover)})`}"></div>
+                        <a target="_blank"  :href="'/video/'+record.id" class="record-item__cover" :style="{backgroundImage: `url(${(record.cover_picture ? record.cover_picture.url : record.cover)})`}"></a :href="'/records/'+record.id">
                         <div class="record-item__texts">
-                        <span class="record-item__title">
-                           {{record.title}}
-                        </span>
+                        <span class="record-item__title" v-html="record.title"></span>
                         </div>
                     </div>
                 </div>
@@ -29,7 +28,7 @@
                     <a @click="submitSelectedRecords()" class="button button--light">Выбрать</a>
                     <Response :light="true" :data="searchPanel.response"/>
                 </div>
-            </div>
+            </form>
         </modal>
 
         <modal ref="addRecordModal" title="Добавить новую запись">
@@ -43,28 +42,49 @@
                     <div class="buttons-row">
                         <a class="button" @click="showSearchPanel()">Выбрать с сайта</a>
                         <a class="button" @click="showAddPanel()">Загрузить новое видео</a>
+                        <a class="button button--light" v-if="annotations" @click="addAnnotation()">Добавить аннотацию</a>
                     </div>
                 </div>
             </div>
+            <!--
+            <select class="select-classic records-list-picker__type-select" v-model="showRecords" v-if="!hideSelectedButton">
+                <option value="all">Все видео</option>
+                <option value="main">Основной список</option>
+                <option value="other">Остальные</option>
+            </select>
+            -->
             <div class="box__inner records-list-picker__items">
+
                 <div class="records-list__empty" v-if="recordsList.length === 0">Нет записей</div>
                 <component :is="disableDrag ? 'div' : 'draggable'" @change="onDragChange" v-model="recordsList" class="records-list">
-                    <div class="record-item records-list-picker__item" :class="{'records-list-picker__item--updating': record.updating, 'records-list-picker__item--selected': record.is_selected}" v-for="(record, $index) in recordsList" :key="$index">
-                        <div class="records-list-picker__buttons">
-                            <a class="records-list-picker__button" v-if="!hideSelectedButton" @click="setSelected(record)">{{record.is_selected ? "Удалить из осн.списка" : "Добавить в осн.список"}}</a>
-                            <a class="records-list-picker__button" @click="deleteFromList(record)">Удалить</a>
-                            <!--<a class="records-list-picker__delete__button" >Удалить с сайта</a>-->
-                        </div>
-                        <div class="record-item__cover" :style="{backgroundImage: `url(${record.cover})`}"></div>
-                        <div class="record-item__texts">
-                            <span class="record-item__title">
-                               {{record.title}}
-                            </span>
-                            <div class="records-list-picker__description-container">
-                                <textarea v-if="descriptions" v-model="record.block_description" class="input" placeholder="Описание"></textarea>
+                    <div v-for="(record, $index) in recordsList" :key="$index">
+                        <div v-if="!record.is_annotation" v-show="showRecords === 'all' || (showRecords === 'main' && record.is_selected) || (showRecords === 'other' &&!record.is_selected)" class="record-item records-list-picker__item" :class="{'records-list-picker__item--updating': record.updating, 'records-list-picker__item--selected': record.is_selected}">
+                            <div class="records-list-picker__buttons">
+                                <!--
+                                <a class="records-list-picker__button" v-if="!hideSelectedButton" @click="setSelected(record)">{{record.is_selected ? "Удалить из осн.списка" : "Добавить в осн.список"}}</a>
+                                -->
+                                <a class="records-list-picker__button" @click="deleteFromList(record)">Удалить</a>
+                                <!--<a class="records-list-picker__delete__button" >Удалить с сайта</a>-->
                             </div>
-
+                            <a target="_blank" :href="'/video/'+record.id" class="record-item__cover" :style="{backgroundImage: `url(${record.cover})`}"></a>
+                            <div class="record-item__texts">
+                                <span class="record-item__title" v-html="record.title"></span>
+                                <div class="records-list-picker__fields-container">
+                                    <textarea v-if="descriptions" v-model="record.block_description" class="input" placeholder="Описание"></textarea>
+                                    <select @change="updateRecord(record, 'interprogram_type')" class="select-classic" v-if="interprogramEditor" v-model="record.interprogram_type">
+                                        <option v-for="type in interprogramTypes" :value="type.id">{{type.text}}</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
+                        <div v-else class="records-list-picker__item records-list-picker__annotation">
+                            <div class="records-list-picker__buttons">
+                                <a class="records-list-picker__button" @click="recordsList.splice($index, 1)">Удалить</a>
+                            </div>
+                            <input v-model="record.title" class="input" placeholder="Заголовок аннотации" />
+                            <textarea v-model="record.text" class="input" placeholder="Описание"></textarea>
+                        </div>
+
                     </div>
                 </component>
             </div>
@@ -82,9 +102,14 @@
             font-weight: 600;
         }
         &__items {
+            margin: 1em 0 0;
            .records-list--thumbs {
                 margin: 0;
             }
+        }
+        &__type-select {
+            width: 16em;
+            margin: 1em 1em 0;
         }
         &__buttons {
             position: absolute;
@@ -96,8 +121,14 @@
             text-align: right;
         }
 
+        &__annotation {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            margin: 1em 0;
+        }
         &__button {
-            background: #111;
+            background: var(--box-color-hover-dark);
             color: #fff;
             padding: .25em .5em;
             border-radius: .25em;
@@ -107,15 +138,21 @@
                 filter: brightness(1.25);
             }
         }
-         &__description-container {
+         &__fields-container {
             max-width: calc(100% - 5em);
             margin: 0 .125em;
             .input {
                 width: 100%;
             }
+             .select-classic {
+                 width: 50%;
+             }
 
         }
         &__item {
+            &:hover {
+                background: none!important;
+            }
             &--updating {
                 opacity: .5;
             }
@@ -214,14 +251,40 @@
             }
         },
         computed: {
-            idsList() {
-                return this.recordsList.map(record => record.id).join(',');
+            interprogramTypes() {
+                let categories = this.categories;
+                if (categories.length === 0) {
+                    return [];
+                }
+                categories = categories.filter(category => category.type === 'interprogram').map(category => {
+                    return {id: category.id, text: category.name}
+                });
+                categories.unshift({
+                    id: -1,
+                    text: '-'
+                });
+                return categories;
+            },
+            dataList() {
+                return JSON.stringify(this.recordsList.map(record => {
+                    return record.is_annotation ? record : {
+                        is_annotation: false,
+                        id: record.id,
+                    }
+                }))
             },
             selectedIds() {
                 return this.selectedRecords.map(record => record.id);
             }
         },
         methods: {
+            addAnnotation() {
+                this.recordsList.push({
+                    is_annotation: true,
+                    title: '',
+                    text: ''
+                })
+            },
             onDragChange() {
                 if (this.manual) {
                     this.$emit('selected', this.recordsList);
@@ -236,6 +299,22 @@
             },
             showAddPanel() {
                 this.$refs.addRecordModal.show();
+            },
+            updateRecord(record, field) {
+                this.$set(record, 'updating', true);
+                let params = {};
+                params[field] = record[field];
+                $.post('/records/mass-edit', {
+                    ids: [record.id],
+                    params
+                }).done(res => {
+                    this.$set(record, 'updating', false);
+                    if (res.status) {
+
+                    } else {
+                        this.$refs.snackbar.show(res);
+                    }
+                })
             },
             setSelected(record) {
                 this.$set(record, 'updating', true);
@@ -317,6 +396,7 @@
                 if (page) {
                     this.searchPanel.currentPage = page;
                 }
+
                 let params = this.select;
                 params.page = this.searchPanel.currentPage;
                 params.exclude_ids = this.recordsList.map(record => record.id);
@@ -334,15 +414,31 @@
             showSearchPanel() {
                 this.$refs.searchRecordsModal.show();
                 this.loadSearch();
-            }
+            },
+            loadCategories() {
+                $.get('/records/categories').done(res => {
+                    this.categories = res.data.categories;
+                })
+            },
         },
         mounted() {
+            this.recordsList = [...this.list, ...(this.annotations ? this.annotations.map(annotation => {
+                annotation.is_annotation = true;
+                return annotation;
+            }) : [])].sort((a,b) => {
+                let orderA = a.internal_order ? a.internal_order : a.order;
+                let orderB = b.internal_order ? b.internal_order : b.order;
+                return orderA - orderB;
+            });
 
+            this.loadCategories();
         },
         data() {
             return {
+                categories: [],
+                showRecords: 'all',
                 selectedRecords: [],
-                recordsList: this.list,
+                recordsList: [],
                 searchPanel: {
                     search: '',
                     currentPage: 1,
@@ -357,6 +453,14 @@
             Modal, Response, Snackbar, draggable
         },
         props: {
+            annotations: {
+                type: Array,
+                required: false,
+            },
+            interprogramEditor: {
+                type: Boolean,
+                required: false,
+            },
             descriptions: {
                 type: Boolean,
                 required: false

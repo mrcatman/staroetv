@@ -8,6 +8,17 @@ class Picture extends Model {
 
     protected $guarded = [];
 
+    public function getUrlAttribute() {
+        $url = $this->attributes['url'];
+        if (strpos($url, "staroetv.su") !== false) {
+            $url = str_replace("http://staroetv.su", "", $url);
+        }
+        if (strpos($url, "http://staroetv.ucoz.ru") !== false) {
+            $url = str_replace("http://staroetv.ucoz.ru", "", $url);
+        }
+        return $url;
+    }
+
     public function loadFromURL($url, $filename = null, $find_extension = false, $folder = "imported") {
         $domain = parse_url($url, PHP_URL_HOST);
         if ($domain) {

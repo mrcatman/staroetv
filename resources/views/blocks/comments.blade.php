@@ -8,7 +8,7 @@
     @php($comments = [])
 @endif
 @if (!$ajax)
-    <div class="box @if (isset ($class)) {{$class}} @else box--comments @endif">
+    <div id="comments_block" class="box @if (isset ($class)) {{$class}} @else box--comments @endif">
         <div class="box__heading">
             <div class="box__heading__inner">
                 Комментарии

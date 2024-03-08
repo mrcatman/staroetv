@@ -1,16 +1,25 @@
 .box {
     padding: 0;
-    margin: var(--col-margin) 0;
+    margin: var(--col-margin) 0 0;
     display: flex;
     flex-direction: column;
     background: var(--box-color);
     box-shadow: var(--block-box-shadow);
+    border-top: 1px solid var(--border-color);
+    @include light() {
+        box-shadow: none;
+        border: none;
+    }
     @include mobile() {
         margin: .5em 0;
     }
     &--dark {
         background: var(--box-color-dark);
         color: var(--box-text-color-dark);
+        @include light() {
+            background: unset;
+            color: unset;
+        }
     }
 
     &--stretch {
@@ -18,26 +27,36 @@
     }
 
     &__heading {
-        min-height: 1em;
+        min-height: 1.75rem;
         text-align: left;
-        font-size: 1.5em;
+        font-size: 1.25rem;
         display: flex;
         text-decoration: none;
         align-items: center;
         justify-content: space-between;
         border: none;
         border-bottom: 1px solid var(--border-color);
-        padding: 1em;
+        padding: 1rem 1rem 0.75rem;
         white-space: nowrap;
         text-overflow: ellipsis;
         transition: all .25s;
+        @include light() {
+            min-height: 2em;
+            border-bottom: 2px solid var(--primary);
+            padding: .5em 0 0;
+        }
         &__inner {
             max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
-        &:hover {
-
+            @include light() {
+                background: var(--primary);
+                color: #fff;
+                padding: .65em 1em;
+                line-height: 1;
+                display: flex;
+                align-items: center;
+            }
         }
         @include mobile {
             overflow: auto;
@@ -47,6 +66,11 @@
         }
         &__right {
             font-size: .75em;
+            .buttons-row {
+                @include light() {
+                    margin: 0 0 .5em;
+                }
+            }
             &:empty {
                 display: none;
             }
@@ -55,16 +79,26 @@
             }
         }
         &__count {
-            font-size: 1.125em;
-            margin: 0 0 0 .25em;
+            font-size: 1.35em;
+            margin: 0 0 0 0.05em;
+            @include light() {
+                margin: 0 0 0 .5em;
+                font-size: 1.25em;
+            }
         }
         &__link {
             font-size: .75em;
         }
 
         &--small {
-            font-size: 1.125em;
-            padding: 1em;
+            font-size: 0.8rem;
+            letter-spacing: 0.06em;
+            font-weight: 600;
+            padding: 0.75rem 0.75rem 0.5rem;
+            text-transform: uppercase;
+        }
+        &--small &__inner {
+            padding: .65em 1em;
         }
 
         &__count {
@@ -74,42 +108,60 @@
 
     &__inner + &__heading {
         border-top: 1px solid var(--border-color);
+        @include light() {
+            border-top: none;
+            margin: 1em 0 0;
+        }
     }
 
     &--dark &__heading {
         color: var(--box-text-color-dark);
         border-bottom: 1px solid var(--border-color-dark);
-        &:hover {
-
+        @include light() {
+            border-bottom: 2px solid var(--primary);
+        }
+    }
+    &--dark &__inner {
+        @include light() {
+            background: var(--box-color-dark);
+            color: var(--box-text-color-dark);
         }
     }
 
     &__inner {
         flex: 1;
-        padding: 1em;
+        padding: 1rem 1rem 1.25rem;
         position: relative;
+        @include light() {
+            padding: 1rem 0;
+        }
+        &--stretch-contents {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            > * {
+
+            }
+        }
         &--no-padding {
             padding: 0;
         }
     }
 }
-a.box__heading:hover {
-    background: var(--box-color-hover);
-}
-.box--dark a.box__heading:hover {
-    background: var(--box-color-hover-dark);
-}
+
 
 a.box__heading .box__heading__inner:after {
     font-family: "Font Awesome 5 Free";
     content: "\f054";
     font-weight: 900;
-    margin: 0 0 0 .5em;
-    opacity: .1;
-    transition: opacity .25s;
+    margin: 0 0 -.25em .75em;
+    opacity: 0.5;
+    transition: opacity 0.25s;
+    font-size: .875em;
 }
 a.box__heading:hover .box__heading__inner:after {
-    opacity: .175;
+    opacity: .75;
 }
 
 

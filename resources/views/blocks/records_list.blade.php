@@ -1,9 +1,10 @@
 @if (!isset($records_data) || !$records_data)
 @php($records_data = \App\Helpers\RecordsHelper::get($conditions))
 @endif
+@php($hide_if_zero = isset($hide_if_zero) ? $hide_if_zero : false)
 @php($block_title = isset($block_title) ? $block_title : "Записи")
+@if (!$hide_if_zero || count($records_data['records']) > 0)
 @if (!isset($ajax) || !$ajax)
-
 <div class="box box--dark records-list__outer @if(isset($class)) {{$class}} @endif" data-block-title="{{$block_title}}" data-conditions="{{json_encode($conditions)}}" @if (isset($title_param)) data-title-param="{{$title_param}}" @endif>
 @endif
     <div class="box__heading">
@@ -29,6 +30,9 @@
         </div>
         @php($is_radio = isset($conditions['is_radio']) && $conditions['is_radio'])
         <div class="records-list @if(!$is_radio) records-list--thumbs @endif">
+            @if (isset($search) && $search != '' && count($records_data['records']) === 0)
+                <div class="records-list__nothing-found">По запросу <strong>"{{$search}}"</strong> ничего не найдено</div>
+            @endif
             @foreach($records_data['records'] as $record)
                 @php($data = ['record' => $record])
                 @if (isset($title_param))
@@ -47,4 +51,5 @@
     </div>
 @if (!isset($ajax) || !$ajax)
 </div>
+@endif
 @endif

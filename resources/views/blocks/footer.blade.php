@@ -3,9 +3,9 @@
         <div class="container">
             <div class="footer__menu__inner">
                 <a class="footer__menu__link" href="/index/0-127">О проекте</a>
-                <a class="footer__menu__link" href="/index/0-128">Команда сайта</a>
+                <a class="footer__menu__link" href="/team">Команда сайта</a>
                 <a class="footer__menu__link" href="/index/0-133">Правила</a>
-                <a class="footer__menu__link" href="#">Обратная связь</a>
+                <a class="footer__menu__link" href="/contact">Обратная связь</a>
                 <a class="footer__menu__link" href="/index/15">Пользователи</a>
                 <a class="footer__menu__link" href="/top-list/videos">Топ пользователей</a>
                 <div class="footer__social">

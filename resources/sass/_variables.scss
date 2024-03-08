@@ -6,3 +6,17 @@ $main-links: #ffa400;
         @content;
     }
 }
+@mixin light() {
+    @at-root {
+        .theme-light & {
+            @content;
+        }
+    }
+}
+@mixin dark() {
+    @at-root {
+        .theme-dark & {
+            @content;
+        }
+    }
+}

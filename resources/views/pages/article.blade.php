@@ -3,8 +3,8 @@
     <meta property="og:title" content="{{$article->title}}" />
     <meta property="og:description" content="{{$article->short_content}}" />
     <meta property='og:type' content="article" />
-    @if ($article->cover != "")
-    <meta property="og:image" content="{{$article->cover}}" />
+    @if ($article->cover_url != "")
+    <meta property="og:image" content="{{asset($article->cover_url)}}" />
     @endif
 @endsection
 @section('page-title')
@@ -12,8 +12,9 @@
 @endsection
 @section('content')
     <div class="inner-page inner-page--article">
-        @if ($article->cover != "")
+        @if ($article->cover_url != "")
             <div class="inner-page__cover-block" style="background-image:url({{$article->cover_url}})">
+                @if ($show_actions_panel)
                 <div class="inner-page__cover-block__panel">
                     <span data-id="{{$article->id}}" class="button button--dropdown button--small button--monochrome button--article-menu">
                         <span class="button--dropdown__text">Действия</span>
@@ -23,8 +24,10 @@
                          <div class="button--dropdown__list" id="actions_list_{{$article->id}}"></div>
                      </span>
                 </div>
+                @endif
                 <div class="inner-page__cover-block__texts">
                     <div class="inner-page__cover-block__title">{{$article->title}}</div>
+
                     <div class="inner-page__cover-block__info">
                         <div class="icon-blocks">
                             <span class="icon-block"><i class="fa fa-calendar"></i><span class="icon-block__text">{{$article->created_at}}</span></span>
@@ -63,6 +66,11 @@
                     <div class="box">
                         <div class="box__inner">
                             <div class="inner-page__content">
+                                <div class="tags-list">
+                                    @foreach ($article->tags as $tag)
+                                        <a href="/articles?tag={{$tag->url}}" class="tags-list__item">{{$tag->name}}</a>
+                                    @endforeach
+                                </div>
                                 <div class="inner-page__text">
                                     {!! $article->fixed_content !!}
                                 </div>
@@ -86,7 +94,7 @@
                             </div>
                         </div>
                     </div>
-                    @include('blocks/comments', ['ajax' => false, 'lazyload' => true, 'page' => 1, 'conditions' => ['material_type' => $article->type_id, 'material_id' => $article->original_id]])
+                    @include('blocks/comments', ['ajax' => false, 'lazyload' => true, 'page' => 1, 'conditions' => ['material_type' => $article->type_id ? $article->type_id : 1, 'material_id' => $article->original_id]])
                 </div>
             </div>
             <div class="col">
@@ -95,7 +103,7 @@
                         Поиск по разделу
                     </div>
                     <div class="box__inner">
-                        <form action="{{$search_url}}" class="small-search-form">
+                        <form action="/articles" class="small-search-form">
                             @csrf
                             <input class="input" name="search" placeholder="Поиск">
                             <button class="button" type="submit">Найти</button>

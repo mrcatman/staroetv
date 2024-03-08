@@ -1,0 +1,191 @@
+.site-search {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 10000;
+    &__inner {
+        margin: 0 auto;
+        max-width: 1400px;
+        position: relative;
+        @include mobile() {
+            font-size: .75em;
+        }
+    }
+
+    &__input {
+        color: var(--box-text-color-dark);
+        font-size: 1.75em;
+        background: var(--bg-darkest-2);
+        border-color: var(--border-color-dark);
+    }
+    &__nothing-found {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--box-text-color-dark);
+        font-size: 2.5em;
+    }
+    &__top {
+        display: flex;
+        padding: 3em 0;
+        @include mobile() {
+            padding: 1em;
+        }
+    }
+
+    &__close {
+        color: var(--box-text-color-dark);
+        position: absolute;
+        top: 1.75em;
+        font-size: 1.75em;
+        right: 0;
+        padding: .75em;
+        line-height: 1;
+        opacity: .5;
+        cursor: pointer;
+        @include mobile() {
+            top: .625em;
+            right: .5em;
+        }
+        &:hover {
+            opacity: .875;
+        }
+    }
+
+    .highlight {
+        background: var(--bg-darkest-2);
+        font-weight: bold;
+    }
+
+    &__results {
+        height: calc(100vh - 12em);
+        overflow: auto;
+        @include mobile() {
+            padding: 0 1em;
+            height: calc(100vh - 6.5em);
+        }
+    }
+
+    &__section {
+        border-bottom: 1px solid var(--border-color-dark);
+        padding: 0 0 1em;
+        margin: 1em 0 0;
+        &__title {
+            color: var(--box-text-color-dark);
+            font-size: 2em;
+            margin: 0 0 .5em;
+            display: block;
+            text-decoration: none;
+            @include mobile() {
+                margin: 1em 0 .5em;
+            }
+            &__count {
+                font-weight: bold;
+            }
+            &__link-icon {
+                font-size: .675em;
+                margin: 0 0 0 .5em;
+                position: relative;
+                top: -.125em;
+                opacity: .5;
+            }
+            &:hover &__link-icon {
+                opacity: .875;
+            }
+        }
+
+
+        &--channels &__results {
+            display: flex;
+            flex-wrap: wrap;
+        }
+    }
+
+    &__result {
+        text-decoration: none;
+        color: var(--box-text-color-dark);
+        margin: 0 .75em 0 0;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        padding: 1em 0;
+        @include mobile() {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        &:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        &__title {
+            margin: 0 0 .25em;
+            font-size: 1.25em;
+        }
+        &__description {
+            color: var(--text-lightest);
+        }
+        &__cover {
+            background-size: cover;
+            width: 14em;
+            height: 7em;
+            margin: 0 1em 0 0;
+            background-position: center;
+            @include mobile() {
+                width: 100%;
+                height: 0;
+                padding-top: 60%;
+                margin: 0 0 1em;
+            }
+        }
+
+        &__additional {
+            color: var(--text-lighter);
+            font-size: 1.125em;
+            margin: .5em 0 0;
+        }
+
+        &__texts {
+            text-align: left;
+            max-width: calc(100% - 16em);
+            @include mobile() {
+                max-width: none;
+                font-size: 1.25em;
+                margin: 1;
+            }
+        }
+    }
+
+
+    &__section--channels &__result {
+        flex-direction: column;
+        align-items: center;
+        padding: 1em;
+        @include mobile() {
+            width: calc(50% - .75em);
+            padding: 0 0 1em;
+        }
+        &__title {
+            margin-bottom: 0;
+        }
+        &__cover {
+            width: 6em;
+            height: 6em;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0 0 .5em;
+            @include mobile() {
+                padding: 0;
+            }
+        }
+
+        &__texts {
+            max-width: unset;
+            text-align: center;
+        }
+    }
+}
+

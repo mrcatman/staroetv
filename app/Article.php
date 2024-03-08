@@ -1,7 +1,10 @@
 <?php
 
 namespace App;
+
+use App\ArticleBinding;
 use App\Helpers\DatesHelper;
+use App\Helpers\PermissionsHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
@@ -97,6 +100,7 @@ class Article extends Model {
     }
 
     public function getFixedContentAttribute() {
+        libxml_use_internal_errors(true);
         $content = $this->attributes['content'];
         $content = str_replace("&nbsp;", " ", $content);
         $content = preg_replace("/\s+/", " ", $content);
@@ -114,7 +118,27 @@ class Article extends Model {
         foreach ($iframes as $iframe) {
             $width = $iframe->getAttribute('width');
             $height = $iframe->getAttribute('height');
+            if (!$width || !$height) {
+                $attrs = explode(";", $iframe->getAttribute('style'));
+                $style = "";
+                foreach ($attrs as $attr) {
+                    if (strlen(trim($attr)) > 0) {
+                        $kv = explode(":", trim($attr));
+                        if (trim($kv[0]) == "width") {
+                            $width = (int)($kv[1]);
+                        } elseif (trim($kv[0]) == "height") {
+                            $height = (int)($kv[1]);
+                        } else {
+                            $style.= trim($kv[0]).":".trim($kv[1]).";";
+                        }
+                    }
+                }
+                $iframe->setAttribute('style', $style);
+            }
+
             if ($width && $height) {
+                $width = (int)$width;
+                $height = (int)$height;
                 $ratio = $height / $width * 100;
                 $iframe->removeAttribute('width');
                 $iframe->removeAttribute('height');
@@ -122,6 +146,39 @@ class Article extends Model {
                 $wrapper_clone->setAttribute('style', "padding-top: $ratio%");
                 $iframe->parentNode->replaceChild($wrapper_clone, $iframe);
                 $wrapper_clone->appendChild($iframe);
+            }
+        }
+        $imgs = $dom->getElementsByTagName('img');
+        foreach ($imgs as $img) {
+            $width = $img->getAttribute('width');
+            $height = $img->getAttribute('height');
+            if (!$width && !$height) {
+                $attrs = explode(";", $img->getAttribute('style'));
+                $style = "";
+                foreach ($attrs as $attr) {
+                    if (strlen(trim($attr)) > 0) {
+                        $kv = explode(":", trim($attr));
+                        if (trim($kv[0]) == "width") {
+                            $width = (int)($kv[1]);
+                        } elseif (trim($kv[0]) == "height") {
+                            $height = (int)($kv[1]);
+                        } else {
+                            $style.= trim($kv[0]).":".trim($kv[1]).";";
+                        }
+                    }
+                }
+                $img->setAttribute('style', $style);
+            }
+            if ($width && $height) {
+                $width = (int)$width;
+                $height = (int)$height;
+                $ratio = $height / $width * 100;
+                $img->removeAttribute('width');
+                $img->removeAttribute('height');
+                $wrapper_clone = $wrapper->cloneNode();
+                $wrapper_clone->setAttribute('style', "padding-top: $ratio%");
+                $img->parentNode->replaceChild($wrapper_clone, $img);
+                $wrapper_clone->appendChild($img);
             }
         }
         return html_entity_decode($dom->saveHTML());
@@ -166,6 +223,8 @@ class Article extends Model {
     }
 
     public function getUrlAttribute() {
+        return "/articles/".$this->attributes['url'];
+
         $day = $this->day;
         $month = $this->month;
         $year = $this->year;
@@ -182,7 +241,18 @@ class Article extends Model {
             $path = "/stuff/".$this->category_id."-1-0-".$this->original_id;
             return $path;
         }
+    }
 
+    public function category() {
+        return $this->belongsTo(ArticleCategory::class,'category_id', 'original_id')->where(['type_id' => $this->type_id]);
+    }
+
+    public function getSlugAttribute() {
+        return $this->getOriginal('url');
+    }
+
+    public function setSlugAttribute($url) {
+        $this->url = $url;
     }
 
     public function user() {
@@ -218,6 +288,7 @@ class Article extends Model {
         if ($url == "http://staroetv.su/img/noobl2.jpg" || $url == "/img/noobl2.jpg") {
             $url = null;
         }
+
         return $url;
     }
 
@@ -226,9 +297,30 @@ class Article extends Model {
     }
 
     public function getCommentsCountAttribute() {
-       return Cache::remember("comments_count_articles_".$this->id, 3600 * 24, function () {
+       return Cache::remember("comments_count_articles_".$this->id, 3600, function () {
            return count($this->comments);
        });
     }
 
+
+    public function scopeApproved($query) {
+        if (!PermissionsHelper::allows('viapprove')) {
+            $query->where(function($q) {
+                $q->where(['pending' => false]);
+                $user = auth()->user();
+                if ($user) {
+                    $q->orWhere(['user_id' => $user->id]);
+                }
+            });
+        }
+        return $query;
+    }
+
+    public function tags() {
+        return $this->hasManyThrough(Tag::class, TagMaterial::class, 'material_id', 'id', 'id', 'tag_id');
+    }
+
+    public function bindings() {
+        return $this->hasMany(ArticleBinding::class);
+    }
 }

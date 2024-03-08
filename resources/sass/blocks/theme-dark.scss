@@ -1,6 +1,5 @@
 
 .theme-dark {
-    font-family: "Literata", serif;
     font-weight: 400;
     --primary: #ff6a00;
     --primary-highlight: #ff8313;
@@ -30,6 +29,14 @@
     --modal-color: #b5b5b5;
     --modal-background-color: #060606;
     --col-margin: .25em;
+    --font-main: "Literata", sans-serif;
+    --font-texts: "Literata", serif;
+
+    .input-container__message {
+        color: #fff;
+        font-size: 1em;
+        top: -.25em;
+    }
     .button {
         background: linear-gradient(0deg, #2b251f 49%, #463f39 50%);
         box-shadow: 0 0 1em inset #484039;
@@ -90,7 +97,7 @@
 
     .modal-window {
         &__title {
-            font-size: 1.5em;
+            font-size: 1.25em;
             font-weight: bold;
         }
         &__close {
@@ -98,7 +105,7 @@
             right: 0;
             width: 2em;
             height: 2em;
-            font-size: 1.5em;
+            font-size: 1.25em;
             line-height: 1.75;
         }
     }
@@ -119,23 +126,111 @@
         }
     }
     .content > #pjax-container {
-        background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.35))!important;
+        background: none!important;
         padding: 0 1em;
-        background-attachment: fixed!important;
+        &:before {
+            content: "";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.35));
+            z-index: -1;
+        }
+
     }
     .channel-item:after  {
         position: absolute;
-        top: .5em;
+        top: 1.5em;
         left: 1em;
-        width: calc(100% - 4em);
-        height: calc(100% - 4em);
+        width: calc(100% - 2em);
+        height: calc(100% - 5em);
         background: #fff;
         content: "";
         display: block;
         z-index: 0;
-        opacity: .2;
+        opacity: 0.25;
         transition: all 0.25s;
         filter: blur(2em);
+    }
+
+    .forum-message {
+        &__content {
+            .bbQuoteName {
+                background: var(--bg-darker);
+                color: var(--text-color);
+                border-left-color: var(--border-color);
+            }
+
+            .quoteMessage {
+                color: var(--text-lighter);
+                background: var(--bg-darker-2);
+                border-left-color: var(--bg-darker) !important;
+            }
+        }
+    }
+    .forum {
+        &__top-panel {
+            background: none;
+            &:before {
+                display: none;
+            }
+            &__outer {
+                height: 10.5em;
+                @include mobile() {
+                    height: unset;
+                }
+            }
+        }
+
+        &__top-panel__outer + &-section__pager-container {
+            margin: 3.25em 0 0;
+        }
+
+        &__buttons__item {
+            @include mobile() {
+                white-space: nowrap;
+                padding: 0;
+                margin: .25em .75em;
+                display: inline-block;
+                background: none;
+                box-shadow: none!important;
+                &:hover {
+                    background: none;
+                }
+            }
+        }
+
+
+        &-section__search .input {
+            padding: .65em;
+        }
+    }
+    .main-page {
+        &__intro {
+            @include mobile() {
+                margin: 3.25em 0 1em;
+            }
+            &__overlay, &__video {
+                @include mobile() {
+                    top: 11.75vw;
+                    right: 11.25vw;
+                }
+            }
+        }
+    }
+    .articles-list__block--right .news-block {
+        overflow: hidden;
+    }
+
+    .news-block__short-content {
+        line-height: 1.25;
+    }
+
+    .articles-list__block--right {
+        height: 49em;
     }
 
 }

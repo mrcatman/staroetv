@@ -11,6 +11,10 @@ class ChannelName extends Model {
     protected $with = ['logo'];
     protected $appends = ['years_range'];
 
+    public function channel() {
+        return $this->belongsTo(Channel::class);
+    }
+
     public function logo() {
         return $this->hasOne('App\Picture', 'id', 'logo_id');
     }

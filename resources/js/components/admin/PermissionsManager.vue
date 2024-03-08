@@ -28,6 +28,12 @@
                     <picture-uploader :light="true" v-model="editPanel.data.icon" :returnPath="true"/>
                 </div>
             </div>
+            <div class="input-container">
+                <label class="input-container__label">SVG код иконки</label>
+                <div class="input-container__inner">
+                    <textarea class="input" v-model="editPanel.data.icon_svg_code"></textarea>
+                </div>
+            </div>
             <div class="form__bottom">
                 <button class="button button--light" @click="saveGroup()">ОК</button>
                 <button class="button button--light" @click="$refs.editModal.hide()">Отмена</button>

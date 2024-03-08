@@ -69,6 +69,9 @@ class ReputationController extends Controller {
         }
         $own_reputation = auth()->user()->reputation_number;
         $number = ceil($own_reputation / $this->reputation_change_level);
+        if ($number == 0) {
+            $number = 1;
+        }
         $action = (int)request()->input('action');
         $reputation_obj = new UserReputation([
             'from_id' => auth()->user()->id,

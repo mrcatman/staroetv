@@ -25,7 +25,7 @@ class Channel extends Model {
 
 
     public function programs() {
-        return $this->hasMany('App\Program');
+        return $this->hasMany('App\Program')->orderBy('order');
     }
 
     public function names() {
@@ -113,17 +113,64 @@ class Channel extends Model {
     }
 
     public function getAllNamesWithMainAttribute() {
-        $unique_names = $this->names->pluck('name')->unique()->values();
+
+        $unique_names = $this->names->pluck('name')->filter(function($name) {
+            return $name != "";
+        })->unique()->values();
+        if (count($unique_names) === 0) {
+            return $this->name;
+        }
         $main_name = $this->name;
         if ($unique_names->contains($main_name)) {
+            if (count($unique_names) === 1) {
+                return $main_name;
+            }
             $unique_names = $unique_names->filter(function ($name) use ($main_name) {
                 return $name != $main_name;
             });
-            $unique_names->prepend($main_name);
         }
+        $unique_names->prepend($main_name);
         $first_name = $unique_names->shift();
+
         $names = $first_name . " (" . implode(", ", $unique_names->toArray()) . ")";
         return $names;
+    }
+
+    public function scopeApproved($query) {
+        if (!PermissionsHelper::allows('viapprove')) {
+            $query->where(function($q) {
+                $q->where(['pending' => false]);
+                $user = auth()->user();
+                if ($user) {
+                    $q->orWhere(['author_id' => $user->id]);
+                }
+            });
+        }
+        return $query;
+    }
+
+    public function getPageRandomVideosCountAttribute() {
+        if (request()->has('test')) {
+            if (!$this->description) {
+                return 1;
+            }
+            $description_length = mb_strlen($this->description);
+
+            $count =  floor($description_length / 380) - 4;
+            return $count > 1 ? ($count > 7 ? 7 : $count) : 1;
+        }
+        return 10;
+    }
+
+    public function articles() {
+        return $this->hasManyThrough(
+            Article::class,
+            ArticleBinding::class,
+            'channel_id',
+            'id',
+            'id',
+            'article_id'
+        );
     }
 
 }

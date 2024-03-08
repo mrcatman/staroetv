@@ -13,6 +13,9 @@
         </ul>
     @else
     <ul class="material-categories__section">
+        <a class="button button--big" href="/video/calendar">Календарь записей</a>
+    </ul>
+    <ul class="material-categories__section">
 
         <li class="material-categories__section-heading">
             <a href="/video/programs">Передачи</a>
@@ -40,7 +43,7 @@
             <a href="/video/commercials?year_start=1992&year_end=1999">90-е годы</a>
         </li>
         <li>
-            <a href="/video/commercials?year_start=2000">2000-е годы</a>
+            <a href="/video/commercials?year_start=2000&year_end=2009">2000-е годы</a>
         </li>
         <li>
             <div class="material-categories__delimiter"></div>
@@ -52,9 +55,8 @@
         @endforeach
     </ul>
     <ul class="material-categories__section">
-        <li class="material-categories__section-heading">
-            <a href="/video/graphics">Графика</a>
-        </li>
+        <a class="button button--big" href="/video/graphics">Графика</a>
     </ul>
     @endif
 </div>
+

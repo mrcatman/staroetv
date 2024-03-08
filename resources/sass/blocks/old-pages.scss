@@ -40,6 +40,9 @@
     }
 }
 .old-page {
+    h1,h2,h3,h4,h5,h6 {
+        font-family: var(--font-main);
+    }
     .back-to-top {
         background: var(--bg-darker-2);
         border-radius: 5em;

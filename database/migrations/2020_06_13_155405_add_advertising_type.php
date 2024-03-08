@@ -16,6 +16,7 @@ class AddAdvertisingType extends Migration
         Schema::table('records', function (Blueprint $table) {
             $table->dropColumn('is_political');
             $table->integer('advertising_type')->nullable();
+            $table->integer('list_visibility_status')->default(1);
         });
     }
 
@@ -27,8 +28,9 @@ class AddAdvertisingType extends Migration
     public function down()
     {
         Schema::table('records', function (Blueprint $table) {
-            $table->boolean('is_political')->default(false);
+            $table->dropColumn('is_political');
             $table->dropColumn('advertising_type');
+            $table->dropColumn('list_visibility_status');
         });
     }
 }

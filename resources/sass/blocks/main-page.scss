@@ -9,6 +9,7 @@
         height: unset;
         padding-top: 41.66%;
         @include mobile() {
+            margin: 3.25em -1em 1em;
             background-size: 150%;
             padding-top: 70%;
             background-position: 55% 50%;
@@ -30,17 +31,17 @@
             height: 19.5em;
             top: 5.85em;
             right: 20.15em;
-            @media screen and (max-width: 1400px) {
-                width: 26vw;
+            @media screen and (max-width: 1420px) {
+                width: 25vw;
                 height: 20.5vw;
-                top: 5.35vw;
-                right: 23.2vw;
+                top: 5vw;
+                right: 22.5vw;
             }
             @include mobile() {
                 width: 40vw;
                 height: 29.5vw;
-                top: 12.25vw;
-                right: 11.75vw;
+                top: 10vw;
+                right: 11.25vw;
             }
         }
 
@@ -66,6 +67,9 @@
         padding: .5em;
         font-size: 1.5em;
         line-height: 1.5;
+        @include light() {
+            padding: 0;
+        }
         @include mobile() {
             font-size: 1.25em;
         }
@@ -77,4 +81,12 @@
             }
         }
     }
+}
+
+.box--comments-main-page .comments {
+    margin: -1rem -1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: calc(100% + 2rem);
 }

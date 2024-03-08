@@ -2,11 +2,23 @@
     position: relative;
     margin: 0 auto;
     z-index: 10;
+    @include light() {
+        padding: 0 1em;
+        margin: 0 -2em;
+    }
     &__menu {
         position: relative;
         padding: .5em .5em .5em 1em;
         background: var(--box-color-dark);
         box-shadow: var(--block-box-shadow);
+        @include light() {
+            box-shadow: none;
+            padding: .5em 0;
+            font-weight: 500;
+            @include mobile() {
+                padding: 1em;
+            }
+        }
         &__inner {
             margin: 0 auto;
             max-width: 1400px;
@@ -41,9 +53,20 @@
         text-align: left;
         padding: 1em;
         font-size: 1em;
-
+        @include light() {
+            box-shadow: none;
+            background: var(--box-color-dark);
+            padding: .5em 0;
+            @include mobile() {
+                padding: 1em;
+            }
+        }
         &__text {
             max-width: calc(100% - 4em);
+            @include mobile() {
+                font-size: .75em;
+                width: calc(100% - 5em);
+            }
         }
 
         &__inner {

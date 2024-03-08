@@ -201,7 +201,7 @@ class CommentsController extends Controller {
             'data' => [
                 'dom' => [
                     [
-                        'replace' => ".comment[data-id=".$comment->id."] .comment__rating__container",
+                        'replace' => ".comment[data-id=".$comment->id."] > .comment__inner .comment__rating__container",
                         'html' => $html
                     ]
                 ]

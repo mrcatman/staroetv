@@ -2,14 +2,22 @@
 namespace App\Helpers;
 use App\Comment;
 use App\UserGroupConfig;
+use Illuminate\Support\Facades\Cache;
 
 class PermissionsHelper {
 
-    public static function allows($option_name) {
-        if (isset($GLOBALS['permissions_'.$option_name])) {
-            return $GLOBALS['permissions_'.$option_name];
+    public static function allows($option_name, $user = null) {
+        if (!$user) {
+            $user = auth()->user();
         }
-        $user_group_id = auth()->user() ? auth()->user()->group_id : 999;
+        $user_group_id = $user ? $user->group_id : 999;
+        $key = 'permissions_'.$option_name.'_'.$user_group_id;
+        if (Cache::has($key)) {
+            return Cache::get($key);
+        }
+        if (isset($GLOBALS['permissions_'.$option_name."_".$user_group_id])) {
+            return $GLOBALS['permissions_'.$option_name."_".$user_group_id];
+        }
         $config = UserGroupConfig::where(['group_id' => $user_group_id, 'option_name' => $option_name])->first();
         if ($config) {
             $value =  $config->option_value;
@@ -17,6 +25,7 @@ class PermissionsHelper {
             $value = false;
         }
         $GLOBALS['permissions_'.$option_name] = $value;
+        Cache::put($key, $value, 30);
         return $value;
     }
 

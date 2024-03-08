@@ -50,7 +50,7 @@
                             <span class="video-cutter__button__title">Назначить начальный кадр</span>
                             <i class="fa fa-quote-left"></i>
                         </a>
-                        <a class="video-cutter__button" :class="{'video-cutter__button--disabled': cutResults.length === 0}" @click="newCut()">
+                        <a class="video-cutter__button" @click="newCut()">
                             <span class="video-cutter__button__title">Новый ролик</span>
                             <i class="fa fa-cut"></i>
                         </a>
@@ -83,6 +83,12 @@
             </div>
         </div>
         <div class="video-cutter__results">
+            <label class="input-container input-container--checkbox" >
+                <input type="checkbox" v-model="setOldDate">
+                <div class="input-container--checkbox__element"></div>
+                <div class="input-container__label" v-if="video">Дата загрузки как у оригинального видео</div>
+                <div class="input-container__label" v-else>Изменить дату загрузки на более старую</div>
+            </label>
             <div class="video-cutter__video-info" v-if="!video || !video.channel">
                 <div class="row row--with-inputs" v-if="channels.length > 0">
                     <div class="input-container">
@@ -146,12 +152,14 @@
                     </div>
                 </div>
                 <div class="row row--with-inputs" >
-                    <div class="input-container" v-if="!result.data.is_advertising">
+                    <div class="input-container" >
                         <label class="input-container__label">Описание</label>
                         <div class="input-container__inner">
                             <div class="input-container__element-outer">
                                 <input class="input" v-model="result.data.short_description"/>
-                                <div class="input-container__description">Например, анонсируемая передача</div>
+                                <div class="input-container__description" v-if="result.data.is_advertising">Например, слоган ролика</div>
+                                <div class="input-container__description" v-else>Например, анонсируемая передача</div>
+
                             </div>
                         </div>
                     </div>
@@ -487,7 +495,7 @@
                     return this.year;
                 }
                 if (this.cutResults.length > 0) {
-                    return this.cutResults[this.cutResults.length - 1].year;
+                    return this.cutResults[this.cutResults.length - 1].data.year;
                 }
                 return null;
             },
@@ -501,9 +509,13 @@
             }
         },
         mounted() {
-
             if (this.cut && this.cut.data) {
                 this.cutResults = this.cut.data;
+            }
+            if (this.cut && this.cut.fps) {
+                if (this.cut.fps > 60) {
+                    this.cut.fps = 25;
+                }
             }
             let video = this.$refs.video;
             video.addEventListener('timeupdate', (e) => {
@@ -619,8 +631,8 @@
                 if (!this.channel && !this.channel_id) {
                     return;
                 }
-                $.get('/channels/'+this.getChannelId+'/interprogram-packages').done(res => {
-                    this.interprogramPackages = res.data.interprogram_packages;
+                $.get('/channels/'+this.getChannelId+'/graphics/ajax').done(res => {
+                    this.interprogramPackages = res.data.graphics;
                 })
             },
             getCategoriesList() {
@@ -663,23 +675,31 @@
                     this.cutResults.splice(index, 1);
                 }
             },
-            async startMakingVideos(indexes) {
+            async startMakingVideos(convertIndexes) {
                 this.restarted = false;
                 this.isMakingVideos = true;
                 this.progressPercent = 0;
-                const makeVideo = (index) => {
+                const makeVideo = (index, dataOnly = false) => {
                     return new Promise(async (resolve, reject) => {
                         if (this.isClientMode) {
-                            this.statusText = `Конвертация видео ${videoIndex} из ${indexes.length}`;
-                            let from =  this.cutResults[index].start / this.cut.fps;
-                            let to = this.cutResults[index].end / this.cut.fps;
-                            let command = `-i source.mp4 -vcodec libx264 -acodec copy -threads 5 -ss ${from} -to ${to} output_${index}.mp4`;
-                            await this.ffmpeg.run(command);
-                            let converted = ffmpeg.read(`output_${index}.mp4`);
-                            this.videos[index] = converted;
+                            let converted = null;
+                            if (!dataOnly) {
+                                this.statusText = `Конвертация видео ${videoIndex} из ${indexes.length}`;
+                                let from = this.cutResults[index].start / this.cut.fps;
+                                let to = this.cutResults[index].end / this.cut.fps;
+                                let command = `-i source.mp4 -vcodec libx264 -acodec copy -threads 5 -ss ${from} -to ${to} output_${index}.mp4`;
+                                await this.ffmpeg.run(command);
+                                converted = ffmpeg.read(`output_${index}.mp4`);
+                                this.videos[index] = converted;
+                            }
                             let fd = new FormData();
-                            fd.append('video',  new Blob([converted], {type: "video/mp4"} ));
-                            this.statusText = `Загрузка на сервер видео ${videoIndex} из ${indexes.length}`;
+                            if (!dataOnly) {
+                                fd.append('set_old_date', this.setOldDate ? '1' : '0');
+                                fd.append('video', new Blob([converted], {type: "video/mp4"}));
+                                this.statusText = `Загрузка на сервер видео ${videoIndex} из ${indexes.length}`;
+                            } else {
+                                this.statusText = `Обновление информации о видео ${videoIndex} из ${indexes.length}`;
+                            }
                             $.ajax({
                                 type: 'POST',
                                 url: '/cut/' + this.cut.id + '/make-video/' + index,
@@ -702,8 +722,14 @@
                                 resolve(false);
                             });
                         } else {
-                            this.statusText = `Конвертация на сервере видео ${videoIndex} из ${indexes.length}`;
-                            $.post('/cut/' + this.cut.id + '/make-video/' + index).done(res => {
+                            if (!dataOnly) {
+                                this.statusText = `Конвертация на сервере видео ${videoIndex} из ${indexes.length}`;
+                            } else {
+                                this.statusText = `Обновление информации о видео ${videoIndex} из ${indexes.length}`;
+                            }
+                            $.post('/cut/' + this.cut.id + '/make-video/' + index, {
+                                data_only: dataOnly
+                            }).done(res => {
                                 if (res.status) {
                                     this.cutResults[index].video_id = res.data.video_id;
                                     resolve(true);
@@ -721,11 +747,19 @@
                 };
                 let hasErrors = false;
                 let videoIndex = 1;
+                let index = 0;
+                let indexes = [];
+                this.cutResults.forEach((result) => {
+                    indexes.push(index);
+                    index++;
+                })
+                console.log(indexes, convertIndexes);
                 for (let i in indexes) {
                     if (this.isMakingVideos) {
                         let index = indexes[i];
                         if (!this.restarted) {
-                            let status = await makeVideo(index);
+                            let dataOnly = convertIndexes.indexOf(index) === -1;
+                            let status = await makeVideo(index, dataOnly);
                             if (status) {
                                 this.progressPercent += 1 / indexes.length;
                             } else {
@@ -772,10 +806,10 @@
                    this.isLoading = false;
                    if (res.status) {
                        this.errors = {};
-                       if (res.data.indexes.length > 0) {
+                       //if (res.data.indexes.length > 0) {
                            this.restarted = true;
                            this.startMakingVideos(res.data.indexes);
-                       }
+                       //}
                    } else {
                        this.errors = res.data.errors;
                    }
@@ -789,8 +823,29 @@
                this.currentFrame = this.cutResults[index].start;
                this.$refs.video.currentTime = (this.currentFrame / this.cut.fps);
            },
-            newCut() {
+           getNextData() {
+              if (this.cutResults.length === 0 || this.cutResults[this.cutResults.length - 1].data.is_advertising) {
+                  return {
+                      is_advertising: true,
+                      advertising_brand: this.getNextBrand(),
+                      year: this.video ? this.video.year : this.getYear,
+                  };
+              } else {
+                  return {
+                      is_advertising: false,
+                      interprogram_type: this.cutResults[this.cutResults.length - 1].data.interprogram_type,
+                      interprogram_package_id: this.cutResults[this.cutResults.length - 1].data.interprogram_package_id,
+                      year: this.video ? this.video.year : this.getYear
+                  };
+              }
+           },
+           newCut() {
                 if (this.cutResults.length === 0) {
+                    this.cutResults.push({
+                        start: 0,
+                        end: this.currentFrame,
+                        data: this.getNextData()
+                    });
                     return;
                 }
                 let sortedCuts = this.cutResults.filter(item => item.end < this.currentFrame).sort((a, b) => b.end - a.end);
@@ -800,21 +855,13 @@
                     this.cutResults.push({
                         start,
                         end: this.currentFrame,
-                        data: {
-                            is_advertising: true,
-                            advertising_brand: this.getNextBrand(),
-                            year: this.video ? this.video.year : this.getYear
-                        }
+                        data: this.getNextData()
                     });
                 } else {
                     this.cutResults[0].end = this.currentFrame - 1;
                     this.cutResults.push({
                         start: this.currentFrame,
-                        data: {
-                            is_advertising: true,
-                            advertising_brand: this.getNextBrand(),
-                            year: this.video ? this.video.year : this.getYear
-                        }
+                        data: this.getNextData()
                     });
                 }
                 this.currentCutIndex = this.cutResults.length - 1;
@@ -834,11 +881,7 @@
                     this.cutResults.push({
                         start: 0,
                         end: this.currentFrame,
-                        data: {
-                            is_advertising: true,
-                            advertising_brand: this.getNextBrand(),
-                            year: this.video ? this.video.year : this.getYear
-                        }
+                        data: this.getNextData()
                     });
                     this.currentCutIndex = this.cutResults.length - 1;
                 } else {
@@ -850,11 +893,7 @@
                     this.cutResults.push({
                         start: this.currentFrame,
                         end: this.cut.frames,
-                        data: {
-                            is_advertising: true,
-                            brand: this.getNextBrand(),
-                            year: this.video ? this.video.year : this.getYear
-                        }
+                        data: this.getNextData()
                     });
                     this.currentCutIndex = this.cutResults.length - 1;
                 }  else {
@@ -881,6 +920,7 @@
         },
         data() {
             return {
+                setOldDate: false,
                 isLoading: false,
                 cut: this.data,
                 isPlaying: false,

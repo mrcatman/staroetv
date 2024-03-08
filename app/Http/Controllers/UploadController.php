@@ -40,7 +40,7 @@ class UploadController extends Controller
             }
             $already_loaded = false;
             $url_data = parse_url($url);
-            if ($url_data['host'] == "staroetv.mrcatmann.ru") {
+            if ($url_data['host'] == "staroetv.su") {
                 $picture_item = Picture::where('url', 'LIKE', '%'.$url_data['path'].'%')->first();
                 $already_loaded = true;
             }

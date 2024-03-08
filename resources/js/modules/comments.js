@@ -47,7 +47,7 @@ $(body).on('click', '.comment__edit', function() {
     $(formContainer).find('form').attr('action', '/comments/edit');
     $(formContainer).find('input[name="id"]').val(id);
     $(form).append('<div class="comments__form__disable"></div>')
-    showModal(form, 'Редактировать комментарий', () => {
+    showModal('#edit_form_container', 'Редактировать комментарий', () => {
         bb.init('message');
         $('.comments__form__disable').remove();
     });
@@ -83,6 +83,7 @@ window.execOnMounted.push(function() {
     $('.comment__video-player, .forum-message__video-player').each(function() {
         let params = $(this).data('params');
         params = params.replace(/'/g, '"');
+        console.log(params);
         params = JSON.parse(params);
         _uVideoPlayer(params, $(this).data('element'));
     });
@@ -102,4 +103,11 @@ window.execOnMounted.push(function() {
                   $(this).find('.comments__main').html(res.data.html);
               })
     })
+
+    $('.bb-editor__text').each(function () {
+        this.setAttribute('style', 'height:' + (this.scrollHeight) + 'px;overflow-y:hidden;');
+    }).on('input', function () {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
 });

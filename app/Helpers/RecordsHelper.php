@@ -1,6 +1,7 @@
 <?php
 namespace App\Helpers;
 
+use App\Channel;
 use App\Record;
 
 class RecordsHelper {
@@ -8,11 +9,18 @@ class RecordsHelper {
     public static function getQuery($conditions) {
         $records = Record::approved();
         if (isset($conditions['channel_id_in'])) {
+
             $records = $records->whereIn('channel_id', $conditions['channel_id_in']);
             unset($conditions['channel_id_in']);
         }
         if (isset($conditions['program_id_in'])) {
-            $records = $records->whereIn('program_id', $conditions['program_id_in']);
+            $records = $records->where(function($q) use ($conditions) {
+                $q->whereIn('program_id', $conditions['program_id_in']);
+                if (in_array(null, (array)$conditions['program_id_in'])) {
+                    $q->orWhereNull('program_id');
+                }
+            });
+
             unset($conditions['program_id_in']);
         }
         if (isset($conditions['interprogram_type_in'])) {
@@ -20,8 +28,26 @@ class RecordsHelper {
             unset($conditions['interprogram_type_in']);
         }
         if (isset($conditions['interprogram_type_not_in'])) {
-            $records = $records->whereNotIn('interprogram_type', $conditions['interprogram_type_not_in']);
+            $records = $records->where(function($q) use ($conditions) {
+                $q = $q->whereNotIn('interprogram_type', $conditions['interprogram_type_not_in']);
+                $q->orWhereNull('interprogram_type');
+            });
             unset($conditions['interprogram_type_not_in']);
+        }
+        if (isset($conditions['channel_unknown']) && $conditions['channel_unknown'] === true) {
+            $records = $records->where(function($q) {
+                $channel_ids = Channel::pluck('id');
+                $q->whereNotIn('channel_id', $channel_ids);
+                $q->orWhereNull('channel_id');
+            });
+            unset($conditions['channel_unknown']);
+        }
+        if (isset($conditions['is_selected']) && $conditions['is_selected'] === false) {
+            $records = $records->where(function($q) {
+                $q->where(['is_selected' => false]);
+                $q->orWhereNull('is_selected');
+            });
+            unset($conditions['is_selected']);
         }
         if (isset($conditions['year_start'])) {
             $records = $records->where('year', '>=', $conditions['year_start']);
@@ -35,13 +61,14 @@ class RecordsHelper {
             $records = $records->whereDate('supposed_date', '>', '1950-01-01');
             unset($conditions['normal_date']);
         }
+
         $records = $records->where($conditions);
         return $records;
     }
 
     public static function get($conditions) {
         $sort = "added";
-        $sort_field = "id";
+        $sort_field = "original_added_at";
         $sort_order = "desc";
         if (request()->input('sort') == "older") {
             $sort = "older";

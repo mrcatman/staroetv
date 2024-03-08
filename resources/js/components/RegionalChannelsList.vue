@@ -20,7 +20,7 @@
                 </div>
             </div>
         </div>
-        <div class="channels-list">
+        <div ref="channels_list" class="channels-list">
             <a v-for="channel in channelsList" :key="channel.id" :href="channel.url" class="channel-item" :class="{'channel-item--pending': channel.pending}">
                 <div class="channel-item__logo" :style="channel.logo ? {backgroundImage: `url(${channel.logo.url})`} : {}"></div>
                 <span class="channel-item__name">{{channel.name}}</span>
@@ -79,13 +79,24 @@
             }
         },
         methods: {
+            scrollToChannels() {
+                const rect = this.$refs.channels_list.getBoundingClientRect();
+                window.scrollTo(0, rect.y + window.scrollY - (window.innerHeight - rect.height) / 2);
+            },
             selectRegion(regionName) {
                 this.selectedCity = null;
                 this.selectedRegion = regionName;
+                this.$nextTick(() => {
+                    this.scrollToChannels();
+                });
             },
+
             selectCity(cityName, regionName) {
                 this.selectedCity = cityName;
                 this.selectedRegion = regionName;
+                this.$nextTick(() => {
+                    this.scrollToChannels();
+                });
             }
         },
         props: {

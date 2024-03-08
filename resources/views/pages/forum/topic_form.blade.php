@@ -1,17 +1,23 @@
 @extends('layouts.default')
 @section('content')
-    <div class="forum-page">
+    <div class="forum-page forum-page--topic-form">
         <div class="forum-section">
-            @include('blocks/forum_buttons')
-            <div class="forum-section__breadcrumbs">
-                <a class="forum-section__breadcrumb" href="/forum">Форум</a>
-                @if ($parent_forum) <a class="forum-section__breadcrumb" href="/forum/{{$parent_forum->id}}">{{$parent_forum->title}}</a> @endif
-                <a class="forum-section__breadcrumb" href="/forum/{{$forum->id}}">{{$forum->title}}</a>
-                @if ($topic)
-                <a class="forum-section__breadcrumb" href="/forum/{{$forum->id}}-{{$topic->id}}-1">{{$topic->title}}</a>
-                @else
-                <a class="forum-section__breadcrumb">Новая тема</a>
-                @endif
+            <div class="forum__top-panel__outer">
+                <div class="forum__top-panel">
+                    <div class="forum__top-panel__inner">
+                        @include('blocks/forum_buttons')
+                        <div class="forum-section__breadcrumbs">
+                            <a class="forum-section__breadcrumb" href="/forum">Форум</a>
+                            @if ($parent_forum) <a class="forum-section__breadcrumb" href="/forum/{{$parent_forum->id}}">{{$parent_forum->title}}</a> @endif
+                            <a class="forum-section__breadcrumb" href="/forum/{{$forum->id}}">{{$forum->title}}</a>
+                            @if ($topic)
+                            <a class="forum-section__breadcrumb" href="/forum/{{$forum->id}}-{{$topic->id}}-1">{{$topic->title}}</a>
+                            @else
+                            <a class="forum-section__breadcrumb">Новая тема</a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
             <form class="form box" method="POST">
                 <div class="box__heading">

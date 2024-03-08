@@ -2,8 +2,10 @@
 @section('content')
     <form class="form box" method="POST">
         <div class="breadcrumbs">
+            @if ($channel)
             <a class="breadcrumbs__item" href="{{$channel->is_radio ? "/radio" : "/video"}}">Архив</a>
             <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
+            @endif
             @if ($program)
             <a class="breadcrumbs__item" href="{{$program->full_url}}">{{$program->name}}</a>
             <a class="breadcrumbs__item breadcrumbs__item--current">Редактировать</a>
@@ -23,6 +25,20 @@
                     <span class="input-container__message"></span>
                 </div>
             </div>
+             @if (isset($all_channels) && $all_channels)
+                 <div class="input-container">
+                     <label class="input-container__label">Канал</label>
+                     <div class="input-container__inner">
+                         <select class="select-classic" name="channel_id">
+                             <option value="" selected>-</option>
+                             @foreach ($all_channels as $channel_id => $channel_name)
+                                 <option value="{{$channel_id}}" @if ($program->channel_id == $channel_id) selected="selected" @endif>{{$channel_name}}</option>
+                             @endforeach
+                         </select>
+                         <span class="input-container__message"></span>
+                     </div>
+                 </div>
+            @endif
             <div class="input-container">
                 <label class="input-container__label">Короткий URL</label>
                 <div class="input-container__inner">
@@ -92,11 +108,21 @@
             <div class="response"></div>
             <div class="input-container">
                 <label class="input-container__label">Выберите программу</label>
-                <select class="select-classic" name="merged_id">
-                    @foreach ($all_programs as $program)
-                    <option value="{{$program->id}}">{{$program->name}}</option>
-                    @endforeach
-                </select>
+                <div class="input-container__element-outer">
+                    <select class="select-classic" name="merged_id">
+                        @foreach ($all_programs as $program)
+                            <option value="{{$program->id}}">{{$program->name}} @if (request()->input('all_programs')) ({{$program->channel ? $program->channel->name : ''}}) @endif</option>
+                        @endforeach
+                    </select>
+                    <div>
+                        @if (!request()->input('all_programs'))
+                            <a href="{{ request()->fullUrlWithQuery(['all_programs' => 1]) }}">Показать программы всех каналов</a>
+                        @else
+                            <a href="{{ request()->fullUrlWithQuery(['all_programs' => 0]) }}">Скрыть программы остальных каналов</a>
+                        @endif
+                    </div>
+
+                </div>
                 <span class="input-container__message"></span>
             </div>
             <button class="button">Объединить</button>

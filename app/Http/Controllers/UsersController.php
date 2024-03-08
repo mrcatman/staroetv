@@ -4,20 +4,27 @@ namespace App\Http\Controllers;
 
 
 use App\Comment;
+use App\EmailChange;
 use App\ForumMessage;
 use App\Helpers\BBCodesHelper;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
+use App\Mail\ChangeEmail;
+use App\Mail\VerifyAccount;
 use App\Record;
 use App\User;
 use App\UserMeta;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class UsersController extends Controller {
 
     public function show($conditions) {
         $user = User::where($conditions)->first();
+
         if (!$user) {
             return view("pages.errors.404");
         }
@@ -85,7 +92,7 @@ class UsersController extends Controller {
                 'users' => $users
             ]);
         } else {
-            return redirect("/");
+            return redirect("https://staroetv.su/");
         }
     }
 
@@ -99,14 +106,22 @@ class UsersController extends Controller {
         if ($id && PermissionsHelper::allows('usedita')) {
             $edit_id = $id;
             $user = User::find($id);
-            if (!$user) {
-                return redirect("/");
-            }
+        }
+        if (!$user) {
+            return redirect("https://staroetv.su/");
         }
         return view("pages.forms.user", [
             'edit_id' => $edit_id,
             'user' => $user,
             'countries' => $this->countries()
+        ]);
+    }
+
+    public function editPassword() {
+        $user = auth()->user();
+
+        return view("pages.forms.user-password", [
+            'user' => $user,
         ]);
     }
 
@@ -148,14 +163,17 @@ class UsersController extends Controller {
             'vk' => 'sometimes',
             'youtube' => 'sometimes',
             'yandex_video' => 'sometimes',
-            'facebook' => 'sometimes'
+            'facebook' => 'sometimes',
+            'user_comment' => 'sometimes'
         ]);
         $meta = $user->meta;
         if (!$meta) {
             $meta = new UserMeta(['user_id' => $user->id]);
         }
+        $change_email = false;
         $meta_fields = ['date_of_birth', 'country', 'city', 'vk', 'youtube', 'yandex_video', 'facebook'];
         foreach ($data as $field => $value) {
+            $value = trim($value);
             if (in_array($field, $meta_fields)) {
                 if ($field === "date_of_birth") {
                     $value = Carbon::parse( $value);
@@ -165,15 +183,71 @@ class UsersController extends Controller {
                 if ($field === "signature") {
                     $value = BBCodesHelper::BBToHTML($value);
                 }
-                $user->{$field} = $value;
+                if ($field === "email" && $user->email != $value && !request()->has('user_id')) {
+                    $user_with_same_email = User::where(['email' => $value])->first();
+                    if ($user_with_same_email) {
+                        $error = \Illuminate\Validation\ValidationException::withMessages([
+                            'email' => ['Другой пользователь с такой почтой уже зарегистрирован'],
+                        ]);
+                        throw $error;
+                    }
+                    $change = new EmailChange([
+                        'user_id' => $user->id,
+                        'email' => $value,
+                        'code' => bin2hex(random_bytes(8))
+                    ]);
+                    $change->save();
+                    Mail::to($value)->send(new ChangeEmail($user, $change));
+                    $change_email = true;
+                } else {
+                    $user->{$field} = $value;
+                }
             }
         }
         $user->save();
         $meta->save();
         return [
             'status' => 1,
-            'text' => 'Сохранено'
+            'text' => $change_email ? 'Сохранено. На новый e-mail адрес выслано письмо со ссылкой для подтверждения' : 'Сохранено'
         ];
+    }
+
+    public function savePassword() {
+        if (!auth()->user()) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+        $user = auth()->user();
+
+        $data = request()->validate([
+            'old_password' => 'required',
+            'password' => 'required|confirmed|min:7',
+        ]);
+        if (!Hash::check($data['old_password'], $user->password)) {
+            return [
+                'status' => 0,
+                'text' => 'Неверный старый пароль'
+            ];
+        }
+        $user->password = Hash::make($data['password']);
+        $user->save();
+        return [
+            'status' => 1,
+            'text' => 'Пароль изменен'
+        ];
+    }
+
+    public function changeEmail($code) {
+        $code = EmailChange::where(['code' => $code])->first();
+        if ($code) {
+            $user = User::find($code->user_id);
+            $user->email = $code->email;
+            $user->save();
+            $code->delete();
+            return redirect($user->url)->with('after_confirm', true);
+        }
     }
 
     public function autocomplete() {
@@ -269,7 +343,7 @@ class UsersController extends Controller {
     public function comments($id) {
         $user = User::find($id);
         if (!$user) {
-            return redirect("/");
+            return redirect("https://staroetv.su/");
         }
         $comments = Comment::where(['user_id' => $id])->orderBy('id', 'desc')->paginate(30);
 
@@ -282,7 +356,7 @@ class UsersController extends Controller {
     public function videos($id) {
         $user = User::find($id);
         if (!$user) {
-            return redirect("/");
+            return redirect("https://staroetv.su/");
         }
         $records = Record::where(['is_radio' => false, 'author_id' => $id])->orderBy('id', 'desc')->paginate(30);
         return view("pages.users.records", [
@@ -295,7 +369,7 @@ class UsersController extends Controller {
     public function radioRecordings($id) {
         $user = User::find($id);
         if (!$user) {
-            return redirect("/");
+            return redirect("https://staroetv.su/");
         }
         $records = Record::where(['is_radio' => true, 'author_id' => $id])->orderBy('id', 'desc')->paginate(30);
         return view("pages.users.records", [
@@ -304,5 +378,6 @@ class UsersController extends Controller {
             'user' => $user,
         ]);
     }
+
 
 }

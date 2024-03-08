@@ -1,17 +1,23 @@
 @extends('layouts.default')
 @section('content')
-    <div class="forum-page">
+    <div class="forum-page forum-page--form">
         <div class="forum-section">
-            <div class="forum-section__breadcrumbs">
-                <a class="forum-section__breadcrumb" href="/forum">Форум</a>
-                @if ($parent)
-                    <a class="forum-section__breadcrumb" href="/forum/{{$parent->id}}">{{$parent->title}}</a>
-                @endif
-                @if ($forum)
-                <a class="forum-section__breadcrumb" href="/forum/{{$forum->id}}">{{$forum->title}}</a>
-                @else
-                <a class="forum-section__breadcrumb">Новый форум</a>
-                @endif
+            <div class="forum__top-panel__outer">
+                <div class="forum__top-panel">
+                    <div class="forum__top-panel__inner">
+                        <div class="forum-section__breadcrumbs">
+                            <a class="forum-section__breadcrumb" href="/forum">Форум</a>
+                            @if ($parent)
+                                <a class="forum-section__breadcrumb" href="/forum/{{$parent->id}}">{{$parent->title}}</a>
+                            @endif
+                            @if ($forum)
+                            <a class="forum-section__breadcrumb" href="/forum/{{$forum->id}}">{{$forum->title}}</a>
+                            @else
+                            <a class="forum-section__breadcrumb">Новый форум</a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
             <form class="form box" action="{{$forum ? "/forum/edit/".$forum->id : "/forum/new"}}" method="POST">
                 <div class="box__heading">

@@ -12,40 +12,113 @@ use App\InterprogramPackage;
 use App\Program;
 use App\Record;
 use Carbon\Carbon;
+use \Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Validator;
 
 class ProgramsController extends Controller {
 
-    public function index() {
+    public function index($params) {
+        $page_title = "Передачи";
+        $is_radio = $params['is_radio'];
         $category = Genre::where(['url' => request()->input('category')])->first();
         if (!$category) {
-            return redirect('/video');
+            //return redirect(!$is_radio ? '/video' : '/radio');
         }
-        $unnecessary_channel_ids = Channel::where(['is_radio' => true])->orWhere(['is_regional' => true])->orWhere(['is_abroad' => true])->pluck('id');
-        $programs = Program::where(['pending' => false])->withCount('records')->whereNotIn('channel_id', $unnecessary_channel_ids)->where(['genre_id' => $category->id])->orderBy('records_count', 'desc')->get();
+
+        $channel_ids  = Channel::where(['is_radio' => $is_radio])->where(['is_regional' => false])->where(['is_abroad' => false])->pluck('id');
+        $programs = Program::where(['pending' => false])->withCount('records')->whereIn('channel_id', $channel_ids);
+
+        if ($category) {
+            $programs = $programs->where(['genre_id' => $category->id]);
+            $page_title = $category->name;
+        }
+        $program_ids = $programs->orderBy('records_count', 'desc')->pluck('id');
+
+        $programs = $programs->orderBy('records_count', 'desc')->limit(15)->get();
         $records_conditions = [
+            'is_radio' => $is_radio,
             'is_interprogram' => false,
-            'program_id_in' => $programs->pluck('id')
+            'program_id_in' => $program_ids
         ];
+
         return view('pages.records.programs', [
+            'params' => $params,
+            'page_title' => $page_title,
             'records_conditions' => $records_conditions,
             'programs' => $programs,
             'category' => $category,
         ]);
     }
 
+    public function loadAll($params) {
+        $is_radio = $params['is_radio'];
+        $channel_ids  = Channel::where(['is_radio' => $is_radio])->where(['is_regional' => false])->where(['is_abroad' => false])->pluck('id');
+        $programs = Program::where(['pending' => false])->withCount('records')->whereIn('channel_id', $channel_ids);
+        $category = Genre::where(['url' => request()->input('category')])->first();
+        if ($category) {
+            $programs = $programs->where(['genre_id' => $category->id]);
+        }
+
+        $programs = $programs->orderBy('records_count', 'desc')->get();
+        $programs = $programs->slice(12);
+        return [
+            'status' => 1,
+            'data' => [
+                'dom' => [
+                    [
+                        'replace' => '.programs-list--all',
+                        'html' => view("blocks/programs_list", ['programs' => $programs])->render()
+                    ],
+                    [
+                        'replace' => '.programs-list__show-all',
+                        'html' => ''
+                    ]
+                ]
+            ]
+        ];
+    }
+
 
     public function show($id) {
-        $program = Program::find($id);
+        $program = Program::where(['url' => $id])->first();
         if (!$program) {
-            $program = Program::where(['url' => $id])->first();
+            $program = Program::find($id);
         }
         if (!$program) {
-            return redirect("/");
+            return redirect("https://staroetv.su/");
         }
         ViewsHelper::increment($program, 'programs');
+
+        $conditions = [ 'program_id' => $program->id, 'is_interprogram' => false];
+        if ($program->channel) {
+            $conditions['is_radio'] = $program->channel->is_radio;
+        }
+        $unknown = $program->url == 'unknown-program';
+        if ($unknown) {
+            $conditions['is_interprogram'] = false;
+            $conditions['is_advertising'] = false;
+            $conditions['is_clip'] = false;
+            unset($conditions['program_id']);
+            $conditions['program_id_in'] = [$program->id, null];
+        }
+
+        $program->original_name = $program->name;
+        $channel = $program->channel;
+        if (request()->has('from')) {
+            $from_channel_id = request()->input('from');
+            $additional_channel_data = AdditionalChannel::where(['program_id' => $program->id, 'channel_id' => $from_channel_id])->first();
+            if ($additional_channel_data && $additional_channel_data->channel) {
+                $channel = $additional_channel_data->channel;
+                if ($additional_channel_data->title != "") {
+                    $program->name = $additional_channel_data->title;
+                }
+            }
+        }
         return view("pages.programs.show", [
             'program' => $program,
-            'records_conditions' => ['program_id' => $program->id, 'is_interprogram' => false]
+            'unknown' => $unknown,
+            'channel' => $channel,
+            'records_conditions' => $conditions
         ]);
     }
 
@@ -64,23 +137,28 @@ class ProgramsController extends Controller {
     }
 
     public function edit($id) {
+        $all_channels = null;
         $program = Program::find($id);
-         if (!$program || !$program->channel) {
-            return redirect("/");
+        if (!$program) {
+            return redirect("https://staroetv.su/");
         }
-        if (!$program->can_edit || !$program->channel->can_edit) {
+        if (!$program->can_edit || ($program->channel && !$program->channel->can_edit)) {
             return view("pages.errors.403");
         }
         if (request()->has('all_programs')) {
             $all_programs = Program::where('id','!=', $program->id)->get();
-        } else {
+        } elseif ($program->channel) {
             $all_programs = $program->channel->programs->filter(function ($program_item) use ($program) {
                 return $program_item->id != $program->id;
             });
+        } else {
+            $all_channels = Channel::pluck('name', 'id');
+            $all_programs = [];
         }
         return view("pages.forms.program", [
             'program' => $program,
             'channel' => $program->channel,
+            'all_channels' => $all_channels,
             'all_programs' => $all_programs
         ]);
     }
@@ -130,8 +208,18 @@ class ProgramsController extends Controller {
             'date_of_closedown' => 'sometimes',
             'genre_id' => 'sometimes',
             'cover_id' => 'sometimes',
-            'url' => 'sometimes'
+            'url' => 'sometimes',
+            'channel_id' => 'sometimes'
         ]);
+        if (request()->has('url') && request()->input('url') != '') {
+            $same_url_program = Program::where(['url' => request()->input('url')])->first();
+            if ($same_url_program && $same_url_program->id != $program->id) {
+                $error = \Illuminate\Validation\ValidationException::withMessages([
+                    'url' => ['Программа с таким URL уже существует'],
+                ]);
+                throw $error;
+            }
+        }
         if (isset($data['date_of_start'])) {
             $data['date_of_start'] = Carbon::parse($data['date_of_start']);
         } else {
@@ -167,7 +255,7 @@ class ProgramsController extends Controller {
               }
 
         }
-
+        Cache::clear('programs_channels___names_'.$program->id);
         return [
             'status' => 1,
             'text' => 'Информация о программе обновлена',
@@ -244,7 +332,7 @@ class ProgramsController extends Controller {
 
     public function editList($channel_id) {
         if (!PermissionsHelper::allows('programs')) {
-            return redirect('/');
+            return redirect('https://staroetv.su/');
         }
 
         $channel = Channel::findByIdOrUrl($channel_id);
@@ -327,6 +415,24 @@ class ProgramsController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         }
+    }
+
+    public function autocomplete() {
+        $count = 30;
+        $programs = Program::select('id', 'name')->orderBy('id', 'asc');
+        if (request()->has('term')) {
+            $programs = $programs->where('name', 'LIKE', '%'.request()->input('term').'%');
+        }
+        $total = $programs->count();
+        $page = request()->input('page', 1);
+        $programs = $programs->limit($count)->offset($count * ($page - 1))->get();
+        return [
+            'status' => 1,
+            'data' => [
+                'total' => $total,
+                'programs' => $programs
+            ]
+        ];
     }
 
 }

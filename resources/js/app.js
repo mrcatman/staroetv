@@ -52,6 +52,11 @@ require('./modules/categories');
 require('./modules/advertising');
 require('./modules/share');
 require('./modules/splashscreen');
+require('./modules/captcha');
+require('./modules/search');
+require('./modules/mobile-menu');
+require('./modules/playlist');
+require('./modules/survey');
 
 let onReady = () => {
     $(document).pjax('a[target!="_blank"]', '#pjax-container', {timeout: 10000});
@@ -72,12 +77,20 @@ let onReady = () => {
             }
         });
     }
-
+    $(document).on('pjax:start', () => {
+       // $('body').addClass('page-loading');
+    });
     $(document).on('pjax:success', () => {
+        window.recaptchaLoaded = false;
+       //$('body').removeClass('page-loading');
         onPageChange();
     });
-
-
+    $(document).on('pjax:popstate', () => {
+        setTimeout(() => {
+         //   $('body').removeClass('page-loading');
+            $('.form__preloader').remove();
+        }, 250);
+    });
 };
 $(document).ready(function() {
     onReady();

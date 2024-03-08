@@ -19,7 +19,8 @@
         "mews/captcha": "^3.0",
         "paquettg/php-html-parser": "^2.1",
         "watson/rememberable": "^3.1",
-        "ext-json":"*"
+        "ext-json": "*",
+        "ext-curl": "*"
     },
     "require-dev": {
         "facade/ignition": "^1.4",

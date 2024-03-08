@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 class Program extends Model {
 
     protected $guarded = [];
+    protected $appends = ['cover'];
 
     const TYPE_PROGRAMS = 101;
 
@@ -48,15 +49,40 @@ class Program extends Model {
     }
 
     public function design() {
-        return $this->hasMany('App\Record')->where(['is_interprogram' => true]);
+        return $this->hasMany('App\Record')->where(['is_interprogram' => true, 'program_id' => $this->id]);
     }
 
     public function additionalChannels() {
         return $this->hasMany('App\AdditionalChannel');
     }
 
+    public function getRandomPicturesAttribute() {
+        return Cache::remember('program_random_pictures_'.$this->id, 60 * 30, function () {
+            $records = Record::where(['program_id' => $this->id])->whereNotNull('cover_id')->inRandomOrder()->limit(12)->get();
+            $pictures = [];
+            foreach ($records as $record) {
+                if (count($pictures) < 4) {
+                    if ($record && $record->cover && $record->cover != '/Obloshki/11.PNG' && $record->cover != 'http://staroetv.ucoz.ru/Obloshki/11.PNG') {
+                        $pictures[] = $record->cover;
+                    }
+                }
+            }
+            return $pictures;
+        });
+    }
+
     public function getCoverUrlAttribute() {
-        return $this->coverPicture ? $this->coverPicture->url : "/Obloshki/11.PNG";
+
+        if ($this->coverPicture && $this->coverPicture->url != '/Obloshki/11.PNG') {
+            return $this->coverPicture->url;
+        }
+        $pictures = $this->random_pictures;
+
+        if (count($pictures) > 0) {
+            return $pictures[0];
+        }
+       // return '/img/noise.jpg';
+        return '/Obloshki/11.PNG';
     }
 
     public function getChannelsNamesListAttribute() {
@@ -74,7 +100,8 @@ class Program extends Model {
 
     public function getChannelsHistoryAttribute()
     {
-        return Cache::remember('programs_channels_names_' . $this->id, 1800, function () {
+        return Cache::remember('programs_channels___names_' . $this->id, 1800, function () {
+            $channels = [];
             if ($this->channel) {
                 $date_start = $this->date_of_start;
                 $date_end = $this->date_of_closedown;
@@ -124,15 +151,19 @@ class Program extends Model {
                 $names = $names->get();
 
                 if (count($names) === 0) {
-                    $names = ChannelName::where(['channel_id' => $channel['id']])->whereDate('date_start', '<=', $channel['date_start'])->whereNull('date_end')->get();
+                    $names = ChannelName::where(['channel_id' => $channel['id']]);
+                    if ( $channel['date_start']) {
+                        $names = $names->whereDate('date_start', '<=', $channel['date_start'])->whereNull('date_end');
+                    }
+                    $names = $names->get();
                 }
 
                 if (count($names) === 0) {
-                    $channel = Channel::find($channel['id']);
+                    $channel_data = Channel::find($channel['id']);
                     $name_data = [
-                        'url' => $channel['url'],
-                        'name' => $channel->name,
-                        'logo' => $channel->logo ? $channel->logo->url : null
+                        'url' => $channel_data->full_url,
+                        'name' => $channel_data->name,
+                        'logo' => $channel_data->logo ? $channel_data->logo->url : null
                     ];
                 } else {
                     $name_data = [
@@ -179,4 +210,82 @@ class Program extends Model {
             return $data;
        });
     }
+
+    public static function findByIdOrUrl($id) {
+        $program = Program::find($id);
+        if (!$program) {
+            $program = Program::where(['url' => $id])->first();
+        }
+        return $program;
+    }
+
+    public function interprogramPackages() {
+        return $this->hasMany('App\InterprogramPackage')->orderBy('date_start');
+    }
+
+    public function scopeApproved($query) {
+        if (!PermissionsHelper::allows('viapprove')) {
+            $query->where(function($q) {
+                $q->where(['pending' => false]);
+                $user = auth()->user();
+                if ($user) {
+                    $q->orWhere(['author_id' => $user->id]);
+                }
+            });
+        }
+        return $query;
+    }
+
+    public function getCoverAttribute() {
+        if ($this->coverPicture) {
+            $url = $this->coverPicture->url;
+            if ($url == "/Obloshki/11.PNG") {
+                return "/pictures/logo-grey.svg";
+            } else {
+                return $url;
+            }
+        } else {
+            return "/pictures/logo-grey.svg";
+        }
+    }
+
+    public function getCoverWithoutEmptyAttribute() {
+        if ($this->cover != "/pictures/logo-grey.svg") {
+
+            if ($this->coverPicture && $this->coverPicture->url != '/Obloshki/11.PNG') {
+                return $this->coverPicture->url;
+            }
+            $pictures = $this->random_pictures;
+
+            if (count($pictures) > 0) {
+                return $pictures[0];
+            }
+            return $this->cover;
+        } else {
+            return null;
+        }
+    }
+
+    public function getUniqueNamesAttribute() {
+        $names = $this->additionalChannels->pluck('title')->filter(function($name)  {
+            return $name != "" && $name != $this->name;
+        })->unique();
+        if ($this->name != $this->original_name) {
+            $names->push($this->original_name);
+        }
+        return $names->toArray();
+    }
+
+    public function articles() {
+        return $this->hasManyThrough(
+            Article::class,
+            ArticleBinding::class,
+            'program_id',
+            'id',
+            'id',
+            'article_id'
+        );
+    }
+
+
 }

@@ -47,6 +47,13 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if (request()->has('test')) {
+            $uri = $request->getRequestUri();
+            if (strpos($uri, "/public/public") === 0) {
+                $uri = str_replace("/public/public", "", $uri);
+                return redirect($uri);
+            }
+        }
         return parent::render($request, $exception);
     }
 

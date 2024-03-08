@@ -130,7 +130,7 @@ class HistoryEventsController extends Controller {
             $event = HistoryEvent::find($url);
         }
         if (!$event) {
-            return redirect("/");
+            return redirect("https://staroetv.su/");
         }
         ViewsHelper::increment($event, 'events');
         foreach ($event->blocks as $block) {
@@ -174,7 +174,7 @@ class HistoryEventsController extends Controller {
         $page = request()->input('page', 1);
         $big_event = null;
         $first_events = null;
-        if ($page == 1) {
+        if ($page == 1 && $events->count() >= 4) {
             $big_event =  HistoryEvent::approved()->orderBy('id', 'desc')->first();
             $first_events = HistoryEvent::approved()->orderBy('id', 'desc')->where('id','!=', $big_event->id)->limit(3)->get();
             $events = $events->where('id','!=', $big_event->id);

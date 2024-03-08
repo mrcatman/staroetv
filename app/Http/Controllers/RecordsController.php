@@ -2,25 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\AdditionalChannel;
 use App\Channel;
+use App\ChannelName;
 use App\Genre;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\RecordsHelper;
 use App\Helpers\ViewsHelper;
 use App\HistoryEvent;
+use App\InterprogramPackage;
 use App\Picture;
 use App\Program;
 use App\Record;
-use App\VideoCut;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 
 class RecordsController extends Controller {
 
+    protected $month_names = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+    protected $month_names_parental_case = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+
     public function buildChannelsList($params) {
         $federal = Channel::where(['is_federal' => true])->where($params)->orderBy('order', 'ASC')->get();
+
         $regions = json_decode(file_get_contents(public_path("data/cities.json")), 1);
         $regions_by_city = [];
         foreach ($regions as $region => $cities) {
@@ -94,44 +99,96 @@ class RecordsController extends Controller {
             $params['pending'] = false;
         }
         $data = $this->buildChannelsList($params);
-        $last_records = Record::approved()->where($params)->orderBy('id', 'desc')->paginate(60);
+        $last_records = Record::approved()->where($params)->orderBy('original_added_at', 'desc')->paginate(60);
         $data['params'] = $params;
         $data['last_records'] = $last_records;
-        $data['events'] = HistoryEvent::approved()->orderBy('id', 'desc')->limit(3)->get();
+        $data['events'] = [];
+       // $data['events'] = HistoryEvent::approved()->orderBy('id', 'desc')->limit(3)->get();
         return view("pages.records.index", $data);
     }
 
 
     public function show($id) {
         $record = Record::approved()->where(['id' => $id])->firstOrFail();
+
         $related_program = null;
         $related_channel = null;
         $related_interprogram = null;
         $related_advertising = null;
-        if ($record->interprogram_package_id) {
-             $related_interprogram = Record::approved()->where(['interprogram_package_id' => $record->interprogram_package_id])->where('id', '!=', $record->id)->inRandomOrder()->limit(5)->get();
+        $related_other = null;
+        $playlist = null;
+        if ($record->interprogram_package_id && $record->interprogram_type != 22) {
+            $package = $record->interprogramPackage;
+            $records = $package->records->map(function($record) {
+                return [
+                    'order' => $record->internal_order,
+                    'is_annotation' => false,
+                    'data' => $record
+                ];
+            });
+            $annotations = $package->annotations->map(function($annotation) {
+                return [
+                    'order' => $annotation->order,
+                    'is_annotation' => true,
+                    'data' => $annotation
+                ];
+            });
+            $types_to_hide = [22];
+            $records = $records->filter(function($record) use ($types_to_hide) {
+                return !in_array($record['data']->interprogram_type, $types_to_hide);
+            });
+            $playlist = $records->merge($annotations)->sortBy('order');
+            //$index = $playlist->search(function($playlist_record) use ($record) {
+            //    return !$playlist_record['is_annotation'] && $playlist_record['data']->id === $record->id;
+            //});
         }
-        if ($record->program) {
-            $related_program = Record::approved()->where(['program_id' => $record->program_id])->where('id', '!=', $record->id)->inRandomOrder()->limit(5)->get();
-        }
-        if ($record->channel) {
-            $limit = (!$record->program || ($related_program && count($related_program) === 0)) && !$record->interprogram_package_id ? 10 : 5;
-            $related_channel = Record::approved()->where(['channel_id' => $record->channel_id, 'is_advertising' => false])->where('id', '!=', $record->id)->inRandomOrder()->limit($limit)->get();
-        }
+        if (!$playlist) {
+            if ($record->is_interprogram && $record->interprogram_package_id > 0) {
+                if ($record->is_selected) {
+                    $related_interprogram = Record::approved()->where(['interprogram_package_id' => $record->interprogram_package_id, 'is_selected' => true])->where('id', '!=', $record->id)->inRandomOrder()->limit(5)->get();
+                }
+                if (!$record->is_selected || count($related_interprogram) == 0) {
+                    $related_interprogram = Record::approved()->where(['interprogram_package_id' => $record->interprogram_package_id])->where('id', '!=', $record->id)->inRandomOrder()->limit(5)->get();
+                }
+            }
+            if ($record->program) {
+                $related_program = Record::approved()->where(['program_id' => $record->program_id])->where('id', '!=', $record->id)->inRandomOrder()->limit(5)->get();
+            }
+            if ($record->channel && !$record->is_advertising) {
+                $limit = (!$record->program || ($related_program && count($related_program) === 0)) && !$record->interprogram_package_id ? 10 : 5;
+                $related_channel = Record::approved()->where(['channel_id' => $record->channel_id, 'is_advertising' => false])->where('id', '!=', $record->id)->inRandomOrder()->limit($limit)->get();
+            }
 
-        if ($record->is_advertising) {
-            $related_advertising = Record::approved()->where(['is_advertising' => true, 'advertising_brand' => $record->advertising_brand])->where('id', '!=', $record->id)->inRandomOrder()->limit(10)->get();
-            if (count($related_advertising) == 0 && $record->year) {
-                $related_advertising = Record::approved()->where(['is_advertising' => true, 'year' => $record->year])->where('id', '!=', $record->id)->inRandomOrder()->limit(10)->get();
+            if ($record->is_advertising) {
+                $related_advertising = Record::approved()->where(['is_radio' => $record->is_radio, 'is_advertising' => true, 'advertising_brand' => $record->advertising_brand])->where('id', '!=', $record->id)->inRandomOrder()->limit(10)->get();
+                if (count($related_advertising) == 0 && $record->year) {
+                    $related_advertising = Record::approved()->where(['is_radio' => $record->is_radio, 'is_advertising' => true, 'year' => $record->year])->where('id', '!=', $record->id)->inRandomOrder()->limit(10)->get();
+                }
+            }
+            if ((!$related_interprogram || count($related_interprogram) === 0) && (!$related_program || count($related_program) === 0) && (!$related_channel || count($related_channel) === 0) && (!$related_advertising || count($related_advertising) === 0)) {
+                $related_other = Record::approved()->where(['is_radio' => $record->is_radio])->where('id', '!=', $record->id)->inRandomOrder()->limit(10)->get();
+            }
+        }
+        $changed_name = false;
+        if ($record->program && $record->program->channel_id != $record->channel_id) {
+            $additional_channel_data = AdditionalChannel::where(['program_id' => $record->program->id, 'channel_id' => $record->channel_id])->first();
+            if ($additional_channel_data) {
+                $changed_name = true;
+                if ( $additional_channel_data->title != "") {
+                    $record->program->name = $additional_channel_data->title;
+                }
             }
         }
         ViewsHelper::increment($record, 'records');
         return view("pages.records.show", [
             'record' => $record,
+            'playlist' => $playlist,
             'related_interprogram' => $related_interprogram,
             'related_program' => $related_program,
             'related_channel' => $related_channel,
-            'related_advertising' => $related_advertising
+            'related_advertising' => $related_advertising,
+            'related_other' => $related_other,
+            'changed_name' => $changed_name,
         ]);
     }
 
@@ -164,7 +221,7 @@ class RecordsController extends Controller {
             ],
             '2000-е' => [
                 'year_start' => 2000,
-                'year_end' => 2009
+                'year_end' => 2011
             ]
         ];
         $selected_years_range = null;
@@ -308,7 +365,7 @@ class RecordsController extends Controller {
             ],
             '2000-е' => [
                 'year_start' => 2000,
-                'year_end' => 2009
+                'year_end' => 2011
             ]
         ];
         $types_to_hide =  [11, 22];
@@ -396,14 +453,48 @@ class RecordsController extends Controller {
         ]);
     }
 
+    private function getChannelsInternalOrder($start_params) {
+        $federal_channel_ids = Channel::where($start_params)->where(['is_federal' => true])->orderBy('order', 'asc')->pluck('id');
+        $other_channel_ids = Channel::where($start_params)->where(['is_federal' => false, 'is_regional' => false])->orderBy('order', 'asc')->pluck('id');
+        $regional_channel_ids = Channel::where($start_params)->where(['is_regional' => true])->orderBy('order', 'asc')->pluck('id');
+        return $federal_channel_ids->merge($other_channel_ids)->merge($regional_channel_ids);
+    }
+
+    public function interprogramV2($start_params) {
+        $channel_ids = $this->getChannelsInternalOrder($start_params);
+        $packages = InterprogramPackage::whereIn('channel_id', $channel_ids)->orderByRaw('FIELD(channel_id, '.implode(',', $channel_ids->toArray()).' )')->get()->groupBy('channel_id');
+        $new_list = [];
+        foreach ($packages as &$packages_list) {
+            $new_list[] = $packages_list->sortBy('date_start');
+        }
+
+        return view("pages.records.graphics_v2", [
+            'packages' => $new_list,
+        ]);
+    }
+
+    public function programsGraphics($start_params) {
+        $channel_ids = $this->getChannelsInternalOrder($start_params);
+        $program_ids = Record::whereNotNull('program_id')->where(['is_interprogram' => true])->pluck('program_id');
+        $programs = Program::whereIn('channel_id', $channel_ids)->orderByRaw('FIELD(channel_id, '.implode(',', $channel_ids->toArray()).' )')->whereIn('id', $program_ids)->get()->groupBy('channel_id');
+        //$program_packages = InterprogramPackage::whereNotNull('program_id')->pluck('program_id');
+        //$programs_with_packages = Program::whereIn('channel_id', $channel_ids)->whereIn('id', $program_packages)->get();
+
+        return view("pages.records.graphics_programs", [
+            'programs' => $programs,
+        ]);
+    }
+
+
     public function other($start_params, $category_url = null) {
-        $params = ['channel_id' => null, 'is_advertising' => false];
+        $params = ['channel_unknown' => true, 'is_advertising' => false];
+
         $category = null;
         if ($category_url) {
             $category = Genre::where(['url' => $category_url])->first();
 
             if (!$category) {
-                return redirect('/');
+                return redirect('https://staroetv.su/');
             }
             $params['other_category_id'] = $category->id;
         }
@@ -427,10 +518,11 @@ class RecordsController extends Controller {
         }
         $can_upload = PermissionsHelper::allows('viupload');
         return view ("pages.forms.record", [
+            'can_edit_all' => false,
             'can_upload' => $can_upload,
             'data' => $params,
             'record' => null,
-            'channels' => Channel::with('logo', 'names')->where($params)->get()
+            'channels' => Channel::with('logo', 'names')->orderBy('order', 'asc')->where($params)->get()
         ]);
     }
 
@@ -439,18 +531,22 @@ class RecordsController extends Controller {
             return view('pages.errors.banned');
         }
         if (!auth()->user()) {
-            return redirect('/');
+            return redirect('https://staroetv.su/');
         }
         $record = Record::with('channel','program', 'program.coverPicture')->find($id);
         if (!$record->can_edit) {
             return view('pages.errors.403');
         }
+        $ts = $record->original_added_at_ts;
         $can_upload = PermissionsHelper::allows('viupload');
+        $can_edit_all = PermissionsHelper::allows('viedit');
+        $record->original_added_at_ts = $ts;
         return view ("pages.forms.record", [
             'data' => [
-                'is_radio' => $record->is_radio
+                'is_radio' => request()->has('is_radio') ? !!request()->input('is_radio') : $record->is_radio
             ],
             'can_upload' => $can_upload,
+            'can_edit_all' => $can_edit_all,
             'record' => $record,
             'channels' => Channel::with('logo', 'names')->get()
         ]);
@@ -461,7 +557,7 @@ class RecordsController extends Controller {
         if (request()->has('vk_video_id')) {
             $vk_id = request()->input('vk_video_id');
             $token = config('tokens.vk');
-            $data = json_decode(shell_exec(" curl 'https://api.vk.com/method/video.get?access_token=$token&v=5.101&videos=$vk_id&extended=1'"));
+            $data = json_decode(shell_exec(" curl 'https://api.vk.com/method/video.get?access_token=$token&v=5.130&videos=$vk_id&extended=1'"));
             return [
                 'status' => 1,
                 'data' => [
@@ -471,7 +567,7 @@ class RecordsController extends Controller {
         } elseif (request()->has('youtube_video_id')) {
             $youtube_id = request()->input('youtube_video_id');
             $token = config('tokens.youtube');
-            $data = json_decode(shell_exec("curl 'https://www.googleapis.com/youtube/v3/videos?id=$youtube_id&key=$token&part=snippet'"));
+             $data = json_decode(shell_exec("curl 'https://www.googleapis.com/youtube/v3/videos?id=$youtube_id&key=$token&part=snippet'"));
             return [
                 'status' => 1,
                 'data' => [
@@ -528,6 +624,7 @@ class RecordsController extends Controller {
     }
 
     private function fillData($record, $is_new = false) {
+
         $user = auth()->user();
         $is_radio = request()->input('is_radio', false) === true;
         $errors = [];
@@ -538,7 +635,8 @@ class RecordsController extends Controller {
         } else {
             $record->other_category_id = null;
         }
-        if (!$is_other) {
+        $record->is_advertising = request()->input('is_advertising', false);
+        if (!$is_other && !$record->is_advertising) {
             if (!request()->input('channel.name') && !request()->input('channel_id') && !request()->input('channel.id') && request()->input('channel.unknown') !== true) {
                 if ($is_radio) {
                     $errors['channel'] = "Выберите радиостанцию";
@@ -555,7 +653,7 @@ class RecordsController extends Controller {
                 } elseif (request()->input('channel.name') != "") {
                     $channel = Channel::firstOrNew(['name' => request()->input('channel.name')]);
                     if (!$channel->exists) {
-                        $channel->fill(['author_id' => $user->id, 'is_regional' => false, 'is_abroad' => false, 'pending' => true]);
+                        $channel->fill(['author_id' => $user->id, 'is_regional' => false, 'is_abroad' => false, 'pending' => !PermissionsHelper::allows('contentapprove')]);
                     }
                     $channel->save();
                     $record->channel_id = $channel->id;
@@ -566,7 +664,7 @@ class RecordsController extends Controller {
         }
         $record->is_interprogram =  request()->input('is_interprogram', false);
         $record->is_clip =  request()->input('is_clip', false);
-        $record->is_advertising = request()->input('is_advertising', false);
+
         if ($record->is_advertising) {
             $record->advertising_brand = request()->input('advertising_brand', '');
             if (request()->input('advertising_type') > 0) {
@@ -583,9 +681,9 @@ class RecordsController extends Controller {
                     if (request()->input('program.id') > 0) {
                         $record->program_id = request()->input('program.id');
                     } elseif(request()->input('program.name') != "") {
-                        $program = Program::firstOrNew(['name' => request()->input('program.name')]);
+                        $program = Program::firstOrNew(['name' => request()->input('program.name'), 'channel_id' => $record->channel_id]);
                         if (!$program->exists) {
-                            $program->fill(['author_id' => $user->id, 'cover' => '', 'channel_id' => $record->channel_id, 'pending' => true]);
+                            $program->fill(['author_id' => $user->id, 'cover' => '', 'channel_id' => $record->channel_id, 'pending' => !PermissionsHelper::allows('contentapprove')]);
                         }
                         $program->save();
                         $record->program_id = $program->id;
@@ -597,11 +695,15 @@ class RecordsController extends Controller {
         } else {
             $record->program_id = null;
         }
+        if ( request()->input('program.unknown') === true) {
+            $record->program_id = null;
+        }
         if ($is_program_design) {
             $record->is_interprogram = true;
         }
-        if (request()->input('record.code') == "" && $record->source_type !== "local") {
-            $errors['url'] = "Укажите ссылку на видео";
+        $has_uploaded_video = request()->input('record.use_own_player', false) && request()->has('record.source_path');
+        if (request()->input('record.code') == "" && !$has_uploaded_video && !$record->use_own_player) {
+            $errors['url'] = "Укажите ссылку";
         } else {
             $record->embed_code = request()->input('record.code');
         }
@@ -681,7 +783,7 @@ class RecordsController extends Controller {
         } else {
             $record->title = $record->generateTitle();
         }
-        if (request()->input('record.use_own_player', false) && request()->has('record.source_path')) {
+        if ($has_uploaded_video) {
             $record->use_own_player = true;
             $record->source_type = "local";
             $record->source_path = request()->input('record.source_path');
@@ -699,6 +801,14 @@ class RecordsController extends Controller {
                 }
             }
         }
+        if ($record->exists && PermissionsHelper::allows('viedit')) {
+            if (request()->has('original_added_at')) {
+                $record->original_added_at = Carbon::parse(request()->input('original_added_at'));
+            }
+            if (request()->has('author_id')) {
+                $record->author_id = request()->input('author_id');
+            }
+        }
         if (count($errors) > 0) {
             return [
                 'status' => 0,
@@ -706,6 +816,18 @@ class RecordsController extends Controller {
                 'errors' => $errors
             ];
         }
+        if (request()->has('storage_file')) {
+            $filename = request()->input('storage_file');
+            $original_path = '/storage/temp-upload/'.$filename;
+            if (file_exists($original_path)) {
+                $new_path = "/storage/staroetv-storage/videos/$filename";
+                rename($original_path, $new_path);
+                $record->use_own_player = true;
+                $record->source_type = "local";
+                $record->source_path = "/videos/$filename";
+            }
+        }
+        $record->is_radio = $is_radio;
         if ($record->channel && $record->channel->is_radio) {
             $record->is_radio = true;
         }
@@ -714,7 +836,7 @@ class RecordsController extends Controller {
         $cover = $record->cover;
         return [
             'status' => 1,
-            'text' => $is_radio ? ($is_new ? 'Радиозапись добавлена' : 'Радиозапись обновлена') : ($is_new ? 'Видео добавлено' : 'Видео обновлено'),
+            'text' => $record->is_radio ? ($is_new ? 'Радиозапись добавлена' : 'Радиозапись обновлена') : ($is_new ? 'Видео добавлено' : 'Видео обновлено'),
             'data' => [
                 'record' => $record
             ]
@@ -727,9 +849,11 @@ class RecordsController extends Controller {
         } else {
             $records = Record::approved();
         }
+        $show_programs = true;
         $search = null;
         if (request()->has('search')) {
             $search = request()->input('search');
+            $show_programs = false;
             $records->where(function($q) use ($search) {
                 $q->where('title', 'LIKE', '%'. $search .'%');
                 $q->orWhere('short_description', 'LIKE', '%'. $search.'%');
@@ -751,16 +875,29 @@ class RecordsController extends Controller {
             $records = $records->where('channel_id', request()->input('channel_id'));
         }
         iF (request()->has('exclude_ids')) {
-            $records = $records->whereNotin('id', request()->input('exclude_ids'));
+            $ids = request()->input('exclude_ids');
+            if (!is_array($ids)) {
+                $ids = explode(",",$ids);
+            }
+            $records = $records->whereNotin('id', $ids);
         }
         if (request()->has('programs')) {
+            $show_programs = false;
             $programs = request()->input('programs');
             if (!is_array($programs)) {
                 $programs = explode(",", $programs);
             }
             $records = $records->whereIn('program_id', $programs);
         }
+        if (request()->has('program_id')) {
+            $show_programs = false;
+            $program_id = request()->input('program_id');
+            $records = $records->where('program_id', $program_id);
+        }
         if (request()->has('is_interprogram')) {
+            if (request()->input('is_interprogram')) {
+                $show_programs = false;
+            }
             $records = $records->where(['is_interprogram' => request()->input('is_interprogram')]);
         }
         if (request()->has('interprogram_type')) {
@@ -775,7 +912,7 @@ class RecordsController extends Controller {
         if (request()->has('is_advertising')) {
             $records = $records->where(['is_advertising' => request()->input('is_advertising')]);
         }
-       $has_dates = request()->has('date') || request()->has('date_day') || request()->has('date_month') || request()->has('date_year');
+        $has_dates = request()->has('date') || request()->has('date_day') || request()->has('date_month') || request()->has('date_year');
         if ($has_dates) {
             $records = $records->where(function($q) {
                 $date_start = null;
@@ -887,9 +1024,19 @@ class RecordsController extends Controller {
         } else {
             $records = $records->orderBy('id', 'desc');
         }
+        $programs = null;
         $records_count = $records->count();
+
+        if ($show_programs) {
+            $recommended_program_ids = $records->whereNotNull('program_id')->get()->groupBy('program_id')->map(function($values) {
+                return $values->count();
+            })->sort()->reverse()->slice(0, 10)->keys();
+            $programs = Program::whereIn('id', $recommended_program_ids)->get();
+        }
+
         $records = $records->paginate(30);
         $data = [
+            'programs' => $programs,
             'search' => $search,
             'params' => $params,
             'records' => $records->appends(request()->except('page')),
@@ -953,14 +1100,14 @@ class RecordsController extends Controller {
         ];
     }
 
-    public function download() {
-        $record = Record::find(request()->input('record_id'));
+    public function download($id = null) {
+        $record = Record::find($id ? $id : request()->input('record_id'));
         if (!$record) {
            return ['status' => 0, 'text' => 'Запись не найдена'];
         }
-        if (!$record->can_edit) {
-            return ['status' => 0, 'text' => 'Ошибка доступа'];
-        }
+        //if (!$record->can_edit) {
+           // return ['status' => 0, 'text' => 'Ошибка доступа'];
+        //}
         preg_match('/iframe(.*?)src="(.*?)"/', $record->embed_code, $matches);
         if (!isset($matches[2]) || $matches[2] == "") {
             preg_match('/iframe(.*?)src=(.*?) (.*?)/', $record->embed_code, $matches);
@@ -971,12 +1118,19 @@ class RecordsController extends Controller {
         $url = $matches[2];
         $path = "videos/" .$record->id.".mp4";
         $output_path = public_path($path);
-        $command = "youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' -i '$url' --output $output_path";
+        $command = "youtube-dl -f 'mp4' -i '$url' --output $output_path";
         shell_exec($command);
         if (file_exists($output_path)) {
             $record->use_own_player = true;
             $record->source_type = "local";
             $record->source_path = "/" . $path;
+            $record->save();
+            $screenshot_path = $this->makeScreenshot(public_path($record->source_path), null);
+            $cover = Picture::firstOrNew([
+                'url' => $screenshot_path
+            ]);
+            $cover->save();
+            $record->cover_id = $cover->id;
             $record->save();
             return [
                 'status' => 1,
@@ -984,6 +1138,9 @@ class RecordsController extends Controller {
                 'redirect_to' => $record->url
             ];
         } else {
+            if (strpos($record->embed_code, "dailymotion") !== false) {
+                $record->delete();
+            }
             return ['status' => 0, 'text' => 'Не удалось скачать видео, возможно оно удалено'];
         }
     }
@@ -996,6 +1153,9 @@ class RecordsController extends Controller {
             'records_data' => $records_data,
             'conditions' => $conditions
         ];
+        if (request()->has('search')) {
+            $data['search'] = request()->input('search');
+        }
         if (request()->has('block_title')) {
             $data['block_title'] = request()->input('block_title');
         }
@@ -1025,15 +1185,65 @@ class RecordsController extends Controller {
             ];
         }
         $extension = $record->extension();
+        $command = null;
         //$name = "record_".md5(time()).".".$extension;
-        $path = Storage::disk('public_data')->put("videos", $record);
-        if ($extension !== "mp4") {
+        $is_radio = request()->input('is_radio', "0") == "1";
+        $path = Storage::disk('public_data')->put($is_radio ? "radio-recordings" : "videos", $record);
+        if ($extension !== "mp4" && !$is_radio) {
             $old_path = $path;
             $path = str_replace(".".$extension, ".mp4", $path);
             $command = "ffmpeg -y -i ".public_path($old_path)." -strict -2 ".public_path($path)." && rm ".public_path($old_path);
             exec('bash -c "exec nohup setsid '.$command.' > /dev/null 2>&1 &"');
         }
-        $screenshot_path = $this->makeScreenshot(public_path($path));
+        $screenshot_path = null;
+        if (!$is_radio) {
+            $screenshot_path = $this->makeScreenshot(public_path($path));
+        }
+        return [
+            'status' => 1,
+            'text' => 'Запись загружена',
+            'data' => [
+                'command' => $command,
+                'url' => "/".$path,
+                'screenshot' => $screenshot_path,
+            ]
+        ];
+    }
+
+    public function afterUpload() {
+        if (!PermissionsHelper::allows('viupload') || PermissionsHelper::isBanned()) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+        $file_path = "/storage/uploads/".request()->input('server_upload_id');
+        if (!file_exists($file_path)) {
+            return [
+                'status' => 0,
+                'text' => 'Файл не найден'
+            ];
+        }
+        $meta = json_decode(file_get_contents($file_path.".info"));
+        $original_filename = $meta->MetaData->filename;
+        $extension = last(explode(".", $original_filename));
+        $command = null;
+        $filename =  uniqid().".".$extension;
+        $is_radio = request()->input('is_radio', false);
+        $folder = $is_radio ? "radio-recordings" : "videos";
+        $path = $folder."/".$filename;
+        $full_path = "/storage/staroetv-storage/$path";
+        shell_exec("mv $file_path $full_path");
+        if ($extension !== "mp4" && !$is_radio) {
+            $path = str_replace(".".$extension, ".mp4", $path);
+            $mp4_path = str_replace(".".$extension, ".mp4", $full_path);
+            $command = "ffmpeg -y -i ".$full_path." -strict -2 ".$mp4_path." && rm ".public_path($full_path);
+            exec('bash -c "exec nohup setsid '.$command.' > /dev/null 2>&1 &"');
+        }
+        $screenshot_path = null;
+        if (!$is_radio) {
+            $screenshot_path = $this->makeScreenshot($full_path);
+        }
         return [
             'status' => 1,
             'text' => 'Запись загружена',
@@ -1057,15 +1267,16 @@ class RecordsController extends Controller {
             if ($fps > 100 || $fps === 0) {
                 $fps = 30;
             }
-            $screenshot_time = $middle / $fps;
+          //  $screenshot_time = $middle / $fps;
+            $screenshot_time = ($frames / $fps) - 3;
         }
-        $screenshot_path = "/pictures/video_covers/$filename.png";
-        $screenshot_command = "ffmpeg -y -ss $screenshot_time -i $path -vframes 1 ".public_path($screenshot_path);
-        shell_exec($screenshot_command);
+        $screenshot_path = "/pictures/video_covers/$filename.jpg";
+        $screenshot_command = "ffmpeg -y -ss $screenshot_time -i '$path' -vframes 1 '".public_path($screenshot_path)."'";
+         shell_exec($screenshot_command);
         return $screenshot_path;
     }
 
-    public function screenshot() {
+    public function setTelegramID() {
         $record = Record::find(request()->input('record_id'));
         if (!$record) {
             return [
@@ -1079,17 +1290,90 @@ class RecordsController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         };
-        if (!$record->source_path) {
+        $record->telegram_id = request()->input('telegram_id');
+        $record->save();
+        return [
+            'status' => 1,
+            'text' => 'Видео будет воспроизводиться из Telegram',
+            'redirect_to' => $record->url
+        ];
+    }
+
+    public function screenshot() {
+        $record = Record::find(request()->input('record_id'));
+        if (!$record) {
+            return [
+                'status' => 0,
+                'text' => 'Видео не найдено'
+            ];
+        }
+        if (!$record->can_edit || PermissionsHelper::isBanned()) {
+            //return [
+            //    'status' => 0,
+             //   'text' => 'Ошибка доступа'
+            //];
+        };
+        if ($record->original_url && strpos($record->original_url, 'vk.com') !== false && !$record->source_path) {
+            $token = config('tokens.vk');
+            preg_match('/(.*?)video_ext.php\?oid=(.*?)&id=(.*?)&hash=(.*?)[&"](.*?)/', $record->embed_code, $matches);
+            $user_id = $matches[2];
+            $video_id = $matches[3];
+            $hash = $matches[4];
+            $full_id = $user_id."_".$video_id."_".$hash;
+            $data = json_decode(file_get_contents("https://api.vk.com/method/video.get?access_token=$token&v=5.101&videos=$full_id&extended=1"));
+            if (isset($data->response) && count($data->response->items) > 0) {
+                $video = $data->response->items[0];
+                $screenshot = $video->image[count($video->image) - 2]->url;
+                $cover = Picture::firstOrNew([
+                    'url' => $screenshot
+                ]);
+                $cover->save();
+                $record->cover_id = $cover->id;
+                $record->save();
+                return [
+                    'status' => 1,
+                    'text' => 'Превью обновлено',
+                    'redirect_to' => $record->url
+                ];
+            }
             return [
                 'status' => 0,
                 'text' => 'Видео не загружено на сайт'
+            ];
+        }
+        if ($record->original_url && strpos($record->original_url, 'youtu') !== false && !$record->source_path) {
+            $token = config('tokens.vk');
+            preg_match('/youtube.com\/embed\/(.*?)"/', $record->embed_code, $output);
+            if ($output && count($output) == 2) {
+                $screenshot = 'https://i.ytimg.com/vi/'.$output[1].'/hqdefault.jpg';
+                $cover = Picture::firstOrNew([
+                    'url' => $screenshot
+                ]);
+                $cover->save();
+                $record->cover_id = $cover->id;
+                $record->save();
+                return [
+                    'status' => 1,
+                    'text' => 'Превью обновлено',
+                    'redirect_to' => $record->url
+                ];
+            }
+            return [
+                'status' => 0,
+                'text' => 'Видео не загружено на сайт'
+            ];
+        }
+        if (!$record->source_path) {
+            return [
+                'status' => 0,
+                'text' => 'Видео не загружено на сайт',
             ];
         }
         $seconds = request()->input('seconds');
         if (!$seconds || $seconds == "") {
             $seconds = null;
         }
-        $screenshot_path = $this->makeScreenshot(public_path($record->source_path), $seconds);
+        $screenshot_path = $this->makeScreenshot("/storage/staroetv-storage".$record->source_path, $seconds);
 
         $cover = Picture::firstOrNew([
             'url' => $screenshot_path
@@ -1134,6 +1418,154 @@ class RecordsController extends Controller {
     public function embed($id) {
         $record = Record::findOrFail($id);
         return view('pages.embed', ['record' => $record]);
+    }
+
+    public function calendar() {
+        $years = Record::approved()->where(['is_radio' => false])->whereNotNull('year')->selectRaw('count(*) as count_year, year')->where('year', '>=', 1950)->groupBy('year')->orderBy('year', 'asc')->get();
+        return view('pages.records.calendar', ['years' => $years]);
+    }
+
+    public function calendarYear($year) {
+        $year_records = Record::approved()->select(['month', 'day', 'year'])->where(['is_radio' => false, 'is_advertising' => false])->where(['year' => $year])->get();
+        $records_by_month = [];
+
+        foreach ($year_records as $year_record) {
+            $month = $year_record->month  && $year_record->month > 0 ? $year_record->month : 0;
+            if ($month > 12) {
+                continue;
+            }
+            //$day = $year_record->day ? $year_record->day : '-';
+            if (!isset($records_by_month[$month])) {
+                $month_name = isset($this->month_names[$year_record->month - 1]) ? $this->month_names[$year_record->month - 1] : "-";
+                $records_by_month[$month] = ['name' => $month > 0 ? $month_name . " ".$year : "Неизвестно", 'count' => 0];
+            }
+            //if (!isset($records_by_date[$month]['days'][$day])) {
+            //    $records_by_date[$month]['days'][$day] = 0;
+            //}
+
+            $records_by_month[$month]['count']++;
+        }
+        ksort($records_by_month);
+        //foreach ($records_by_date as $month => &$records) {
+            //ksort($records['days']);
+       // }
+        return view('pages.records.calendar_year', ['year' => $year,'records_by_month' => $records_by_month]);
+    }
+
+    public function calendarMonth($year, $month) {
+        if ($year == "-") {
+            $month_name = $this->month_names[$month - 1];
+            $month_name_full = "Записи за " . mb_strtolower($this->month_names[$month - 1], "UTF-8");
+            $month_name_parental_case = "";
+            $month_records = Record::approved()->where(['is_radio' => false, 'is_advertising' => false])->where(['month' => $month])->get();
+        } else {
+            if ($month > 12) {
+                return redirect("https://staroetv.su/video/calendar/$year");
+            }
+            if ($month < 0) {
+                return;
+            }
+            if ($month > 0) {
+                $month_name = $this->month_names[$month - 1];
+                $month_name_full = "Записи за " . mb_strtolower($this->month_names[$month - 1], "UTF-8") . " $year";
+                $month_name_parental_case = $this->month_names_parental_case[$month - 1];
+                $month_records = Record::approved()->where(['is_radio' => false, 'is_advertising' => false])->where(['year' => $year, 'month' => $month])->get();
+            } else {
+                $month_name = "Неизвестный месяц";
+                $month_name_full = "Записи за $year год с неизвестной датой";
+                $month_name_parental_case = "";
+                $month_records = Record::approved()->where(['is_radio' => false, 'is_advertising' => false])->where(['year' => $year, 'month' => null])->get();
+            }
+        }
+        if ($year == "-") {
+            $year = 2000;
+        }
+        $records_by_day = [];
+        $channels = Channel::whereIn('id', $month_records->pluck('channel_id')->unique())->get();
+        $channels_by_id = [];
+        $date = Carbon::createFromDate($year, $month, 1);
+        foreach ($channels as $channel) {
+            $name = ChannelName::where(['channel_id' => $channel->id])->whereDate('date_start', '<=', $date)->whereDate('date_end', '>=', $date)->first();
+            if (!$name) {
+                $name = ChannelName::where(['channel_id' => $channel->id])->whereDate('date_start', '<=', $date)->where(['date_end' => null])->first();
+            }
+            if ($name) {
+                if ($name->name != "") {
+                    $channel->name = $name->name;
+                }
+                if ($name->logo) {
+                    $channel->logo = $name->logo;
+                }
+            }
+            $channel->logo_path = $channel->logo ? $channel->logo->url : '/pictures/logo-grey.svg';
+            $channels_by_id[$channel->id] = $channel;
+        }
+        foreach ($month_records as $month_record) {
+            $day = $month_record->day  && $month_record->day > 0 ? $month_record->day : 0;
+            if (!isset($records_by_day[$day])) {
+                $records_by_day[$day] = [];
+            }
+            if (!isset($records_by_day[$day][$month_record->channel_id])) {
+                $records_by_day[$day][$month_record->channel_id] = [];
+            }
+            $records_by_day[$day][$month_record->channel_id][] = $month_record;
+        }
+        ksort($records_by_day);
+        if (isset( $records_by_day[0])) {
+            $unknown =  $records_by_day[0];
+            unset($records_by_day[0]);
+            $records_by_day = $records_by_day + [0 => $unknown];
+        }
+
+
+        return view('pages.records.calendar_month', [
+            'channels_by_id' => $channels_by_id,
+            'month_name' => $month_name,
+            'month_name_full' => $month_name_full,
+            'month_name_parental_case' => $month_name_parental_case,
+            'year' => $year,
+            'month' => $month,
+            'records_by_day' => $records_by_day
+        ]);
+    }
+
+    public function playlistAjax($id) {
+        $record = Record::find($id);
+        if (!$record || $record->pending) {
+            return [
+                'status' => 0,
+                'text' => 'Запись не найдена',
+            ];
+        }
+        ViewsHelper::increment($record, 'records');
+        $player_code = trim(view('blocks/player', ['autoplay' => true, 'record' => $record])->render());
+        $share_title = $record->title_without_tags;
+        $share_url = "https://staroetv.su". ($record->is_radio ? "/radio/".$record->id : "/video/".$record->id);
+        $record_info = trim(view('blocks/record_info', ['record' => $record])->render()).trim(view('blocks/share', ['share_title' => $share_title, 'share_url' => $share_url])->render());
+        $comments = view("blocks/comments", ['ajax' => false, 'page' =>  1, 'conditions' => ['material_type' => Record::TYPE_VIDEOS, 'material_id' => $record->id]])->render();
+        return [
+            'status' => 1,
+            'data' => [
+                'record' => $record,
+                'record_info' => $record_info,
+                'player_code' => $player_code,
+                'comments' => $comments
+            ]
+        ];
+    }
+
+    public function getYoutubeVideoIds($author_id) {
+        $video_ids = Record::where(['author_id' => $author_id])->where('embed_code', 'LIKE', '%youtu%')->pluck('embed_code')->map(function($video_id) {
+            $video_id = explode('embed/', $video_id)[1];
+            $video_id = explode('"', $video_id)[0];
+            return $video_id;
+        });
+        return [
+            'status' => 1,
+            'data' => [
+                'video_ids' => $video_ids
+            ]
+        ];
     }
 
 }

@@ -10,7 +10,7 @@
         "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
     },
     "devDependencies": {
-        "axios": "^0.19",
+        "axios": "^0.19.2",
         "bootstrap": "^4.0.0",
         "cross-env": "^5.1",
         "jquery": "^3.2",
@@ -25,19 +25,27 @@
     },
     "dependencies": {
         "@ckeditor/ckeditor5-build-classic": "^12.4.0",
+        "@johmun/vue-tags-input": "^2.1.0",
         "bootstrap-vue": "^2.0.4",
         "ckeditor": "^4.12.1",
+        "date-fns": "^1.29.0",
         "jquery": "^3.4.1",
         "jquery-pjax": "^2.0.1",
         "jquery-ui-bundle": "^1.12.1-migrate",
         "jquery-ui-css": "^1.11.5",
         "jquery-ui-dist": "^1.12.1",
         "laravel-vue-pagination": "^2.3.1",
+        "plyr": "^3.6.2",
         "select2": "^4.0.10",
         "stylus": "^0.54.7",
         "stylus-loader": "^3.0.2",
+        "tus-js-client": "^2.2.0",
+        "vue-ctk-date-time-picker": "^2.5.0",
         "vue-draggable-resizable": "^2.0.1",
+        "vue-slider-component": "^3.2.2",
+        "vue-wysiwyg": "^1.7.2",
         "vuedraggable": "^2.23.2",
-        "vuejs-datepicker": "^1.6.2"
+        "vuejs-datepicker": "^1.6.2",
+        "vuejs-datetimepicker": "^1.1.13"
     }
 }

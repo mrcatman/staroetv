@@ -1,6 +1,9 @@
 .forum-section {
     margin: 1em 0 0;
     box-shadow: var(--block-box-shadow);
+    @include light() {
+        box-shadow: none;
+    }
     &__title {
         text-align: left;
         z-index: 10000000;
@@ -10,10 +13,32 @@
         justify-content: space-between;
         background: var(--box-color-dark);
         color: var(--box-text-color-dark);
-        padding: .75em;
+        padding: .25em .25em .25em .875em;
         box-shadow: var(--block-box-shadow);
-        @include mobile {
+        @include light() {
+            padding: 1em 0;
+            background: none;
+            color: unset;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary);
+            box-shadow: none;
+        }
+
+        @include mobile() {
             font-size: 1em;
+            display: block;
+        }
+        &__inner {
+            display: flex;
+            align-items: center;
+            @include mobile() {
+                font-size: .75em;
+            }
+        }
+
+        &__actions {
+            font-size: .75em;
+            margin: 0 0 0 1em;
         }
 
         &--main-page {
@@ -26,24 +51,80 @@
             font-size: .75em;
             position: relative;
             z-index: 10;
-            @include mobile {
+            margin: 0 0 0 .5em;
+            @include mobile() {
                 text-align: center;
-                margin: .5em 0 0;
+                margin: 0 0 .25em;
             }
-
+        }
+        .forum__locked {
+            background: var(--box-color-hover-dark);
+        }
+    }
+    & &__title {
+        padding: 1em;
+        border-bottom: 1px solid var(--border-color-dark);
+        @include light() {
+            padding: 1em 0;
+            border-bottom: 2px solid var(--primary);
         }
     }
 
     &__children {
         background: none;
-        @include mobile {
-
+        @include mobile() {
+            margin: -1em 0 0;
         }
     }
+    &__bottom {
+        background: var(--box-color-dark);
+        @include light() {
+            background: none;
+            color: unset;
+        }
+        .forum-section__search {
+            @include light() {
+                padding: 1em 0;
+            }
+        }
+        .forum-section__search .input {
 
+            @include light() {
+                background: var(--bg-darker-2);
+            }
+        }
+        .forum-section__pager {
+            @include light() {
+                padding: 0;
+            }
+        }
+        .forum-section__pager-container {
+            @include light() {
+                padding: 1em 0;
+            }
+            @include mobile() {
+                padding: 0;
+                margin: 0 0 1em;
+            }
+        }
+    }
+    &__bottom &__breadcrumb {
+        @include light() {
+            color: unset;
+        }
+    }
+    &__bottom &__breadcrumbs {
+        @include light() {
+            background: none;
+            border-bottom: 1px solid var(--border-color)!important;
+        }
+    }
     &__subsection {
         margin: 0 0 .5em;
         box-shadow: var(--block-box-shadow);
+        @include light() {
+            box-shadow: none;
+        }
         &__title {
             padding: 1.25em;
             background: var(--bg-darker-2);
@@ -52,26 +133,50 @@
             justify-content: space-between;
             position: relative;
             font-size: 1.25em;
+            @include light() {
+                padding: 1em 0 .5em;
+                background: none;
+                border: none;
+                font-size: 1.5em;
+            }
             @include mobile {
-                background: #fff;
+                background: var(--box-color);
                 font-size: 1.125em;
                 padding: .75em;
             }
             &__buttons {
-                @include mobile {
+                @include mobile() {
                     margin: 0;
                 }
             }
         }
     }
 
+    &__messages {
+        @include light() {
+            @include mobile() {
+                margin: 0 -1em;
+            }
+        }
+        &__nothing-found {
+            background: var(--box-color);
+            font-size: 1.5em;
+            padding: 1em;
+            border-bottom: 1px solid var(--border-color);
+        }
+    }
     &__pager-container {
         background: var(--bg-darkest-2);
         padding: 1em;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        @include mobile {
+        @include light() {
+            background: none;
+            padding: 0;
+        }
+        @include mobile() {
+            margin: 0 -.5em;
             display: flex;
             flex-direction: column-reverse;
         }
@@ -84,11 +189,14 @@
     }
 
     &__pager {
-        color: #fff;
+        color: var(--text-color);
         margin: 0 0 -1em;
+        @include light() {
+            background: none;
+            padding: 1.5em 0 .75em;
+        }
         @include mobile {
             width: 100%;
-            color: #fff;
         }
     }
 
@@ -98,12 +206,16 @@
         margin: 0;
         min-width: 16em;
         color: var(--box-text-color-dark);
-        @include mobile {
+        display: flex;
+        justify-content: flex-end;
+        @include mobile() {
             font-size: .75em;
             width: 100%;
             flex: unset;
-            display: flex;
-            margin: 1em 0;
+            margin: 1em 0 0;
+            padding: 0 0 1em;
+            text-align: left;
+            justify-content: flex-start;
             .button {
                 margin: 0 0 0 .5em;
                 white-space: nowrap;
@@ -111,18 +223,50 @@
         }
         .input {
             min-width: 16em;
-            margin: 0 .5em 0 0;
+            background: var(--box-color-hover-dark);
+            border: 1px solid var(--box-color-hover-dark);
+            margin: 0;
+            flex: unset;
+            @include mobile() {
+                min-width: unset;
+                flex: 1;
+            }
+            @include light() {
+                background: var(--box-color-hover-dark);
+                border: unset;
+                padding: .65em;
+            }
         }
+        .button {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            margin: 0;
+        }
+
         &--subforum {
             .select-classic {
-                padding: .4em;
-                margin: 0 .5em 0 0;
+                border: none;
+                background: var(--box-color-hover-dark);
+                flex: unset;
+                margin: 0 1px;
+                height: 2.785em;
             }
 
             .button {
-                font-size: .85em;
-                position: relative;
-                top: -.125em;
+                background: var(--bg-darkest-2);
+                border: none;
+                color: var(--box-text-color-dark)!important;
+                font-size: unset;
+                top: 0;
+                padding: .5em 1em;
+                margin: 0;
+                border-radius: 0;
+                border-top-right-radius: .25em;
+                border-bottom-right-radius: .25em;
+
+                &:hover {
+                    filter: brightness(1.1);
+                }
             }
 
         }
@@ -134,26 +278,63 @@
         background:var(--box-color-dark);
         border-bottom: 1px solid var(--border-color-dark);
         padding: 1em 1.25em;
-        @include mobile {
+        @include light() {
+            color: unset;
+            box-shadow: none;
+            background: none;
+            padding: .75em 0;
+            border: none;
+        }
+        @include mobile() {
             font-size: 1em;
             padding: .875em;
         }
+
         &--index {
             margin: 0 0 calc(-1em + 1px);
+            @include light() {
+                box-shadow: var(--block-box-shadow);
+                background: var(--box-color-dark);
+                border-bottom: 1px solid var(--border-color-dark);
+                .forum-section__search .input {
+                    background: var(--box-color-hover-dark);
+                    border: 1px solid var(--box-color-hover-dark);
+                }
+            }
         }
 
         &--with-search {
             display: flex;
             align-items: center;
-            padding: .25em 1em;
-            @include mobile {
+            padding: .25em .25em .25em 1.25em;
+            @include light() {
+                padding: 0;
+                border: none;
+                margin: .125em 0;
+            }
+            @include mobile() {
                 flex-wrap: wrap;
+                padding: 0 .75em;
+                @include light() {
+                    padding: 0;
+                }
+            }
+        }
+        &__buttons {
+            font-size: .875em;
+            margin: 0 0 0 1em;
+            @include mobile() {
+                margin: 0 0 1em;
+                padding: 0 0 .5em;
+                @include light() {
+                    padding: 0;
+                }
             }
         }
     }
 
     &__breadcrumb {
-        color: #ddd;
+        color: var(--box-text-color-dark);
         text-decoration: none;
         font-weight: 300;
         cursor: pointer;
@@ -172,7 +353,7 @@
 
         &:last-of-type {
             cursor: default;
-            font-weight: bold;
+            font-weight: 500;
             color: #fff;
             &:hover {
                 text-decoration: none;
@@ -188,8 +369,13 @@
         background: var(--bg-darker);
         padding: 1em !important;
         width: calc(100% - 2em);
-        @include mobile {
-            font-size: .75em;
+        @include mobile() {
+            font-size: 0.875em;
+            @include light() {
+
+                margin: 0 -1em;
+                width: 100%;
+            }
         }
         .input-container__message {
             margin: 0;
@@ -206,25 +392,54 @@
     background: var(--box-color);
     display: flex;
     width: 100%;
-    @include mobile {
-        margin: 1em 0;
+    position: relative;
+    @include mobile() {
+
     }
     &:hover {
         background:  var(--box-color-hover);
     }
 
-    @include mobile {
+    @include mobile() {
         flex-direction: column;
-        margin: 0 0 .5em;
+        margin: 1em 0;
+        @include light() {
+            margin: 0 0 1.25em;
+        }
     }
 
     a {
         text-decoration: none;
     }
+    &--unread {
+        background: var(--bg-darker);
 
+        &:before {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: .5em;
+            height: 100%;
+            background: var(--primary);
+            @include light() {
+                opacity: 0;
+            }
+        }
+    }
     &__title {
         font-size: 1.25em;
         font-weight: bold;
+        @include light() {
+            font-weight: 400;
+        }
+        @include mobile() {
+            @include light() {
+                font-weight: 600;
+                font-size: 1.3125em;
+            }
+        }
     }
 
     &__description {
@@ -245,9 +460,16 @@
         border-right: 1px solid  var(--border-color);
         background: none;
         padding: 1em 1.5em;
-        @include mobile {
+        @include light() {
+            padding: 0;
+        }
+        @include mobile() {
             padding: .5em 1em;
-             font-size: .875em;
+            font-size: .875em;
+            border-right: none;
+            @include light() {
+                padding: 0;
+            }
         }
     }
 
@@ -265,7 +487,10 @@
         font-size: 1.25em;
 
         &__container {
-            margin: 0 0 0 1.5em;
+            margin: .5em 1em;
+        }
+        &__description {
+            font-weight: 500;
         }
     }
 
@@ -281,10 +506,13 @@
         text-align: right;
         text-decoration: none;
         border-bottom: 1px solid var(--border-color);
-        @include mobile {
+        @include mobile() {
             font-size: .875em;
             flex-direction: column;
             align-items: flex-start;
+            @include light() {
+                padding: .75em 0;
+            }
         }
 
         &__text {
@@ -326,7 +554,10 @@
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 22em;
-            font-weight: bold;
+            font-weight: 500;
+            @include mobile() {
+                max-width: calc(100vw - 2em);
+            }
         }
 
         &__username {
@@ -342,7 +573,12 @@
     &__bottom {
         padding: 0;
         margin: 1em 0 0;
-        @include mobile {
+        background: var(--box-color-dark);
+        @include light() {
+            margin: 2.5em 0 0;
+            background: none;
+        }
+        @include mobile() {
             font-size: .75em;
         }
         &__line {
@@ -350,22 +586,35 @@
             background: var(--box-color);
             font-size: 1.25em;
             margin: 0 0 .75em;
+            @include light() {
+                box-shadow: none;
+                margin: 0 0 .75em;
+            }
             &__heading {
                 background: var(--box-color-dark);
                 color: var(--box-text-color-dark);
                 padding: 1em 1.25em;
-                font-weight: bold;
+                font-weight: 500;
+                @include light() {
+                    background: none;
+                    padding: .5em 0;
+                    color: unset;
+                    border-bottom: 2px solid var(--primary);
+                }
             }
 
             &__text {
                 padding: 1em 1.25em;
+                @include light() {
+                    padding: .5em 0;
+                }
             }
         }
     }
     &__locked {
         font-size: .875em;
         padding: .25em;
-        background: var(--bg-darkest-2);
+        background: var(--bg-darker-2);
         width: 1.5em;
         height: 1.5em;
         display: inline-block;
@@ -379,7 +628,22 @@
         box-shadow: var(--block-box-shadow);
         background: var(--box-color);
         padding: 1em;
-
+        @include light() {
+            box-shadow: none;
+            background: none;
+            padding: 1em 0;
+            margin: 0 -1em;
+        }
+        @include mobile() {
+            padding: 1em 0 .5em;
+            font-size: 0.875em;
+            border-bottom: 1px solid var(--border-color-dark);
+            margin: 0;
+            @include light() {
+                padding: 1em 0 0;
+                margin: 0 -1em .5em;
+            }
+        }
         &__item {
             font-size: 1.125em;
             background: var(--bg-darker-2);
@@ -387,438 +651,544 @@
             padding: .25em 1em;
             border-radius: 5em;
             margin: 0 .5em 0 0;
-
+            box-shadow: var(--block-box-shadow);
+            @include light() {
+                background: none;
+                box-shadow: none;
+                color: var(--box-text-color-dark);
+                font-weight: bold;
+            }
             &:hover {
                 background: var(--bg-darkest);
                 color: var(--box-text-color-dark);
+                @include light() {
+                    background: rgba(255, 255, 255, .1);
+                }
             }
+            @include mobile() {
+
+                @include light() {
+                    margin: .5em 0;
+                    display: inline-block;
+                }
+            }
+        }
+    }
+    &__top-panel {
+        position: absolute;
+        top: 0;
+        left: -1em;
+        width: calc(100% + 2em);
+        background: var(--box-color-dark);
+        height: 7em;
+        @include mobile() {
+            position: unset;
+            height: unset;
+            padding: 0 1em;
+            width: calc(100% - 2em);
+        }
+        &:before {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 3.25em;
+            width: 100%;
+            height: 1px;
+            background: var(--border-color-dark);
+            @include mobile() {
+                display: none;
+            }
+        }
+        &__outer {
+            height: 7em;
+            @include mobile() {
+                height: unset;
+                margin: 0 -1em;
+            }
+            @include light() {
+                & + .forum-section__messages {
+                    margin: 2em 0 0;
+                }
+            }
+        }
+
+        &__inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            @media screen and (max-width: 1367px) {
+                max-width: 1280px;
+            }
+        }
+        .forum-section__title {
+            @include light() {
+                padding: .75em 0 0;
+                font-weight: 400;
+                color: var(--box-text-color-dark);
+                font-size: 1.25em;
+                border: none;
+            }
+            @include mobile() {
+                padding: .75em .75em 0;
+                font-weight: 400;
+                color: var(--box-text-color-dark);
+                font-size: 1.25em;
+                border: none;
+                @include light() {
+                    padding: .625em 0 0;
+                }
+            }
+        }
+        & + div {
+            margin-top: 7em;
         }
     }
 }
 
+.forum-page {
+    &--form {
+
+        .forum__top-panel {
+            height: 3.25em;
+        }
+
+        .forum__top-panel__outer {
+            height: 4em;
+        }
+    }
+    &--topic-form {
+        .forum__top-panel {
+            height: 6.25em;
+        }
+
+        .forum__top-panel__outer {
+            height: 7em;
+        }
+    }
+}
 .forum-message {
-    display: flex;
-    background: var(--box-color);
-    margin: .5em 0;
-    border: 1px solid var(--border-color);
-    font-size: 1.125em;
-    box-shadow: var(--block-box-shadow);
-    iframe {
-        max-width: 100%;
-    }
-    @include mobile {
-        font-size: 1em;
-        flex-direction: column;
-        margin: .5em;
-        position: relative;
-        width: calc(100% - 1em);
-    }
-
-    &__top {
         display: flex;
-        background: var(--bg-darker);
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        white-space: nowrap;
-        width: 16em;
-
-        @include mobile {
-            z-index: 10;
-            width: 100%;
-            padding: 0;
-            flex-direction: row;
-            position: relative;
-            border: none;
-        }
-    }
-
-    &__content {
-        position: relative;
-        flex: 2;
         background: var(--box-color);
-        @include mobile {
-            padding: .5em!important;
-            border: none!important;
-        }
-        .bbQuoteName {
-            color: #333;
-            padding-left: 5px;
-            font-size: .875em !important;
-            font-weight: bold;
-            padding-top: 7px;
-            padding-bottom: 7px;
-            margin: 0 auto;
-            border-width: 1px 1px 0px 4px;
-            border-style: dotted dotted;
-            border-color: rgb(0, 0, 0) rgb(0, 0, 0);
-            border-image: initial;
-            border-bottom: 0px;
-            border-left: 4px solid rgb(131, 148, 178);
-            background: #e4eaf2;
-        }
-
-        .quoteMessage {
-            color: rgb(70, 85, 132);
-            font-size: .875em !important;
-            background: #fff;
-            padding: 3px;
-            border-width: 0 1px 1px 4px !important;
-            border-style: dotted dotted !important;
-            border-color: rgb(0, 0, 0) rgb(0, 0, 0) !important;
-            border-image: initial !important;
-            border-left: 4px solid rgb(131, 148, 178) !important;
-            border-top: 0 !important;
-        }
-
-        img {
+        margin: .5em 0;
+        border: 1px solid var(--border-color);
+        font-size: 1.125em;
+        iframe {
             max-width: 100%;
         }
-
-        .uSpoilerButton {
-            background: #eee;
-            color: #686868;
-            border-width: 1px;
-            border-style: solid;
-            border-color: #dddddd #c6c6c6 #c6c6c6 #c6c6c6;
-            border-radius: 5px;
-            -moz-border-radius: 5px;
-            cursor: pointer;
-            padding: .25em .5em;
-            font: inherit;
-            margin: .25em 0;
-
-            &:hover {
-                background: #ddd;
-            }
+        @include mobile() {
+            font-size: 1em;
+            flex-direction: column;
+            margin: .5em;
+            position: relative;
+            width: calc(100% - 1em);
         }
-    }
-
-    &__edited-by {
-        font-size: 0.75em;
-        bottom: 1.5em;
-        text-align: right;
-        margin: 1em 0 0;
-        color: #aaa;
-
-        &__username {
-            font-weight: bold;
+        @include light() {
+            box-shadow: none;
         }
-    }
-
-    &__user-info {
-        color: var(--text-lightest);
-        display: flex;
-        align-items: center;
-        flex-direction: column;
-        width: 100%;
-        overflow: hidden;
-        @include mobile {
-            overflow: visible!important;
+        &__top {
+            display: flex;
+            background: var(--bg-darker);
+            flex-direction: column;
             align-items: center;
-            flex-direction: row;
-            padding: 0;
-        }
-    }
+            justify-content: flex-start;
+            white-space: nowrap;
+            width: 16em;
 
-    &__avatar {
-        margin: 1em 1em 0;
-        width: 12em;
-        @include mobile {
-             display: none;
-        }
-    }
-
-    &__user-texts {
-        margin: 1em;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        @include mobile {
-            display: none;
-            &--modal {
-                height: auto;
-                display: flex;
-                flex-direction: row;
-                font-size: 1.125em;
-
-                &__avatar {
-                    max-height: 5em;
-                }
-
-
-                &__left {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    flex: 1;
-                }
-
-                &__right {
-                    display: flex;
-                    flex-direction: column;
-                    flex: 1;
-                    text-align: center;
-                    align-items: center;
-                }
-
-
-                &__username {
-                    margin: .5em 0 0;
-                }
-            }
-        }
-        a {
-            font-weight: bold;
-            text-decoration: none;
-            &:hover {
-                color: var(--primary);
-            }
-        }
-    }
-
-    &__username {
-        color: var(--text-lighter);
-        font-weight: bold;
-        margin: 0 0 .5em;
-        width: calc(100% - 1.25em);
-        text-align: center;
-        border: none;
-        padding: 1em 0 0;
-        @include mobile {
-            font-size: .875em;
-            background: none;
-            border: none;
-            display: none;
-        }
-    }
-
-    &__content {
-        flex: 1;
-        padding: 1em;
-    }
-
-    &__group-icon {
-        @include mobile {
-           width: 7em;
-        }
-    }
-
-    &__date {
-        margin: 0;
-        color: var(--text-lighter);
-        position: relative;
-        z-index: 1;
-        border-bottom: 1px solid var(--border-color);
-        background: var(--bg-darker);
-        font-weight: bold;
-        font-size: .875em;
-        padding: 1em 1.25em;
-        @include mobile {
-            display: none;
-        }
-    }
-
-    &__right {
-        border-left: 1px solid var(--border-color);
-        flex: 3.5;
-        display: flex;
-        flex-direction: column;
-        @include mobile {
-            border: none;
-            flex: unset;
-            width: 100%;
-            font-size: .875em;
-        }
-    }
-
-    &__reputation {
-        padding: .5em 0 0;
-        color: var(--text-lighter);
-
-        &__change {
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        &__number {
-            cursor: pointer;
-            text-decoration: underline;
-        }
-    }
-
-    &__warnings {
-        color: #555;
-
-        &__number {
-            cursor: pointer;
-            text-decoration: underline;
-        }
-    }
-
-    &__awards {
-        color: #555;
-
-        &__number {
-            cursor: pointer;
-            text-decoration: underline;
-        }
-    }
-
-    &__signature {
-        font-size: .875em;
-        padding: 1em;
-        border-top: 1px solid var(--border-color);
-        background: var(--bg-darker);
-        @include mobile {
-            padding: .5em;
-            img {
-                max-height: 3em;
-            }
-        }
-    }
-
-    &__actions {
-        padding: .5em 1em;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: .875em;
-        background: var(--bg-darker-2);
-        border: none;
-        border-top: 1px solid var(--border-color);
-        @include mobile {
-            display: none;
-        }
-        .button__text {
-            display: none;
-        }
-        &__left {
             @include mobile {
-
+                z-index: 10;
+                width: 100%;
+                padding: 0;
+                flex-direction: row;
+                position: relative;
+                border: none;
             }
         }
-        &__right {
-            .button {
-                i {
-                    margin: 0;
+
+        &__content {
+            position: relative;
+            flex: 2;
+            background: var(--box-color);
+            @include mobile {
+                padding: .5em!important;
+                border: none!important;
+            }
+            .bbQuoteName {
+                color: #333;
+                padding-left: 5px;
+                font-size: .875em !important;
+                font-weight: bold;
+                padding-top: 7px;
+                padding-bottom: 7px;
+                margin: 0 auto;
+                border-width: 1px 1px 0px 4px;
+                border-style: dotted dotted;
+                border-color: rgb(0, 0, 0) rgb(0, 0, 0);
+                border-image: initial;
+                border-bottom: 0px;
+                border-left: 4px solid rgb(131, 148, 178);
+                background: #e4eaf2;
+            }
+
+            .quoteMessage {
+                color: rgb(70, 85, 132);
+                font-size: .875em !important;
+                background: #fff;
+                padding: 3px;
+                border-width: 0 1px 1px 4px !important;
+                border-style: dotted dotted !important;
+                border-color: rgb(0, 0, 0) rgb(0, 0, 0) !important;
+                border-image: initial !important;
+                border-left: 4px solid rgb(131, 148, 178) !important;
+                border-top: 0 !important;
+            }
+
+            img {
+                max-width: 100%;
+            }
+
+            .uSpoilerButton {
+                background: #eee;
+                color: #686868;
+                border-width: 1px;
+                border-style: solid;
+                border-color: #dddddd #c6c6c6 #c6c6c6 #c6c6c6;
+                border-radius: 5px;
+                -moz-border-radius: 5px;
+                cursor: pointer;
+                padding: .25em .5em;
+                font: inherit;
+                margin: .25em 0;
+
+                &:hover {
+                    background: #ddd;
                 }
             }
         }
-    }
 
-    &__edit-form {
-        padding: 1em;
-    }
+        &__edited-by {
+            font-size: 0.75em;
+            bottom: 1.5em;
+            text-align: right;
+            margin: 1em 0 0;
+            color: #aaa;
 
-    &__user-comment {
-        font-size: .875em;
-        white-space: normal;
-        margin: 0 0 1em;
-    }
-    &__mobile-left {
-        display: none;
-        @include mobile {
-            min-height: 3em;
+            &__username {
+                font-weight: bold;
+            }
+        }
+
+        &__user-info {
+            color: var(--text-lightest);
             display: flex;
             align-items: center;
-            &__texts {
-                margin: 0 0 0 .5em;
-            }
-        }
-    }
-    @include mobile {
-        &__mobile-left &__avatar {
-            display: block;
-            width: 2.5em;
-            margin: .5em 0 .5em .5em;
-        }
-        &__mobile-left &__username {
-            display: block;
-            width: auto;
-            padding: 0;
-            text-align: left;
-            margin: 0;
-        }
-        &__mobile-left &__date {
-            display: block;
-            font-size: .875em;
-            background: none;
-            border: none;
-            padding: 0;
-        }
-    }
-
-    &__mobile-menu {
-        display: none;
-        @include mobile {
-            display: block;
-            margin-left: auto;
-            padding: 0 .5em;
-            .button--dropdown {
-                padding: .5em 1em;
-
-                &__text {
-                    display: none;
-                }
-
-                &__icon {
-                    margin: 0;
-                }
-            }
-        }
-    }
-
-}
-
-.user-online {
-    font-weight: 500;
-    text-decoration: none;
-
-    &:hover {
-        text-decoration: underline;
-    }
-
-    &[data-group-id="4"] {
-        color: #900020;
-    }
-}
-
-
-.forum-topics-list {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-
-    &__item {
-        padding: 1em;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        border-bottom: 1px solid var(--border-color);
-        text-decoration: none;
-        flex: 1;
-        &:last-of-type {
-            border-bottom: none;
-        }
-        &:hover {
-            background: var(--box-color-hover);
-        }
-
-        &__title {
-            font-size: 1.25em;
-            font-weight: 600;
-            margin: 0 0 .5em;
-            white-space: nowrap;
+            flex-direction: column;
+            width: 100%;
             overflow: hidden;
-            text-overflow: ellipsis;
+            @include mobile {
+                overflow: visible!important;
+                align-items: center;
+                flex-direction: row;
+                padding: 0;
+            }
         }
 
-        &__bottom {
-            font-size: .9375em;
+        &__avatar {
+            margin: 1em 1em 0;
+            width: 12em;
+            @include mobile {
+                display: none;
+            }
+        }
+
+        &__user-texts {
+            margin: 1em;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            @include mobile {
+                display: none;
+                &--modal {
+                    height: auto;
+                    display: flex;
+                    flex-direction: row;
+                    font-size: 1.125em;
+
+                    &__avatar {
+                        max-height: 5em;
+                    }
+
+
+                    &__left {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        flex: 1;
+                    }
+
+                    &__right {
+                        display: flex;
+                        flex-direction: column;
+                        flex: 1;
+                        text-align: center;
+                        align-items: center;
+                    }
+
+
+                    &__username {
+                        margin: .5em 0 0;
+                    }
+                }
+            }
+            a {
+                font-weight: bold;
+                text-decoration: none;
+                &:hover {
+                    color: var(--primary);
+                }
+            }
+        }
+
+        &__username {
+            color: var(--text-lighter);
+            font-weight: bold;
+            margin: 0 0 .5em;
+            width: calc(100% - 1.25em);
+            text-align: center;
+            border: none;
+            padding: 1em 0 0;
+            @include mobile {
+                font-size: .875em;
+                background: none;
+                border: none;
+                display: none;
+            }
+        }
+
+        &__content {
+            flex: 1;
+            padding: 1em;
+        }
+
+        &__group-icon {
+            @include mobile {
+                width: 7em;
+            }
+        }
+
+        &__group-icon-container {
+            svg {
+                height: .675em;
+            }
+        }
+        &__date {
+            margin: 0;
+            color: var(--text-lighter);
+            position: relative;
+            z-index: 1;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-darker);
+            font-weight: 500;
+            font-size: .875em;
+            padding: 1em 1.25em;
+            @include mobile {
+                display: none;
+            }
+        }
+
+        &__right {
+            border-left: 1px solid var(--border-color);
+            flex: 3.5;
+            display: flex;
+            flex-direction: column;
+            @include mobile {
+                border: none;
+                flex: unset;
+                width: 100%;
+                font-size: .875em;
+            }
+        }
+
+        &__reputation {
+            padding: .5em 0 0;
+            color: var(--text-lighter);
+
+            &__change {
+                font-weight: bold;
+                cursor: pointer;
+                text-decoration: underline;
+            }
+
+            &__number {
+                cursor: pointer;
+                text-decoration: underline;
+            }
+        }
+
+        &__warnings {
+            color: #555;
+
+            &__number {
+                cursor: pointer;
+                text-decoration: underline;
+            }
+        }
+
+        &__awards {
+            color: #555;
+
+            &__number {
+                cursor: pointer;
+                text-decoration: underline;
+            }
+        }
+
+        &__signature {
+            font-size: .875em;
+            padding: 1em;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-darker);
+            @include mobile {
+                padding: .5em;
+                img {
+                    max-height: 3em;
+                }
+            }
+        }
+
+        &__actions {
+            padding: .5em 1em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: .875em;
+            background: var(--bg-darker-2);
+            border: none;
+            border-top: 1px solid var(--border-color);
+            @include mobile {
+                display: none;
+            }
+            .button__text {
+                display: none;
+            }
+            &__left {
+                @include mobile {
+
+                }
+            }
+            &__right {
+                .button {
+                    i {
+                        margin: 0;
+                    }
+                }
+            }
+        }
+
+        &__edit-form {
+            padding: 1em;
+        }
+
+        &__user-comment {
+            font-size: .875em;
+            white-space: normal;
+            margin: 0 0 1em;
+        }
+        &__mobile-left {
+            display: none;
+            @include mobile {
+                min-height: 3em;
+                display: flex;
+                align-items: center;
+                &__texts {
+                    margin: 0 0 0 .5em;
+                }
+            }
+        }
+        @include mobile {
+            &__mobile-left &__avatar {
+                display: block;
+                width: 2.5em;
+                margin: .5em 0 .5em .5em;
+            }
+            &__mobile-left &__username {
+                display: block;
+                width: auto;
+                padding: 0;
+                text-align: left;
+                margin: 0;
+            }
+            &__mobile-left &__date {
+                display: block;
+                font-size: .875em;
+                background: none;
+                border: none;
+                padding: 0;
+            }
+        }
+
+        &__mobile-menu {
+            display: none;
+            @include mobile {
+                display: block;
+                margin-left: auto;
+                padding: 0 .5em;
+                .button--dropdown {
+                    padding: .5em 1em;
+
+                    &__text {
+                        display: none;
+                    }
+
+                    &__icon {
+                        margin: 0;
+                    }
+                }
+            }
+        }
+
+    }
+
+    .group-users-list {
+        display: inline-block;
+        position: relative;
+        top: -1em;
+        margin: 0 1em;
+    }
+
+
+    .forum-topics-list {
+        height: 100%;
+
+        &__item {
+            padding: 1em;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-color);
+            text-decoration: none;
+            flex: 1;
+            @include light() {
+                padding: 1em 0;
+            }
+            &:last-of-type {
+                border-bottom: none;
+            }
+
+            &:hover {
+                background: var(--box-color-hover);
+            }
+
+            &__title {
+                font-size: 1.25em;
+                font-weight: 600;
+                margin: 0 0 .5em;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            &__bottom {
+                font-size: .9375em;
+            }
         }
     }
-}

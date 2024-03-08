@@ -6,10 +6,10 @@ let loadRecords = ({container, conditions, page, sort, search}) => {
     $(container).append('<div class="block-preloader"><img src="/pictures/ajax.gif"></div>');
     let data = {page, conditions, sort};
     if (!data.sort) {
-        sort = $(container).find('.records-list__sort__item--active').data('sort');
+        data.sort = $(container).find('.records-list__sort__item--active').data('sort');
     }
     if (!data.page) {
-        page = 1;
+        data.page = 1;
     }
     if (!search) {
         search = $(container).find('.records-list__sort__search input').val();

@@ -7,13 +7,14 @@ use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
 use App\Page;
 use App\Program;
+use App\User;
 
 class PagesController extends Controller {
 
     public function show($id) {
         $page = Page::find($id);
         if (!$page) {
-            return redirect('/');
+            return redirect('https://staroetv.su/');
         }
 
         if (PermissionsHelper::checkGroupAccess("can_read", $page)) {
@@ -29,7 +30,7 @@ class PagesController extends Controller {
     public function showByURL($url) {
         $page = Page::where(['url' => $url])->first();
         if (!$page) {
-            return redirect('/');
+            return redirect('https://staroetv.su/');
         }
         if (PermissionsHelper::checkGroupAccess("can_read", $page)) {
             ViewsHelper::increment($page,'pages');
@@ -44,7 +45,7 @@ class PagesController extends Controller {
 
     public function add() {
         if (!PermissionsHelper::allows('sipadd')) {
-            return redirect('/');
+            return redirect('https://staroetv.su/');
         }
         return view("pages.forms.static", [
             'page' => null,
@@ -53,7 +54,7 @@ class PagesController extends Controller {
 
     public function edit($id) {
         if (!PermissionsHelper::allows('sipedt')) {
-            return redirect('/');
+            return redirect('https://staroetv.su/');
         }
         $page = Page::where(['id' => $id])->first();
         return view("pages.forms.static", [
@@ -136,4 +137,24 @@ class PagesController extends Controller {
         ];
     }
 
+    public function team() {
+        $page = Page::find(128);
+        if (PermissionsHelper::checkGroupAccess("can_read", $page)) {
+            ViewsHelper::increment($page,'pages');
+            $page->content = preg_replace_callback(
+                '/team\|\d+/',
+                function ($matches) {
+                    $group_id = explode("|", $matches[0])[1];
+                    $users = User::where(['group_id' => $group_id])->get();
+                    return view('blocks.group_users_list', ['users' => $users]);
+                },
+                $page->content
+            );
+            return view("pages.static", [
+                'page' => $page,
+            ]);
+        } else {
+            return view("pages.errors.403");
+        }
+    }
 }

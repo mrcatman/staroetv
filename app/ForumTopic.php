@@ -13,6 +13,11 @@ class ForumTopic extends Model {
         return DatesHelper::format($this->attributes['last_reply_at']);
     }
 
+    public function getLastReplyAtTsAttribute() {
+        return strtotime($this->attributes['last_reply_at']);
+    }
+
+
     public function getTitleAttribute() {
         return html_entity_decode($this->attributes['title']);
     }
@@ -45,5 +50,17 @@ class ForumTopic extends Model {
 
     public function questionnaire_data() {
         return $this->hasOne(Questionnaire::class, 'topic_id', 'id');
+    }
+
+    public function getIsReadAttribute() {
+        if (!auth()->user()) {
+            return true;
+        }
+        $tracking = ForumTracking::where(['is_forum' => false, 'user_id' => auth()->user()->id, 'entity_id' => $this->id])->first();
+        if (!$tracking) {
+            return true;
+        }
+
+        return $tracking->timestamp >= $this->last_reply_at_ts;
     }
 }

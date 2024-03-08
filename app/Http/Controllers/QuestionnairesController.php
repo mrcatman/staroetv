@@ -105,7 +105,7 @@ class QuestionnairesController extends Controller {
         }
         $questionnaire->title = $data->title;
         $questionnaire->multiple_variants = isset($data->multiple_variants) ? (bool)$data->multiple_variants : false;
-        if (!isset($data->variants) || count($data->variants) === 0) {
+        if (!isset($data->variants) || count($data->variants) === 0 && $questionnaire->exists) {
             throw new \Exception("Введите хотя бы 1 вариант для опроса");
         }
         $i = 0;

@@ -46,7 +46,7 @@ class TopListController extends Controller {
     }
 
     public function reputation() {
-        $reputation = UserReputation::select(DB::raw('to_id, sum(weight) as sum_weight'))->groupBy('to_id')->orderBy('sum_weight', 'desc')->limit(100)->get();
+        $reputation = UserReputation::select(DB::raw('to_id, sum(weight) as sum_weight'))->groupBy('to_id')->orderBy('sum_weight', 'desc')->limit(10000)->get();
         $list = [];
         foreach ($reputation as $reputation_item) {
             $user = User::find($reputation_item['to_id']);

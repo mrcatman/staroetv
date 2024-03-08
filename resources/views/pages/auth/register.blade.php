@@ -1,6 +1,6 @@
 @extends('layouts.default')
 @section('content')
-    <form class="form box" method="POST" action="{{ route('register') }}">
+    <form class="form  form--with-captcha box" method="POST" action="{{ route('register') }}">
         <div class="box__heading">
             Регистрация
         </div>
@@ -44,14 +44,6 @@
                 </div>
             </div>
             <div class="horisontal-delimiter"></div>
-            <div class="input-container">
-                <label class="input-container__label">Код безопасности<span class="input-container__required">*</span></label>
-                <div class="input-container__inner">
-                    <img class="captcha" src="{{captcha_src()}}"/>
-                    <input class="input" name="captcha" required value=""/>
-                    <span class="input-container__message"></span>
-                </div>
-            </div>
             <button class="button">Регистрация</button>
         </div>
         @csrf

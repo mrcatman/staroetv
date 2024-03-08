@@ -1,0 +1,111 @@
+.calendar-page {
+    &__years {
+        column-count: 4;
+    }
+
+    &__year {
+        width: 100%;
+        font-size: 2em;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 0.25em;
+
+        &:hover {
+            opacity: .75;
+        }
+
+        @include mobile() {
+            font-size: 1.5em;
+        }
+
+        &__count {
+            font-size: .75em;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 0 0 0 .25em;
+        }
+    }
+
+    &__month {
+        font-size: 2em;
+        text-decoration: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: .5em;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        &:hover {
+            opacity: .75;
+        }
+
+        &:last-of-type {
+            border-bottom: none;
+        }
+
+        &__count {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: .875em;
+        }
+    }
+
+    &__channel {
+        font-size: 1.5em;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        margin: 2em 0 1em;
+
+        &__logo {
+            display: block;
+            width: 2em;
+            height: 2em;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0 .5em 0 0;
+        }
+    }
+    &__record {
+        display: flex;
+        text-decoration: none;
+        align-items: center;
+        margin: 0 0 1em;
+        &:hover {
+            opacity: .75;
+        }
+        &__cover {
+            width: 10em;
+            height: 6em;
+            display: block;
+            background-size: cover;
+            background-position: center;
+        }
+        &__title {
+            font-size: 1.5em;
+            margin: 0 0 0 .75em;
+            max-width: calc(100% - 10em);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+        }
+    }
+
+    &__day {
+        border-bottom: 1px solid var(--border-color);
+        padding: 1em 0;
+
+        &__title {
+            font-size: 2.25em;
+            font-weight: bold;
+        }
+
+        &__records {
+            margin: -2em 0 0;
+        }
+    }
+
+}

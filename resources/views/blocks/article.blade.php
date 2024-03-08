@@ -2,7 +2,7 @@
     <div class="news__content">
         @if (isset($show_actions_panel) && $show_actions_panel)
         <div class="news__actions">
-             <span data-id="{{$article->id}}" class="button button--dropdown button--small button--monochrome button--article-menu">
+             <span data-id="{{$article->id}}" class="button button--dropdown button--small button--light button--article-menu">
                  <span class="button--dropdown__text">Действия</span>
                  <span class="button--dropdown__icon">
                      <i class="fa fa-chevron-down"></i>

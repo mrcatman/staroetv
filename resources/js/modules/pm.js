@@ -15,7 +15,7 @@ $('body').on('click', '.input-container__toggle-button--mass-send', function() {
 });
 
 function showVisibleCounters() {
-    $('.auth-panel__button__count').each(function () {
+    $('.auth-panel__button__count, .mobile-menu__item__count').each(function () {
         if ($(this).text().trim() == "0") {
             $(this).hide();
         } else {

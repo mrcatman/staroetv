@@ -2,9 +2,15 @@
 @section('content')
     <form class="form box" method="POST">
         <div class="breadcrumbs">
+            @if ($program)
+                <a class="breadcrumbs__item" href="{{$program->channel->is_radio ? "/radio" : "/video"}}">Архив</a>
+                <a class="breadcrumbs__item" href="{{$program->full_url}}">{{$program->name}}</a>
+                <a class="breadcrumbs__item" href="{{$program->full_url}}/graphics">Графика</a>
+            @elseif ($channel)
             <a class="breadcrumbs__item" href="{{$channel->is_radio ? "/radio" : "/video"}}">Архив</a>
             <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
-            <a class="breadcrumbs__item" href="{{$channel->full_url}}/graphics">Графика</a>
+            <a class="breadcrumbs__item" href="{{$channel->full_url}}#interprogram">Графика</a>
+           @endif
             @if ($package)
                 <a class="breadcrumbs__item" href="{{$package->full_url}}">{{$package->name != "" ? $package->name : $package->years_range}}</a>
                 <a class="breadcrumbs__item breadcrumbs__item--current">Редактировать</a>
@@ -13,7 +19,7 @@
             @endif
         </div>
         <div class="box__heading">
-            {{ $package ? "Редактировать пакет оформления: ".$package->years_range : "Добавить пакет оформления для канала ".$channel->name }}
+            {{ $package ? "Редактировать пакет оформления: ".$package->years_range : ($program ? "Добавить пакет оформления для программы ".$program->name : "Добавить пакет оформления для канала ".$channel->name) }}
         </div>
         <div class="box__inner">
             <div class="response"></div>
@@ -53,7 +59,7 @@
                 </div>
             </div>
         @if ($package)
-                <records-list-picker name="record_ids" :list="{{$package->records}}" :meta="{is_radio: {{$channel->is_radio ? "true" : "false"}}}" :params="{is_interprogram: true, interprogram_package_id: {{$package->id}}, channel_id: {{$channel->id}}}" :unset-params="{is_interprogram: false, interprogram_package_id: null}" :select="{is_interprogram: true, is_advertising: false, channel_id: {{$channel->id}}}"/>
+                <records-list-picker name="records_data" :list="{{$package->records}}" :annotations="{{$package->annotations}}" :meta="{is_radio: {{$channel->is_radio ? "true" : "false"}}}" :params="{is_interprogram: true, interprogram_package_id: {{$package->id}}, @if ($program) program_id: {{$program->id}} @else channel_id: {{$channel->id}} @endif }" :unset-params="{is_interprogram: false, interprogram_package_id: null}" :interprogram-editor="true" :select="{is_interprogram: true, interprogram_package_id: null, is_advertising: false, @if ($program) program_id: {{$program->id}} @else channel_id: {{$channel->id}} @endif}"/>
             @else
                 <h2>Сохраните пакет, чтобы начать добавлять записи</h2>
             @endif

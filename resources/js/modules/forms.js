@@ -76,7 +76,7 @@ $(body).on('submit', '.form', function (e) {
             confirmed = false;
         }
     }
-    if (confirmed) {
+    let submit = () => {
         $.ajax(url, {
             data: JSON.stringify(formData),
             contentType: 'application/json',
@@ -157,6 +157,19 @@ $(body).on('submit', '.form', function (e) {
                     }
                 }
             });
+    };
+    if (confirmed) {
+        if ($(this).hasClass('form--with-captcha')) {
+            grecaptcha.ready(function() {
+                grecaptcha.execute('6LccwdUZAAAAANbvD4YOUIKQXR77BP8Zg5A-a9UT', {action: 'submit'}).then(function(token) {
+                    formData['g-recaptcha-response'] = token;
+                    submit();
+                });
+            });
+
+        } else {
+            submit();
+        }
     }
 });
 

@@ -5,6 +5,9 @@
     margin: 1em -.5em .5em;
     justify-content: flex-start;
     border: none;
+    @include light() {
+        margin: 1em 0 0;
+    }
 }
 
 
@@ -166,17 +169,24 @@
         position: relative;
         display: block;
         margin: -1em;
-        @include mobile {
+        @include light() {
+            margin: -1em 0  0;
+        }
+        @include mobile() {
             text-align: center;
         }
     }
 
     &__button--other {
         position: absolute;
-        top: 1.25em;
+        top: 1em;
         right: 1em;
         margin: 0 0 0 .75em;
-        @include mobile {
+        @include light() {
+            top: .75em;
+            right: 0;
+        }
+        @include mobile() {
             position: unset;
             margin: 1em 0;
         }
@@ -185,18 +195,20 @@
 
 .channel-page {
     &__top {
-        display: flex;
-        align-items: center;
         padding: 1.5em;
+        @include light() {
+            padding: 0;
+        }
         @include mobile() {
             padding: 1em;
-            flex-direction: column;
-            align-items: flex-start;
+            @include light() {
+                padding: 0;
+            }
         }
     }
     &__description {
         flex: 3;
-
+        font-family: var(--font-texts);
         @include mobile() {
             padding: 0;
         }
@@ -209,19 +221,23 @@
 
     &__selected-logo {
         width: 15em;
+        height: 17em;
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         padding: 0 1em 0 0;
         &__picture {
-            width: 15em;
-            height: 15em;
+            width: 13.5em;
+            height: 13.5em;
+            margin: .75em;
             background-size: contain;
             background-position: center center;
             background-repeat: no-repeat;
             position: relative;
             z-index: 1;
+
             &--shadow {
                 position: absolute;
                 top: 0;
@@ -232,24 +248,37 @@
             }
             &__container {
                 position: relative;
+                &:before {
+                    content: "";
+                    display: block;
+                    position: absolute;
+                    z-index: 0;
+                    top: 0;
+                    left: 0;
+                    width: 15em;
+                    height: 15em;
+                    background: linear-gradient(45deg, #757575, #bcbcbc);
+                }
             }
         }
 
         &__years {
             font-style: italic;
-            font-size: .875em;
+            font-size: 1em;
+            margin: .5em 0 0;
         }
     }
     &__logos {
         margin: 0 1em 0 0;
         flex: 1;
+        float: left;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         &__list {
-            max-height: 20em;
+            max-height: 19em;
+            border-left: none;
             overflow: auto;
             display: block;
-            border-left: 1px solid var(--border-color);
             padding: 0 1em;
             &__inner {
                 display: flex;

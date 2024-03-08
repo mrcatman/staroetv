@@ -67,15 +67,28 @@ class Comment extends Model {
             if ($article) {
                 return $article->url;
             }
+            $article = Article::find($this->material_id);
+            if ($article) {
+                return $article->url;
+            }
         } elseif ($this->material_type === Record::TYPE_VIDEOS) {
             $record = Record::where(['ucoz_id' => $this->material_id])->first();
             if ($record) {
                 return $record->url;
             }
-        } elseif ($this->material_type === 4) {
-
-        } else {
-          //  dd($this->material_type);
+        } elseif ($this->material_type === Channel::TYPE_CHANNELS) {
+            $channel = Channel::find($this->material_id);
+            if ($channel) {
+                return $channel->full_url;
+            }
+        } elseif ($this->material_type === Program::TYPE_PROGRAMS) {
+            $program = Program::find($this->material_id);
+            if ($program) {
+                return $program->full_url;
+            }
+        }
+        if (request()->has('test')) {
+            dd($this);
         }
     }
 

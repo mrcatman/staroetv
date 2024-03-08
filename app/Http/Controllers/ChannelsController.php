@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AdditionalChannel;
 use App\Article;
 use App\Channel;
 use App\ChannelName;
@@ -12,6 +13,7 @@ use App\InterprogramPackage;
 use App\Picture;
 use App\Program;
 use App\Record;
+use App\User;
 use Carbon\Carbon;
 
 class ChannelsController extends Controller {
@@ -22,10 +24,17 @@ class ChannelsController extends Controller {
             $channel = Channel::where(['id' => $url])->first();
         }
         if (!$channel) {
-            return redirect("/");
+            return redirect("https://staroetv.su/");
         }
         $programs = $channel->programs;
-        $programs = $programs->merge($channel->additionalPrograms);
+        $additional = $channel->additionalPrograms;
+        foreach ($additional as $program) {
+            $additional_channel_data = AdditionalChannel::where(['program_id' => $program->id, 'channel_id' => $channel->id])->first();
+             if ($additional_channel_data->title != '') {
+                $program->name = $additional_channel_data->title;
+            }
+        }
+        $programs = $programs->merge($additional);
         $programs = $programs->filter(function($program) {
             return !$program->pending || $program->can_edit;
         });
@@ -49,11 +58,21 @@ class ChannelsController extends Controller {
             ];
             $genres->push($no_genre);
         }
+        $popular_programs = Program::where(['channel_id' => $channel->id])->orderBy('views', 'desc')->limit(25)->get();
+        $genres->prepend((object)[
+            'id' => -2,
+            'url' => 'popular',
+            'name' => 'Популярные',
+            'programs' => $popular_programs
+        ]);
         $interprogram_packages = $channel->interprogramPackages;
         foreach ($interprogram_packages as $interprogram_package) {
             //$interprogram_package->records = $interprogram_package->records->shuffle();
         }
-        $random_records = Record::where(['channel_id' => $channel->id])->whereNull('program_id')->whereNull('interprogram_package_id')->whereNotIn('interprogram_type', [11, 22])->inRandomOrder()->get();
+        $random_records = Record::where(['channel_id' => $channel->id])->whereNull('program_id')->whereNull('interprogram_package_id')->where(function($q) {
+            $q->whereNotIn('interprogram_type', [11, 22]);
+            $q->orWhereNull('interprogram_type');
+        })->inRandomOrder()->get();
         $random_record = $random_records->filter(function($record) {
             return $record->cover && $record->cover != '';
         })->first();
@@ -95,13 +114,13 @@ class ChannelsController extends Controller {
     public function edit($id) {
         $channel = Channel::find($id);
         if (!$channel) {
-            return redirect("/video");
+            return redirect("https://staroetv.su/video");
         }
         if (!$channel->can_edit) {
             return view("pages.errors.403");
         }
         $is_radio = $channel->is_radio;
-        $all_channels = Channel::where(['is_radio' => $channel->is_radio])->get();
+        $all_channels = Channel::where(['is_radio' => $channel->is_radio])->where('id', '!=', $id)->get();
         return view("pages.forms.channel", [
             'channel' => $channel,
             'all_channels' => $all_channels,
@@ -156,6 +175,15 @@ class ChannelsController extends Controller {
         foreach(['is_regional', 'is_abroad', 'is_federal'] as $key) {
             if (isset($data[$key])) {
                 $data[$key] = ($data[$key] === "true" || $data[$key] === true) ? 1 : 0;
+            }
+        }
+        if (request()->has('url') &&  request()->input('url') != '') {
+            $same_url_channel = Channel::where(['url' => request()->input('url')])->first();
+            if ($same_url_channel && $same_url_channel->id != $channel->id) {
+                $error = \Illuminate\Validation\ValidationException::withMessages([
+                    'url' => ['Канал с таким URL уже существует'],
+                ]);
+                throw $error;
             }
         }
         $channel->fill($data);
@@ -316,5 +344,23 @@ class ChannelsController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         }
+    }
+
+    public function autocomplete() {
+        $count = 30;
+        $channels = Channel::select('id', 'name', 'is_radio')->orderBy('id', 'asc');
+        if (request()->has('term')) {
+            $channels = $channels->where('name', 'LIKE', '%'.request()->input('term').'%');
+        }
+        $total = $channels->count();
+        $page = request()->input('page', 1);
+        $channels = $channels->limit($count)->offset($count * ($page - 1))->get();
+        return [
+            'status' => 1,
+            'data' => [
+                'total' => $total,
+                'channels' => $channels
+            ]
+        ];
     }
 }

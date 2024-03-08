@@ -41,7 +41,7 @@ class SetAdvertisingBlocks extends Command
     public function handle()
     {
       //  dd(Genre::all()->pluck('id', 'name'));
-        Record::where('title', 'LIKE', '%рекламный%')->orWhere('title', 'LIKE', '%реклама%')->where(['is_interprogram' => true, 'is_advertising' => false])->update([
+        Record::where('title', 'LIKE', '%екламный бл%')->orWhere('title', 'LIKE', '%реклама%')->where(['is_interprogram' => true, 'is_advertising' => false])->update([
             'interprogram_type' => 22
         ]);
     }

@@ -5,6 +5,7 @@ use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class Record extends Model {
 
@@ -12,18 +13,7 @@ class Record extends Model {
     const TYPE_VIDEOS = 10;
     protected $appends = ['url'];
 
-    public static function interprogramTypes() {
-        return [
-            'ident' => 'Заставка',
-            'advertising_ident' => 'Рекламная заставка',
-            'announce' => 'Анонс',
-            'start' => 'Начало эфира',
-            'end' => 'Нонец эфира',
-            'clock' => 'Часы',
-            'program_guide' => 'Программа передач',
-            'testcard' => 'Профилактика'
-        ];
-    }
+
 
     public function getTitleAttribute() {
         if (!isset($this->attributes['title'])) {
@@ -77,6 +67,9 @@ class Record extends Model {
     }
 
     public function getCoverAttribute() {
+        //if (request()->has('test')) {
+          //  dd($this->coverPicture, $this);
+      //  }
         if ($this->coverPicture) {
             return $this->coverPicture->url;
         }
@@ -117,7 +110,7 @@ class Record extends Model {
         } else {
             $channel = "???";
         }
-        $date = ($this->day ? $this->day."." : "").($this->month ? $this->month."." : "").($this->year ? $this->year : "");
+        $date = ($this->day ? str_pad((string)$this->day, 2, " ", STR_PAD_LEFT)."." : "").($this->month ?  str_pad((string)$this->month, 2, " ", STR_PAD_LEFT)."." : "").($this->year ? $this->year : "");
         if ($date == "") {
             $date = "неизвестная дата";
         }
@@ -181,15 +174,19 @@ class Record extends Model {
             $name = ChannelName::where(['channel_id' => $this->channel_id])->whereDate('date_start', '<', $this->date)->whereDate('date_end', '>', $this->date)->first();
         }
         if (!$name && $this->year) {
-            $year_start = Carbon::createFromDate($this->year, 1, 1);
-            $year_end = Carbon::createFromDate($this->year, 12, 31);
+            $year = $this->year;
+            if ($this->interprogramPackage) {
+                $year = Carbon::parse($this->interprogramPackage->date_end)->year;
+            }
+            $year_start = Carbon::createFromDate($year, 1, 1);
+            $year_end = Carbon::createFromDate($year, 12, 31);
             $name = ChannelName::where(['channel_id' => $this->channel_id])->whereDate('date_start', '<', $year_end)->whereDate('date_end', '>', $year_start)->first();
             if (!$name) {
                 $name = ChannelName::where(['channel_id' => $this->channel_id])->whereDate('date_start', '<', $year_end)->whereNull('date_end')->first();
             }
         }
         if ($name && $name->name != "") {
-            $this->_channel_name_data = $name;
+            //$this->_channel_name_data = $name;
             return $name->name;
         }
 
@@ -235,6 +232,13 @@ class Record extends Model {
         return DatesHelper::format($this->attributes['created_at']);
     }
 
+
+    public function getOriginalAddedAtTsAttribute() {
+        if (!isset($this->attributes['original_added_at'])) {
+            return null;
+        }
+        return Carbon::parse($this->attributes['original_added_at'])->timestamp;
+    }
 
     public function generateInterprogramTitle($is_short = false) {
         $data = $this->interprogramTypeData;
@@ -293,8 +297,8 @@ class Record extends Model {
 
     public function getShortTitleAttribute() {
         if ($this->is_advertising) {
-            $text =  $this->advertising_brand." (".$this->year.")";
-            if ($this->short_description && $this->short_description != "") {
+            $text =  $this->advertising_brand.($this->year ? " (".$this->year.")" : "");
+            if ($this->short_description && $this->short_description != "" && $this->short_description != $this->advertising_brand) {
                 $text .= "<br>" . $this->short_description;
             }
             return $text;
@@ -360,5 +364,53 @@ class Record extends Model {
             });
         }
         return $query;
+    }
+
+    public function getEmbedYoutubeIdAttribute() {
+        preg_match('/embed\/(.*?)"/', $this->embed_code, $output);
+        if ($output && count($output) == 2 && strlen($output[1]) == 11) {
+            return $output[1];
+        }
+        return null;
+    }
+
+    public function getInterprogramNameAttribute() {
+        return Cache::remember('interprogram_name_'.$this->interprogram_type, 3600, function () {
+            return $this->interprogramTypeData ? $this->interprogramTypeData->name : "";
+        });
+    }
+
+    public function getSourceHlsAttribute() {
+        return 'https://media.staroetv.su/hls'.$this->source_path.'/index.m3u8';
+    }
+
+    public function getDownloadUrlAttribute() {
+        return $this->source_path ? 'https://media.staroetv.su'.$this->source_path : null;
+    }
+
+    public function getSourceTelegramAttribute() {
+        return count($this->all_telegram_sources) > 0  ?$this->all_telegram_sources[0] : null;
+    }
+
+    public function getAllTelegramSourcesAttribute() {
+        $telegram_id = explode('/', $this->telegram_id);
+        if (count($telegram_id) < 2) {
+            return [];
+        }
+        $channel = $telegram_id[0];
+        $video_ids = explode(',', $telegram_id[1]);
+        $sources = [];
+        foreach ($video_ids as $video_id) {
+            $sources[] = 'https://staroetv.su/tgvideo/'.$channel.'/'.$video_id.'.mp4';
+        }
+        return $sources;
+    }
+
+    public function getAllTelegramThumbsAttribute() {
+        return array_map(function($video) {
+            $thumb = str_replace('.mp4', '.jpeg', $video);
+            $thumb = str_replace('tgvideo', 'tgpreview', $thumb);
+            return $thumb;
+        }, $this->all_telegram_sources);
     }
 }

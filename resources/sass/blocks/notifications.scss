@@ -2,11 +2,29 @@
     font-size: 1rem;
     position: absolute;
     top: 100%;
-    right: 0;
+    right: 4.25em;
     min-height: 6em;
     background: var(--bg-darker);
     display: flex;
-    @include mobile {
+    @include mobile() {
+        top: 3em;
+        height: calc(100vh - 3em);
+    }
+    &__close {
+        display: none;
+        @include mobile() {
+            display: block;
+            position: fixed;
+            top: 1.75em;
+            right: .5em;
+            color: var(--text-color);
+            z-index: 10;
+            font-size: 1.75em;
+            opacity: .5;
+            padding: .25em .5em;
+        }
+    }
+    @include mobile() {
         left: 0;
         right: unset;
         position: fixed;
@@ -27,6 +45,9 @@
         box-shadow: var(--block-box-shadow);
         position: relative;
         overflow: visible;
+        @include mobile {
+            width: 100%;
+        }
         &:before {
             width: 0;
             height: 0;
@@ -38,10 +59,11 @@
             position: absolute;
             right: 1em;
             top: -.75em;
+            @include mobile() {
+                display: none;
+            }
         }
-        @include mobile {
-            width: unset;
-        }
+
     }
 }
 
@@ -75,6 +97,7 @@
 
     &__text {
         font-size: .875em;
+        max-width: calc(100% - 5em);
     }
 
     &__quote {

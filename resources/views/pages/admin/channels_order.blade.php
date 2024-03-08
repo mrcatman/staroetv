@@ -1,4 +1,4 @@
 @extends('layouts.admin')
 @section('admin_content')
-    <channels-order-manager :channels='{!! json_encode($channels) !!}' />
+    <channels-order-manager :channels='@json($channels)' />
 @endsection

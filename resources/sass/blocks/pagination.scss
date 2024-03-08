@@ -16,10 +16,11 @@ ul.pagination::-webkit-scrollbar {
     height: 3px;
 }
 
-
 .box--dark .pagination {
-    background: #222;
-    border-top: none;
+    background: var(--box-color-hover-dark);
+}
+
+.box--dark .pagination, .theme-dark .forum-section__pager .pagination {
     border-top: 1px solid var(--border-color-dark);
     .page-item:not(.disabled) {
         background: var(--clickable-block-color-dark);

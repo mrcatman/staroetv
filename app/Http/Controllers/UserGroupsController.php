@@ -23,6 +23,9 @@ class UserGroupsController extends Controller {
             if (request()->has('icon')) {
                 $group->icon = request()->input('icon');
             }
+            if (request()->has('icon_svg_code')) {
+                $group->icon = request()->input('icon_svg_code');
+            }
             $group->save();
             return ['status' => 1, 'text' => 'Сохранено', 'data' => ['group' => $group]];
         } else {
@@ -41,6 +44,9 @@ class UserGroupsController extends Controller {
         }
         if (request()->has('icon')) {
             $group->icon = request()->input('icon');
+        }
+        if (request()->has('icon_svg_code')) {
+            $group->icon_svg_code = request()->input('icon_svg_code');
         }
         $group->save();
         return ['status' => 1, 'text' => 'Сохранено'];

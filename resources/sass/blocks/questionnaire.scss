@@ -1,7 +1,8 @@
 .questionnaire {
     margin: 0 auto;
     text-align: center;
-
+    background: var(--box-color-dark);
+    color: var(--box-text-color-dark);
     &__container {
         position: relative;
     }

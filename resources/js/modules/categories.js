@@ -1,10 +1,19 @@
 window.execOnMounted.push(function() {
     $('.categories-list').each(function () {
+        if ($(this).hasClass('categories-list--multiline')) {
+            return;
+        }
         let slider = $(this)[0];
 
         let isDown = false;
         let startX;
         let scrollLeft;
+
+        slider.addEventListener('mousewheel', (e) => {
+            slider.scrollLeft = slider.scrollLeft + e.deltaY / 2;
+            scrollLeft = slider.scrollLeft;
+            e.preventDefault();
+        });
 
         slider.addEventListener('mousedown', (e) => {
             isDown = true;

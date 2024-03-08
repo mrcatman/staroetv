@@ -28,9 +28,9 @@
             <div class="picture-uploader__preloader" v-show="status === -1"></div>
         </div>
         <div class="picture-uploader__buttons">
-            <label class="button" :class="{'button--light': light}">Загрузить <input style="display:none" @change="onFileInputChange" type="file" /></label>
-            <a class="button" :class="{'button--light': light}" v-if="channelid" @click="getPictures()">Выбрать</a>
-            <a class="button" :class="{'button--light': light}" @click="$refs.URLModalElement.show()">URL</a>
+            <label class="button button--light">Загрузить <input style="display:none" @change="onFileInputChange" type="file" /></label>
+            <a class="button button--light" v-if="channelid" @click="getPictures()">Выбрать</a>
+            <a class="button button--light" @click="$refs.URLModalElement.show()">URL</a>
 
         </div>
     </div>

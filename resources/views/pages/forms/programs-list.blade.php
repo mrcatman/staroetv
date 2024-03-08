@@ -10,7 +10,7 @@
             Редактировать список программ
         </div>
         <div class="inner-page__content">
-            <programs-manager :channel='{{$channel}}' :genres='{!! json_encode($genres) !!}' :programs='{!! json_encode($programs) !!}' />
+            <programs-manager :channel='{{$channel}}' :genres='@json($genres)' :programs='@json($programs)' />
         </div>
     </form>
 @endsection

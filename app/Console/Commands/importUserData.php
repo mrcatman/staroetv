@@ -43,78 +43,74 @@ class importUserData extends Command
      */
     public function handle()
     {
-        $users = CSVHelper::transform(public_path("data/users.csv"), [
+        $users = CSVHelper::transform(public_path("data_new/users.txt"), [
             'username', 'ucoz_uid', 'password', 'avatar', '', 'name', 'gender', 'email', 'yandex_video', '', 'country', 'youtube', 'city', 'signature', 'user_comment', 'date_reg', 'ip_address_reg', '', '', 'vk', 'facebook', '', 'date_of_birth', '', ''
         ], true);
-        $user_data = CSVHelper::transform(public_path("data/ugen.csv"), [
-            'id', 'username', 'group_id', '', '', '_warnings'
+        $user_data = CSVHelper::transform(public_path("data_new/ugen.txt"), [
+            'id', 'username', 'group_id', '', '', '_warnings', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'was_online'
         ], true);
         $user_data_by_username = [];
         foreach ($user_data as $user_data_item) {
             $user_data_by_username[$user_data_item['username']] = $user_data_item;
         }
-        if(true) {
-            foreach ($users as $user) {
-                $was_online = explode("|", $user['_original']);
-                $was_online = $was_online[count($was_online) - 2];
-                if (isset($user_data_by_username[$user['username']])) {
-                    $user_data_item = $user_data_by_username[$user['username']];
-                    $insert_data = [
-                        'id' => $user_data_item['id'],
-                        'email' => $user['email'],
-                        'original_id' => $user_data_item['id'],
-                        'username' => $user['username'],
-                        'password' => $user['password'],
-                        'name' => $user['name'],
-                        'ucoz_uid' => $user['ucoz_uid'],
-                        'group_id' => $user_data_item['group_id'],
-                        'ip_address_reg' => $user['ip_address_reg'],
-                        'user_comment' => $user['user_comment'],
-                        'signature' => $user['signature'],
-                        'was_online' => Carbon::createFromTimestamp($was_online),
-                        'created_at' => Carbon::createFromTimestamp($user['date_reg']),
-                    ];
-                    if (!($user_item = User::find($user_data_item['id']))) {
-                        $user_item = new User($insert_data);
-                        $user_item->save();
-                        echo "Added user " . $user['username'] . PHP_EOL;
-                    } else {
-                        $user_item->fill($insert_data);
-                        $user_item->save();
-                     //   echo "Updated user " . $user['username'] . PHP_EOL;
-                    }
-                    $metadata = [
-                        'user_id' => $user_data_item['id'],
-                        'gender' => $user['gender'],
-                        'yandex_video' => $user['yandex_video'],
-                        'youtube' => $user['youtube'],
-                        'country' => $user['country'],
-                        'city' => $user['city'],
-                        'vk' => $user['vk'],
-                        'facebook' => $user['facebook'],
-                        'date_of_birth' => $user['date_of_birth'] ? Carbon::createFromFormat("Y-m-d", $user['date_of_birth']) : null,
-                    ];
-                    if (!($user_meta = UserMeta::where(['user_id' => $user_data_item['id']])->first())) {
-                        $user_meta = new UserMeta($metadata);
-                        $user_meta->save();
-                        echo "Added user meta for " . $user_data_item['username'] . PHP_EOL;
-                    } else {
+        foreach ($users as $user) {
+            if (isset($user_data_by_username[$user['username']])) {
+                $user_data_item = $user_data_by_username[$user['username']];
+                $insert_data = [
+                    'id' => $user_data_item['id'],
+                    'email' => $user['email'],
+                    'original_id' => $user_data_item['id'],
+                    'username' => $user['username'],
+                    'password' => $user['password'],
+                    'name' => $user['name'],
+                    'ucoz_uid' => $user['ucoz_uid'],
+                    'group_id' => $user_data_item['group_id'],
+                    'ip_address_reg' => $user['ip_address_reg'],
+                    'user_comment' => $user['user_comment'],
+                    'signature' => $user['signature'],
+                    'was_online' => Carbon::createFromTimestamp($user_data_item['was_online']),
+                    'created_at' => Carbon::createFromTimestamp($user['date_reg']),
+                ];
+                if (!($user_item = User::find($user_data_item['id']))) {
+                    $user_item = new User($insert_data);
+                    $user_item->save();
+                    echo "Added user " . $user['username'] . PHP_EOL;
+                } else {
+                    $user_item->fill($insert_data);
+                    $user_item->save();
+                    //   echo "Updated user " . $user['username'] . PHP_EOL;
+                }
+                $metadata = [
+                    'user_id' => $user_data_item['id'],
+                    'gender' => $user['gender'],
+                    'yandex_video' => $user['yandex_video'],
+                    'youtube' => $user['youtube'],
+                    'country' => $user['country'],
+                    'city' => $user['city'],
+                    'vk' => $user['vk'],
+                    'facebook' => $user['facebook'],
+                    'date_of_birth' => $user['date_of_birth'] ? Carbon::createFromFormat("Y-m-d", $user['date_of_birth']) : null,
+                ];
+                if (!($user_meta = UserMeta::where(['user_id' => $user_data_item['id']])->first())) {
+                    $user_meta = new UserMeta($metadata);
+                    $user_meta->save();
+                    echo "Added user meta for " . $user_data_item['username'] . PHP_EOL;
+                } else {
 
-                        $user_meta->fill($metadata);
-                        $user_meta->save();
+                    $user_meta->fill($metadata);
+                    $user_meta->save();
                     //    echo "Updated user meta for " . $user_data_item['username'] . PHP_EOL;
-                    }
+                }
 
-                    if ($user['avatar'] != "") {
-                        $picture = Picture::firstOrNew([
-                            'user_id' => $user_data_item['id'],
-                            'url' => $user['avatar']
-                        ]);
-                        $picture->save();
-                        $user_item->avatar_id = $picture->id;
-                        $user_item->save();
-                        echo "Added avatar for " . $user_item['username'] . ": " . $user['avatar'] . PHP_EOL;
-                    }
+                if ($user['avatar'] != "") {
+                    $picture = Picture::firstOrNew([
+                        // 'user_id' => $user_data_item['id'],
+                        'url' => $user['avatar']
+                    ]);
+                    $picture->save();
+                    $user_item->avatar_id = $picture->id;
+                    $user_item->save();
+                    echo "Added avatar for " . $user_item['username'] . ": " . $user['avatar'] . PHP_EOL;
                 }
             }
         }
