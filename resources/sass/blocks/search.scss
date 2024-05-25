@@ -62,6 +62,8 @@
     }
 
     &__results {
+        position: relative;
+        padding: 0 1.75em;
         height: calc(100vh - 12em);
         overflow: auto;
         @include mobile() {

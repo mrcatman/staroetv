@@ -21,9 +21,12 @@ $(body).on('keyup', '.site-search__input', function(e) {
     if ($(this).val().length > 0) {
         clearTimeout(searchInputTimeout);
         searchInputTimeout = setTimeout(() => {
-            $.get('/site-search?search=' +  $(this).val()).done(res => {
-                replaceDom(res.data.dom);
-            })
+            if ($(this).val().length >= 3) {
+                $('.site-search__results').html('<div class="block-preloader"><img src="/pictures/ajax.gif"></div>');
+                $.get('/site-search?search=' + $(this).val()).done(res => {
+                    replaceDom(res.data.dom);
+                })
+            }
         }, 500)
     }
 });
