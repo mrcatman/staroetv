@@ -3,6 +3,10 @@ namespace App\Helpers;
 
 class DatesHelper {
 
+    public static function monthNames()
+    {
+        return ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+    }
     public static function format($date) {
         $ts = strtotime($date);
         return self::formatTS($ts);

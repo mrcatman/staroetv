@@ -51,6 +51,9 @@ class Comment extends Model {
         return DatesHelper::format($this->attributes['created_at']);
     }
 
+    public function getTextWithoutTagsAttribute() {
+        return strip_tags($this->text);
+    }
 
     public function getTextAttribute() {
         $text = $this->attributes['text'];

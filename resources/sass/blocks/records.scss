@@ -40,6 +40,18 @@
         padding: .5em .325em 1em;
         margin: -1em 0 0;
     }
+    &__years {
+        --links-color: var(--box-text-color-dark);
+        border-bottom: none;
+        padding: .5em .875em;
+    }
+    &__months {
+        --links-color: var(--box-text-color-dark);
+        font-size: .9375em;
+        border-bottom: none;
+        padding: 0 1.125em;
+    }
+
     &__sort {
         display: flex;
         align-items: center;
@@ -69,6 +81,7 @@
             cursor: pointer;
             font-size: 1.125em;
             color: var(--box-text-color-dark);
+            text-decoration: none;
             &:hover {
                 opacity: .75;
             }

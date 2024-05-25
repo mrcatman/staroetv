@@ -56,7 +56,7 @@ class BBCodesHelper {
             return "<!--BBvideo--><span id=\"scr$videoId\"></span><script type=\"text/javascript\">_uVideoPlayer({'url':'$videoLink','width':'640','height':'360'},'scr$videoId');</script><!--/BBvideo-->";
         }, $text);
         $text = preg_replace_callback("/\[url\=(.*?)](.*?)\[\/url]/", function($urlData) {
-            return '<!--uSpoiler--><a class="link" href="'.$urlData[1].'" target="_blank">'.$urlData[2].'</a>';
+            return '<a class="link" href="'.$urlData[1].'" target="_blank">'.$urlData[2].'</a>';
         }, $text);
 
         $text = preg_replace_callback("/\[quote(.*?)](.*?)\[\/quote]/", function($quoteData) {

@@ -3,13 +3,14 @@ namespace App\Helpers;
 
 use App\Channel;
 use App\Record;
+use Illuminate\Support\Facades\DB;
 
 class RecordsHelper {
 
     public static function getQuery($conditions) {
         $records = Record::approved();
+        unset($conditions['show_years']);
         if (isset($conditions['channel_id_in'])) {
-
             $records = $records->whereIn('channel_id', $conditions['channel_id_in']);
             unset($conditions['channel_id_in']);
         }
@@ -66,7 +67,11 @@ class RecordsHelper {
         return $records;
     }
 
-    public static function get($conditions) {
+    public static function get($conditions)
+    {
+        $query_params = request()->except(['_pjax', 'block_title']);
+        $base_link = request()->url();
+
         $sort = "added";
         $sort_field = "original_added_at";
         $sort_order = "desc";
@@ -83,18 +88,45 @@ class RecordsHelper {
         $search = "";
         if (request()->has('search')) {
             $search = request()->input('search');
-            $records = $records->where('title', 'LIKE', '%'.$search.'%');
+            $records = $records->where('title', 'LIKE', '%' . $search . '%');
         }
 
+        $years = null;
+        $months = null;
+        $selected_year = null;
+        $selected_month = null;
 
+        if (isset($conditions['show_years']) && $conditions['show_years']) {
+            $years = (clone $records)->where('year', '>', 0)->groupBy('year')->select('year', DB::raw('count(*) as count'))->pluck('count', 'year');
+            $selected_year = request()->input('year');
+            if ((int)$selected_year > 0) {
+                $records->where('year', $selected_year);
+                $months = (clone $records)->where('month', '>', 0)->where(['year' => $selected_year])->groupBy('month')->select('month', DB::raw('count(*) as count'))->pluck('count', 'month');
+                $selected_month = request()->input('month');
+                $months = $months->toArray();
+                ksort($months);
+                if ((int)$selected_month > 0) {
+                    $records->where('month', $selected_month);
+                }
+            }
+            $years = $years->toArray();
+            ksort($years);
+        }
         $records = $records->orderBy($sort_field, $sort_order);
+
         $count = $records->count();
         $list = $records->paginate(36);
         return [
+            'query_params' => $query_params,
+            'base_link' => $base_link,
             'search' => $search,
             'sort' => $sort,
             'count' => $count,
-            'records' => $list
+            'records' => $list,
+            'years' => $years,
+            'months' => $months,
+            'selected_year' => $selected_year,
+            'selected_month' => $selected_month,
         ];
     }
 

@@ -6,6 +6,7 @@ use App\AdditionalChannel;
 use App\Channel;
 use App\ChannelName;
 use App\Genre;
+use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\RecordsHelper;
 use App\Helpers\ViewsHelper;
@@ -1429,6 +1430,7 @@ class RecordsController extends Controller {
         $year_records = Record::approved()->select(['month', 'day', 'year'])->where(['is_radio' => false, 'is_advertising' => false])->where(['year' => $year])->get();
         $records_by_month = [];
 
+        $month_names = DatesHelper::monthNames();
         foreach ($year_records as $year_record) {
             $month = $year_record->month  && $year_record->month > 0 ? $year_record->month : 0;
             if ($month > 12) {
@@ -1436,7 +1438,7 @@ class RecordsController extends Controller {
             }
             //$day = $year_record->day ? $year_record->day : '-';
             if (!isset($records_by_month[$month])) {
-                $month_name = isset($this->month_names[$year_record->month - 1]) ? $this->month_names[$year_record->month - 1] : "-";
+                $month_name = isset($month_names[$year_record->month - 1]) ? $month_names[$year_record->month - 1] : "-";
                 $records_by_month[$month] = ['name' => $month > 0 ? $month_name . " ".$year : "Неизвестно", 'count' => 0];
             }
             //if (!isset($records_by_date[$month]['days'][$day])) {
@@ -1453,9 +1455,10 @@ class RecordsController extends Controller {
     }
 
     public function calendarMonth($year, $month) {
+        $month_names = DatesHelper::monthNames();
         if ($year == "-") {
-            $month_name = $this->month_names[$month - 1];
-            $month_name_full = "Записи за " . mb_strtolower($this->month_names[$month - 1], "UTF-8");
+            $month_name = $month_names[$month - 1];
+            $month_name_full = "Записи за " . mb_strtolower($month_names[$month - 1], "UTF-8");
             $month_name_parental_case = "";
             $month_records = Record::approved()->where(['is_radio' => false, 'is_advertising' => false])->where(['month' => $month])->get();
         } else {
@@ -1466,8 +1469,8 @@ class RecordsController extends Controller {
                 return;
             }
             if ($month > 0) {
-                $month_name = $this->month_names[$month - 1];
-                $month_name_full = "Записи за " . mb_strtolower($this->month_names[$month - 1], "UTF-8") . " $year";
+                $month_name = $month_names[$month - 1];
+                $month_name_full = "Записи за " . mb_strtolower($month_names[$month - 1], "UTF-8") . " $year";
                 $month_name_parental_case = $this->month_names_parental_case[$month - 1];
                 $month_records = Record::approved()->where(['is_radio' => false, 'is_advertising' => false])->where(['year' => $year, 'month' => $month])->get();
             } else {
@@ -1564,6 +1567,16 @@ class RecordsController extends Controller {
             'status' => 1,
             'data' => [
                 'video_ids' => $video_ids
+            ]
+        ];
+    }
+
+    public function getVideosForAuthor($author_id) {
+        $videos = Record::where(['author_id' => $author_id])->select('title', 'id')->get();
+        return [
+            'status' => 1,
+            'data' => [
+                'videos' => $videos
             ]
         ];
     }

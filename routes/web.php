@@ -102,7 +102,9 @@ Route::any('/video/graphics_old', function () {
 Route::any('/video/youtube-ids/{author_id}', function ($author_id) {
     return (new \App\Http\Controllers\RecordsController())->getYoutubeVideoIds($author_id);
 });
-
+Route::any('/video/author/{author_id}', function ($author_id) {
+    return (new \App\Http\Controllers\RecordsController())->getVideosForAuthor($author_id);
+});
 
 Route::get('/video/programs', function () {
     return (new \App\Http\Controllers\ProgramsController())->index(['is_radio' => false]);

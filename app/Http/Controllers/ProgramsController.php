@@ -89,7 +89,7 @@ class ProgramsController extends Controller {
         }
         ViewsHelper::increment($program, 'programs');
 
-        $conditions = [ 'program_id' => $program->id, 'is_interprogram' => false];
+        $conditions = [ 'show_years' => true, 'program_id' => $program->id, 'is_interprogram' => false];
         if ($program->channel) {
             $conditions['is_radio'] = $program->channel->is_radio;
         }
@@ -118,7 +118,7 @@ class ProgramsController extends Controller {
             'program' => $program,
             'unknown' => $unknown,
             'channel' => $channel,
-            'records_conditions' => $conditions
+            'records_conditions' => $conditions,
         ]);
     }
 

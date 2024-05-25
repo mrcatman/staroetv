@@ -14,7 +14,7 @@
     @if (auth()->user() && auth()->user()->id == 3358)
         <link rel="stylesheet" href="{{ mix('/css/app.css') }}?{{time()}}">
     @else
-        <link rel="stylesheet" href="/css/app.css?v=20122023-2">
+        <link rel="stylesheet" href="/css/app.css?v=25052024-1">
     @endif
     <link rel="icon" href="/favicon.ico?1" type="image/x-icon" />
     <meta name="google-site-verification" content="hzQA7v3s7GcLa45qSrEmM-tDrjNRl8K0bspcnBencP0" />
@@ -51,7 +51,7 @@
 @if (auth()->user() && auth()->user()->id == 3358)
 <script type="text/javascript" rel="script" src="/js/app.js?{{time()}}"></script>
 @else
-    <script type="text/javascript" rel="script" src="/js/app.js?v=6062023-1"></script>
+    <script type="text/javascript" rel="script" src="/js/app.js?v=25052024-1"></script>
 @endif
 <script src="//cdn.ckeditor.com/4.12.1/standard/ckeditor.js"></script>
 <script>
