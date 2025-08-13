@@ -123,6 +123,9 @@ class User extends Authenticatable
         return DatesHelper::format($this->attributes['created_at']);
     }
 
+    public function getCreatedAtOrigAttribute() {
+        return $this->attributes['created_at'];
+    }
 
     public function getWasOnlineAttribute() {
         if (!isset($this->attributes['was_online'])) {
@@ -151,7 +154,7 @@ class User extends Authenticatable
     }
 
     public function getForumMessagesCountAttribute() {
-        return Cache::remember('forum_messages'.$this->id, 60 * 30, function () {
+        return Cache::remember('forum_messages'.$this->id, 60 * 60 * 24, function () {
             return ForumMessage::where(['user_id' => $this->id])->count();
         });
     }

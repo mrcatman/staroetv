@@ -2,7 +2,7 @@
     <form @submit="onSubmit" ref="form" method="GET" :action="action" class="records-search--container">
         <div class="records-search">
             <div class="records-search__inner">
-                <div class="records-search__input-container">
+                <div class="records-search__input-container search-input-container">
                     <input v-model="data.search" class="input" placeholder="Поиск по записям" name="search"/>
                 </div>
                 <button class="button button--light">Найти</button>

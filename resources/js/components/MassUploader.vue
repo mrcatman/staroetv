@@ -7,13 +7,13 @@
         <div class="input-container" v-if="!records || records.length === 0">
             <label class="input-container__label">Укажите ID группы (ВК) или никнейм канала (Youtube)</label>
             <div class="input-container__inner">
-                <input class="input" v-model="source" value=""/>
+                <input class="input" v-model="source"/>
                 <span class="input-container__message"></span>
             </div>
 
         </div>
         <div class="input-container" v-if="!records || records.length === 0">
-            <label class="input-container__label">Токен доступа к странице результатов Youtube (если есть)</label>
+            <label class="input-container__label">Смещение выборки видео (ВК) или токен доступа к странице результатов (Youtube) (необязательно)</label>
             <div class="input-container__inner">
                 <input class="input" v-model="nextPageToken"/>
                 <span class="input-container__message"></span>
@@ -95,7 +95,7 @@
                             <a  class="input-container__toggle-button"@click="loadInterprogramPackages(record, true)">Перезагрузить</a>
                         </div>
                     </div>
-                    <div class="inputs-line mass-uploader__record__last-line">
+                    <div class="inputs-line mass-uploader__record__last-line" v-if="showFiles">
                         <div class="inputs-line__item" >
                             <div class="inputs-line__item__title">Файл на сервере</div>
                             <select2 theme="default" :options="storageFiles" v-model="record.storage_file"></select2>
@@ -201,6 +201,9 @@ const monthNames = {
     import Snackbar from "./Snackbar";
     export default {
         components: {Snackbar},
+        props: {
+            showFiles: Boolean,
+        },
         data() {
             return {
                 source: '',
@@ -372,6 +375,7 @@ const monthNames = {
                     this.$refs.snackbar.show(res);
                     if (res.status) {
                         this.parsedRecords = this.parsedRecords.filter(recordItem => recordItem.player !== record.player);
+                        this.currentPage = 1;
                     }
                 });
 
@@ -520,9 +524,13 @@ const monthNames = {
                                 }
                             }
                         }
-                        const file = this.files.map(file => file.replace('.mp4', '')).filter(file => file === record.record.title)[0];
-                        if (file) {
-                            record.storage_file = `${file}.mp4`;
+                        if (recordItem.file) {
+                            record.storage_file = recordItem.file;
+                        } else {
+                            const file = this.files.map(file => file.replace('.mp4', '')).filter(file => file === record.record.title)[0];
+                            if (file) {
+                                record.storage_file = `${file}.mp4`;
+                            }
                         }
                         if (!record.channel.id) {
                             let names = Object.keys(this.allChannelNames);

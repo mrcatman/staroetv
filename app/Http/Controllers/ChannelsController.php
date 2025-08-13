@@ -15,89 +15,94 @@ use App\Program;
 use App\Record;
 use App\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class ChannelsController extends Controller {
 
     public function show($url) {
-        $channel = Channel::where(['url' => $url])->first();
-        if (!$channel) {
-            $channel = Channel::where(['id' => $url])->first();
-        }
-        if (!$channel) {
-            return redirect("https://staroetv.su/");
-        }
-        $programs = $channel->programs;
-        $additional = $channel->additionalPrograms;
-        foreach ($additional as $program) {
-            $additional_channel_data = AdditionalChannel::where(['program_id' => $program->id, 'channel_id' => $channel->id])->first();
-             if ($additional_channel_data->title != '') {
-                $program->name = $additional_channel_data->title;
+        $data = Cache::remember('channel_'.$url, 60 * 10, function() use ($url) {
+            $channel = Channel::where(['url' => $url])->first();
+            if (!$channel) {
+                $channel = Channel::where(['id' => $url])->first();
             }
-        }
-        $programs = $programs->merge($additional);
-        $programs = $programs->filter(function($program) {
-            return !$program->pending || $program->can_edit;
+            if (!$channel) {
+                return redirect("https://staroetv.su/");
+            }
+            $programs = $channel->programs;
+            $additional = $channel->additionalPrograms;
+            foreach ($additional as $program) {
+                $additional_channel_data = AdditionalChannel::where(['program_id' => $program->id, 'channel_id' => $channel->id])->first();
+                if ($additional_channel_data->title != '') {
+                    $program->name = $additional_channel_data->title;
+                }
+            }
+            $programs = $programs->merge($additional);
+            $programs = $programs->filter(function ($program) {
+                return !$program->pending || $program->can_edit;
+            });
+
+            $genre_ids = $programs->sortBy('order')->pluck('genre_id')->unique();
+            $genres = Genre::whereIn('id', $genre_ids)->get();
+            foreach ($genres as &$genre) {
+                $genre->programs = $programs->filter(function ($program) use ($genre) {
+                    return $program->genre_id == $genre->id;
+                });
+            }
+            $no_genre_programs = $programs->filter(function ($program) {
+                return $program->genre_id == null;
+            });
+            if (count($no_genre_programs) > 0) {
+                $no_genre = (object)[
+                    'id' => -1,
+                    'url' => 'unspecified',
+                    'name' => 'Другое',
+                    'programs' => $no_genre_programs
+                ];
+                $genres->push($no_genre);
+            }
+            $popular_programs = Program::where(['channel_id' => $channel->id])->orderBy('views', 'desc')->limit(25)->get();
+            $genres->prepend((object)[
+                'id' => -2,
+                'url' => 'popular',
+                'name' => 'Популярные',
+                'programs' => $popular_programs
+            ]);
+            $interprogram_packages = $channel->interprogramPackages;
+//        foreach ($interprogram_packages as $interprogram_package) {
+//            //$interprogram_package->records = $interprogram_package->records->shuffle();
+//        }
+            $random_records = Record::where(['channel_id' => $channel->id])->whereNull('program_id')->whereNull('interprogram_package_id')->where(function ($q) {
+                $q->whereNotIn('interprogram_type', [11, 22]);
+                $q->orWhereNull('interprogram_type');
+            })->inRandomOrder()->get();
+            $random_record = $random_records->filter(function ($record) {
+                return $record->cover && $record->cover != '';
+            })->first();
+            if (count($channel->interprogramRecords) > 0) {
+                $interprogram_packages->push(new InterprogramPackage([
+                    'id' => 0,
+                    'name' => 'Прочее',
+                    'pictures' => [],
+                    'years_range' => '',
+                    'channel_id' => $channel->id,
+                    'url' => 'other',
+                    'coverPicture' => new Picture([
+                        'url' => $random_record ? $random_record->cover : ''
+                    ]),
+                    'records' => collect([])
+                ]));
+            }
+            return [
+                'channel' => $channel,
+                'programs' => $genres,
+                'interprogram_packages' => $interprogram_packages,
+                'records_conditions' => ['channel_id' => $channel->id, 'is_advertising' => false, 'is_radio' => $channel->is_radio],
+                'records_conditions_interprogram' => ['channel_id' => $channel->id, 'is_interprogram' => true, 'is_radio' => $channel->is_radio]
+            ];
         });
 
-        $genre_ids = $programs->sortBy('order')->pluck('genre_id')->unique();
-        $genres = Genre::whereIn('id', $genre_ids)->get();
-        foreach ($genres as &$genre) {
-            $genre->programs = $programs->filter(function($program) use ($genre) {
-                return $program->genre_id == $genre->id;
-            });
-        }
-        $no_genre_programs = $programs->filter(function($program) {
-            return $program->genre_id == null;
-        });
-        if (count($no_genre_programs) > 0) {
-            $no_genre = (object)[
-                'id' => -1,
-                'url' => 'unspecified',
-                'name' => 'Другое',
-                'programs' => $no_genre_programs
-            ];
-            $genres->push($no_genre);
-        }
-        $popular_programs = Program::where(['channel_id' => $channel->id])->orderBy('views', 'desc')->limit(25)->get();
-        $genres->prepend((object)[
-            'id' => -2,
-            'url' => 'popular',
-            'name' => 'Популярные',
-            'programs' => $popular_programs
-        ]);
-        $interprogram_packages = $channel->interprogramPackages;
-        foreach ($interprogram_packages as $interprogram_package) {
-            //$interprogram_package->records = $interprogram_package->records->shuffle();
-        }
-        $random_records = Record::where(['channel_id' => $channel->id])->whereNull('program_id')->whereNull('interprogram_package_id')->where(function($q) {
-            $q->whereNotIn('interprogram_type', [11, 22]);
-            $q->orWhereNull('interprogram_type');
-        })->inRandomOrder()->get();
-        $random_record = $random_records->filter(function($record) {
-            return $record->cover && $record->cover != '';
-        })->first();
-        if (count($channel->interprogramRecords) > 0) {
-            $interprogram_packages->push(new InterprogramPackage([
-                'id' => 0,
-                'name' => 'Прочее',
-                'pictures' => [],
-                'years_range' => '',
-                'channel_id' => $channel->id,
-                'url' => 'other',
-                'coverPicture' => new Picture([
-                    'url' => $random_record ? $random_record->cover : ''
-                ]),
-                'records' => collect([])
-            ]));
-        }
-        ViewsHelper::increment($channel, 'channels');
-        return view("pages.channels.show", [
-            'channel' => $channel,
-            'programs' => $genres,
-            'interprogram_packages' => $interprogram_packages,
-            'records_conditions' => ['channel_id' => $channel->id, 'is_advertising' => false, 'is_radio' => $channel->is_radio],
-            'records_conditions_interprogram' => ['channel_id' => $channel->id, 'is_interprogram' => true, 'is_radio' => $channel->is_radio]
-        ]);
+        ViewsHelper::increment($data['channel'], 'channels');
+        return view("pages.channels.show", $data);
     }
 
     public function add() {

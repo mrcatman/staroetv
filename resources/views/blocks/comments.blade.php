@@ -11,6 +11,7 @@
     <div id="comments_block" class="box @if (isset ($class)) {{$class}} @else box--comments @endif">
         <div class="box__heading">
             <div class="box__heading__inner">
+                <i class="fa fa-comment"></i>
                 Комментарии
                 @if (!$lazyload)
                 <span class="box__heading__count">{{\App\Comment::where($conditions)->count()}}</span>

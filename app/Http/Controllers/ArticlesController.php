@@ -96,17 +96,24 @@ class ArticlesController extends Controller {
     }
 
     public function show($url) {
-        $article = Article::where(['url' => $url])->first();
-        $see_also = Article::where('id', '<', $article->id)->where(['pending' => false])->orderBy('created_at', 'desc')->limit(5)->get();
-        $see_also = $see_also->merge(
-            Article::where('id', '>', $article->id)->where(['pending' => false])->orderBy('id', 'asc')->limit(3)->get()
-        );
+        $data = Cache::remember('article_'.$url, 60 * 10,  function() use ($url) {
+            $article = Article::where(['url' => $url])->firstOrFail();
+            $see_also = Article::where('id', '<', $article->id)->where(['pending' => false])->orderBy('created_at', 'desc')->limit(5)->get();
+            $see_also = $see_also->merge(
+                Article::where('id', '>', $article->id)->where(['pending' => false])->orderBy('id', 'asc')->limit(3)->get()
+            );
+            return [
+                'article' => $article,
+                'see_also' => $see_also
+            ];
+        });
+
+        $article = $data['article'];
+        $see_also = $data['see_also'];
+
         ViewsHelper::increment($article, 'articles');
         $show_actions_panel = auth()->user() && auth()->user()->group_id > 2 && auth()->user()->group_id < 255;
-        if (request()->has('test')) {
-            $article->original_id = $article->id;
-            $article->save();
-        }
+
         return view("pages.article", [
             'show_actions_panel' => $show_actions_panel,
             'article' => $article,
@@ -484,6 +491,8 @@ class ArticlesController extends Controller {
             $article->save();
             $article_link = $article->url;
             $this->setTags($article);
+
+            Cache::forget('article_'.$article->url);
             return [
                 'status' => 1,
                 'text' => 'Добавлено',

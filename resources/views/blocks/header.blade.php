@@ -110,7 +110,7 @@
             <a class="site-search__close">
                 <i class="fa fa-times"></i>
             </a>
-            <div class="site-search__top">
+            <div class="site-search__top search-input-container">
                 <input class="input site-search__input" placeholder="Поиск по сайту...">
             </div>
             <div class="site-search__results">
@@ -120,11 +120,9 @@
     </div>
 </div>
 
-<!--
-<div class="garland">
-    @for($i = 1; $i < 50; $i++)
-        <li></li>
-    @endfor
-</div>
--->
+@php ($month = \Carbon\Carbon::now()->month)
+@php ($day = \Carbon\Carbon::now()->day)
+@if (($month == 12 && $day > 20) || ($month == 1 && $day < 20))
+@include('blocks.garland')
+@endif
 

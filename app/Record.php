@@ -24,6 +24,14 @@ class Record extends Model {
         return $title;
     }
 
+    public function getDescriptionWithTimecodesAttribute()
+    {
+        return preg_replace_callback('/([0-9]{1,2}):([0-9]{1,2})(?::([0-9]{1,2}))?/', function ($timecode) {
+            $time = count($timecode) == 4 ? $timecode[1] * 3600 + $timecode[2] * 60 + $timecode[3] : $timecode[1] * 60 + $timecode[2];
+            return '<a class="timecode" onclick="player.currentTime = ' . $time . ';player.play()">' . $timecode[0] . '</a>';
+        },  $this->description);
+    }
+
     public function getTitleWithoutTagsAttribute() {
         return strip_tags(str_replace("<br>", " ", $this->title));
     }
@@ -118,6 +126,24 @@ class Record extends Model {
         $title = "$program ($channel, $date) $short_description";
         $title = $this->capitalize($title, "UTF-8");
         return $title;
+    }
+
+    public function getBroadcastDateAttribute()
+    {
+        return ($this->day ? str_pad((string)$this->day, 2, " ", STR_PAD_LEFT)."." : "").($this->month ?  str_pad((string)$this->month, 2, "0", STR_PAD_LEFT)."." : "").($this->year ? $this->year : "");
+
+    }
+
+    public function getParsedShortDescriptionAttribute()
+    {
+        if ($this->short_description != '') {
+            return $this->short_description;
+        }
+        preg_match('/(.*?)\((.*?), (.*?)\)(.*)/', $this->title, $matches);
+        if (isset($matches[4]) && $matches[4] != '') {
+            return trim($matches[4]);
+        }
+        return null;
     }
 
     private function capitalize($string, $encoding)
@@ -378,6 +404,10 @@ class Record extends Model {
         return Cache::remember('interprogram_name_'.$this->interprogram_type, 3600, function () {
             return $this->interprogramTypeData ? $this->interprogramTypeData->name : "";
         });
+    }
+
+    public function getSourceAudioAttribute() {
+        return 'https://media.staroetv.su/'.$this->source_path;
     }
 
     public function getSourceHlsAttribute() {

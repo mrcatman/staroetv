@@ -2,16 +2,27 @@
     <div class="record-item__cover" style="background-image: url('{{$record->cover}}')"></div>
     <div class="record-item__texts">
         <span class="record-item__title">
+
             @if (isset($highlight) && $highlight)
                 {!! \App\Helpers\HighlightHelper::highlight($record->title, $highlight) !!}
             @else
                 @if (isset($title) && $title)
                     {!!  $title !!}
                 @else
-                {!!  $record->title  !!}
+                    @if (request()->has('new_titles'))
+                        {!! $record->parsed_short_description != '' ? $record->parsed_short_description : $record->title  !!}
+                    @else
+                        {!! $record->title  !!}
+                    @endif
                 @endif
             @endif
         </span>
+        @if (request()->has('new_titles'))
+        <span class="record-item__broadcast-date">
+            <i class="fa fa-clock"></i>
+            {!! $record->broadcast_date !!}
+        </span>
+        @endif
         <div class="record-item__info">
             <span class="record-item__date"><i class="fa fa-calendar"></i>{{$record->created_at}}</span>
             <span class="record-item__views"><i class="fa fa-eye"></i>{{$record->views}}</span>

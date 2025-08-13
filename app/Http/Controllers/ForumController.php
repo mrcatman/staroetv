@@ -21,6 +21,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 class ForumController extends Controller {
 
@@ -134,7 +135,7 @@ class ForumController extends Controller {
         $forum = Forum::find($id);
         $parent_forum = Forum::find($forum->parent_id);
         if (!PermissionsHelper::checkGroupAccess('can_view', $forum)) {
-            return redirect('https://staroetv.su/forum');
+          //  return redirect('https://staroetv.su/forum');
         }
 
         $search = request()->input('s', '');
@@ -256,7 +257,7 @@ class ForumController extends Controller {
         if ($subforum) {
             $forum = Forum::find($subforum->parent_id);
             if (!PermissionsHelper::checkGroupAccess('can_view', $subforum)) {
-                return redirect('https://staroetv.su/forum');
+             //   return redirect('https://staroetv.su/forum');
             }
         }
 
@@ -527,6 +528,13 @@ class ForumController extends Controller {
         if ($content == "") {
             return ['status' => 0, 'text' => 'Введите сообщение'];
         }
+        if (Str::contains(mb_strtolower($content, 'UTF-8'), 'кракен')) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка отправки'
+            ];
+        }
+
         $quote_users = [];
         $quotes = [];
         $users_not_to_reply = [];
@@ -629,6 +637,7 @@ class ForumController extends Controller {
             'user_id' => $user->id,
         ]);
         $message_obj->save();
+        Cache::forget('forum_messages_'.$user->id);
 
         $topic->topic_last_username = $user->username;
         $topic->last_reply_at = Carbon::now();
@@ -744,6 +753,12 @@ class ForumController extends Controller {
         unset($data['message']);
 
         $user = auth()->user();
+        if (Carbon::parse($user->created_at_orig)->gt(Carbon::now()->subDays(2))) {
+            return [
+                'status' => 0,
+                'text' => 'Новые пользователи временно не могут создавать темы. Напишите в любую имеющуюся'
+            ];
+        }
 
         $topic = new ForumTopic($data);
         $topic->topic_starter_id = $user->id;
@@ -766,6 +781,7 @@ class ForumController extends Controller {
             'user_id' => $user->id,
         ]);
         $message_obj->save();
+        Cache::forget('forum_messages_'.$user->id);
         if (request()->input('questionnaire') && PermissionsHelper::allows('frpoll')) {
             try {
                 (new QuestionnairesController())->save($topic->id);

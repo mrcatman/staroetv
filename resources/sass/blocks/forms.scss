@@ -745,7 +745,9 @@ textarea.input {
     justify-content: center;
 }
 
-
+.cke_notifications_area {
+    display: none!important;
+}
 .vdp-datepicker .vdp-datepicker__calendar {
     background: var(--box-color);
     color: var(--text-color);

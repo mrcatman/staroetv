@@ -2,102 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\AdditionalChannel;
-use App\Channel;
-use App\ChannelName;
-use App\Genre;
-use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
-use App\Helpers\RecordsHelper;
-use App\Helpers\RegexHelper;
-use App\Helpers\ViewsHelper;
-use App\HistoryEvent;
-use App\InterprogramPackage;
-use App\Picture;
-use App\Program;
-use App\Record;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 
-class RecordsController extends Controller {
-
-    private $uploadEndpoint = 'https://media.staroetv.su/files/';
-
-    public function buildChannelsList($params) {
-        $hash = md5(json_encode($params));
-        return Cache::remember('channels_list_'.$hash, 60 * 20, function() use ($params) {
-            $federal = Channel::where(['is_federal' => true])->where($params)->orderBy('order', 'ASC')->get();
-
-            $regions = json_decode(file_get_contents(public_path("data/cities.json")), 1);
-            $regions_by_city = [];
-            foreach ($regions as $region => $cities) {
-                foreach ($cities as $city) {
-                    $regions_by_city[$city] = $region;
-                }
-            }
-            $channels_by_region = [];
-            $regional = Channel::where(['is_regional' => true, 'is_abroad' => false])->where($params)->orderBy('order', 'ASC')->get();
-            foreach ($regional as $channel) {
-                $channel_data = [
-                    'id' => $channel->id,
-                    'name' => $channel->name,
-                    'logo' => $channel->logo,
-                    'url' => $channel->full_url,
-                ];
-                if (isset($regions_by_city[$channel->city])) {
-                    if (!isset($channels_by_region[$regions_by_city[$channel->city]])) {
-                        $channels_by_region[$regions_by_city[$channel->city]] = ['cities' => [], 'channels' => [], 'count' => 0];
-                    }
-                    if (!isset($channels_by_region[$regions_by_city[$channel->city]]['cities'][$channel->city])) {
-                        $channels_by_region[$regions_by_city[$channel->city]]['cities'][$channel->city] = [];
-                    }
-                    $channels_by_region[$regions_by_city[$channel->city]]['count']++;
-                    $channels_by_region[$regions_by_city[$channel->city]]['cities'][$channel->city][] = $channel_data;
-                } elseif (isset($regions[$channel->city])) {
-                    if (!isset($channels_by_region[$channel->city])) {
-                        $channels_by_region[$channel->city] = ['cities' => [], 'channels' => [], 'count' => 0];
-                    }
-                    $channels_by_region[$channel->city]['count']++;
-                    $channels_by_region[$channel->city]['channels'][] = $channel_data;
-                }
-            }
-            //$main_cities = ['Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань'];
-
-            //dd($channels_by_region);
-            ksort($channels_by_region);
-            $abroad = Channel::where(['is_abroad' => true])->where($params)->orderBy('order', 'ASC')->get();
-            $abroad_by_country = [];
-            foreach ($abroad as $channel) {
-                $channel_data = [
-                    'id' => $channel->id,
-                    'name' => $channel->name,
-                    'logo' => $channel->logo,
-                    'url' => $channel->full_url,
-                ];
-                if (!isset($abroad_by_country[$channel->country])) {
-                    $abroad_by_country[$channel->country] = ['cities' => [], 'channels' => []];
-                }
-                if (!$channel->city) {
-                    $abroad_by_country[$channel->country]['channels'][] = $channel_data;
-                } else {
-                    if (!isset($abroad_by_country[$channel->country]['cities'][$channel->city])) {
-                        $abroad_by_country[$channel->country]['cities'][$channel->city] = [];
-                    }
-                    $abroad_by_country[$channel->country]['cities'][$channel->city][] = $channel_data;
-                }
-            }
-            ksort($abroad_by_country);
-            $other = Channel::where(['is_federal' => false, 'is_regional' => false, 'is_abroad' => false])->where($params)->orderBy('order', 'ASC')->get();
-            return [
-                'federal' => $federal,
-                'regional' => $channels_by_region,
-                'abroad' => $abroad_by_country,
-                'other' => $other
-            ];
-        });
-    }
+class TeletextController extends Controller {
 
     public function index($params) {
         if (!PermissionsHelper::allows('contentapprove')) {
@@ -108,8 +19,8 @@ class RecordsController extends Controller {
         $data['params'] = $params;
         $data['last_records'] = $last_records;
         $data['events'] = [];
-       // $data['events'] = HistoryEvent::approved()->orderBy('id', 'desc')->limit(3)->get();
-        return view("pages.records.index", $data);
+        // $data['events'] = HistoryEvent::approved()->orderBy('id', 'desc')->limit(3)->get();
+        return view("pages.teletext.index", $data);
     }
 
 
@@ -581,7 +492,7 @@ class RecordsController extends Controller {
         } elseif (request()->has('youtube_video_id')) {
             $youtube_id = request()->input('youtube_video_id');
             $token = config('tokens.youtube');
-             $data = json_decode(shell_exec("curl 'https://www.googleapis.com/youtube/v3/videos?id=$youtube_id&key=$token&part=snippet'"));
+            $data = json_decode(shell_exec("curl 'https://www.googleapis.com/youtube/v3/videos?id=$youtube_id&key=$token&part=snippet'"));
             return [
                 'status' => 1,
                 'data' => [
@@ -629,10 +540,10 @@ class RecordsController extends Controller {
             ];
         }
         if (!$record->can_edit || PermissionsHelper::isBanned()) {
-           return [
-               'status' => 0,
-               'text' => 'Ошибка доступа'
-           ];
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
         };
         return $this->fillData($record, false);
     }
@@ -766,7 +677,7 @@ class RecordsController extends Controller {
             if (request()->input('interprogram_type') > 0) {
                 $record->interprogram_type = request()->input('interprogram_type');
             } else {
-               // $errors['interprogram_type'] = "Выберите тип материала";
+                // $errors['interprogram_type'] = "Выберите тип материала";
             }
         }
         $cover_url = null;
@@ -1126,10 +1037,10 @@ class RecordsController extends Controller {
     public function download($id = null) {
         $record = Record::find($id ? $id : request()->input('record_id'));
         if (!$record) {
-           return ['status' => 0, 'text' => 'Запись не найдена'];
+            return ['status' => 0, 'text' => 'Запись не найдена'];
         }
         //if (!$record->can_edit) {
-           // return ['status' => 0, 'text' => 'Ошибка доступа'];
+        // return ['status' => 0, 'text' => 'Ошибка доступа'];
         //}
         preg_match('/iframe(.*?)src="(.*?)"/', $record->embed_code, $matches);
         if (!isset($matches[2]) || $matches[2] == "") {
@@ -1296,12 +1207,12 @@ class RecordsController extends Controller {
             if ($fps > 100 || $fps === 0) {
                 $fps = 30;
             }
-          //  $screenshot_time = $middle / $fps;
+            //  $screenshot_time = $middle / $fps;
             $screenshot_time = ($frames / $fps) - 3;
         }
         $screenshot_path = "/pictures/video_covers/$filename.jpg";
         $screenshot_command = "ffmpeg -y -ss $screenshot_time -i '$path' -vframes 1 '".public_path($screenshot_path)."'";
-         shell_exec($screenshot_command);
+        shell_exec($screenshot_command);
         return $screenshot_path;
     }
 
@@ -1477,8 +1388,8 @@ class RecordsController extends Controller {
         }
         ksort($records_by_month);
         //foreach ($records_by_date as $month => &$records) {
-            //ksort($records['days']);
-       // }
+        //ksort($records['days']);
+        // }
         return view('pages.records.calendar_year', ['year' => $year,'records_by_month' => $records_by_month]);
     }
 

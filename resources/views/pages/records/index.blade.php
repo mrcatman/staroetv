@@ -8,13 +8,6 @@
             <div class="inner-page__header__title">{{$params['is_radio'] ? "Архив старых радиозаписей" : "Архив старых телезаписей"}}</div>
             <div class="inner-page__header__right">
                 <div class="buttons-row">
-                    @if (\App\Helpers\PermissionsHelper::allows('viadd'))
-                        @if ($params['is_radio'])
-                            <a class="button" href="/radio/add">Добавить радиозапись</a>
-                        @else
-                            <a class="button" href="/video/add">Добавить видео</a>
-                        @endif
-                    @endif
                     @if (\App\Helpers\PermissionsHelper::allows('channelsown'))
                         @if ($params['is_radio'])
                             <a class="button" href="/channels/add?is_radio=1">Добавить радиостанцию</a>
@@ -22,6 +15,16 @@
                             <a class="button" href="/channels/add?is_radio=0">Добавить канал</a>
                         @endif
                     @endif
+
+                @if (\App\Helpers\PermissionsHelper::allows('viadd'))
+                        @if ($params['is_radio'])
+                            <a class="button" href="/radio/add">Добавить радиозапись</a>
+                        @else
+                            <a class="button" href="/video/add">Добавить видео</a>
+                            <a class="button" href="/mass-upload">Массовая загрузка</a>
+                        @endif
+                    @endif
+
                 </div>
 
             </div>
@@ -45,6 +48,7 @@
                                 </div>
 
                                 @if (!$params['is_radio'])<a class="button button--light channels-list-page__button--other"  href="/video/other" >Прочее</a>@endif
+
 
                             </div>
                             <div class="tab-content" data-id="channels" data-tab="federal">

@@ -12,7 +12,7 @@
             </div>
         </div>
         <div class="box__inner">
-            <record-form :can-upload="{{$can_upload ? "true" : "false"}}" :can-edit-all="{{$can_edit_all ? "true" : "false"}}" :meta='@json($data)' :channels='@json($channels)' :record='@json($record)'></record-form>
+            <record-form upload-endpoint="{{$upload_endpoint}}" :can-upload="{{$can_upload ? "true" : "false"}}" :can-edit-all="{{$can_edit_all ? "true" : "false"}}" :meta='@json($data)' :channels='@json($channels)' :record='@json($record)'></record-form>
         </div>
         @csrf
     </form>

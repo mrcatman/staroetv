@@ -78,16 +78,16 @@ let onReady = () => {
         });
     }
     $(document).on('pjax:start', () => {
-       // $('body').addClass('page-loading');
+        $('body').addClass('page-loading');
     });
     $(document).on('pjax:success', () => {
         window.recaptchaLoaded = false;
-       //$('body').removeClass('page-loading');
+        $('body').removeClass('page-loading');
         onPageChange();
     });
     $(document).on('pjax:popstate', () => {
         setTimeout(() => {
-         //   $('body').removeClass('page-loading');
+            $('body').removeClass('page-loading');
             $('.form__preloader').remove();
         }, 250);
     });

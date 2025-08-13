@@ -84,7 +84,7 @@
                             </div>
 
                             <div class="record-page__description">
-                                {!! str_replace(PHP_EOL, "<br>", $record->description) !!}
+                                {!! str_replace(PHP_EOL, "<br>", $record->description_with_timecodes) !!}
                             </div>
                         </div>
                     </div>

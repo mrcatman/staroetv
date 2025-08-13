@@ -57,6 +57,9 @@
                 display: flex;
                 align-items: center;
             }
+            i {
+                margin-right: .5em;
+            }
         }
         @include mobile {
             overflow: auto;

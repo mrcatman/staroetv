@@ -9,6 +9,7 @@ use App\ForumTopic;
 use App\Helpers\CSVHelper;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 
 class importForum extends Command
 {

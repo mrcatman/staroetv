@@ -26,7 +26,7 @@
                     <option value="older" @if ($records_data['sort'] == 'older') selected @endif>От старых к новым</option>
                     <option value="added" @if ($records_data['sort'] == 'added') selected @endif>Недавно добавленные</option>
                 </select>
-                <div class="records-list__sort__search">
+                <div class="records-list__sort__search search-input-container">
                     <input value="{{$records_data['search']}}" class="input" placeholder="Поиск по разделу..."/>
                 </div>
             </div>
@@ -50,10 +50,12 @@
                         <span class="top-list__item__name">Все месяцы</span>
                     </a>
                     @foreach ($records_data['months'] as $month => $count)
+                        @if (isset($month_names[$month - 1]))
                         <a class="top-list__item @if ($records_data['selected_month'] == $month) top-list__item--active @endif" href="{{$records_data['base_link']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'month']), ['month' => $month]))}}">
                             <span class="top-list__item__name">{{$month_names[$month - 1]}}</span>
                             <span class="top-list__item__count">{{$count}}</span>
                         </a>
+                        @endif
                     @endforeach
                 </div>
             @endif

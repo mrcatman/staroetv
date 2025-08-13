@@ -34,7 +34,7 @@ class VKCrossposter extends BaseCrossposter {
             throw new \Exception("Не указан id приложения");
         }
         $redirect_uri = urlencode("https://oauth.vk.com/blank.html");
-        $scope = 335892;
+        $scope = 335888;
         $url = "https://oauth.vk.com/authorize?client_id=$client_id&redirect_uri=$redirect_uri&display=page&scope=$scope&response_type=token&v=".$this->version."&revoke=1";
         return $url;
     }

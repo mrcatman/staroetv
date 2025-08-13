@@ -12,38 +12,43 @@
 */
 
 
+use App\Helpers\DatesHelper;
 use App\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 Route::get('/', function () {
-    $data = []; // , \App\Article::TYPE_BLOG
-    $data['users_on_site'] = User::where('was_online', '>', Carbon::now()->subMinutes(15))->orderBy('was_online', 'desc')->get();
+    $data = Cache::remember('index', 60, function () {
+        $data = []; // , \App\Article::TYPE_BLOG
+        $data['users_on_site'] = User::where('was_online', '>', Carbon::now()->subMinutes(15))->orderBy('was_online', 'desc')->get();
 
-    $data['events'] = []; \App\HistoryEvent::where(['pending' => false])->orderBy('created_at', 'desc')->limit(8)->get();
+        $data['events'] = [];
+        \App\HistoryEvent::where(['pending' => false])->orderBy('created_at', 'desc')->limit(8)->get();
 
-    $data['first_news'] = \App\Article::where(['pending' => false])->whereNotNull('cover_id')->orderBy('created_at', 'desc')->limit(2)->get();
-    $data['news'] = \App\Article::where(['pending' => false])->orderBy('created_at', 'desc')->whereNotIn('id',  $data['first_news']->pluck('id'))->limit(8)->get();
-    $data['records'] = \App\Record::where(['is_radio' => false, 'pending' => false])->orderBy('original_added_at', 'desc')->limit(22)->get();
-    $data['forum_topics'] = \App\ForumTopic::orderBy('last_reply_at', 'DESC')->limit(6)->get();
-    $data['in_this_day'] = null;
+        $data['first_news'] = \App\Article::where(['pending' => false])->whereNotNull('cover_id')->orderBy('created_at', 'desc')->limit(2)->get();
+        $data['news'] = \App\Article::where(['pending' => false])->orderBy('created_at', 'desc')->whereNotIn('id', $data['first_news']->pluck('id'))->limit(8)->get();
+        $data['records'] = \App\Record::where(['is_radio' => false, 'pending' => false])->orderBy('original_added_at', 'desc')->limit(22)->get();
+        $data['forum_topics'] = \App\ForumTopic::orderBy('last_reply_at', 'DESC')->limit(6)->get();
 
-    $last_viewed_limit = 5;
-    $last_viewed = \App\Record::where(['is_radio' => false])->orderBy('updated_at', 'desc')->limit($last_viewed_limit)->get();
-    $data['last_viewed'] = $last_viewed;
+        $last_viewed_limit = 5;
+        $last_viewed = \App\Record::where(['is_radio' => false])->orderBy('updated_at', 'desc')->limit($last_viewed_limit)->get();
+        $data['last_viewed'] = $last_viewed;
 
+        $in_this_day_limit = 5;
+        $records = \App\Record::where(['is_radio' => false, 'is_interprogram' => false, 'day' => date('d', time()), 'month' => date('m', time())])->inRandomOrder()->limit($in_this_day_limit)->get();
+        $data['in_this_day'] = $records;
 
-    $in_this_day_limit = 5;
-    $records = \App\Record::where(['is_radio' => false, 'is_interprogram' => false, 'day' => date('d', time()), 'month' => date('m', time())])->inRandomOrder()->limit($in_this_day_limit)->get();
-    $data['in_this_day'] = $records;
+        $month_names = DatesHelper::monthNamesParentalCase();
+        $date_text = date('d', time()) . ' ' . ($month_names[date('m', time()) - 1]);
+        $data['date_text'] = $date_text;
 
-    $month_names = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
-    $date_text = date('d', time()).' '.($month_names[date('m', time()) - 1]);
-    $data['date_text'] = $date_text;
-
-    $data['comments'] = \App\Comment::orderBy('id', 'desc')->limit(5)->get();
-    $data['news_view'] = true;
+        $data['comments'] = \App\Comment::orderBy('id', 'desc')->limit(5)->get();
+        $data['news_view'] = true;
+        return $data;
+    });
     return view('index', $data);
 });
+
 Route::get('/new-comments', function () {
     $comments = \App\Comment::orderBy('id', 'desc')->where('material_type', '!=', '3')->paginate(24);
     return view("pages.users.comments", [
@@ -259,6 +264,16 @@ Route::post('/programs/autocomplete', 'ProgramsController@autocomplete');
 Route::get('/channels/{id}/graphics/{package_id}', 'InterprogramPackagesController@show');
 Route::get('/programs/{id}/graphics', 'InterprogramPackagesController@showByProgram');
 Route::post('/graphics/delete', 'InterprogramPackagesController@delete');
+
+
+// TELETEXT
+Route::get('/teletext', 'TeletextController@index');
+Route::get('/teletext/add', 'TeletextController@add');
+Route::post('/teletext/add', 'TeletextController@save');
+Route::get('/teletext/{id}/edit', 'TeletextController@edit');
+Route::post('/teletext/{id}/edit', 'TeletextController@update');
+
+
 
 Route::post('/upload/pictures/by-url', 'UploadController@uploadPicturesByURL');
 Route::get('/upload/pictures/getbychannel/{id}', 'UploadController@getPicturesByChannel');
@@ -609,3 +624,39 @@ Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm
 Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 Route::get('/confirm-account/{code}', 'Auth\RegisterController@confirm');
 Auth::routes();
+
+Route::get('garland', function() {
+    return view('blocks.garland');
+});
+Route::any('api/search', function () {
+    return (new \App\Http\Controllers\RecordsController())->apiSearch();
+});
+Route::any('api/embed-codes', function () {
+    $uploaded = array_diff(scandir('/storage/videos'), ['.','..']); //) ->where( ['author_id' => 3358])
+    $records = \App\Record::where(['use_own_player' => true])->orderBy('id', 'desc')->where('embed_code', '!=', '')->get()->map(function($video) use ($uploaded) {
+        $path = $video->source_path;
+        $title = $video->title;
+        $embed_code = $video->embed_code;
+        $path = explode('/', $path);
+        $path = array_pop($path);
+        if (!in_array($path, $uploaded)) {
+            echo $title.PHP_EOL;
+//            $embed_code = str_replace('"//', '"https://', $embed_code);
+//            preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $embed_code, $out);
+//
+//            if (isset($out[0][0])) {
+//                $link = $out[0][0];
+//                echo 'yt-dlp -i "' . $link . '" --cookies-from-browser=firefox -o "' . $path . '"' . PHP_EOL;
+//                //dd($embed_code, $out);
+//            }
+//
+//            // dd($uploaded);
+            $video->temp_hide_own_player = true;
+            $video->save();
+        } else {
+            $video->temp_hide_own_player = false;
+        }
+
+    });
+
+});

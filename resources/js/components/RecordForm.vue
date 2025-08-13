@@ -498,6 +498,7 @@
         },
         components: {Datepicker, Snackbar, Response},
         props: {
+            uploadEndpoint: {},
             canUpload: {},
             canEditAll: {},
             inModal: {},
@@ -542,7 +543,7 @@
 
 
                    this.tusUpload = new tus.Upload(record, {
-                        endpoint: 'https://media.staroetv.su/files/',
+                        endpoint: this.uploadEndpoint,
                         retryDelays: [0, 1000, 3000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000],
                         chunkSize: 10 * 1048576,
                         metadata: {
@@ -773,7 +774,7 @@
                     })
                 } else {
                     let id = null;
-                    let vkData = url.match(/(.*?)vk.com\/video(.*?)([0-9-_]+)(.*?)/);
+                    let vkData = url.match(/(.*?)\/video(.*?)([0-9-_]+)(.*?)/);
                     if (vkData && vkData[3].length > 1) {
                         id = vkData[3];
                     } else {

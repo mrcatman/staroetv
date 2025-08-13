@@ -5,7 +5,7 @@
             Массовая загрузка видео из источника
         </div>
         <div class="box__inner">
-            <mass-uploader></mass-uploader>
+            <mass-uploader :show-files="{{$can_upload ? "true" : "false"}}"></mass-uploader>
         </div>
 
     </div>

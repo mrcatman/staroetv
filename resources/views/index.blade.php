@@ -36,6 +36,7 @@
                 <div class="box">
                     <a href="/video" class="box__heading">
                         <div class="box__heading__inner">
+                            <i class="fa fa-film"></i>
                             Последние пополнения телеархива
                         </div>
                     </a>
@@ -67,6 +68,7 @@
                         <div class="box">
                             <div class="box__heading">
                                 <div class="box__heading__inner">
+                                    <i class="fa fa-eye"></i>
                                     Сейчас смотрят
                                 </div>
                             </div>
@@ -81,6 +83,7 @@
                     <div class="box">
                         <div class="box__heading">
                             <div class="box__heading__inner">
+                                <i class="fa fa-calendar"></i>
                                 {{$date_text}} в истории
                             </div>
                         </div>
@@ -98,6 +101,7 @@
                 <div class="box">
                     <a href="/articles" class="box__heading">
                         <div class="box__heading__inner">
+                            <i class="fa fa-newspaper"></i>
                             Публикации
                         </div>
                     </a>
@@ -128,6 +132,7 @@
                 <div class="box box--stretch">
                     <a href="/forum" class="box__heading">
                         <div class="box__heading__inner">
+                            <i class="fa fa-comments"></i>
                             Форум
                         </div>
                     </a>
@@ -157,6 +162,7 @@
                 <div class="box box--stretch box--comments-main-page">
                     <a href="/new-comments" class="box__heading">
                         <div class="box__heading__inner">
+                            <i class="fa fa-comment"></i>
                              Последние комментарии
                         </div>
                     </a>
@@ -177,8 +183,11 @@
         </div>
         <div class="row">
             <div class="box">
-                <div class="box__heading box__heading--small">
-                    Сейчас на сайте
+                <div class="box__heading">
+                    <div class="box__heading__inner">
+                        <i class="fa fa-users"></i>
+                        Сейчас на сайте
+                    </div>
                 </div>
                 <div class="box__inner">
                     @php($index = 0)

@@ -5,7 +5,6 @@ const loadRecords = ({container, conditions, link}) => {
 
     $(container).append('<div class="block-preloader"><img src="/pictures/ajax.gif"></div>');
 
-
     const data = Object.fromEntries(new URLSearchParams(link ? link.split('?')[1] : window.location.search));
     if (!data.sort) {
         data.sort = $(container).find('.records-list__sort__item--active').data('sort');

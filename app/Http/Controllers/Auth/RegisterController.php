@@ -36,7 +36,7 @@ class RegisterController extends Controller
             ]);
             $captcha_status = json_decode(curl_exec($curl));
             curl_close($curl);
-            if ($captcha_status->score < 0.5) {
+            if (!isset($captcha_status->score) || $captcha_status->score < 0.5 ) {
                 return [
                     'status' => 0,
                     'text' => 'Скорее всего вы робот :(',
