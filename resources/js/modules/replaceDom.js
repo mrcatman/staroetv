@@ -1,4 +1,4 @@
-function replaceDom(dom) {
+const replaceDom = (dom) => {
     dom.forEach(replacement => {
         if (replacement.prepend_to) {
             $(replacement.prepend_to).prepend(replacement.html);
@@ -12,4 +12,4 @@ function replaceDom(dom) {
     })
 }
 
-module.exports = replaceDom;
+export default replaceDom;

@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\AdditionalChannel;
-use App\Channel;
-use App\ChannelName;
-use App\Genre;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
-use App\InterprogramPackage;
-use App\Program;
-use App\Record;
+use App\Models\AdditionalChannel;
+use App\Models\Channel;
+use App\Models\Genre;
+use App\Models\Program;
+use App\Models\Record;
 use Carbon\Carbon;
-use \Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
 
 class ProgramsController extends Controller {
 
@@ -85,11 +82,11 @@ class ProgramsController extends Controller {
             $program = Program::find($id);
         }
         if (!$program) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         ViewsHelper::increment($program, 'programs');
 
-        $conditions = [ 'show_years' => true, 'program_id' => $program->id, 'is_interprogram' => false];
+        $conditions = [ 'show_years' => true, 'new_titles' => true, 'program_id' => $program->id, 'is_interprogram' => false];
         if ($program->channel) {
             $conditions['is_radio'] = $program->channel->is_radio;
         }
@@ -140,7 +137,7 @@ class ProgramsController extends Controller {
         $all_channels = null;
         $program = Program::find($id);
         if (!$program) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         if (!$program->can_edit || ($program->channel && !$program->channel->can_edit)) {
             return view("pages.errors.403");
@@ -332,7 +329,7 @@ class ProgramsController extends Controller {
 
     public function editList($channel_id) {
         if (!PermissionsHelper::allows('programs')) {
-            return redirect('https://staroetv.su/');
+            return redirect('/');
         }
 
         $channel = Channel::findByIdOrUrl($channel_id);

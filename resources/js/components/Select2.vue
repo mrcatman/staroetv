@@ -8,7 +8,8 @@
        props: ['options', 'value', 'theme', 'name', 'customOptions'],
        data() {
            return {
-               ready: false
+               ready: false,
+               select2: null,
            }
        },
        methods: {
@@ -17,21 +18,22 @@
            }
        },
        mounted() {
-           let customOptions = this.customOptions || {};
            let vm = this;
-           $(this.$el).select2({
+           this.select2 = $(this.$el).select2({
                data: this.options,
-               theme: this.theme, ...customOptions
-           }).val(this.value).trigger('change').on('change', function () {
+               theme: this.theme, ...(this.customOptions || {})
+           }).val(this.value).trigger('change').on('change', function (e) {
+               console.log(e);
+               vm.$emit('change', $(this).val())
                vm.$emit('input', $(this).val())
-           });
+           })[0];
            setTimeout(() => {
                this.ready = true;
            }, 500)
        },
        watch: {
            value(value) {
-               if (value == this.value) {
+               if (value === this.value) {
                    return;
                }
                if (this.ready) {

@@ -1,22 +1,12 @@
 .interprogram-package {
-    width: calc(100% / 4);
-    display: inline-block;
     text-decoration: none;
     text-align: center;
-    @media screen and (max-width: 1367px) {
-        width: calc(100% / 3);
-    }
-    @include mobile {
-        width: 100%;
-    }
-
+    @include hover;
     &__cover {
         display: flex;
         flex-wrap: wrap;
         justify-content: stretch;
         background: #111;
-        width: calc(100% - .5em);
-        min-width: calc(100% - .5em);
         min-height: 16em;
         background: url('/img/noise.jpg') no-repeat center center;
         background-size: cover;
@@ -40,9 +30,6 @@
             max-width: 100%;
         }
     }
-    &:hover &__cover {
-        filter: brightness(1.1);
-    }
 
     &__name {
         font-size: 1.25em;
@@ -51,20 +38,18 @@
     }
 
     &__years {
-        margin: 0 0 1em;
         font-size: 1.25em;
-        font-weight: 300;
-        color: var(--text-lighter);
+        font-style: italic;
     }
 }
 .interprogram-packages-list {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--col-margin);
 }
 
 .interprogram-packages-list-item {
     position: relative;
-    margin: 1em 0 0;
     justify-content: space-between;
     &__description {
         margin: 0;

@@ -64,12 +64,9 @@
         }
     }
     &__site-description {
-        padding: .5em;
-        font-size: 1.5em;
-        line-height: 1.5;
-        @include light() {
-            padding: 0;
-        }
+        font-size: 1.3125em;
+        line-height: 1.6;
+        font-family: var(--font-texts);
         @include mobile() {
             font-size: 1.25em;
         }
@@ -81,12 +78,4 @@
             }
         }
     }
-}
-
-.box--comments-main-page .comments {
-    margin: -1rem -1rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: calc(100% + 2rem);
 }

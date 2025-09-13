@@ -1,12 +1,9 @@
 <?php
 
 namespace App\Console\Commands;
-use App\Article;
-use App\ArticleCategory;
 use App\Helpers\RegexHelper;
-use App\Record;
-use App\Tag;
-use App\TagMaterial;
+use App\Models\Record;
+use App\Models\Tag;
 use Illuminate\Console\Command;
 
 class setExternalIds extends Command

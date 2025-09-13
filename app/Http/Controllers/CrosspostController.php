@@ -3,12 +3,9 @@
 namespace App\Http\Controllers;
 
 
-use App\Channel;
-use App\ChannelName;
-use App\Crosspost;
 use App\Crossposting\CrossposterManager;
-use App\SocialPost;
-use App\SocialPostConnection;
+use App\Models\SocialPost;
+use App\Models\SocialPostConnection;
 use Carbon\Carbon;
 
 class CrosspostController extends Controller {
@@ -55,7 +52,7 @@ class CrosspostController extends Controller {
             abort(403);
         }
         $crossposter->afterRedirect(request()->all());
-        return redirect("https://staroetv.su/admin/crossposting");
+        return redirect("/admin/crossposting");
     }
 
     public function saveSettings($name) {

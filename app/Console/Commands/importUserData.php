@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Helpers\CSVHelper;
-use App\Picture;
-use App\User;
-use App\UserMeta;
-use App\UserWarning;
+use App\Models\Picture;
+use App\Models\User;
+use App\Models\UserMeta;
+use App\Models\UserWarning;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 

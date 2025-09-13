@@ -1,4 +1,4 @@
-@extends('layouts.default')
+@extends('layouts.default', ['vue' => true])
 @section('content')
     <form class="form box" @if ($video) action="/cut/start/{{$video->id}}" @endif method="POST">
         <div class="box__heading">

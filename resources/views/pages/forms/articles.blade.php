@@ -1,6 +1,6 @@
-@extends('layouts.default')
+@extends('layouts.default', ['vue' => true])
 @section('page-title')
- {{$article ? "Редактировать публикацию" : "Добавить публикацию"}}
+    {{$article ? "Редактировать публикацию" : "Добавить публикацию"}}
 @endsection
 @section('content')
     <form class="form box" action="{{$article ? "/articles/edit/".$article->id : "/articles/add"}}" method="POST">
@@ -25,7 +25,8 @@
                 <label class="input-container__label">Краткое описание</label>
                 <div class="input-container__inner">
                     <div class="input-container__element-outer">
-                        <textarea class="input" name="short_content">{{$article ? $article->short_content : ""}}</textarea>
+                        <textarea class="input"
+                                  name="short_content">{{$article ? $article->short_content : ""}}</textarea>
                         <span class="input-container__message"></span>
                     </div>
                 </div>
@@ -33,7 +34,8 @@
             <div class="input-container">
                 <label class="input-container__label">Текст<span class="input-container__required">*</span></label>
                 <div class="input-container__inner">
-                    <textarea id="editor" class="input input--textarea" name="content">{{$article ? $article->content : ""}}</textarea>
+                    <textarea id="editor" class="input input--textarea"
+                              name="content">{{$article ? $article->content : ""}}</textarea>
                     <span class="input-container__message"></span>
                 </div>
             </div>
@@ -54,21 +56,22 @@
             <div class="input-container">
                 <label class="input-container__label">Обложка</label>
                 <div class="input-container__inner">
-                    <picture-uploader name="cover_id" :data="{{$article && $article->coverPicture ? $article->coverPicture : "null"}}" />
+                    <picture-uploader name="cover_id"
+                                      :data="{{$article && $article->coverPicture ? $article->coverPicture : "null"}}"/>
                     <span class="input-container__message"></span>
                 </div>
             </div>
             <div class="input-container">
                 <label class="input-container__label">Теги</label>
                 <div class="input-container__inner">
-                    <tags-editor :tags="{{$article ? $article->tags : '[]'}}" :all-tags="{{\App\Tag::all()}}"/>
+                    <tags-editor :tags="{{$article ? $article->tags : '[]'}}" :all-tags="{{\App\Models\Tag::all()}}"/>
                     <span class="input-container__message"></span>
                 </div>
             </div>
             <div class="input-container">
                 <label class="input-container__label">Привязка</label>
                 <div class="input-container__inner">
-                    <article-bindings-editor :bindings="{{$article ? $article->bindings : '[]'}}" />
+                    <article-bindings-editor :bindings="{{$article ? $article->bindings : '[]'}}"/>
                     <span class="input-container__message"></span>
                 </div>
             </div>

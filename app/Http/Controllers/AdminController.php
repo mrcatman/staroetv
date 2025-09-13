@@ -2,24 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Article;
-use App\Channel;
-use App\ChannelName;
-use App\Comment;
-use App\Genre;
-use App\Helpers\CommentsHelper;
+use App\Helpers\Constants\Countries;
+use App\Helpers\Constants\Permissions;
 use App\Helpers\PermissionsHelper;
-use App\HistoryEvent;
-use App\Page;
-use App\Program;
-use App\Smile;
-use App\User;
-use App\UserAward;
-use App\UserGroup;
-use App\UserGroupConfig;
-use App\UserReputation;
-use App\Record;
-use Carbon\Carbon;
+use App\Models\Article;
+use App\Models\Channel;
+use App\Models\Genre;
+use App\Models\HistoryEvent;
+use App\Models\Page;
+use App\Models\Program;
+use App\Models\Record;
+use App\Models\Smile;
+use App\Models\User;
+use App\Models\UserGroup;
+use App\Models\UserGroupConfig;
+use App\Models\UserReputation;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller {
@@ -27,9 +24,9 @@ class AdminController extends Controller {
     public function getPermissions() {
         $permissions_values = UserGroupConfig::get()->groupBy('option_name');
         $groups = UserGroup::all();
-        $config = config('usergroups');
-        $permissions = $config['parameters'];
-        $default_groups = $config['default_groups'];
+
+        $permissions = Permissions::LIST;
+        $default_groups = Permissions::DEFAULT_USER_GROUPS;
         return view("pages.admin.permissions", [
             'permissions' => $permissions,
             'permissions_values' => $permissions_values,

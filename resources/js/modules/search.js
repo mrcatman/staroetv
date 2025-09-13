@@ -22,7 +22,7 @@ $(body).on('keyup', '.site-search__input', function(e) {
         clearTimeout(searchInputTimeout);
         searchInputTimeout = setTimeout(() => {
             if ($(this).val().length >= 3) {
-                $('.site-search__results').html('<div class="block-preloader"><img src="/pictures/ajax.gif"></div>');
+                $('.site-search__results').html('<div class="block-preloader"><img src="/img/ajax.gif"></div>');
                 $.get('/site-search?search=' + $(this).val()).done(res => {
                     replaceDom(res.data.dom);
                 })

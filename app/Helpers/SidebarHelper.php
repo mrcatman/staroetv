@@ -1,8 +1,8 @@
 <?php
 namespace App\Helpers;
 
-use App\Article;
-use App\Record;
+use App\Models\Article;
+use App\Models\Record;
 use Illuminate\Support\Facades\Cache;
 
 class SidebarHelper {

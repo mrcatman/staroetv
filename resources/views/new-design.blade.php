@@ -1,4 +1,5 @@
-<html><head>
+<html>
+<head>
     <style>
         @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700&display=swap&subset=cyrillic');
 
@@ -10,6 +11,7 @@
             font-size: 20px;
             font-family: "Source Sans Pro", sans-serif;
         }
+
         .feed-item {
             margin: 1em;
             background: #fff;
@@ -60,7 +62,7 @@
 <div class="main">
     <div class="container">
         <div class="feed">
-            @foreach (\App\Article::orderBy('id', 'desc')->limit(10)->get() as $article)
+            @foreach (\App\Models\Article::orderBy('id', 'desc')->limit(10)->get() as $article)
                 <div class="feed-item">
                     <div class="feed-item__cover" style="background-image:url({{$article->cover}})"></div>
                     <div class="feed-item__info">
@@ -72,13 +74,15 @@
             @endforeach
         </div>
         <div class="videos-grid">
-            @foreach (\App\Record::where(['is_radio' => false])->orderBy('id', 'desc')->limit(10)->get() as $video)
-            <div class="video-item" style="background-image:url({{$video->cover}}">
-                <div class="video-item__title">{{$video->title}}</div>
-            </div>
+            @foreach (\App\Models\Record::where(['is_radio' => false])->orderBy('id', 'desc')->limit(10)->get() as $video)
+                <div class="video-item" style="background-image:url({{$video->cover}}">
+                    <div class="video-item__title">{{$video->title}}</div>
+                </div>
             @endforeach
         </div>
 
     </div>
 
-</div></body></html>
+</div>
+</body>
+</html>

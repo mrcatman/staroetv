@@ -30,7 +30,7 @@
         <div class="crossposts-editor__title">Постинг в соцсети</div>
         <div class="crossposts-editor__networks">
             <div class="crossposts-editor__network" v-for="(network, $index) in networks" :key="$index">
-                <div class="form__preloader" v-if="statusesByNetwork[network.id] === -2"><img src="/pictures/ajax.gif"></div>
+                <div class="form__preloader" v-if="statusesByNetwork[network.id] === -2"><img src="../../../public/img/ajax.gif"></div>
                 <span class="crossposts-editor__network__name">{{network.name}}</span>
                 <span class="crossposts-editor__network__status" :class="'crossposts-editor__network__status--'+statusClasses[statusesByNetwork[network.id]]">Статус: <strong>{{statusesByNetwork[network.id] === 1 ? "Готово" : (statusesByNetwork[network.id] === -1 ? "Не готово" : errorsByNetwork[network.id] ) }}</strong></span>
                 <a class="crossposts-editor__network__link" v-if="crosspostsByNetwork[network.id] && statusesByNetwork[network.id] === 1" :href="crosspostsByNetwork[network.id].link" target="_blank">Просмотреть пост</a>
@@ -94,10 +94,10 @@
     }
 </style>
 <script>
-    import PictureUploader from './PictureUploader';
-    import Modal from './Modal';
-    import Response from './Response';
-    import Snackbar from './Snackbar';
+    import PictureUploader from './PictureUploader.vue';
+    import Modal from './Modal.vue';
+    import Response from './Response.vue';
+    import Snackbar from './Snackbar.vue';
     export default {
         components: {
             PictureUploader, Modal, Response, Snackbar

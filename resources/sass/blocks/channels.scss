@@ -1,13 +1,8 @@
 .channels-list {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 0;
-    margin: 1em -.5em .5em;
-    justify-content: flex-start;
-    border: none;
-    @include light() {
-        margin: 1em 0 0;
-    }
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    margin-top: 1em;
+    gap: var(--col-margin);
 }
 
 
@@ -16,13 +11,19 @@
     display: inline-block;
     position: relative;
     text-decoration: none;
-    width: calc(100% / 7);
-    margin: 0;
-    padding-top: 12.5%;
-    border-radius: 0;
+    padding-top: 100%;
+    background: var(--bg-darker);
+    border-radius: 1em;
+    overflow: hidden;
+    transition: all .2s;
     &--pending {
         opacity: .5;
     }
+    &:hover {
+        background: var(--bg-darker-2);
+        color: var(--primary);
+    }
+
     @include mobile {
         width: 100%;
         display: flex;
@@ -30,25 +31,6 @@
         justify-content: flex-start;
         padding: .5em 0;
         border-bottom: 1px solid var(--border-color);
-    }
-    &:before {
-        position: absolute;
-        top: 0;
-        left: -.5em;
-        width: calc(100% + 1em);
-        height: calc(100% + 1em);
-        background: var(--box-color-hover);
-        content: "";
-        display: block;
-        z-index: 0;
-        opacity: 0;
-        transition: all .25s;
-        @include mobile() {
-            top: 0;
-        }
-    }
-    &:hover:before {
-        opacity: 1;
     }
 
 
@@ -60,18 +42,18 @@
         height: 100%;
     }
     &__logo {
-        background-image: url("/pictures/logo-grey.svg");
+        background-image: url("/resources/images/logo-grey.svg");
         background-repeat: no-repeat;
         background-position: Center center;
         z-index: 1;
         position: absolute;
         top: 0;
         left: 0;
-        width: calc(100% - 4em);
+        width: calc(100% - 2em);
         height: calc(100% - 4em);
         border: none;
         background-size: contain;
-        margin: 1em 2em;
+        margin: 1em;
         @include mobile {
               position: unset;
               background-size: contain;
@@ -90,9 +72,16 @@
     &__name {
         line-height: 1.125;
         z-index: 10;
-        margin: .5em 0 0;
         font-size: 1.125em;
         position: relative;
+        top: -.25em;
+        width: 100%;
+        padding: 0 .5em;
+        box-sizing: border-box;
+        height: 2em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         @include mobile {
             padding: 0 1em;
             font-size: 1.125em;
@@ -104,7 +93,6 @@
 
 .top-list {
     margin: 0;
-    padding: 1em;
     font-size: 1.125em;
     border-bottom: 1px solid #ddd;
     display: flex;
@@ -168,10 +156,6 @@
     &__tabs {
         position: relative;
         display: block;
-        margin: -1em;
-        @include light() {
-            margin: -1em 0  0;
-        }
         @include mobile() {
             text-align: center;
         }

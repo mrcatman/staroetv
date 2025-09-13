@@ -21,7 +21,7 @@
                     </div>
                 </div>
             </div>
-            @include('blocks/records_list', ['class' => 'records-list__outer--full-page', 'conditions' => $records_conditions])
+            @include('blocks/records_list', ['conditions' => $records_conditions])
         </div>
     </div>
 @endsection

@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\API\UcozAPI;
-use App\Channel;
+use App\Models\Channel;
 use App\Helpers\CSVHelper;
-use App\Program;
-use App\Record;
+use App\Models\Program;
+use App\Models\Record;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;

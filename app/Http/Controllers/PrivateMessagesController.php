@@ -3,22 +3,17 @@
 namespace App\Http\Controllers;
 
 
-use App\Comment;
 use App\Helpers\BBCodesHelper;
-use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
-use App\PrivateMessage;
-use App\Record;
-use App\User;
-use App\UserMeta;
-use Carbon\Carbon;
+use App\Models\PrivateMessage;
+use App\Models\User;
 
 class PrivateMessagesController extends Controller {
 
     public function index() {
         $user = auth()->user();
         if (!$user) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         $messages = collect();
         if (request()->input('type') != "out") {
@@ -63,12 +58,12 @@ class PrivateMessagesController extends Controller {
     public function show($id) {
         $user = auth()->user();
         if (!$user) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         $message = PrivateMessage::find($id);
         $is_group = $message->is_group && strpos($message->group_ids, $user->group_id.",") !== false;
         if (!$message || ($message->from_id != $user->id && $message->to_id != $user->id && !$is_group)) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         if ($message->to_id == $user->id || $is_group) {
             $id = $message->from_id;
@@ -96,7 +91,7 @@ class PrivateMessagesController extends Controller {
     public function send() {
         $user = auth()->user();
         if (!$user) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         $to_user = null;
         if (request()->has('user_id')) {

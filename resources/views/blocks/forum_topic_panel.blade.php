@@ -1,5 +1,5 @@
 @if ($topic->can_edit || $topic->can_delete)
-    <span class="button button--light button--dropdown" >
+    <span class="button button--light button--dropdown">
         <span class="button--dropdown__text">Действия</span>
         <span class="button--dropdown__icon">
             <i class="fa fa-chevron-down"></i>
@@ -26,8 +26,10 @@
             <label class="input-container__label">Форум</label>
             <div class="input-container__inner">
                 <select name="forum_id" class="select-classic">
-                    @foreach (\App\Forum::all() as $forum)
-                        <option value="{{$forum->id}}" @if ($forum->parent_id < 1) disabled class="select-classic__option-group-title" @else class="select-classic__option-group-value" @endif>{{$forum->title}}</option>
+                    @foreach (\App\Models\Forum::all() as $forum)
+                        <option value="{{$forum->id}}" @if ($forum->parent_id < 1) disabled
+                                class="select-classic__option-group-title"
+                                @else class="select-classic__option-group-value" @endif>{{$forum->title}}</option>
                     @endforeach
                 </select>
             </div>
@@ -45,7 +47,8 @@
     <form action="/forum/delete-topic" class="form modal-window__form" data-auto-close-modal="1">
         <input type="hidden" name="topic_id" value="{{$topic->id}}"/>
         <div class="modal-window__small-text">
-            Вы уверены, что хотите удалить тему? Это действие нельзя будет отменить. Возможно, вы хотели переместить тему в Корзину.
+            Вы уверены, что хотите удалить тему? Это действие нельзя будет отменить. Возможно, вы хотели переместить
+            тему в Корзину.
         </div>
         <div class="form__bottom">
             <button class="button button--light">ОК</button>

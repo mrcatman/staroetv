@@ -62,13 +62,8 @@
     </template>
 
     <script>
-        import startOfMonth from 'date-fns/start_of_month';
-        import endOfMonth from 'date-fns/end_of_month';
-        import eachDay from 'date-fns/each_day';
-        import getDay from 'date-fns/get_day';
-        import format from 'date-fns/format';
-        import startOfDay from 'date-fns/start_of_day';
-        import isEqual from 'date-fns/is_equal';
+        import { endOfMonth, eachDayOfInterval, getDay, format, startOfDay, isEqual } from 'date-fns';
+
         const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
         const AM = 'AM'
         const PM = 'PM'
@@ -174,7 +169,7 @@
                     let weekDays = new Array(7);
                     // let index = 0;
                     this.activePort = null;
-                    eachDay(date, endOfMonth(date)).forEach(day => {
+                    eachDayOfInterval(date, endOfMonth(date)).forEach(day => {
                         const weekday = getDay(day);
                         if (weekday === this.normalizedFirstDayOfWeek) {
                             if (week) {

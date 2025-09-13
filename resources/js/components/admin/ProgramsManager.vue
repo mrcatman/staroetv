@@ -110,16 +110,10 @@
 </style>
 <script>
     import draggable from 'vuedraggable'
-    import Response from '../Response'
-    import Modal from '../Modal'
+    import Response from '../Response.vue'
+    import Modal from '../Modal.vue'
 
     export default {
-        beforeDestroy() {
-
-        },
-        watch: {
-
-        },
         computed: {
             mergeOptions() {
                 let programs = this.mergePanel.program ? this.programsList.filter(program => program.id !== this.mergePanel.program.id) : this.programsList;

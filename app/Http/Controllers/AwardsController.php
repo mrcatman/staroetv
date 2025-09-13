@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Award;
 use App\Helpers\PermissionsHelper;
-use App\User;
-use App\UserAward;
-use App\UserReputation;
+use App\Models\Award;
+use App\Models\User;
+use App\Models\UserAward;
 
 
 class AwardsController extends Controller {

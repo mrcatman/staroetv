@@ -109,7 +109,6 @@ class TwitterCrossposter extends BaseCrossposter {
         if (mb_strlen($text, "UTF-8") > $length) {
             $text_end = "...";
             $text = wordwrap($text, $length - strlen($text_end));
-            dd($text, $post);
             $text = substr($text, 0, strpos($text, "\n"));
             if (substr($text, -strlen($text_end)) != $text_end) {
                 $text .= $text_end;

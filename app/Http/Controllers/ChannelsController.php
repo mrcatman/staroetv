@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\AdditionalChannel;
-use App\Article;
-use App\Channel;
-use App\ChannelName;
-use App\Genre;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
-use App\InterprogramPackage;
-use App\Picture;
-use App\Program;
-use App\Record;
-use App\User;
+use App\Models\AdditionalChannel;
+use App\Models\Channel;
+use App\Models\ChannelName;
+use App\Models\Genre;
+use App\Models\InterprogramPackage;
+use App\Models\Picture;
+use App\Models\Program;
+use App\Models\Record;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
@@ -26,7 +24,7 @@ class ChannelsController extends Controller {
                 $channel = Channel::where(['id' => $url])->first();
             }
             if (!$channel) {
-                return redirect("https://staroetv.su/");
+                return redirect("/");
             }
             $programs = $channel->programs;
             $additional = $channel->additionalPrograms;
@@ -119,7 +117,7 @@ class ChannelsController extends Controller {
     public function edit($id) {
         $channel = Channel::find($id);
         if (!$channel) {
-            return redirect("https://staroetv.su/video");
+            return redirect("/video");
         }
         if (!$channel->can_edit) {
             return view("pages.errors.403");
@@ -164,7 +162,7 @@ class ChannelsController extends Controller {
 
     private function fillData($channel) {
         $data = request()->validate([
-            'name' => 'sometimes|min:1',
+            'name' => 'required',
             'description' => 'sometimes',
             'background' => 'sometimes',
             'logo_id' => 'sometimes',

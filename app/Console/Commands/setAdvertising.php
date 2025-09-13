@@ -2,13 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Article;
-use App\Channel;
-use App\Helpers\CSVHelper;
-use App\UserAward;
-use App\UserReputation;
-use App\Record;
-use Carbon\Carbon;
+use App\Models\Article;
+use App\Models\Record;
+use App\Models\UserAward;
 use Illuminate\Console\Command;
 
 class setAdvertising extends Command

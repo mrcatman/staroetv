@@ -1,8 +1,8 @@
 <?php
 namespace App\Helpers;
 
-use App\Channel;
-use App\Record;
+use App\Models\Channel;
+use App\Models\Record;
 use Illuminate\Support\Facades\DB;
 
 class RecordsHelper {
@@ -10,6 +10,7 @@ class RecordsHelper {
     public static function getQuery($conditions) {
         $records = Record::approved();
         unset($conditions['show_years']);
+        unset($conditions['new_titles']);
         if (isset($conditions['channel_id_in'])) {
             $records = $records->whereIn('channel_id', $conditions['channel_id_in']);
             unset($conditions['channel_id_in']);

@@ -2,14 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Channel;
-use App\Helpers\CSVHelper;
-use App\Picture;
-use App\Program;
-use App\Record;
-use App\UserAward;
-use App\UserReputation;
-use Carbon\Carbon;
+use App\Models\Channel;
+use App\Models\Program;
 use Illuminate\Console\Command;
 
 class getDuplicates extends Command

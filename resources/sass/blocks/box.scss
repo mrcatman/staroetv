@@ -1,29 +1,41 @@
 .box {
-    padding: 0;
-    margin: var(--col-margin) 0 0;
+    margin: 0 0 var(--col-margin);
     display: flex;
     flex-direction: column;
     background: var(--box-color);
     box-shadow: var(--block-box-shadow);
     border-top: 1px solid var(--border-color);
+
     @include light() {
+        background: #fff;
         box-shadow: none;
-        border: none;
+        border: 1px solid var(--border-color);
+        border-radius: .75em;
+        flex: 1;
     }
+
     @include mobile() {
         margin: .5em 0;
     }
-    &--dark {
-        background: var(--box-color-dark);
-        color: var(--box-text-color-dark);
+
+    &--top {
         @include light() {
-            background: unset;
-            color: unset;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
         }
+    }
+
+    &--dark {
+        background: var(--box-color-dark)!important;
+        color: var(--box-text-color-dark);
     }
 
     &--stretch {
         height: calc(100% - var(--col-margin) * 2);
+    }
+
+    &__breadcrumbs {
+        padding: 1em 1em 0;
     }
 
     &__heading {
@@ -42,20 +54,37 @@
         transition: all .25s;
         @include light() {
             min-height: 2em;
-            border-bottom: 2px solid var(--primary);
-            padding: .5em 0 0;
+            padding: 1em;
+            position: relative;
+            border-bottom: none;
+            align-items: center;
+            font-size: 1em;
+            &:after {
+                content: '';
+                display: block;
+                position: absolute;
+                bottom: -2px;
+                left: 1em;
+                width: calc(100% - 2em);
+                height: 1px;
+                background: var(--border-color);
+                opacity: .5;
+            }
         }
         &__inner {
             max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
             @include light() {
-                background: var(--primary);
-                color: #fff;
-                padding: .65em 1em;
+                width: 100%;
                 line-height: 1;
                 display: flex;
                 align-items: center;
+                font-weight: 600;
+                font-size: 1.625em;
+            }
+            strong {
+                color: var(--primary);
             }
             i {
                 margin-right: .5em;
@@ -68,7 +97,6 @@
             flex-direction: column;
         }
         &__right {
-            font-size: .75em;
             .buttons-row {
                 @include light() {
                     margin: 0 0 .5em;
@@ -85,7 +113,7 @@
             font-size: 1.35em;
             margin: 0 0 0 0.05em;
             @include light() {
-                margin: 0 0 0 .5em;
+                margin: 0 0 .125em .25em;
                 font-size: 1.25em;
             }
         }
@@ -93,15 +121,9 @@
             font-size: .75em;
         }
 
-        &--small {
-            font-size: 0.8rem;
-            letter-spacing: 0.06em;
-            font-weight: 600;
-            padding: 0.75rem 0.75rem 0.5rem;
-            text-transform: uppercase;
-        }
         &--small &__inner {
-            padding: .65em 1em;
+            font-size: 1rem;
+            letter-spacing: .4px;
         }
 
         &__count {
@@ -120,13 +142,9 @@
     &--dark &__heading {
         color: var(--box-text-color-dark);
         border-bottom: 1px solid var(--border-color-dark);
-        @include light() {
-            border-bottom: 2px solid var(--primary);
-        }
     }
     &--dark &__inner {
         @include light() {
-            background: var(--box-color-dark);
             color: var(--box-text-color-dark);
         }
     }
@@ -136,19 +154,7 @@
         padding: 1rem 1rem 1.25rem;
         position: relative;
         @include light() {
-            padding: 1rem 0;
-        }
-        &--stretch-contents {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            > * {
-
-            }
-        }
-        &--no-padding {
-            padding: 0;
+            padding: 1em;
         }
     }
 }
@@ -158,13 +164,12 @@ a.box__heading .box__heading__inner:after {
     font-family: "Font Awesome 5 Free";
     content: "\f054";
     font-weight: 900;
-    margin: 0 0 -.25em .75em;
-    opacity: 0.5;
-    transition: opacity 0.25s;
+    margin: 0 0 -.125em .75em;
+    opacity: .75;
     font-size: .875em;
 }
-a.box__heading:hover .box__heading__inner:after {
-    opacity: .75;
+a.box__heading:hover {
+    color: var(--primary);
 }
 
 

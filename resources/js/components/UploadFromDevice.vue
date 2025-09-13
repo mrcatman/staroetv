@@ -1,7 +1,7 @@
 <template>
     <div class="device-uploader">
         <div class="form__preloader" v-if="loading">
-            <img src="/pictures/ajax.gif">
+            <img src="../../../public/img/ajax.gif">
         </div>
         <snackbar ref="snackbar"></snackbar>
         <div class="device-uploader__top">
@@ -54,7 +54,8 @@
     }
 </style>
 <script>
-    import Snackbar from "./Snackbar";
+    import Snackbar from "./Snackbar.vue";
+
     export default {
         components: {Snackbar},
         data() {

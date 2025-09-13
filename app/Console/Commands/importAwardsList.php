@@ -2,14 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Article;
-use App\Award;
-use App\Helpers\CSVHelper;
-use App\Picture;
-use App\Smile;
-use App\UserAward;
-use App\UserReputation;
-use Carbon\Carbon;
+use App\Models\Award;
+use App\Models\Picture;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 

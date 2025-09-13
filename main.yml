@@ -1,0 +1,8 @@
+apps:
+  - name: laravel-octane
+    script: artisan
+    exec_mode: fork
+    interpreter: php
+    instances: 1
+    args:
+      - octane:start

@@ -2,11 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Article;
 use App\Helpers\CSVHelper;
-use App\Page;
-use App\UserAward;
-use App\UserReputation;
+use App\Models\Page;
+use App\Models\UserAward;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 

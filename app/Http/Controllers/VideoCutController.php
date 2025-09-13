@@ -2,27 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Channel;
-use App\ChannelName;
-use App\Genre;
 use App\Helpers\PermissionsHelper;
-use App\InterprogramPackage;
-use App\Picture;
-use App\Program;
-use App\Record;
-use App\VideoCut;
+use App\Models\Channel;
+use App\Models\Genre;
+use App\Models\Picture;
+use App\Models\Record;
+use App\Models\VideoCut;
 use Carbon\Carbon;
+
 class VideoCutController extends Controller {
 
     public function showForm($id) {
         $video = Record::find($id);
         if (!$video || !PermissionsHelper::allows('viadd')) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         $cut = VideoCut::where(['video_id' => $id])->first();
         if ($cut) {
             if (!request()->has('reload')) {
-                return redirect("https://staroetv.su/cut/" . $cut->id);
+                return redirect("/cut/" . $cut->id);
             }
         }
         return view ('pages.cut.index', [
@@ -34,7 +32,7 @@ class VideoCutController extends Controller {
     public function show($id) {
         $cut = VideoCut::find($id);
         if (!PermissionsHelper::allows('viadd') || !$cut) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         $video = $cut->video;
         $channel = null;
@@ -349,9 +347,7 @@ class VideoCutController extends Controller {
                 $video->interprogram_type = $data['interprogram_type'];
                 $video->interprogram_package_id = isset($data['interprogram_package_id']) && $data['interprogram_package_id'] > 0 ? $data['interprogram_package_id'] : null;
                 $video->short_description = isset($data['short_description']) ? $data['short_description'] : "";
-                if ($original_video) {
-                    $channel_name = $original_video->getChannelName();
-                } else {
+                if (!$original_video) {
                     $channel = Channel::find($video->channel_id);
                     if (!$channel) {
                         return [

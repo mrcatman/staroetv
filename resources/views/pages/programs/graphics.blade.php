@@ -43,7 +43,7 @@
 
                             <div class="interprogram-packages-list-item__description">{!! $package->description !!}</div>
                             <div class="interprogram-packages-list-item__videos">
-                                <div class="small-videos-list">
+                                <div class="records-list records-list--thumbs">
                                     @if ($package->visibleRecords &&  count($package->visibleRecords) > 0)
                                         @foreach($package->visibleRecords as $record)
                                             @include('blocks/video_small', ['video' => $record])

@@ -1,6 +1,6 @@
 <template>
     <div class="video-cutter">
-        <div class="form__preloader" v-show="isLoading"><img src="/pictures/ajax.gif"></div>
+        <div class="form__preloader" v-show="isLoading"><img src="../../../public/img/ajax.gif"></div>
         <snackbar ref="snackbar"></snackbar>
 
         <modal title="Просмотр видео" ref="previewModal">
@@ -456,10 +456,11 @@
 
 </style>
 <script>
-    import VueSlider from 'vue-slider-component'
-    import 'vue-slider-component/theme/default.css'
-    import Snackbar from './Snackbar';
-    import Modal from './Modal';
+    //import VueSlider from 'vue-slider-component'
+    //import 'vue-slider-component/theme/default.css'
+
+    import Snackbar from './Snackbar.vue';
+    import Modal from './Modal.vue';
 
     window.downloadURL = (data, fileName) => {
         const a = document.createElement('a')
@@ -960,7 +961,7 @@
         components: {
             Modal,
             Snackbar,
-            VueSlider
+            //VueSlider
         }
     }
 </script>

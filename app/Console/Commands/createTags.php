@@ -1,10 +1,10 @@
 <?php
 
 namespace App\Console\Commands;
-use App\Article;
-use App\ArticleCategory;
-use App\Tag;
-use App\TagMaterial;
+use App\Models\Article;
+use App\Models\ArticleCategory;
+use App\Models\Tag;
+use App\Models\TagMaterial;
 use Illuminate\Console\Command;
 
 class createTags extends Command

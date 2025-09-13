@@ -3,19 +3,17 @@
 namespace App\Http\Controllers;
 
 
-use App\Article;
-use App\ArticleBinding;
-use App\ArticleCategory;
-use App\Comment;
-use App\Crosspost;
+use App\Models\Article;
 use App\Crossposting\CrossposterManager;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\StringsHelper;
 use App\Helpers\ViewsHelper;
-use App\TagMaterial;
+use App\Models\ArticleBinding;
+use App\Models\Comment;
+use App\Models\Crosspost;
+use App\Models\Tag;
+use App\Models\TagMaterial;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\URL;
-use App\Tag;
 
 class ArticlesController extends Controller {
 
@@ -85,14 +83,14 @@ class ArticlesController extends Controller {
             $url = "/".request()->path();
             $article = Article::where(['original_url' => $url])->first();
             if (!$article  || ($article->pending && !$this->canEdit($article))) {
-                return redirect("https://staroetv.su/");
+                return redirect("/");
             }
             return redirect($article->url);
         }
         if (!$article  || ($article->pending && !$this->canEdit($article))) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
-        return redirect("https://staroetv.su/articles/".$article->slug);
+        return redirect("/articles/".$article->slug);
     }
 
     public function show($url) {
@@ -296,7 +294,7 @@ class ArticlesController extends Controller {
     public function edit($id) {
         $article = Article::find($id);
         if (!$article) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         $can_edit = $this->canEdit($article);
         if (!$can_edit ) { // || ($article->pending && $article->user_id != auth()->user()->id)

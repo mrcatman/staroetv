@@ -62,8 +62,8 @@
         }
     }
     &__group-icon-container {
+        margin: 1em 0 -1em;
         width: 35%;
-        padding: 1em 0 0;
         @include mobile() {
             width: 50%;
         }
@@ -94,12 +94,8 @@
 
     &__left {
         min-width: 14em;
-        margin: 0 1em 0 0;
         display: flex;
         flex-direction: column;
-        @include mobile {
-            margin: 0;
-        }
     }
 
     &__signature {

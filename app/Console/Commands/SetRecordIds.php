@@ -2,13 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Article;
-use App\Channel;
-use App\Helpers\CSVHelper;
-use App\Record;
-use App\UserAward;
-use App\UserReputation;
-use Carbon\Carbon;
+use App\Models\Record;
+use App\Models\UserReputation;
 use Illuminate\Console\Command;
 
 class SetRecordIds extends Command

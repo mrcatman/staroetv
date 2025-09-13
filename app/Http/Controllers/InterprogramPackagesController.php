@@ -2,38 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use App\AdditionalChannel;
-use App\Annotation;
-use App\Award;
-use App\Channel;
-use App\ChannelName;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
-use App\InterprogramPackage;
-use App\Program;
-use App\Record;
-use App\User;
-use App\UserAward;
-use App\UserReputation;
+use App\Models\Annotation;
+use App\Models\Channel;
+use App\Models\ChannelName;
+use App\Models\InterprogramPackage;
+use App\Models\Program;
+use App\Models\Record;
 use Carbon\Carbon;
-use Illuminate\Validation\Rules\In;
 
 
-class InterprogramPackagesController extends Controller {
+class InterprogramPackagesController extends Controller
+{
 
-    public function show($channel_url, $package_url) {
+    public function show($channel_url, $package_url)
+    {
         $channel = Channel::where(['url' => $channel_url])->orWhere(['id' => $channel_url])->first();
         if (!$channel) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         $base_link = null;
         $related = null;
         $records_with_annotations = null;
         $hide_unsorted = request()->input('hide_unsorted', true);
 
-         if ($package_url == "other") {
-             $types_to_hide =  [11, 22];
-            $base_link = $channel->full_url."/graphics/other";
+        if ($package_url == "other") {
+            $types_to_hide = [11, 22];
+            $base_link = $channel->full_url . "/graphics/other";
             $is_other = true;
             $conditions = [
                 'channel_id' => $channel->id,
@@ -54,30 +50,30 @@ class InterprogramPackagesController extends Controller {
             ]);
 
             $related = [];
-           // $related =  InterprogramPackage::where(['channel_id' => $channel->id])->inRandomOrder()->limit(5)->get();
+            // $related =  InterprogramPackage::where(['channel_id' => $channel->id])->inRandomOrder()->limit(5)->get();
         } else {
-             $types_to_hide =  [22];
-             $conditions = [];
+            $types_to_hide = [22];
+            $conditions = [];
             $is_other = false;
             $package = InterprogramPackage::where(['channel_id' => $channel->id])->where(function ($q) use ($package_url) {
                 $q->where(['id' => $package_url]);
                 $q->orWhere(['url' => $package_url]);
             })->first();
             if (!$package) {
-                return redirect("https://staroetv.su/video");
+                return redirect("/video");
             }
             $base_link = $package->full_url;
 
             ViewsHelper::increment($package, 'interprogram');
             $related = InterprogramPackage::where(['channel_id' => $channel->id])->where('id', '!=', $package->id)->inRandomOrder()->limit(5)->get();
-            $records = $package->records->map(function($record) {
+            $records = $package->records->map(function ($record) {
                 return [
                     'order' => $record->internal_order,
                     'is_annotation' => false,
                     'data' => $record
                 ];
             });
-            $annotations = $package->annotations->map(function($annotation) {
+            $annotations = $package->annotations->map(function ($annotation) {
                 return [
                     'order' => $annotation->order,
                     'is_annotation' => true,
@@ -85,21 +81,11 @@ class InterprogramPackagesController extends Controller {
                 ];
             });
             if ($hide_unsorted) {
-                $records = $records->filter(function($record) use ($types_to_hide) {
+                $records = $records->filter(function ($record) use ($types_to_hide) {
                     return !in_array($record['data']->interprogram_type, $types_to_hide);
                 });
             }
-            $records_with_annotations = $records->merge($annotations)->sortBy('order');
-            if (request()->has('test')) {
-                foreach ($records_with_annotations as $record) {
-                    if ($record['is_annotation']) {
-                        echo "<br>".$record['data']->title."<br>";
-                    } else {
-                        echo "file 'https://staroetv.su".$record['data']->source_path."'<br>";
-                    }
-                }
-                dd($records_with_annotations);
-            }
+            $records_with_annotations = $annotations->merge($records)->sortBy('order');
 
         }
         if (!$package) {
@@ -118,15 +104,16 @@ class InterprogramPackagesController extends Controller {
         ]);
     }
 
-    public function showAll($channel_url) {
+    public function showAll($channel_url)
+    {
         $channel = Channel::where(['url' => $channel_url])->orWhere(['id' => $channel_url])->first();
         if (!$channel) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         $base_link = null;
         $related = null;
 
-        $types_to_hide =  [22];
+        $types_to_hide = [22];
         $packages = InterprogramPackage::where(['channel_id' => $channel->id])->orderBy('date_start', 'asc')->get();
         foreach ($packages as $package) {
             $records = $package->records->map(function ($record) {
@@ -156,7 +143,8 @@ class InterprogramPackagesController extends Controller {
     }
 
 
-    public function add($data) {
+    public function add($data)
+    {
         if (!PermissionsHelper::allows('additionalown') && !PermissionsHelper::allows('additional')) {
             return view("pages.errors.403");
         }
@@ -166,7 +154,7 @@ class InterprogramPackagesController extends Controller {
         if (isset($data['channel_id'])) {
             $channel = Channel::findByIdOrUrl($data['channel_id']);
             if (!$channel) {
-                return redirect("https://staroetv.su/");
+                return redirect("/");
             }
             if (!$channel->can_edit) {
                 return view("pages.errors.403");
@@ -174,7 +162,7 @@ class InterprogramPackagesController extends Controller {
         } elseif (isset($data['program_id'])) {
             $program = Program::findByIdOrUrl($data['program_id']);
             if (!$program) {
-                return redirect("https://staroetv.su/");
+                return redirect("/");
             }
             if (!$program->can_edit) {
                 return view("pages.errors.403");
@@ -192,11 +180,12 @@ class InterprogramPackagesController extends Controller {
     }
 
 
-    public function getPackageRecordsByDate($package) {
+    public function getPackageRecordsByDate($package)
+    {
         $start = Carbon::createFromDate($package->date_start);
         $end = Carbon::createFromDate($package->date_end);
         $records = Record::where(['channel_id' => $package->channel_id, 'is_interprogram' => true, 'is_advertising' => false]);
-        $records->where(function($q) use ($start, $end) {
+        $records->where(function ($q) use ($start, $end) {
             $q = $q->whereBetween('date', [$start, $end]);
             $start_year = $start->year;
             $end_year = $end->year;
@@ -217,11 +206,11 @@ class InterprogramPackagesController extends Controller {
             for ($i = 1; $i < $end_month; $i++) {
                 $end_year_months[] = $i;
             }
-            $q->orWhere(function($sub) use ($start_year, $start_year_months) {
+            $q->orWhere(function ($sub) use ($start_year, $start_year_months) {
                 $sub->where(['year' => $start_year]);
                 $sub->whereIn('month', $start_year_months);
             });
-            $q->orWhere(function($sub) use ($end_year, $end_year_months) {
+            $q->orWhere(function ($sub) use ($end_year, $end_year_months) {
                 $sub->where(['year' => $end_year]);
                 $sub->whereIn('month', $end_year_months);
             });
@@ -235,12 +224,12 @@ class InterprogramPackagesController extends Controller {
             for ($i = 1; $i < $end_day; $i++) {
                 $end_month_days[] = $i;
             }
-            $q->orWhere(function($sub) use ($start_year, $start_month, $start_month_days) {
+            $q->orWhere(function ($sub) use ($start_year, $start_month, $start_month_days) {
                 $sub->where(['year' => $start_year]);
                 $sub->where(['month' => $start_month]);
                 $sub->whereIn('day', $start_month_days);
             });
-            $q->orWhere(function($sub) use ($end_year, $end_month, $end_month_days) {
+            $q->orWhere(function ($sub) use ($end_year, $end_month, $end_month_days) {
                 $sub->where(['year' => $end_year]);
                 $sub->where(['month' => $end_month]);
                 $sub->whereIn('day', $end_month_days);
@@ -251,7 +240,8 @@ class InterprogramPackagesController extends Controller {
         return $records;
     }
 
-    public function save($data) {
+    public function save($data)
+    {
         if (!PermissionsHelper::allows('additionalown') && !PermissionsHelper::allows('additional')) {
             return [
                 'status' => 0,
@@ -296,7 +286,8 @@ class InterprogramPackagesController extends Controller {
     }
 
 
-    public function edit($data, $id) {
+    public function edit($data, $id)
+    {
         $package = InterprogramPackage::find($id);
         if (!$package || !$package->can_edit) {
             return view("pages.errors.403");
@@ -309,14 +300,15 @@ class InterprogramPackagesController extends Controller {
         //if (!$channel->can_edit) {
         //    return view("pages.errors.403");
         //}
-         return view("pages.forms.interprogram-package", [
+        return view("pages.forms.interprogram-package", [
             'package' => $package,
             'program' => $program,
             'channel' => $channel,
         ]);
     }
 
-    public function update($channel_id, $id) {
+    public function update($channel_id, $id)
+    {
         $package = InterprogramPackage::find($id);
         if (!$package || !$package->can_edit) {
             return [
@@ -327,7 +319,8 @@ class InterprogramPackagesController extends Controller {
         return $this->fillData($package);
     }
 
-    public function delete() {
+    public function delete()
+    {
         $package = InterprogramPackage::find(request()->input('package_id'));
         if (!$package || !$package->can_edit) {
             return [
@@ -346,11 +339,12 @@ class InterprogramPackagesController extends Controller {
         return [
             'status' => 1,
             'text' => 'Пакет удален',
-            'redirect_to' => '/channels/'.$channel->url.'/graphics'
+            'redirect_to' => '/channels/' . $channel->url . '/graphics'
         ];
     }
 
-    private function fillData($package) {
+    private function fillData($package)
+    {
         $is_new = !$package->id;
         $data = request()->validate([
             'name' => 'sometimes',
@@ -362,7 +356,7 @@ class InterprogramPackagesController extends Controller {
             'url' => 'sometimes'
         ]);
         $package->fill($data);
-        if(request()->input('name', '') == "") {
+        if (request()->input('name', '') == "") {
             $package->name = "";
         }
         $package->date_start = Carbon::parse($data['date_start']);
@@ -372,7 +366,7 @@ class InterprogramPackagesController extends Controller {
         $new_annotation_ids = [];
         $old_annotation_ids = Annotation::where(['interprogram_package_id' => $package->id])->pluck('id')->toArray();
         if (!$is_new) {
-            if (request()->has('records_data')){
+            if (request()->has('records_data')) {
                 $data = json_decode(request()->input('records_data'));
                 $index = 0;
                 foreach ($data as $item) {
@@ -414,12 +408,13 @@ class InterprogramPackagesController extends Controller {
         return [
             'status' => 1,
             'text' => 'Информация о пакете оформления обновлена',
-            'redirect_to' => $package->program_id ? '/programs/'.$package->program_id.'/graphics/edit/'.$package->id : '/channels/'.$package->channel_id.'/graphics/edit/'.$package->id
+            'redirect_to' => $package->program_id ? '/programs/' . $package->program_id . '/graphics/edit/' . $package->id : '/channels/' . $package->channel_id . '/graphics/edit/' . $package->id
 
         ];
     }
 
-    public function ajax($conditions) {
+    public function ajax($conditions)
+    {
         $graphics = InterprogramPackage::where($conditions)->get();
         return [
             'status' => 1,
@@ -430,10 +425,11 @@ class InterprogramPackagesController extends Controller {
     }
 
 
-    public function showByProgram($id) {
+    public function showByProgram($id)
+    {
         $program = Program::findByIdOrUrl($id);
         if (!$program) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         $packages = $program->interprogramPackages;
         foreach ($packages as $package) {
@@ -441,7 +437,7 @@ class InterprogramPackagesController extends Controller {
             //$records = $records->merge($this->getPackageRecordsByDate($package));
             //$package->records_list = $records;
         }
-        $not_sorted_interprogram = $program->records->sortByDesc('id')->filter(function($record) {
+        $not_sorted_interprogram = $program->records->sortByDesc('id')->filter(function ($record) {
             return $record->is_interprogram && !$record->interprogram_package_id;
         });
         if (count($not_sorted_interprogram) > 0) {

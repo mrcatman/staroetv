@@ -2,7 +2,7 @@
     <div class="channel-names">
         <input type="hidden" name="channel_names" :value="namesJson" />
         <div class="channel-names__inner">
-            <div class="channel-names__item" v-for="(name, $index) in this.names" :key="$index">
+            <div class="channel-names__item" v-for="(name, $index) in names" :key="$index">
                 <div class="row channel-names__row">
                     <div class="col">
                         <div class="input-container input-container--vertical">
@@ -79,9 +79,6 @@
             flex: .325;
             margin: 0 1.5em 0 0!important;
         }
-        &__picture-uploader-container {
-
-        }
         &__item {
             border-bottom: 1px solid var(--border-color);
         }
@@ -99,8 +96,8 @@
     }
 </style>
 <script>
-    import Datepicker from 'vuejs-datepicker';
-    import PictureUploader from './PictureUploader';
+    import Datepicker from './datepicker/components/Datepicker.vue';
+    import PictureUploader from './PictureUploader.vue';
 
     export default {
         computed: {
@@ -124,9 +121,7 @@
             }
         },
         props: {
-            channelid: {
-
-            },
+            channelid: {},
             data: {
                 type: Array,
                 required: true
@@ -136,9 +131,6 @@
             return {
                 names: this.data || []
             }
-        },
-        mounted() {
-
         },
         components: {
             PictureUploader,

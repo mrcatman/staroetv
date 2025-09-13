@@ -24,7 +24,7 @@ class DatesHelper {
         $ts = $ts + 3 * 3600;
         $month_index = (int)date("m", $ts) - 1;
         $month = self::monthNamesParentalCase()[$month_index];
-        return date("d", $ts)." ".$month." ".date("Y, H:i", $ts);
+        return date("j", $ts)." ".$month." ".date("Y, H:i", $ts);
     }
 
     public static function guess($date)

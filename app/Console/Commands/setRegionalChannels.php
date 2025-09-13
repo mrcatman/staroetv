@@ -2,12 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Article;
-use App\Channel;
-use App\Helpers\CSVHelper;
-use App\UserAward;
-use App\UserReputation;
-use Carbon\Carbon;
+use App\Models\Article;
+use App\Models\Channel;
 use Illuminate\Console\Command;
 
 class setRegionalChannels extends Command

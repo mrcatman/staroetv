@@ -1,7 +1,6 @@
 <?php
 namespace App\Helpers;
-use App\Comment;
-use App\UserGroupConfig;
+use App\Models\UserGroupConfig;
 use Illuminate\Support\Facades\Cache;
 
 class PermissionsHelper {

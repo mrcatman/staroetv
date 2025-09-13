@@ -80,7 +80,6 @@
 </style>
 <script>
     import Datepicker from 'vuejs-datepicker';
-    import PictureUploader from './PictureUploader';
 
     export default {
         computed: {

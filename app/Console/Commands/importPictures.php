@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Article;
-use App\Picture;
-use App\Program;
-use App\Record;
+use App\Models\Article;
+use App\Models\Picture;
+use App\Models\Program;
+use App\Models\Record;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 

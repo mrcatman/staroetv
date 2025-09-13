@@ -2,12 +2,11 @@
 
 namespace App\Mail;
 
-use App\EmailChange;
-use App\User;
+use App\Models\EmailChange;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ChangeEmail extends Mailable
 {

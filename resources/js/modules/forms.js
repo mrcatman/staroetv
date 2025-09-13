@@ -1,8 +1,27 @@
 import replaceDom from './replaceDom';
 import {showModal, showModalAjax} from "./modals";
 
-let body = $('body');
-$(".select").select2();
+const body = $('body');
+
+const buildFormData = (formData, data, parentKey) => {
+    if (data && typeof data === 'object' && !(data instanceof Date) && !(data instanceof File) && !(data instanceof Blob)) {
+        Object.keys(data).forEach(key => {
+            buildFormData(formData, data[key], parentKey ? `${parentKey}[${key}]` : key);
+        });
+    } else {
+        const value = data == null ? '' : data;
+
+        formData.append(parentKey, value);
+    }
+}
+
+const jsonToFormData = (data) => {
+    const formData = new FormData();
+
+    buildFormData(formData, data);
+
+    return formData;
+}
 
 $.each( [ "put", "delete" ], function( i, method ) {
     $[ method ] = function( url, data, callback, type ) {
@@ -39,7 +58,7 @@ $(body).on('submit', '.form', function (e) {
     });
 
     const data = $(this).serializeArray();
-    let checkboxesData = {};
+    const checkboxesData = {};
     $(this).find('input[type="checkbox"]').each(function() {
         if ($(this).attr('name') !== "") {
             if ($(this).attr('value') !== "" && $(this).attr('value') !== undefined) {
@@ -58,8 +77,11 @@ $(body).on('submit', '.form', function (e) {
     Object.keys(checkboxesData).forEach(name => {
         data.push({name, value: checkboxesData[name]})
     });
+    $(this).find('input[type="file"]').each(function() {
+        data.push({name: $(this).attr('name'), value: $(this).attr('multiple') ? $(this)[0].files : $(this)[0].files[0]})
+    });
 
-    $(this).append('<div class="form__preloader"><img src="/pictures/ajax.gif"></div>');
+    $(this).append('<div class="form__preloader"><img src="/images/ajax.gif"></div>');
     let formData = {};
     data.forEach(item => {
         formData[item.name] = item.value;
@@ -67,7 +89,8 @@ $(body).on('submit', '.form', function (e) {
 
     $(this).find('.input-container').removeClass('input-container--with-errors');
     $(this).find('.input-container__message').html('');
-    let response = $(this).find('.response');
+
+    const response = $(this).find('.response');
 
     let confirmed = true;
     if ($(this).data('confirm')) {
@@ -76,12 +99,22 @@ $(body).on('submit', '.form', function (e) {
             confirmed = false;
         }
     }
-    let submit = () => {
-        $.ajax(url, {
-            data: JSON.stringify(formData),
-            contentType: 'application/json',
-            type: 'POST'
-        }).done((res) => {
+
+    const isMultipart = $(this).attr('enctype') === 'multipart/form-data';
+
+    const params = isMultipart ? {
+        processData: false,
+        contentType: false,
+        data: jsonToFormData(formData),
+        type: 'POST'
+    } : {
+        data: JSON.stringify(formData),
+        contentType: 'application/json',
+        type: 'POST'
+    }
+
+    const submit = () => {
+        $.ajax(url, params).done((res) => {
             $(this).find('.form__preloader').remove();
             if (res.status) {
                 if ($(this).data('auto-close-modal')) {
@@ -127,7 +160,7 @@ $(body).on('submit', '.form', function (e) {
             }
             if (!$(this).data('noscroll')) {
                 if ($(response).length > 0) {
-                    $(response)[0].scrollIntoView();
+                    $(response)[0].scrollIntoView({ behavior: "smooth", block: "center" });
                 }
             }
         })
@@ -195,8 +228,8 @@ $(body).on('click', '*[data-confirm-form-url]', function() {
             ${text}
           </div>
           <div class="form__bottom">
-            <button class="button button--light">ОК</button> 
-            <a class="button button--light modal-window__close-button">Отмена</a> 
+            <button class="button button--light">ОК</button>
+            <a class="button button--light modal-window__close-button">Отмена</a>
             <div class="response response--light"></div>
           </div>
        </form>

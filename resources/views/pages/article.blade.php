@@ -98,9 +98,11 @@
                 </div>
             </div>
             <div class="col">
-                <div class="box box--see-also">
+                <div class="box">
                     <div class="box__heading">
-                        Поиск по разделу
+                        <div class="box__heading__inner">
+                            Поиск по разделу
+                        </div>
                     </div>
                     <div class="box__inner">
                         <form action="/articles" class="small-search-form">
@@ -109,8 +111,12 @@
                             <button class="button" type="submit">Найти</button>
                         </form>
                     </div>
+                </div>
+                <div class="box">
                     <div class="box__heading">
-                        Смотрите также
+                        <div class="box__heading__inner">
+                            Смотрите также
+                        </div>
                     </div>
                     <div class="box__inner">
                         <div class="see-also">

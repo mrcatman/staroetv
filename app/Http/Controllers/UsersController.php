@@ -3,19 +3,18 @@
 namespace App\Http\Controllers;
 
 
-use App\Comment;
-use App\EmailChange;
-use App\ForumMessage;
 use App\Helpers\BBCodesHelper;
+use App\Helpers\Constants\Countries;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use App\Mail\ChangeEmail;
-use App\Mail\VerifyAccount;
-use App\Record;
-use App\User;
-use App\UserMeta;
+use App\Models\Comment;
+use App\Models\EmailChange;
+use App\Models\ForumMessage;
+use App\Models\Record;
+use App\Models\User;
+use App\Models\UserMeta;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -28,8 +27,13 @@ class UsersController extends Controller {
         if (!$user) {
             return view("pages.errors.404");
         }
-        $videos = Record::approved()->where(['author_id' => $user->id, 'is_radio' => false])->orderBy('id', 'desc')->get();
-        $radio_recordings = Record::approved()->where(['author_id' => $user->id, 'is_radio' => true])->orderBy('id', 'desc')->get();
+        $videos_query = Record::approved()->where(['author_id' => $user->id, 'is_radio' => false])->orderBy('id', 'desc');
+        $videos_count = $videos_query->count();
+        $videos = $videos_query->limit(24)->get();
+
+        $radio_recordings_query = Record::approved()->where(['author_id' => $user->id, 'is_radio' => true])->orderBy('id', 'desc');
+        $radio_recordings_count = $radio_recordings_query->count();
+        $radio_recordings = $radio_recordings_query->limit(24)->get();
 
         $banned_till = null;
         $is_banned_forever = $user->group_id == 255;
@@ -40,11 +44,16 @@ class UsersController extends Controller {
             }
         }
         return view("pages.users.show", [
+            'user' => $user,
+
             'banned_till' => $banned_till,
             'is_banned_forever' => $is_banned_forever,
-            'user' => $user,
-            'radio_recordings' => $radio_recordings,
+
             'videos' => $videos,
+            'videos_count' => $videos_count,
+
+            'radio_recordings' => $radio_recordings,
+            'radio_recordings_count' => $radio_recordings_count,
         ]);
     }
 
@@ -92,12 +101,8 @@ class UsersController extends Controller {
                 'users' => $users
             ]);
         } else {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
-    }
-
-    private function countries() {
-        return [["text"=>"Российская Федерация","id"=>"169"],["text"=>"Украина","id"=>"204"],["text"=>"Беларусь","id"=>"31"],["text"=>"Казахстан","id"=>"111"],["text"=>"Австралия","id"=>"12"],["text"=>"Австрия","id"=>"11"],["text"=>"Азербайджан","id"=>"14"],["text"=>"Албания","id"=>"5"],["text"=>"Алжир","id"=>"55"],["text"=>"Американское Самоа","id"=>"10"],["text"=>"Ангилья","id"=>"221"],["text"=>"Английская Индийская Океаническая Территория","id"=>"94"],["text"=>"Ангола","id"=>"8"],["text"=>"Андорра","id"=>"1"],["text"=>"Антарктика","id"=>"222"],["text"=>"Антигуа и Барбуда","id"=>"4"],["text"=>"Антильский Остров Нидерландов","id"=>"7"],["text"=>"Арабская Республика Суринам","id"=>"186"],["text"=>"Аргентина","id"=>"9"],["text"=>"Армения","id"=>"6"],["text"=>"Аруба","id"=>"13"],["text"=>"Афганистан","id"=>"3"],["text"=>"Багамский Остров","id"=>"28"],["text"=>"Бангладеш","id"=>"17"],["text"=>"Барбадос","id"=>"16"],["text"=>"Бахрейн","id"=>"21"],["text"=>"Белиз","id"=>"32"],["text"=>"Бельгия","id"=>"18"],["text"=>"Бенин","id"=>"23"],["text"=>"Болгария","id"=>"20"],["text"=>"Боливия","id"=>"26"],["text"=>"Босния и Герцеговина","id"=>"15"],["text"=>"Ботсвана","id"=>"30"],["text"=>"Бразилия","id"=>"27"],["text"=>"Бруней","id"=>"25"],["text"=>"Буркина Фасо","id"=>"19"],["text"=>"Бурунди","id"=>"22"],["text"=>"Бутан","id"=>"29"],["text"=>"Вануату","id"=>"215"],["text"=>"Ватикан","id"=>"209"],["text"=>"Великобритания","id"=>"69"],["text"=>"Венгрия","id"=>"89"],["text"=>"Венесуэла","id"=>"211"],["text"=>"Виргинские острова (UK)","id"=>"212"],["text"=>"Восточный Тимор","id"=>"195"],["text"=>"Вьетнам","id"=>"214"],["text"=>"Габон","id"=>"68"],["text"=>"Гаити","id"=>"88"],["text"=>"Гайана","id"=>"84"],["text"=>"Гамбия","id"=>"76"],["text"=>"Гана","id"=>"73"],["text"=>"Гваделупа","id"=>"78"],["text"=>"Гватемала","id"=>"81"],["text"=>"Гвинея","id"=>"77"],["text"=>"Гвинея-Бисау","id"=>"83"],["text"=>"Германия","id"=>"50"],["text"=>"Гернси и Олдерни","id"=>"235"],["text"=>"Гибралтар","id"=>"74"],["text"=>"Гонг-Конг","id"=>"85"],["text"=>"Гондурас","id"=>"86"],["text"=>"Гренада","id"=>"70"],["text"=>"Гренландия","id"=>"75"],["text"=>"Греция","id"=>"80"],["text"=>"Грузия","id"=>"71"],["text"=>"Дания","id"=>"52"],["text"=>"Дем. республика Конго","id"=>"34"],["text"=>"Джибути","id"=>"51"],["text"=>"Доминика","id"=>"53"],["text"=>"Доминиканская Республика","id"=>"54"],["text"=>"Египет","id"=>"58"],["text"=>"Еритреа","id"=>"59"],["text"=>"Замбия","id"=>"219"],["text"=>"Зимбабве","id"=>"220"],["text"=>"Израиль","id"=>"92"],["text"=>"Индия","id"=>"93"],["text"=>"Индонезия","id"=>"90"],["text"=>"Иордания","id"=>"100"],["text"=>"Ирак","id"=>"95"],["text"=>"Иран","id"=>"96"],["text"=>"Ирландия","id"=>"91"],["text"=>"Исландия","id"=>"97"],["text"=>"Испания","id"=>"60"],["text"=>"Италия","id"=>"98"],["text"=>"Йемен","id"=>"217"],["text"=>"Кабо Верде","id"=>"47"],["text"=>"Каймановы острова","id"=>"110"],["text"=>"Камбоджа","id"=>"104"],["text"=>"Камерун","id"=>"41"],["text"=>"Канада","id"=>"33"],["text"=>"Катар","id"=>"166"],["text"=>"Кения","id"=>"102"],["text"=>"Кипр","id"=>"48"],["text"=>"Кирибати","id"=>"105"],["text"=>"Китай","id"=>"42"],["text"=>"Колумбия","id"=>"43"],["text"=>"Комморские острова","id"=>"106"],["text"=>"Конго","id"=>"36"],["text"=>"Корея","id"=>"108"],["text"=>"Коста Рика","id"=>"44"],["text"=>"Кот Д'ивуар","id"=>"38"],["text"=>"Куба","id"=>"46"],["text"=>"Кувейт","id"=>"109"],["text"=>"Кыргызстан","id"=>"103"],["text"=>"Лаос","id"=>"112"],["text"=>"Латвия","id"=>"121"],["text"=>"Лесото","id"=>"118"],["text"=>"Либерия","id"=>"117"],["text"=>"Ливан","id"=>"113"],["text"=>"Ливийская Арабская республика Джамахирия","id"=>"122"],["text"=>"Литва","id"=>"119"],["text"=>"Лихтенштейн","id"=>"115"],["text"=>"Люксембург","id"=>"120"],["text"=>"Маврикий","id"=>"137"],["text"=>"Мавритания","id"=>"135"],["text"=>"Мадагаскар","id"=>"126"],["text"=>"Макао","id"=>"132"],["text"=>"Македония","id"=>"128"],["text"=>"Малави","id"=>"139"],["text"=>"Малайзия","id"=>"141"],["text"=>"Мали","id"=>"129"],["text"=>"Мальдивы","id"=>"138"],["text"=>"Мальта","id"=>"136"],["text"=>"Марокко","id"=>"123"],["text"=>"Мартиника","id"=>"134"],["text"=>"Маршалловы острова","id"=>"127"],["text"=>"Мексика","id"=>"140"],["text"=>"Мозамбик","id"=>"142"],["text"=>"Молдова","id"=>"125"],["text"=>"Монако","id"=>"124"],["text"=>"Монголия","id"=>"131"],["text"=>"Монтсеррат","id"=>"229"],["text"=>"Мьянмар","id"=>"130"],["text"=>"Намибия","id"=>"143"],["text"=>"Науру","id"=>"151"],["text"=>"Непал","id"=>"150"],["text"=>"Нигер","id"=>"145"],["text"=>"Нигерия","id"=>"146"],["text"=>"Нидерланды","id"=>"148"],["text"=>"Никарагуа","id"=>"147"],["text"=>"Ниуэ","id"=>"231"],["text"=>"Новая Зеландия","id"=>"152"],["text"=>"Новая Каледония","id"=>"144"],["text"=>"Норвегия","id"=>"149"],["text"=>"Объединенные Арабские Эмираты","id"=>"2"],["text"=>"Оман","id"=>"153"],["text"=>"Остров Святой Елены","id"=>"237"],["text"=>"Острова Кука","id"=>"39"],["text"=>"Острова Уоллис и Футуна","id"=>"233"],["text"=>"Острова Фару","id"=>"66"],["text"=>"Пакистан","id"=>"159"],["text"=>"Палау","id"=>"164"],["text"=>"Палестинская Территория","id"=>"162"],["text"=>"Панама","id"=>"154"],["text"=>"Папуа Новая Гвинея","id"=>"157"],["text"=>"Парагвай","id"=>"165"],["text"=>"Перу","id"=>"155"],["text"=>"Польша","id"=>"160"],["text"=>"Португалия","id"=>"163"],["text"=>"Реюнион","id"=>"167"],["text"=>"Руанда","id"=>"170"],["text"=>"Румыния","id"=>"168"],["text"=>"Самоа","id"=>"216"],["text"=>"Сан-Марино","id"=>"180"],["text"=>"Сан-Томе и Принсипи","id"=>"184"],["text"=>"Саудовская Аравия","id"=>"171"],["text"=>"Свазиленд","id"=>"187"],["text"=>"Святого Винсента и Гренадины","id"=>"210"],["text"=>"Святой Киттс и Невис","id"=>"107"],["text"=>"Северная Корея","id"=>"236"],["text"=>"Сейшелы","id"=>"173"],["text"=>"Сенегал","id"=>"181"],["text"=>"Сент-Люсия","id"=>"114"],["text"=>"Сербия","id"=>"45"],["text"=>"Сингапур","id"=>"176"],["text"=>"Словакия","id"=>"178"],["text"=>"Словения","id"=>"177"],["text"=>"Соединенные Штаты","id"=>"206"],["text"=>"Соломоновы острова","id"=>"172"],["text"=>"Сомали","id"=>"182"],["text"=>"Судан","id"=>"174"],["text"=>"Суринам","id"=>"183"],["text"=>"Сьерра-Леоне","id"=>"179"],["text"=>"Таджикистан","id"=>"193"],["text"=>"Таиланд","id"=>"192"],["text"=>"Тайвань","id"=>"202"],["text"=>"Такелау","id"=>"194"],["text"=>"Танзания","id"=>"203"],["text"=>"Того","id"=>"191"],["text"=>"Тонга","id"=>"198"],["text"=>"Тринидад и Тобаго","id"=>"200"],["text"=>"Тувалу","id"=>"201"],["text"=>"Тунис","id"=>"197"],["text"=>"Туркменистан","id"=>"196"],["text"=>"Турция","id"=>"199"],["text"=>"Уганда","id"=>"205"],["text"=>"Узбекистан","id"=>"208"],["text"=>"Уругвай","id"=>"207"],["text"=>"Федеративные Штаты Микронезия","id"=>"65"],["text"=>"Фиджи","id"=>"63"],["text"=>"Филиппины","id"=>"158"],["text"=>"Финляндия","id"=>"62"],["text"=>"Фолклендские острова","id"=>"64"],["text"=>"Франция","id"=>"67"],["text"=>"Французская Гвиана","id"=>"72"],["text"=>"Французская Полинезия","id"=>"156"],["text"=>"Хорватия","id"=>"87"],["text"=>"Центральная Африканская Республика","id"=>"35"],["text"=>"Чад","id"=>"189"],["text"=>"Черногория","id"=>"228"],["text"=>"Чешская Республика","id"=>"49"],["text"=>"Чили","id"=>"40"],["text"=>"Швейцария","id"=>"37"],["text"=>"Швеция","id"=>"175"],["text"=>"Шри-Ланка","id"=>"116"],["text"=>"Эквадор","id"=>"56"],["text"=>"Экваториальная Гвинея","id"=>"79"],["text"=>"Эль Сальвадор","id"=>"185"],["text"=>"Эстония","id"=>"57"],["text"=>"Эфиопия","id"=>"61"],["text"=>"Южная Африка","id"=>"218"],["text"=>"Ямайка","id"=>"99"],["text"=>"Япония","id"=>"101"]];
     }
 
     public function edit($id = null) {
@@ -108,12 +113,12 @@ class UsersController extends Controller {
             $user = User::find($id);
         }
         if (!$user) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         return view("pages.forms.user", [
             'edit_id' => $edit_id,
             'user' => $user,
-            'countries' => $this->countries()
+            'countries' => Countries::LIST
         ]);
     }
 
@@ -343,7 +348,7 @@ class UsersController extends Controller {
     public function comments($id) {
         $user = User::find($id);
         if (!$user) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         $comments = Comment::where(['user_id' => $id])->orderBy('id', 'desc')->paginate(30);
 
@@ -356,7 +361,7 @@ class UsersController extends Controller {
     public function videos($id) {
         $user = User::find($id);
         if (!$user) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         $records = Record::where(['is_radio' => false, 'author_id' => $id])->orderBy('id', 'desc')->paginate(30);
         return view("pages.users.records", [
@@ -369,7 +374,7 @@ class UsersController extends Controller {
     public function radioRecordings($id) {
         $user = User::find($id);
         if (!$user) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         $records = Record::where(['is_radio' => true, 'author_id' => $id])->orderBy('id', 'desc')->paginate(30);
         return view("pages.users.records", [

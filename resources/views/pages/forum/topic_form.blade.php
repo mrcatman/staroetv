@@ -1,4 +1,4 @@
-@extends('layouts.default')
+@extends('layouts.default', ['vue' => true])
 @section('content')
     <div class="forum-page forum-page--topic-form">
         <div class="forum-section">

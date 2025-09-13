@@ -2,15 +2,14 @@
 
 namespace App\Crossposting;
 
+use App\Crossposting\Services\Discord\DiscordCrossposter;
 use App\Crossposting\Services\Facebook\FacebookCrossposter;
+use App\Crossposting\Services\Odnoklassniki\OdnoklassnikiCrossposter;
 use App\Crossposting\Services\Telegram\TelegramCrossposter;
 use App\Crossposting\Services\Twitter\TwitterCrossposter;
-use App\Crossposting\Services\Odnoklassniki\OdnoklassnikiCrossposter;
 use App\Crossposting\Services\VK\VKCrossposter;
-use App\Crossposting\Services\Discord\DiscordCrossposter;
-use App\Record;
-use App\SocialPost;
-use App\SocialPostConnection;
+use App\Models\Record;
+use App\Models\SocialPost;
 
 class CrossposterManager {
 

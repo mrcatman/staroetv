@@ -2,19 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Channel;
-use App\ChannelName;
-use App\Comment;
-use App\CommentRating;
-use App\ForumMessage;
 use App\Helpers\BBCodesHelper;
-use App\Helpers\CommentsHelper;
 use App\Helpers\PermissionsHelper;
+use App\Models\Channel;
+use App\Models\Comment;
+use App\Models\CommentRating;
+use App\Models\Record;
 use App\Notifications\NewCommentReply;
-use App\Notifications\NewForumReply;
-use App\Program;
-use App\Record;
-use Carbon\Carbon;
 
 class CommentsController extends Controller {
 
@@ -209,10 +203,13 @@ class CommentsController extends Controller {
         ];
     }
 
-    public function getOriginal($id) {
-        $comment = Comment::find($id);
-        $text = BBCodesHelper::HTMLToBB($comment->original_text);
-        dd($text);
+    public function new()
+    {
+        $comments = Comment::orderBy('id', 'desc')->where('material_type', '!=', '3')->paginate(24);
+        return view("pages.users.comments", [
+            'comments' => $comments,
+            'user' => null,
+        ]);
     }
 
 

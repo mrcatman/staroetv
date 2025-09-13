@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
-use App\HistoryEvent;
-use App\HistoryEventBlock;
-use App\Program;
+use App\Models\HistoryEvent;
+use App\Models\HistoryEventBlock;
 use Carbon\Carbon;
 
 class HistoryEventsController extends Controller {
@@ -130,7 +129,7 @@ class HistoryEventsController extends Controller {
             $event = HistoryEvent::find($url);
         }
         if (!$event) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         ViewsHelper::increment($event, 'events');
         foreach ($event->blocks as $block) {

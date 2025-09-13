@@ -2,12 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\CSVHelper;
-use App\Picture;
-use App\Program;
-use App\Record;
-use App\UserAward;
-use App\UserReputation;
+use App\Models\UserAward;
+use App\Models\Record;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 

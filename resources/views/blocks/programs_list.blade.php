@@ -1,6 +1,9 @@
 @foreach ($programs as $program)
     <div class="program">
-        <a href="{{$program->full_url}}" class="program__cover" style="background-image: url({{$program->coverPicture ? $program->coverPicture->url : ''}})"></a>
+        <a href="{{$program->full_url}}" class="program__cover" style="background-image: url({{$program->cover_url}})">
+            <div class="program__cover__foreground" style="background-image: url({{$program->cover_url}})"></div>
+            <div class="program__cover__background" style="background-image: url({{$program->cover_url}})"></div>
+        </a>
         <a href="{{$program->full_url}}" class="program__name">{{$program->name}}</a>
         @if (!isset($hide_channels) || !$hide_channels)
         <div class="program__channels">

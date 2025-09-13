@@ -80,7 +80,7 @@
             </div>
         </div>
         <div class="records-search__result" v-if="showResults">
-            <div class="form__preloader" v-show="isLoading"><img src="/pictures/ajax.gif"></div>
+            <div class="form__preloader" v-show="isLoading"><img src="../../../public/img/ajax.gif"></div>
             <div class="records-search__programs" v-if="programsList && programsList.length > 0">
                 <a :href="'/programs/' + program.id" class="program" v-for="program in programsList" :key="program.id">
                     <div class="program__cover" :style="{backgroundImage: `url(${program.cover})`}"></div>
@@ -150,7 +150,8 @@
     </form>
 </template>
 <style lang="scss">
-    @import "../../sass/_variables";
+    @use "../../sass/mixins" as *;
+
     .records-search {
         box-shadow: var(--block-box-shadow);
         border-bottom: 1px solid var(--border-color);
@@ -166,8 +167,10 @@
             background: var(--bg-darker);
             @include light() {
                 background: none;
-                padding: 1.75em 0;
+                padding: 0 0 1em;
                 box-shadow: none;
+                border-bottom: 1px solid var(--border-color);
+                margin-bottom: 2em;
             }
             @include mobile {
                 padding: 1em 1em .5em .5em;
@@ -235,6 +238,9 @@
 
         &__extended {
             border-top: 1px solid var(--border-color);
+            @include light() {
+                border-top: none;
+            }
             &__row {
                 flex: 1;
                 padding: 1em 1.5em;
@@ -341,13 +347,9 @@
         }
     }
 
-    .select2-results__option--highlighted .records-search__channel__additional-names {
-        color: #fff;
-    }
 </style>
 <script>
-    import $ from 'jquery';
-    import Datepicker from 'vuejs-datepicker';
+    import Datepicker from './datepicker/components/Datepicker.vue';
 
     const selectOptions = {
         templateResult: (channel) => {

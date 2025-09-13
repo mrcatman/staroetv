@@ -8,6 +8,9 @@
 }
 
 .records-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75em;
     &__empty {
         font-weight: bold;
         padding: .25em;
@@ -18,7 +21,7 @@
     &__pager-container {
         margin: 1.5em -1em -1.5em;
         @include light() {
-            margin: 1.5em 0 -1em;
+            margin: 4em -1em -1em;
         }
         &:empty {
             display: none;
@@ -43,13 +46,12 @@
     &__years {
         --links-color: var(--box-text-color-dark);
         border-bottom: none;
-        padding: .5em .875em;
     }
     &__months {
         --links-color: var(--box-text-color-dark);
         font-size: .9375em;
         border-bottom: none;
-        padding: 0 1.125em;
+        padding: 0;
     }
 
     &__sort {
@@ -59,8 +61,8 @@
         padding: 0;
         margin: 0 1.25em 1.25em 0;
         @include light() {
-            padding: 0 1em;
-            margin: -.5em 1.25em 0 0;
+            padding: 0;
+            margin: 0 0 1em;
         }
         @include mobile() {
             margin: 0 0 1em;
@@ -91,11 +93,9 @@
         }
         &__search {
             width: 25%;
+            display: flex;
             @include mobile() {
                 width: calc(100% - 1.25em);
-            }
-            input {
-                width: 100%;
             }
         }
 
@@ -118,23 +118,18 @@
 .record-item {
     display: flex;
     align-items: center;
-    padding: .25em 0;
     text-decoration: none;
     position: relative;
     color: unset;
     transition: all .25s;
-    @include light() {
-        padding: .25em .5em;
-    }
+    width: 100%;
+    @include hover;
     &--pending {
         opacity: .5;
     }
     &--selected {
         background: var(--box-color-hover)!important;
         border-bottom-color: var(--primary);
-    }
-    &:hover {
-        background: var(--box-color-hover);
     }
 
     &__cover {
@@ -152,8 +147,7 @@
     }
 
     &__title {
-        width: calc(100% - 1em);
-        font-size: 0.875rem;
+        font-size: .875rem;
         margin: 0 0 .5em;
         display: block;
         position: relative;
@@ -243,7 +237,6 @@
     }
 
     &__bottom {
-        margin: 0 0 -1em;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -270,11 +263,6 @@
         @include mobile() {
             margin: 2.5em 0 0 !important;
         }
-        .box {
-            display: block;
-            margin: 0 0 .5em;
-            height: 100%;
-        }
     }
 
     .record-item {
@@ -300,6 +288,7 @@
     }
     &__player {
         width: 100%;
+        margin: 0 0 var(--col-margin);
     }
     &__player-container {
         position: relative;
@@ -382,49 +371,23 @@
 
 
 .records-list--thumbs {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: var(--col-margin);
     padding: 0;
-    margin: 0 0 -2em;
-    width: calc(100% + 1em);
-    @include light() {
-        padding: 1em;
-        width: calc(100% - 1em);
-    }
+    width: 100%;
     .record-item {
+        width: 100%;
         flex-direction: column;
         align-items: flex-start;
-        width: calc(100% / 3);
         border: none;
         padding: 0;
-        margin: 0 0 1.5em;
-        transition: all .35s;
-        &:hover {
-            background: none;
-        }
+        @include hover;
+
         @include mobile {
-            width: 100%!important;
             font-size: .875em;
         }
-        &:before {
-            position: absolute;
-            top: -1em;
-            left: -1em;
-            width: calc(100% + 1em);
-            height: calc(100% + 2em);
-            background: #f1f1f1;
-            content: "";
-            display: block;
-            z-index: 0;
-            opacity: 0;
-            transition: all .25s;
-        }
-        &:hover {
-            transform: translateY(-.5em);
-        }
-        &:hover:before {
-            opacity: 1;
-        }
+
         &__info {
             > span {
                 display: none;
@@ -440,13 +403,10 @@
 
         &__cover {
             z-index: 1;
-            width: calc(100% - 1em);
+            width: 100%;
             margin: 0;
-            padding-top: 60%;
+            padding-top: 75%;
             height: auto;
-            @include mobile() {
-                width: 100%;
-            }
         }
 
         &__title {
@@ -473,10 +433,6 @@
         padding: 1em 0 .5em;
     }
 }
-.records-list__outer--full-page .records-list--thumbs .record-item {
-    width: calc(100% / 4);
-}
-
 
 .records-list--small {
     display: flex;

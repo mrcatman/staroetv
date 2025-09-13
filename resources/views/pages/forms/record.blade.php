@@ -1,14 +1,12 @@
-@extends('layouts.default')
+@extends('layouts.default', ['vue' => true])
 @section('content')
-    <form class="box" method="POST">
+    <form class="box box--top" method="POST">
         <div class="box__heading">
-            {{$data['is_radio'] ? ($record ? "Редактировать радиозапись" : "Добавить радиозапись") :  ($record ? "Редактировать видео" : "Добавить видео")}}
+            <div class="box__heading__inner">
+                {{$data['is_radio'] ? ($record ? "Редактировать радиозапись" : "Добавить радиозапись") :  ($record ? "Редактировать видео" : "Добавить видео")}}
+            </div>
             <div class="box__heading__right">
-                @if ($record)
-                <a href="{{$record->url}}" class="box__heading__link">Назад</a>
-                @else
-                <a href="/video" class="box__heading__link">Назад</a>
-                @endif
+                <a href="{{$record ? $record->url : 'Назад'}}" class="button button--light">Назад</a>
             </div>
         </div>
         <div class="box__inner">

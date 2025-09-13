@@ -1,7 +1,7 @@
 <template>
     <div class="mass-uploader">
         <div class="form__preloader" v-if="loading">
-            <img src="/pictures/ajax.gif">
+            <img src="../../../public/img/ajax.gif">
         </div>
         <snackbar ref="snackbar"></snackbar>
         <div class="input-container" v-if="!records || records.length === 0">
@@ -23,7 +23,7 @@
         <div class="mass-uploader__records">
             <div class="mass-uploader__record" :class="{'mass-uploader__record--collapsed': record.collapsed}" v-for="(record, $index) in visibleRecords" :key="record.player">
                 <div class="form__preloader" v-if="record.loading">
-                    <img src="/pictures/ajax.gif">
+                    <img src="../../../public/img/ajax.gif">
                 </div>
                 <a class="mass-uploader__record__collapse" @click="record.collapsed = !record.collapsed">{{!record.collapsed ? 'Скрыть' : 'Показать'}}</a>
                 <div class="mass-uploader__record__content"  v-if="record.collapsed">
@@ -198,7 +198,7 @@ const monthNames = {
     "ноябрь": 11,
     "декабрь": 12
 };
-    import Snackbar from "./Snackbar";
+    import Snackbar from "./Snackbar.vue";
     export default {
         components: {Snackbar},
         props: {

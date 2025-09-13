@@ -48,13 +48,10 @@
     }
 </style>
 <script>
-    import PictureUploader from '../PictureUploader';
-    import Response from '../Response';
+    import PictureUploader from '../PictureUploader.vue';
+    import Response from '../Response.vue';
 
     export default {
-        computed: {
-
-        },
         methods: {
             saveSmiles() {
                 this.loading = true;

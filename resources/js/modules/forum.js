@@ -69,7 +69,7 @@ $(body).on('change', 'input[name="questionnaire"]', function() {
 });
 
 $(body).on('click', '.forum-page a.page-link', function() {
-    $('.forum-page').append('<div class="form__preloader"><img src="/pictures/ajax.gif"></div>');
+    $('.forum-page').append('<div class="form__preloader"><img src="/img/ajax.gif"></div>');
 });
 
 $(body).on('click', '.forum-message__show-profile', function() {

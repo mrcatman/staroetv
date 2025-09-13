@@ -1,5 +1,6 @@
 .main {
     display: block;
+
     > .content {
         margin-left: 0;
         width: 100%;
@@ -9,7 +10,7 @@
         @include mobile() {
             margin-top: 3em;
             @include light() {
-                margin: 3.25em 1em 0!important;
+                margin: 3.25em 1em 0 !important;
             }
         }
         @include light() {
@@ -17,30 +18,26 @@
             width: calc(100% - 2em);
         }
     }
-   &:before {
-       content: "";
-       display: block;
-       position: fixed;
-       top: 0;
-       left: 0;
-       width: 100vw;
-       height: 100vh;
-       background: url("/pictures/bg.png");
-       z-index: 1;
-       opacity: .25;
-       filter: invert(1);
-       @include light() {
-           opacity: 0;
-       }
-   }
+
+    &:before {
+        content: "";
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: url("/resources/images/bg.png");
+        z-index: 1;
+        opacity: .2;
+        filter: invert(1);
+    }
 }
 
 .theme-dark .main:before {
     filter: none;
     opacity: .5;
 }
-
-
 
 .sidebar {
     width: 100%;

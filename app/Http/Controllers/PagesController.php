@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Channel;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
-use App\Page;
-use App\Program;
-use App\User;
+use App\Models\Channel;
+use App\Models\Page;
+use App\Models\User;
 
 class PagesController extends Controller {
 
     public function show($id) {
         $page = Page::find($id);
         if (!$page) {
-            return redirect('https://staroetv.su/');
+            return redirect('/');
         }
 
         if (PermissionsHelper::checkGroupAccess("can_read", $page)) {
@@ -30,7 +29,7 @@ class PagesController extends Controller {
     public function showByURL($url) {
         $page = Page::where(['url' => $url])->first();
         if (!$page) {
-            return redirect('https://staroetv.su/');
+            return redirect('/');
         }
         if (PermissionsHelper::checkGroupAccess("can_read", $page)) {
             ViewsHelper::increment($page,'pages');
@@ -45,7 +44,7 @@ class PagesController extends Controller {
 
     public function add() {
         if (!PermissionsHelper::allows('sipadd')) {
-            return redirect('https://staroetv.su/');
+            return redirect('/');
         }
         return view("pages.forms.static", [
             'page' => null,
@@ -54,7 +53,7 @@ class PagesController extends Controller {
 
     public function edit($id) {
         if (!PermissionsHelper::allows('sipedt')) {
-            return redirect('https://staroetv.su/');
+            return redirect('/');
         }
         $page = Page::where(['id' => $id])->first();
         return view("pages.forms.static", [

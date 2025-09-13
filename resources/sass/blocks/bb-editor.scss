@@ -1,7 +1,9 @@
 
 .bb-editor {
     margin: 0;
-    padding: 0;
+    padding: 1em;
+    border-radius: .5em;
+    background: var(--bg-darker);
     position: relative;
 
     &__inner {
@@ -19,6 +21,7 @@
             border: 1px solid var(--border-color);
             height: 2.5em;
             background: var(--box-color);
+            text-decoration: none;
         }
 
         .codeButtons:hover {
@@ -51,6 +54,8 @@
         margin: 1em 0;
         background: var(--box-color);
         padding: 1em;
+        line-height: 1;
+        min-height: 3em;
         @include mobile {
             box-sizing: border-box;
             flex: unset;
@@ -92,9 +97,7 @@
         width: auto;
         margin: 0 .5em;
         cursor: pointer;
-        &:hover {
-            filter: brightness(1.1);
-        }
+        @include hover;
         @include mobile() {
             width: unset;
             margin: 0 1em .5em 0;

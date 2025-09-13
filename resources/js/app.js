@@ -1,5 +1,8 @@
-window.$ = require('jquery');
-window.jQuery = window.$;
+import './init'
+import Vue from 'vue';
+
+import 'jquery-pjax';
+import './jquery-ui.min'
 
 window.$.post = function(url, data, success, args) {
     args = $.extend({
@@ -14,69 +17,65 @@ window.$.post = function(url, data, success, args) {
     return $.ajax(args);
 };
 
+import './bbcodes'
+import './uVideoPlayer'
+import './vue-components'
 
-require('jquery-pjax');
-require('jquery-ui-bundle');
+import './modules/articles'
+import './modules/awards'
+import './modules/channels'
+import './modules/comments'
+import './modules/forms'
+import './modules/forum'
+import './modules/modals'
+import './modules/pages'
+import './modules/reputation'
+import './modules/tabs'
+import './modules/warnings'
+import './modules/pm'
+import './modules/player'
+import './modules/common'
+import './modules/notifications'
+import './modules/records'
+import './modules/profile'
+import './modules/approve'
+import './modules/programs'
+import './modules/theme-dark'
+import './modules/categories'
+import './modules/advertising'
+import './modules/share'
+import './modules/splashscreen'
+import './modules/captcha'
+import './modules/search'
+import './modules/mobile-menu'
+import './modules/playlist'
+import './modules/survey'
+import './modules/teletext'
 
-window.execOnMounted = [];
-window.Vue = require('vue');
-require ('./vue-components');
+function onPageChange() {
+    let script = $('#pjax_scripts_container').data('script');
+    if (script) {
+        script = script.replace('<script>', '');
+        script = script.replace('</script>', '');
+        eval(script);
+    }
 
-require ('./bbcodes');
-require ('./uVideoPlayer');
-
-import 'select2';
-import 'select2/dist/css/select2.css';
-
-require('./modules/articles');
-require('./modules/awards');
-require('./modules/channels');
-require('./modules/comments');
-require('./modules/forms');
-require('./modules/forum');
-require('./modules/modals');
-require('./modules/pages');
-require('./modules/reputation');
-require('./modules/tabs');
-require('./modules/warnings');
-require('./modules/pm');
-require('./modules/player');
-require('./modules/common');
-require('./modules/notifications');
-require('./modules/records');
-require('./modules/profile');
-require('./modules/approve');
-require('./modules/programs');
-require('./modules/theme-dark');
-require('./modules/categories');
-require('./modules/advertising');
-require('./modules/share');
-require('./modules/splashscreen');
-require('./modules/captcha');
-require('./modules/search');
-require('./modules/mobile-menu');
-require('./modules/playlist');
-require('./modules/survey');
-
-let onReady = () => {
-    $(document).pjax('a[target!="_blank"]', '#pjax-container', {timeout: 10000});
-    onPageChange();
-    function onPageChange() {
-        let script = $('#pjax_scripts_container').data('script');
-        if (script) {
-            script = script.replace('<script>', '');
-            script = script.replace('</script>', '');
-            eval(script);
-        }
+    const needInitializeVue = $('#pjax-content').data('vue');
+    const onMounted = () =>  window.execOnMounted.forEach(fn => fn());
+    if (needInitializeVue) {
         window._vm = new Vue({
             el: '#app',
-            mounted: () => {
-                window.execOnMounted.forEach(fn => {
-                    fn();
-                })
-            }
+            mounted: () => onMounted()
         });
+    } else {
+        onMounted()
     }
+}
+
+const onReady = () => {
+    $(document).pjax('a[target!="_blank"]', '#pjax-container', {timeout: 10000});
+    onPageChange();
+
     $(document).on('pjax:start', () => {
         $('body').addClass('page-loading');
     });
@@ -93,5 +92,7 @@ let onReady = () => {
     });
 };
 $(document).ready(function() {
+    $.ajaxSetup({headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}});
+
     onReady();
 });

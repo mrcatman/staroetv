@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Comment;
-use App\CommentRating;
 use App\Helpers\CSVHelper;
+use App\Models\Comment;
+use App\Models\CommentRating;
 use Illuminate\Console\Command;
 
 class importComments extends Command

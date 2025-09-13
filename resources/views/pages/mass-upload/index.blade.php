@@ -1,4 +1,4 @@
-@extends('layouts.default')
+@extends('layouts.default', ['vue' => true])
 @section('content')
     <div class="box">
         <div class="box__heading">

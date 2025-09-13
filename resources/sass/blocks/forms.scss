@@ -7,6 +7,7 @@
     @include mobile {
         flex-direction: column;
     }
+
     &__required {
         color: #ca0000;
         font-weight: bold;
@@ -34,6 +35,7 @@
         @include mobile() {
             flex-direction: row;
         }
+
         input[type="checkbox"] {
             display: none;
         }
@@ -54,9 +56,11 @@
         min-width: 0;
         margin: 0 1em 0 .5em;
     }
+
     &--checkbox:hover &__label {
         color: var(--links-color);
     }
+
     &--checkbox input[type="checkbox"]:checked + &--checkbox__element:before {
         content: "";
         display: block;
@@ -153,6 +157,7 @@
 
     &__element-outer {
         flex: 1;
+
         .input {
             width: calc(100% - 18px);
         }
@@ -197,7 +202,7 @@
         &--active {
             color: var(--primary);
             border-bottom: 1px solid;
-         }
+        }
     }
 
     &__overlay-outer {
@@ -214,6 +219,7 @@
         opacity: .75;
         z-index: 1;
     }
+
     &--calendar-top {
         .vdp-datepicker__calendar {
             top: unset;
@@ -221,30 +227,35 @@
         }
     }
 }
+
 .col:first-of-type .input-container--checkbox__element {
-  margin: 0;
+    margin: 0;
 }
+
 @keyframes inputPreloader {
-  0% {
-    opacity: .35;
-  }
-  50% {
-    opacity: .75;
-  }
-  100% {
-    opacity: .35;
-  }
+    0% {
+        opacity: .35;
+    }
+    50% {
+        opacity: .75;
+    }
+    100% {
+        opacity: .35;
+    }
 }
+
 .horisontal-delimiter {
     background: var(--border-color);
     margin: 3em 0;
     width: 100%;
     height: 1px;
 }
+
 .captcha {
     cursor: pointer;
     margin: 0 .5em 0 0;
 }
+
 .input, .vdp-datepicker input {
     flex: 1;
     font: inherit;
@@ -255,6 +266,11 @@
     box-shadow: none;
     color: inherit;
     border-radius: 0;
+
+    &:disabled {
+        opacity: .5;
+    }
+
     &:focus {
         outline: none;
         border-bottom-color: var(--primary);
@@ -273,22 +289,24 @@
     border-bottom-width: 2px;
     border-bottom-color: #f00;
 }
+
 textarea.input {
-  height: 4em;
-  resize: none;
+    height: 4em;
+    resize: none;
 }
 
 .response {
     font-size: 1.125em;
     display: none;
     border-radius: 0;
-    margin: -.875em -.875em .875em;
+    margin: 0 0 1em;
     color: var(--box-text-color-dark);
     padding: 1em 1.5em;
     font-weight: bold;
-    @include mobile(){
+    @include mobile() {
         padding: 1em;
     }
+
     a {
         color: unset;
         font-weight: bold;
@@ -309,7 +327,7 @@ textarea.input {
     &--light {
         background: none;
         box-shadow: none;
-        padding: 0;
+        padding: 0 !important;
         font-size: 1em;
         text-shadow: none;
         font-weight: 400;
@@ -323,6 +341,7 @@ textarea.input {
     &--light.response--success {
         color: blue;
     }
+
     &--with-errors {
         @include mobile() {
             margin: 1em 0 2.5em;
@@ -331,17 +350,19 @@ textarea.input {
 }
 
 #cke_editor {
-  flex: 1;
+    flex: 1;
 }
 
 .vdp-datepicker {
     flex: 1;
     width: 100%;
     height: 2.25em;
+
     input {
         box-sizing: content-box;
         width: calc(100% - 1em);
     }
+
     &__reset {
         position: absolute;
         top: .5em;
@@ -356,56 +377,66 @@ textarea.input {
     }
 
     &__calendar {
-        height: unset!important;
+        height: unset !important;
         color: var(--text-color);
     }
 }
 
 .form {
-  position: relative;
-  &__preloader {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, .5);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  &__bottom {
-    display: flex;
-    align-items: center;
-    &--with-margin {
-      margin-bottom: 1em;
-    }
-    .button {
-      margin: 0 .75em 0 0;
-    }
-    &__left {
-      display: flex;
-      align-items: center;
+    position: relative;
+
+    &__preloader {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, .5);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        &--dark {
+            background: rgba(0, 0, 0, .25);
+        }
     }
 
-    &__right {
-      flex: 1;
-      display: flex;
-      justify-content: flex-end;
+    &__bottom {
+        display: flex;
+        align-items: center;
+
+        &--with-margin {
+            margin-bottom: 1em;
+        }
+
+        .button {
+            margin: 0 .75em 0 0;
+        }
+
+        &__left {
+            display: flex;
+            align-items: center;
+        }
+
+        &__right {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        &__link {
+            font-size: .875em;
+            margin: 0 0 0 1em;
+        }
     }
 
-    &__link {
-      font-size: .875em;
-      margin: 0 0 0 1em;
-    }
-  }
     &__progress {
         background: var(--bg-darker-2);
         font-size: 1.25em;
         width: 100%;
         border-radius: .25em;
         overflow: hidden;
+
         &__bar {
             transition: all .25s;
             padding: .25em;
@@ -458,15 +489,42 @@ textarea.input {
     }
 
 
+    &--quality {
+        margin: 0;
+
+        &__variant {
+            font-size: 1.25em;
+            padding: .5em .875em;
+
+            &:hover {
+                background: var(--bg-darker-2);
+            }
+        }
+
+        input[type=radio]:checked + &__variant {
+            background: var(--primary);
+            color: #fff;
+        }
+    }
 }
 
-.radio-buttons--inline {
-  display: flex;
-  flex-wrap: wrap;
+.radio-buttons {
+    &--inline {
+        display: flex;
+        flex-wrap: wrap;
 
-  .radio-button {
-    margin: .75em 1em 0 0;
-  }
+        .radio-button {
+            margin: .75em 1em 0 0;
+        }
+    }
+
+    &--quality {
+        display: inline-flex;
+        background: var(--bg-darker);
+        border: 1px solid var(--border-color);
+        border-radius: .5em;
+        overflow: hidden;
+    }
 }
 
 .select-classic {
@@ -489,13 +547,16 @@ textarea.input {
         padding: 0 0 0 .5em;
     }
 }
+
 .box--dark .select-classic {
     background: var(--box-color-hover-dark);
     border-color: var(--border-color-dark);
 }
+
 .select2-container {
     flex: 1;
 }
+
 .select2-container--open {
     z-index: 10000;
 }
@@ -506,9 +567,10 @@ textarea.input {
         border-radius: 0 !important;
         display: flex !important;
         align-items: center !important;
-        background: none!important;
-        border: 1px solid var(--border-color)!important;
-        background: var(--bg-darker)!important;
+        background: none !important;
+        border: 1px solid var(--border-color) !important;
+        background: var(--bg-darker) !important;
+
         .select2-selection__rendered {
             color: inherit !important;
             line-height: 1 !important;
@@ -519,23 +581,27 @@ textarea.input {
             height: 100% !important;
         }
     }
+
     .select2-selection--multiple {
         flex: 1;
         font: inherit;
         color: inherit;
-        border-radius: 0!important;
-        background: var(--bg-darker)!important;
-        border: 1px solid var(--border-color)!important;
+        border-radius: 0 !important;
+        background: var(--bg-darker) !important;
+        border: 1px solid var(--border-color) !important;
         padding: 0;
+
         .select2-selection__choice {
             border: 1px solid var(--border-color) !important;
-            background-color: var(--primary)!important;
+            background-color: var(--primary) !important;
             color: var(--button-active-text);
             font-size: .875em;
             margin: .5em 0 0 .25em;
-            &__remove  {
+
+            &__remove {
                 color: var(--button-active-text);
                 font-size: 1.25em;
+
                 &:hover {
                     color: var(--button-active-text);
                     opacity: .75;
@@ -543,39 +609,47 @@ textarea.input {
             }
         }
     }
+
+    .select2-results__option--highlighted.select2-results__option--selectable {
+        color: var(--text-color) !important;
+    }
+
+    .select2-search--dropdown .select2-search__field {
+        background: none !important;
+        border: none !important;
+        color: var(--text-color);
+        font: unset;
+        font-size: 1.25em;
+        background: var(--bg-darker) !important;
+    }
+
+    .select2-results__option--highlighted[aria-selected] {
+        background-color: var(--primary) !important;
+    }
+
+    .select2-results__option[aria-selected=true] {
+        background-color: var(--bg-darker) !important;
+    }
 }
 
-.select2-container--default .select2-selection--multiple .select2-selection__rendered {
-    padding: 0!important;
+.select2-selection--multiple .select2-selection__rendered {
+    padding: 0 !important;
 }
 
 .select2-dropdown {
     border: none;
     background: none;
 }
-.select2-container--default .select2-search--dropdown .select2-search__field {
-    background: none!important;
-    border: none!important;
-    color: var(--text-color);
-    font: unset;
-    font-size: 1.25em;
-    background: var(--bg-darker)!important;
-}
+
 .select2-search--dropdown {
-    padding: 0!important;
+    padding: 0 !important;
 }
+
 .select2-results {
-    background: var(--box-color)!important;
+    background: var(--box-color) !important;
     border: 1px solid var(--border-color) !important;
 }
 
-.select2-container--default .select2-results__option--highlighted[aria-selected] {
-    background-color: var(--primary)!important;
-}
-
-.select2-container--default .select2-results__option[aria-selected=true] {
-    background-color: var(--bg-darker)!important;
-}
 
 .inputs-line {
     display: flex;
@@ -609,7 +683,6 @@ textarea.input {
 }
 
 
-
 .autocomplete {
     &__items {
         display: flex;
@@ -621,9 +694,11 @@ textarea.input {
         align-items: center;
         cursor: pointer;
         margin: 0 1em .5em 0;
+
         &:hover {
             opacity: .75;
         }
+
         &__logo {
             margin: 0 .5em 0 0;
             width: 2em;
@@ -646,25 +721,28 @@ textarea.input {
         }
     }
 }
+
 .inputs-group {
     margin: 0 -1em;
     padding: 0 0 1em;
     @include light() {
         margin: 0;
     }
+
     &__title {
         border: none;
         background: var(--box-color-dark);
         color: var(--box-text-color-dark);
-         padding: .75em 1.25em;
+        padding: .75em 1.25em;
         font-size: 1.25em;
         font-weight: 500;
         border-bottom: 1px solid var(--border-color-dark);
         @include light() {
             background: none;
             color: unset;
-            padding: 1em 0;
-            font-weight: 500;
+            padding: .5em 0;
+            font-weight: 600;
+            border-bottom: 1px solid var(--primary);
         }
     }
 
@@ -675,18 +753,6 @@ textarea.input {
         }
     }
 }
-.box__inner .response + .inputs-group {
-    margin-top: -1em;
-    @include light() {
-        margin-top: -1.125em;
-    }
-}
-
-
-.box__inner .response--success + .inputs-group, .box__inner .response--error + .inputs-group {
-    margin-top: 0;
-}
-
 
 .tooltip {
     position: absolute;
@@ -703,26 +769,30 @@ textarea.input {
 }
 
 *:hover > .tooltip {
-  display: block;
+    display: block;
 }
 
 .modal-window .input-container__toggle-button {
     color: #333;
     border-bottom: 1px dashed #333;
 }
+
 .vdp-datepicker + .input-container__message {
     right: 4em;
 }
+
 .row--with-inputs {
     .input-container {
         flex: 1;
         border-right: 1px solid #ddd;
         padding: 0 1em 0 0;
+
         &:last-of-type {
             padding: 0;
             border-right: 0;
         }
     }
+
     .input-container__label {
         width: auto;
         min-width: unset;
@@ -732,6 +802,7 @@ textarea.input {
         flex: 1;
     }
 }
+
 .block-preloader {
     position: absolute;
     top: 0;
@@ -746,8 +817,9 @@ textarea.input {
 }
 
 .cke_notifications_area {
-    display: none!important;
+    display: none !important;
 }
+
 .vdp-datepicker .vdp-datepicker__calendar {
     background: var(--box-color);
     color: var(--text-color);
@@ -777,3 +849,4 @@ textarea.input {
         opacity: .25;
     }
 }
+

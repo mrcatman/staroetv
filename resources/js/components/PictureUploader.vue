@@ -36,7 +36,8 @@
     </div>
 </template>
 <style lang="scss">
-    @import "../../sass/_variables";
+    @use "../../sass/mixins" as *;
+
     .picture-uploader {
         display: flex;
         align-items: center;
@@ -166,16 +167,17 @@
     }
 </style>
 <script>
-    import Modal from './Modal';
-    import Response from "./Response";
-    let extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg'];
+    import Modal from './Modal.vue';
+    import Response from './Response.vue';
+
+    const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg'];
     export default {
         components: {
             Response,
             Modal
         },
         watch: {
-            value(newVal) {
+            value() {
                 this.onValueChange();
             },
             pictureData(newData) {
@@ -202,7 +204,10 @@
             },
             loadPictureByURL() {
                 this.URLModal.loading = true;
-                let data = {url: this.URLModal.address};
+                const data = {
+                    url: this.URLModal.address
+                };
+
                 if (this.channelid) {
                     data.channel_id = this.channelid;
                 }

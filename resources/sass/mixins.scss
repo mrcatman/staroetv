@@ -1,0 +1,47 @@
+@mixin mobile() {
+    @media screen and (max-width: 768px) {
+        @content;
+    }
+}
+@mixin light() {
+    @at-root {
+        .theme-light & {
+            @content;
+        }
+    }
+}
+@mixin dark() {
+    @at-root {
+        .theme-dark & {
+            @content;
+        }
+    }
+}
+
+
+@mixin hover {
+    position: relative;
+    z-index: 1;
+    transition: color .2s;
+    &:hover {
+        color: var(--primary);
+    }
+    &:before {
+        position: absolute;
+        top: -.5em;
+        left: -.5em;
+        width: calc(100% + 1em);
+        height: calc(100% + 1em);
+        background: var(--box-color-hover);
+        border-radius: .5em;
+        content: "";
+        display: block;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity .2s;
+    }
+    &:hover:before {
+        opacity: .5;
+    }
+
+}

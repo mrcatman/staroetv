@@ -1,4 +1,4 @@
-module.exports = function translit(str) {
+export default function translit(str) {
     let ru = {
         'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
         'е': 'e', 'ё': 'e', 'ж': 'j', 'з': 'z', 'и': 'i',

@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Channel;
-use App\ChannelName;
-use App\Picture;
+use App\Models\Channel;
+use App\Models\ChannelName;
+use App\Models\Picture;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use PHPHtmlParser\Dom;

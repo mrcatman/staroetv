@@ -129,9 +129,10 @@
     }
 </style>
 <script>
-    import PictureUploader from '../PictureUploader';
-    import Modal from '../Modal';
-    import Response from '../Response';
+    import PictureUploader from '../PictureUploader.vue';
+    import Modal from '../Modal.vue';
+    import Response from '../Response.vue';
+
     export default {
         computed: {
             groupsToMove() {

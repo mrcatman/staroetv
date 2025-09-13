@@ -180,11 +180,12 @@
     }
 </style>
 <script>
-    import PictureUploader from './PictureUploader';
-    import Modal from './Modal';
-    import Response from './Response';
-    import Snackbar from './Snackbar';
-    import Datetimepicker from './Datetimepicker';
+    import PictureUploader from './PictureUploader.vue';
+    import Modal from './Modal.vue';
+    import Response from './Response.vue';
+    import Snackbar from './Snackbar.vue';
+    import Datetimepicker from './Datetimepicker.vue';
+
     export default {
         watch: {
             publishNow(isNow) {

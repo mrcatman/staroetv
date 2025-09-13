@@ -2,9 +2,6 @@
 
 namespace App\Notifications;
 
-use App\ForumMessage;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
 class NewCommentReply extends Notification

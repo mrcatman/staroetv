@@ -2,20 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\AdditionalChannel;
-use App\Channel;
-use App\ChannelName;
-use App\Genre;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\RecordsHelper;
 use App\Helpers\RegexHelper;
 use App\Helpers\ViewsHelper;
-use App\HistoryEvent;
-use App\InterprogramPackage;
-use App\Picture;
-use App\Program;
-use App\Record;
+use App\Models\AdditionalChannel;
+use App\Models\Channel;
+use App\Models\ChannelName;
+use App\Models\Genre;
+use App\Models\InterprogramPackage;
+use App\Models\Picture;
+use App\Models\Program;
+use App\Models\Record;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -30,7 +29,7 @@ class RecordsController extends Controller {
         return Cache::remember('channels_list_'.$hash, 60 * 20, function() use ($params) {
             $federal = Channel::where(['is_federal' => true])->where($params)->orderBy('order', 'ASC')->get();
 
-            $regions = json_decode(file_get_contents(public_path("data/cities.json")), 1);
+            $regions = json_decode(file_get_contents(storage_path("cities.json")), 1);
             $regions_by_city = [];
             foreach ($regions as $region => $cities) {
                 foreach ($cities as $city) {
@@ -502,7 +501,7 @@ class RecordsController extends Controller {
             $category = Genre::where(['url' => $category_url])->first();
 
             if (!$category) {
-                return redirect('https://staroetv.su/');
+                return redirect('/');
             }
             $params['other_category_id'] = $category->id;
         }
@@ -540,11 +539,11 @@ class RecordsController extends Controller {
             return view('pages.errors.banned');
         }
         if (!auth()->user()) {
-            return redirect('https://staroetv.su/');
+            return redirect('/');
         }
         $record = Record::with('channel','program', 'program.coverPicture')->find($id);
         if (!$record) {
-            return redirect('https://staroetv.su/');
+            return redirect('/');
         }
 
         if (!$record->can_edit) {
@@ -1491,7 +1490,7 @@ class RecordsController extends Controller {
             $month_records = Record::approved()->where(['is_radio' => false, 'is_advertising' => false])->where(['month' => $month])->get();
         } else {
             if ($month > 12) {
-                return redirect("https://staroetv.su/video/calendar/$year");
+                return redirect("/video/calendar/$year");
             }
             if ($month < 0) {
                 return;
@@ -1572,7 +1571,7 @@ class RecordsController extends Controller {
         $player_code = trim(view('blocks/player', ['autoplay' => true, 'record' => $record])->render());
         $share_title = $record->title_without_tags;
         $share_url = "https://staroetv.su". ($record->is_radio ? "/radio/".$record->id : "/video/".$record->id);
-        $record_info = trim(view('blocks/record_info', ['record' => $record])->render()).trim(view('blocks/share', ['share_title' => $share_title, 'share_url' => $share_url])->render());
+        $record_info = trim(view('blocks/record-info', ['record' => $record])->render()).trim(view('blocks/share', ['share_title' => $share_title, 'share_url' => $share_url])->render());
         $comments = view("blocks/comments", ['ajax' => false, 'page' =>  1, 'conditions' => ['material_type' => Record::TYPE_VIDEOS, 'material_id' => $record->id]])->render();
         return [
             'status' => 1,

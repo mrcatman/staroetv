@@ -1,10 +1,10 @@
 <?php
 namespace App\Helpers;
 
-use App\ForumMessage;
 use App\Helpers\BBCodesHelper\Element;
-use App\Picture;
-use App\Smile;
+use App\Models\ForumMessage;
+use App\Models\Picture;
+use App\Models\Smile;
 
 class BBCodesHelper {
 
@@ -259,7 +259,6 @@ class BBCodesHelper {
         } elseif ($tag == "hr") {
             return "[hr]";
         } else {
-           // dd($tag);
             return $element->getValue();
         }
        // $converter = $this->environment->getConverterByTag($tag);

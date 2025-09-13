@@ -41,12 +41,9 @@
 </style>
 <script>
     import draggable from 'vuedraggable'
-    import Response from '../Response'
+    import Response from '../Response.vue'
 
     export default {
-        computed: {
-
-        },
         methods: {
             saveOrder() {
                 this.loading = true;

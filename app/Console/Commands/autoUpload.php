@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Channel;
-use App\ChannelName;
 use App\Helpers\DatesHelper;
-use App\Picture;
-use App\Program;
-use App\Record;
-use App\User;
+use App\Models\Channel;
+use App\Models\ChannelName;
+use App\Models\Picture;
+use App\Models\Program;
+use App\Models\Record;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;

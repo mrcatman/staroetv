@@ -2,14 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\ForumMessage;
-use App\ArticleCategory;
-use App\Helpers\CSVHelper;
-use App\Questionnaire;
-use App\QuestionnaireVariant;
-use App\UserAward;
-use App\UserReputation;
-use Carbon\Carbon;
+use App\Models\ForumMessage;
+use App\Models\Questionnaire;
+use App\Models\QuestionnaireVariant;
 use Illuminate\Console\Command;
 
 class importQuestionnaires extends Command

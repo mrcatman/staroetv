@@ -1,7 +1,7 @@
 .regions {
     display: flex;
     flex-wrap: wrap;
-    margin: 1.5em 0 -1.5em;
+    margin: 1em 0;
     &__container {
         @include mobile() {
             font-size: .875em;
@@ -43,15 +43,12 @@
         font-size: 1.25em;
         &--active {
             font-weight: bold;
-            color: #fff;
         }
         &__count {
             opacity: .5;
-            margin: 0 0 0 .25em;
         }
         &--active &__count {
             opacity: 1;
-            color: var(--primary);
         }
     }
     &--active &__count {
@@ -78,8 +75,8 @@
         }
     }
     &--active {
-        background: #333;
-        color: #d6d6d6;
+        background: var(--primary);
+        color: #fff;
     }
 }
 

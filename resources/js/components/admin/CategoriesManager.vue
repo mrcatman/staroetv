@@ -17,7 +17,7 @@
                         <tr>
                             <td>Название</td>
                             <td>URL</td>
-                            <td v-show="type == 'interprogram'">Паттерн автомат. названия</td>
+                            <td v-show="type === 'interprogram'">Паттерн автомат. названия</td>
                             <td></td>
                         </tr>
                     </thead>
@@ -29,7 +29,7 @@
                             <td>
                                 <input class="input" v-model="categoriesList[$index].url"/>
                             </td>
-                            <td v-show="type == 'interprogram'">
+                            <td v-show="type === 'interprogram'">
                                 <input class="input" v-model="categoriesList[$index].name_pattern"/>
                             </td>
                             <td>
@@ -56,7 +56,7 @@
     }
 </style>
 <script>
-    import Response from '../Response';
+    import Response from '../Response.vue';
     export default {
         computed: {
 

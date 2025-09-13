@@ -31,7 +31,7 @@
         </div>
         <div class="admin-panel__main-content">
             <div class="form__preloader" v-if="table.loading">
-                <img src="/pictures/ajax.gif">
+                <img src="../../../../public/img/ajax.gif">
             </div>
             <div class="admin-panel__table-filters">
                 <div class="pager-container pager-container--light pager-container--admin-panel">
@@ -68,10 +68,10 @@
     }
 </style>
 <script>
-    import PictureUploader from '../PictureUploader';
-    import Modal from '../Modal';
-    import Response from '../Response';
-    import Snackbar from '../Snackbar';
+    import PictureUploader from '../PictureUploader.vue';
+    import Modal from '../Modal.vue';
+    import Response from '../Response.vue';
+    import Snackbar from '../Snackbar.vue';
 
     export default {
         computed: {

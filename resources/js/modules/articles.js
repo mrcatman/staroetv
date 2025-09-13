@@ -1,6 +1,7 @@
 import { showModal } from './modals';
 import replaceDom from "./replaceDom";
-let body = $('body');
+const body = $('body');
+
 $(body).on('click', '.button--delete-article', function() {
     if ($(this).data('id')) {
         $('input[name="article_id"]').val($(this).data('id'));

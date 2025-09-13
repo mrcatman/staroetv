@@ -1,12 +1,10 @@
 .comment {
-    padding: .75em 0;
     margin: 0;
     position: relative;
     &:nth-of-type(2n) {
        /* background: var(--bg-darker); */
     }
     &__inner {
-        padding: 0 1em;
         font-size: .9375rem;
         /* font-size: .875rem; */
         display: flex;
@@ -237,10 +235,6 @@
 }
 .box .comments {
     flex: 1;
-    margin: -.5rem -1rem;
-    @include light() {
-        margin: calc(.5rem + 1px) 0;
-    }
 }
 
 .comments-page .comments__pager {
@@ -250,6 +244,9 @@
 
 .comments {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
     &__preloader {
         padding: 5em 0 2.5em;
         text-align: center;
@@ -270,13 +267,10 @@
     }
     &__form {
         overflow: hidden;
-        padding: 1.25em;
         position: relative;
         border-bottom: 1px solid var(--border-color);
         @include light() {
-            background: var(--bg-darker);
-            padding: 1em;
-            margin: -1.75em 0 0;
+            border-bottom: none;
         }
         @include mobile {
             font-size: .875em;
@@ -337,18 +331,5 @@ a.comment__text {
     transition: opacity .25s;
     &:hover {
         opacity: .875;
-    }
-}
-.box--comments-main-page {
-    .comments {
-        @include light() {
-            margin: -.75rem;
-        }
-    }
-    .comment__text {
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        overflow: hidden;
     }
 }

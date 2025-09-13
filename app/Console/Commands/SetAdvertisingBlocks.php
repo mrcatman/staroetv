@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Genre;
-use App\Record;
+use App\Models\Genre;
+use App\Models\Record;
 
 use Illuminate\Console\Command;
 

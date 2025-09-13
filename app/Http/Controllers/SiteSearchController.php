@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\AdditionalChannel;
-use App\Article;
-use App\Channel;
-use App\ChannelName;
-use App\Helpers\PermissionsHelper;
-use App\Program;
-use App\Questionnaire;
-use App\QuestionnaireAnswer;
-use App\QuestionnaireVariant;
-use App\Record;
+use App\Models\Article;
+use App\Models\AdditionalChannel;
+use App\Models\Channel;
+use App\Models\ChannelName;
+use App\Models\Program;
+use App\Models\Record;
 
 class SiteSearchController extends Controller {
 

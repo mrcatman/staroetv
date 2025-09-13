@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Channel;
 use App\Helpers\PermissionsHelper;
-use App\Program;
-use App\Questionnaire;
-use App\QuestionnaireAnswer;
-use App\QuestionnaireVariant;
+use App\Models\Questionnaire;
+use App\Models\QuestionnaireAnswer;
+use App\Models\QuestionnaireVariant;
 
 class QuestionnairesController extends Controller {
 

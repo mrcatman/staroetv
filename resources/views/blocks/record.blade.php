@@ -9,7 +9,7 @@
                 @if (isset($title) && $title)
                     {!!  $title !!}
                 @else
-                    @if (request()->has('new_titles'))
+                    @if (isset($new_titles) && $new_titles)
                         {!! $record->parsed_short_description != '' ? $record->parsed_short_description : $record->title  !!}
                     @else
                         {!! $record->title  !!}
@@ -17,7 +17,7 @@
                 @endif
             @endif
         </span>
-        @if (request()->has('new_titles'))
+        @if (isset($new_titles) && $new_titles)
         <span class="record-item__broadcast-date">
             <i class="fa fa-clock"></i>
             {!! $record->broadcast_date !!}

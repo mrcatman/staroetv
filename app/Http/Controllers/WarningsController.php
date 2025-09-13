@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\PermissionsHelper;
-use App\User;
-use App\UserWarning;
+use App\Models\User;
+use App\Models\UserWarning;
 
 class WarningsController extends Controller {
 

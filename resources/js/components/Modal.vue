@@ -7,7 +7,7 @@
             <vue-draggable-resizable class="modal-window modal-window--vue" :x="x" :y="y" :w="width" :h="height" @dragging="onDrag" @resizing="onResize">
                 <div class="modal-window__inner" ref="inner">
                     <div class="form__preloader" v-show="loading">
-                        <img src="/pictures/ajax.gif"/>
+                        <img src="../../../public/img/ajax.gif"/>
                     </div>
                     <div class="modal-window__top">
                         <div class="modal-window__title">{{title}}</div>
@@ -36,10 +36,13 @@
 </style>
 <script>
     import VueDraggableResizable from 'vue-draggable-resizable'
-    import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
+   // import 'vue-draggable-resizable/dist/VueDraggableResizable.css'
 
     export default {
         props: ['title', 'loading', 'nopadding'],
+        components: {
+            VueDraggableResizable
+        },
         data () {
             return {
                 testingSizes: false,

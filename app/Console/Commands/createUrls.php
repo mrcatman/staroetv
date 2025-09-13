@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Console\Commands;
-use App\Article;
+use App\Models\Article;
 use Illuminate\Console\Command;
 
 class createUrls extends Command

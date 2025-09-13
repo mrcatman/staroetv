@@ -9,7 +9,7 @@ $(body).on('click', '.comments__pager .page-link', function(e) {
         return;
     }
     e.preventDefault();
-    $(this).parents('.comments').append('<div class="block-preloader"><img src="/pictures/ajax.gif"></div>');
+    $(this).parents('.comments').append('<div class="block-preloader"><img src="/img/ajax.gif"></div>');
     $.post('/comments/ajax', {page, conditions})
         .done((res) => {
             $(this).parents('.comments').find('.block-preloader').remove();
@@ -94,7 +94,7 @@ window.execOnMounted.push(function() {
     $('.comments--lazyload').each(function() {
           const conditions = $(this).data('conditions');
           $(this).addClass('comments--loading');
-          $(this).append('<div class="comments__preloader"><img src="/pictures/ajax.gif"></div>');
+          $(this).append('<div class="comments__preloader"><img src="/img/ajax.gif"></div>');
           $.post('/comments/ajax', {page: 1, conditions, count: true})
               .done((res) => {
                   $(this).removeClass('comments--loading');

@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Helpers\CSVHelper;
-use App\UserReputation;
+use App\Models\UserReputation;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 

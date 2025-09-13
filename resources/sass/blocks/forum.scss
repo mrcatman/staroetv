@@ -1157,25 +1157,20 @@
 
 
     .forum-topics-list {
-        height: 100%;
 
         &__item {
-            padding: 1em;
             display: flex;
             flex-direction: column;
             justify-content: center;
             border-bottom: 1px solid var(--border-color);
             text-decoration: none;
             flex: 1;
-            @include light() {
-                padding: 1em 0;
-            }
+            padding: 1em 0;
+            @include hover;
+
+
             &:last-of-type {
                 border-bottom: none;
-            }
-
-            &:hover {
-                background: var(--box-color-hover);
             }
 
             &__title {

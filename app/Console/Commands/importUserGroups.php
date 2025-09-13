@@ -2,12 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\CSVHelper;
-use App\UserAward;
-use App\UserGroup;
-use App\UserGroupConfig;
-use App\UserReputation;
-use Carbon\Carbon;
+use App\Models\UserGroupConfig;
+use App\Models\UserGroup;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 

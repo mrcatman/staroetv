@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\PermissionsHelper;
 use App\Mail\ContactMessage;
-use App\Mail\VerifyAccount;
-use App\User;
-use App\UserWarning;
+use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 

@@ -74,7 +74,7 @@
             </div>
             <div class="commercials-list-page__bottom">
                 <a class="button button--light commercials-list-page__brands" href="{{$base_link}}-search">По бренду/товару/услуге</a>
-                @include('blocks/records_list', ['class' => 'records-list__outer--full-page', 'conditions' => $records_conditions, 'title_param' => 'short_title'])
+                @include('blocks/records_list', ['conditions' => $records_conditions, 'title_param' => 'short_title'])
             </div>
 
         </div>

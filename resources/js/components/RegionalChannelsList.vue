@@ -7,10 +7,10 @@
             <div class="region region--all" :class="{'region--active': selectedRegion === null}" @click="selectedRegion = null">
                 <div class="region__name">Все</div>
             </div>
-            <div class="region" :class="{'region--active': selectedRegion === regionName}" @click="selectRegion(regionName)" v-for="(region, regionName) in data" :key="region.name">
+            <div v-if="regionName?.length" class="region" :class="{'region--active': selectedRegion === regionName}" @click="selectRegion(regionName)" v-for="(region, regionName) in data" :key="region.name">
                 <div v-if="region.channels.length > 0 || Object.keys(region.cities).length > 1" class="region__name" >
                     {{regionName}}
-                    <span class="region__count">{{region.count}}</span>
+                    <span class="region__count" v-if="region.count > 0">{{region.count}}</span>
                 </div>
                 <div class="region__cities">
                     <div :class="{'region__city--active': selectedCity === cityName}" @click.stop="selectCity(cityName, regionName)" v-for="(cityChannels, cityName) in region.cities" :key="cityName" class="region__city">
@@ -21,16 +21,13 @@
             </div>
         </div>
         <div ref="channels_list" class="channels-list">
-            <a v-for="channel in channelsList" :key="channel.id" :href="channel.url" class="channel-item" :class="{'channel-item--pending': channel.pending}">
+            <a :title="channel.name" v-for="channel in channelsList" :key="channel.id" :href="channel.url" class="channel-item" :class="{'channel-item--pending': channel.pending}">
                 <div class="channel-item__logo" :style="channel.logo ? {backgroundImage: `url(${channel.logo.url})`} : {}"></div>
                 <span class="channel-item__name">{{channel.name}}</span>
             </a>
         </div>
     </div>
 </template>
-<style lang="scss">
-
-</style>
 <script>
     export default {
         computed: {

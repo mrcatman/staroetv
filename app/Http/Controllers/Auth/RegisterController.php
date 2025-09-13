@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Mail\VerifyAccount;
-use App\User;
+use App\Models\User;
 use App\Http\Controllers\Controller;
-use App\UserMeta;
+use App\Models\UserMeta;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;

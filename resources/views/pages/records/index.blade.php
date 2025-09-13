@@ -1,13 +1,15 @@
-@extends('layouts.default')
+@extends('layouts.default', ['vue' => true])
 @section('page-title')
     {{$params['is_radio'] ? "Архив старых радиозаписей" : "Архив старых телезаписей"}}
 @endsection
 @section('content')
-    <div class="inner-page channels-list-page">
-        <div class="inner-page__header">
-            <div class="inner-page__header__title">{{$params['is_radio'] ? "Архив старых радиозаписей" : "Архив старых телезаписей"}}</div>
-            <div class="inner-page__header__right">
-                <div class="buttons-row">
+    <div class="inner-page">
+        <div class="box box--top">
+            <div class="box__heading">
+                <div class="box__heading__inner">
+                    {{$params['is_radio'] ? "Архив старых радиозаписей" : "Архив старых телезаписей"}}
+                </div>
+                <div class="box__heading__right">
                     @if (\App\Helpers\PermissionsHelper::allows('channelsown'))
                         @if ($params['is_radio'])
                             <a class="button" href="/channels/add?is_radio=1">Добавить радиостанцию</a>
@@ -16,7 +18,7 @@
                         @endif
                     @endif
 
-                @if (\App\Helpers\PermissionsHelper::allows('viadd'))
+                    @if (\App\Helpers\PermissionsHelper::allows('viadd'))
                         @if ($params['is_radio'])
                             <a class="button" href="/radio/add">Добавить радиозапись</a>
                         @else
@@ -24,9 +26,7 @@
                             <a class="button" href="/mass-upload">Массовая загрузка</a>
                         @endif
                     @endif
-
                 </div>
-
             </div>
         </div>
 
@@ -34,16 +34,13 @@
             <div class="row row--stretch">
                 <div class="col col--3">
                     <div class="box">
-                        @if ($params['is_radio'])
-                          <div class="warning-alert">Большая часть материалов была утеряна за годы неактивности радиоархива, поэтому мы особенно приветствуем любую помощь с заполнением раздела.</div>
-                        @endif
-                        @include('blocks/records_search', ['is_radio' => $params['is_radio']])
                         <div class="box__inner">
+                            @include('blocks/records_search', ['is_radio' => $params['is_radio']])
                             <div class="channels-list-page__tabs">
                                 <div class="tabs" data-id="channels">
                                     <a class="tab tab--active" data-content="federal">Федеральные</a>
-                                    <a class="tab" data-content="regional">Региональные</a>
-                                    <a class="tab" data-content="abroad">Зарубежные</a>
+                                    <a class="tab" data-content="regional">Местные</a>
+                                    <a class="tab" data-content="abroad">СНГ</a>
                                     <a class="tab" data-content="other">Другие</a>
                                 </div>
 

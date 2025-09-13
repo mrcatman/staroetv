@@ -4,7 +4,7 @@ let body = $('body');
 $(body).on('click', '.auth-panel__button--notifications, .mobile-menu__item--notifications', function() {
     $('.auth-panel__button--notifications .auth-panel__button__count, .mobile-menu__item--notifications .mobile-menu__item__count').hide();
     $('.notifications').show();
-    $('.notifications__list').html('<div class="form__preloader"><img src="/pictures/ajax.gif"></div>');
+    $('.notifications__list').html('<div class="form__preloader"><img src="/img/ajax.gif"></div>');
     $.get('/profile/notifications').done(res => {
         if (res.status) {
             replaceDom(res.data.dom);

@@ -1,4 +1,4 @@
-let bb = function() {
+const bb = function() {
     return {
         init(id) {
             this.id = id;
@@ -388,13 +388,11 @@ let bb = function() {
         }
     }
 };
-window.bbCodes = bb;
 
-window.execOnMounted.push(() => {
+const initBB = () => {
     if ($('#message').length > 0) {
-        let bb = new bbCodes();
-        window.bb = bb;
-        bb.init('message');
+        window.bb = new bb();
+        window.bb.init('message');
     }
-});
-export default bb;
+}
+window.execOnMounted.push(initBB);

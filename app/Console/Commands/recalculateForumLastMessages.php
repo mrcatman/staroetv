@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Article;
-use App\Forum;
-use App\ForumMessage;
-use App\ForumTopic;
+use App\Models\Article;
+use App\Models\Forum;
+use App\Models\ForumMessage;
+use App\Models\ForumTopic;
 use App\Helpers\CSVHelper;
 use Carbon\Carbon;
 use Illuminate\Console\Command;

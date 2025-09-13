@@ -2,13 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\CSVHelper;
-use App\Picture;
-use App\Program;
-use App\Record;
-use App\UserAward;
-use App\UserReputation;
-use Carbon\Carbon;
+use App\Models\Picture;
+use App\Models\Program;
+use App\Models\Record;
 use Illuminate\Console\Command;
 
 class removeClips extends Command

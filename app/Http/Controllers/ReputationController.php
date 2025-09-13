@@ -2,17 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Channel;
-use App\ChannelName;
-use App\Comment;
-use App\ForumMessage;
-use App\Helpers\CommentsHelper;
 use App\Helpers\PermissionsHelper;
-use App\Program;
-use App\User;
-use App\UserReputation;
-use App\Record;
-use Carbon\Carbon;
+use App\Models\ForumMessage;
+use App\Models\User;
+use App\Models\UserReputation;
 
 class ReputationController extends Controller {
 

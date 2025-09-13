@@ -3,7 +3,7 @@ const body = $('body');
 
 const loadRecords = ({container, conditions, link}) => {
 
-    $(container).append('<div class="block-preloader"><img src="/pictures/ajax.gif"></div>');
+    $(container).append('<div class="block-preloader"><img src="/img/ajax.gif"></div>');
 
     const data = Object.fromEntries(new URLSearchParams(link ? link.split('?')[1] : window.location.search));
     if (!data.sort) {

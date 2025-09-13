@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
-use App\UserGroup;
-use App\UserGroupConfig;
+use App\Models\User;
+use App\Models\UserGroupConfig;
+use App\Models\UserGroup;
 
 class UserGroupsController extends Controller {
 

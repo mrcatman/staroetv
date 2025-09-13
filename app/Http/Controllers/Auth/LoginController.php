@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Helpers\PermissionsHelper;
 use App\Http\Controllers\Controller;
-use App\User;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
@@ -29,13 +28,14 @@ class LoginController extends Controller
             //    'text' => 'Вы не подтвердили почту'
             //];
         }
-        $is_admin = PermissionsHelper::allows('admbar', $user);
-        if (!$is_admin) {
-            //return [
-             //   'status' => 0,
-             //   'text' => 'Вы не являетесь администратором сайта'
-           // ];
-        }
+
+//        $is_admin = PermissionsHelper::allows('admbar', $user);
+//        if (!$is_admin) {
+//            //return [
+//             //   'status' => 0,
+//             //   'text' => 'Вы не являетесь администратором сайта'
+//           // ];
+//        }
         if (Auth::attempt([$field => $login, 'password' => request()->input('password')], request()->has('remember'))) {
 
             return [
@@ -52,6 +52,6 @@ class LoginController extends Controller
 
     public function logout() {
         Auth::logout();
-        return redirect('https://staroetv.su/');
+        return redirect('/');
     }
 }

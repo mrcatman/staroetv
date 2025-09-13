@@ -237,10 +237,12 @@
 
 </style>
 <script>
-    import Modal from './Modal';
-    import Response from './Response';
-    import Snackbar from './Snackbar';
     import draggable from 'vuedraggable';
+
+    import Modal from './Modal.vue';
+    import Response from './Response.vue';
+    import Snackbar from './Snackbar.vue';
+
     export default {
         watch: {
             "searchPanel.search"() {

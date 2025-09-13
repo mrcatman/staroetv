@@ -1,6 +1,6 @@
 <?php
 namespace App\Helpers;
-use App\Comment;
+use App\Models\Comment;
 
 class CommentsHelper {
 

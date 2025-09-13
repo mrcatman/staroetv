@@ -343,6 +343,7 @@
     flex-wrap: wrap;
     align-items: center;
     width: 100%;
+    gap: calc(var(--col-margin) * 1.25);
     @include mobile() {
         font-size: 1em;
     }
@@ -354,34 +355,24 @@
     white-space: nowrap;
     display: inline-flex;
     align-items: center;
-    margin: 0 1.5em .5em 0;
+    gap: .5em;
+
     &__picture {
-        margin: 0 .5em 0 0;
         width: 2.5em;
         height: 2.5em;
         background-size: contain;
         background-position: center;
         background-repeat: no-repeat;
     }
-    &__text {
-        margin: 0 0 0 .5em;
-    }
 }
 a.icon-block:hover {
-    text-decoration: underline;
+    @include hover;
 }
 
 
 .generic-sidebar {
     .record-item__info {
         display: none;
-    }
-
-    .record-item {
-        width: 100%;
-        padding: .5em;
-        border-bottom: 1px solid var(--border-color);
-        font-size: .9375em;
     }
     .radio-recording__info {
         display: none;

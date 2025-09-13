@@ -3,8 +3,7 @@
     margin: 0 auto;
     z-index: 10;
     @include light() {
-        padding: 0 1em;
-        margin: 0 -2em;
+        margin-top: 1em;
     }
     &__menu {
         position: relative;
@@ -13,8 +12,7 @@
         box-shadow: var(--block-box-shadow);
         @include light() {
             box-shadow: none;
-            padding: .5em 0;
-            font-weight: 500;
+            padding: .5em 1em;
             @include mobile() {
                 padding: 1em;
             }
@@ -56,7 +54,7 @@
         @include light() {
             box-shadow: none;
             background: var(--box-color-dark);
-            padding: .5em 0;
+            padding: .5em 1em;
             @include mobile() {
                 padding: 1em;
             }
@@ -70,6 +68,7 @@
         }
 
         &__inner {
+            gap: 2em;
             position: relative;
             z-index: 1;
             display: flex;
@@ -96,13 +95,13 @@
         display: block;
         width: 4em;
         height: 4em;
-        background: url("/img/light-switch.png") no-repeat center center;
+        background: url("/resources/images/light-switch.png") no-repeat center center;
         background-size: cover;
     }
 }
 
 .theme-dark .footer__light-switch {
-    background-image: url("/img/light-switch--inactive.png");
+    background-image: url("/resources/images/light-switch--inactive.png");
 }
 
 .social-links {
@@ -117,6 +116,7 @@
         filter: brightness(1.1);
     }
     &__icon {
+        max-width: 2.5em;
         width: 2.5em;
     }
 }

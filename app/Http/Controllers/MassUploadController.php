@@ -2,26 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Channel;
-use App\ChannelName;
-use App\Genre;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\RegexHelper;
-use App\InterprogramPackage;
-use App\Picture;
-use App\Program;
-use App\Record;
-use App\VideoCut;
-use Carbon\Carbon;
+use App\Models\VideoCut;
+use App\Models\Record;
 use Illuminate\Support\Str;
-use function foo\func;
 
 class MassUploadController extends Controller {
 
 
     public function index() {
         if (!PermissionsHelper::allows('viadd')) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         $can_upload = PermissionsHelper::allows('viupload');
         return view('pages.mass-upload.index', [
@@ -137,7 +129,7 @@ class MassUploadController extends Controller {
 
     public function uploadFromDevice() {
         if (!PermissionsHelper::allows('viadd')) {
-            return redirect("https://staroetv.su/");
+            return redirect("/");
         }
         return view('pages.mass-upload.from-device');
     }

@@ -15,14 +15,6 @@
         font-size: .75em;
         display: flex;
     }
-    @include light() {
-        &:first-of-type {
-            padding-left: 0;
-        }
-        &:last-of-type {
-            padding-right: 0;
-        }
-    }
 
     &:hover {
         background: var(--box-color-hover);

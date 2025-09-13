@@ -1,10 +1,12 @@
 <div class="generic-sidebar">
     <div class="box">
-        <div class="box__heading box__heading--small">
-            Случайные записи из архива
+        <div class="box__heading">
+            <div class="box__heading__inner">
+                Случайные записи
+            </div>
         </div>
         <div class="box__inner">
-            <div class="record-page__related">
+            <div class="records-list">
                 @if (!isset($is_radio))
                     @php($is_radio = false)
                 @endif

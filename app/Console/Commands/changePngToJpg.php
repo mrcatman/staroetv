@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Picture;
-use App\Record;
+use App\Models\Picture;
+use App\Models\Record;
 use Illuminate\Console\Command;
 
 class changePngToJpg extends Command

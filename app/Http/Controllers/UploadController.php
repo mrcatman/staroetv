@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Picture;
+use App\Models\Picture;
 use Illuminate\Support\Str;
-use function GuzzleHttp\Psr7\str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
-use Intervention\Image\Exception\NotReadableException;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Laravel\Facades\Image;
+use Intervention\Image\Exceptions\DecoderException;
 
 class UploadController extends Controller
 {
@@ -75,13 +76,12 @@ class UploadController extends Controller
                 }
                 try {
                     if (!Str::endsWith($file->getClientOriginalName(), "svg")) {
-                        $picture = Image::make($file);
+                        $picture = Image::read($file);
                         if ($picture->width() > 900) {
-                            $picture->resize(900, null, function ($constraint) {
-                                $constraint->aspectRatio();
-                            });
+                            $picture->scale(900);
                         }
-                        $mime = explode("/", $picture->mime)[1];
+
+                        $mime = explode("/", $picture->origin()->mediaType())[1];
                         if ($mime == "jpeg") {
                             $mime = "jpg";
                         }
@@ -121,7 +121,7 @@ class UploadController extends Controller
                             'picture' => $picture_item
                         ]
                     ];
-                } catch (NotReadableException $e) {
+                } catch (DecoderException $e) {
                     return ['status'=>0,'text'=>'Формат картинки не распознан'];
                 }
             } else {

@@ -1,6 +1,8 @@
 @if (!isset($records_data) || !$records_data)
 @php($records_data = \App\Helpers\RecordsHelper::get($conditions))
 @endif
+@php($new_titles = isset($conditions['new_titles']) ? $conditions['new_titles'] : false)
+
 @php($hide_if_zero = isset($hide_if_zero) ? $hide_if_zero : false)
 @php($block_title = isset($block_title) ? $block_title : "Записи")
 @if (!$hide_if_zero || count($records_data['records']) > 0)

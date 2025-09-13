@@ -1,15 +1,10 @@
-import {showModal} from "./modals";
-
-let translit = require ('../translit');
-let body = $('body');
-
+import translit from '../translit'
+const body = $('body');
 $(body).on('change', '#channel_name', function() {
     let name = $(this).val();
     let transliterated = translit(name);
     $('#channel_url').val(transliterated);
 });
-
-
 
 $(body).on('click', '.channel-page__logos__list__item', function() {
     $('.channel-page__logos__list__item').removeClass('channel-page__logos__list__item--selected');

@@ -2,25 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Forum;
-use App\ForumMessage;
-use App\ForumTopic;
-use App\ForumTracking;
 use App\Helpers\BBCodesHelper;
 use App\Helpers\DatesHelper;
 use App\Helpers\ForumPaginator;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
+use App\Models\Forum;
+use App\Models\ForumMessage;
+use App\Models\ForumTopic;
+use App\Models\ForumTracking;
+use App\Models\QuestionnaireAnswer;
+use App\Models\User;
 use App\Notifications\NewForumReply;
-use App\QuestionnaireAnswer;
-use App\User;
 use Carbon\Carbon;
-use http\Message;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 
 class ForumController extends Controller {
@@ -135,7 +131,7 @@ class ForumController extends Controller {
         $forum = Forum::find($id);
         $parent_forum = Forum::find($forum->parent_id);
         if (!PermissionsHelper::checkGroupAccess('can_view', $forum)) {
-          //  return redirect('https://staroetv.su/forum');
+          //  return redirect('/forum');
         }
 
         $search = request()->input('s', '');
@@ -257,7 +253,7 @@ class ForumController extends Controller {
         if ($subforum) {
             $forum = Forum::find($subforum->parent_id);
             if (!PermissionsHelper::checkGroupAccess('can_view', $subforum)) {
-             //   return redirect('https://staroetv.su/forum');
+             //   return redirect('/forum');
             }
         }
 
@@ -266,10 +262,10 @@ class ForumController extends Controller {
 
         $topic = ForumTopic::where(['id' => $topic_id])->first();
         if (!$topic) {
-            return redirect("https://staroetv.su/forum");
+            return redirect("/forum");
         }
         if ($topic->forum_id != $forum_id) {
-            return redirect("https://staroetv.su/forum/$topic->forum_id-$topic_id-1");
+            return redirect("/forum/$topic->forum_id-$topic_id-1");
         }
         $this->updateTracking($topic);
         ViewsHelper::increment($topic, 'forum_topics', 'views_count');
@@ -344,41 +340,41 @@ class ForumController extends Controller {
     public function redirectToMessage($forum_id, $topic_id, $message_id) {
         $message_index = ForumMessage::where(['topic_id' => $topic_id])->pluck('id')->search($message_id);
         if ($message_index === false) {
-            return redirect("https://staroetv.su/forum");
+            return redirect("/forum");
         }
         $topic = ForumTopic::find($topic_id);
         if ($topic->first_message_fixed) {
             $message_index--;
         }
         $page = ceil( $message_index / $this->messages_on_page);
-        return redirect("https://staroetv.su/forum/$forum_id-$topic_id-$page#$message_id");
+        return redirect("/forum/$forum_id-$topic_id-$page#$message_id");
     }
 
     public function redirectToMessageById($message_id) {
         $message = ForumMessage::find($message_id);
         if (!$message) {
-            return redirect("https://staroetv.su/forum");
+            return redirect("/forum");
         }
         $topic = ForumTopic::find($message->topic_id);
         if (!$topic) {
-            return redirect("https://staroetv.su/forum");
+            return redirect("/forum");
         }
         $message_index = ForumMessage::where(['topic_id' => $message->topic_id])->pluck('id')->search($message_id);
         if ($message_index === false) {
-            return redirect("https://staroetv.su/forum");
+            return redirect("/forum");
         }
         if ($topic->first_message_fixed) {
             $message_index--;
         }
         $page = ceil( $message_index / $this->messages_on_page);
 
-        return redirect("https://staroetv.su/forum/".$topic->forum_id."-".$topic->id."-".$page."#".$message_id);
+        return redirect("/forum/".$topic->forum_id."-".$topic->id."-".$page."#".$message_id);
     }
 
     public function redirectToLastMessage($forum_id, $topic_id) {
         $messages = ForumMessage::where(['topic_id' => $topic_id])->pluck('id');
         if (count($messages) === 0) {
-            return redirect("https://staroetv.su/forum");
+            return redirect("/forum");
         }
         $topic = ForumTopic::find($topic_id);
         $message_id = $messages->last();
@@ -387,7 +383,7 @@ class ForumController extends Controller {
             $messages_count--;
         }
         $page = ceil( $messages_count / $this->messages_on_page);
-        return redirect("https://staroetv.su/forum/$forum_id-$topic_id-$page#$message_id");
+        return redirect("/forum/$forum_id-$topic_id-$page#$message_id");
     }
 
     public function getEditForm() {
@@ -1070,7 +1066,7 @@ class ForumController extends Controller {
     public function userMessages($user_id) {
         $user = User::find($user_id);
         if (!$user) {
-            return redirect('https://staroetv.su/forum');
+            return redirect('/forum');
         }
         $forums = Forum::all()->filter(function ($forum) {
             return PermissionsHelper::checkGroupAccess('can_view', $forum);

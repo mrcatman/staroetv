@@ -2,23 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Article;
-use App\Award;
-use App\Channel;
-use App\ChannelName;
-use App\Comment;
-use App\CommentRating;
-use App\ForumMessage;
-use App\Helpers\BBCodesHelper;
-use App\Helpers\CommentsHelper;
-use App\Helpers\PermissionsHelper;
-use App\Notifications\NewCommentReply;
-use App\Notifications\NewForumReply;
-use App\Program;
-use App\Record;
-use App\User;
-use App\UserReputation;
-use Carbon\Carbon;
+use App\Models\Article;
+use App\Models\Award;
+use App\Models\Comment;
+use App\Models\ForumMessage;
+use App\Models\Record;
+use App\Models\User;
+use App\Models\UserReputation;
 use Illuminate\Support\Facades\DB;
 
 class TopListController extends Controller {
