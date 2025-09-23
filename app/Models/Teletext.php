@@ -12,8 +12,11 @@ class Teletext extends Model {
 
     use HasChannel;
 
-    protected $guarded = [];
+
     public $table = 'teletext';
+
+    protected $guarded = [];
+    const TYPE_TELETEXT = 11;
 
     protected $casts = [
         'date' => 'date',
@@ -30,6 +33,26 @@ class Teletext extends Model {
     public function getUrlAttribute()
     {
         return "/teletext/" . $this->id;
+    }
+
+    public function comments() {
+        return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => self::TYPE_TELETEXT]);
+    }
+
+    public function user() {
+        return $this->belongsTo(User::class, 'author_id', 'id');
+    }
+
+    public function coverPicture() {
+        return $this->hasOne(Picture::class, 'id', 'cover_id');
+    }
+
+    public function getCoverAttribute() {
+        if ($this->coverPicture) {
+            return $this->coverPicture->url;
+        }
+
+        return "/pictures/unknown.png";
     }
 
     public function channel() {

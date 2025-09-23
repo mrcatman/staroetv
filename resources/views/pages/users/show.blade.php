@@ -181,11 +181,11 @@
         <div class="box">
             <a href="/users/{{$user->id}}/radio" class="box__heading">
                 <div class="box__heading__inner">
-                    Радиозаписи пользователя <span class="box__heading__count">{{$radio_recordings}}</span>
+                    Радиозаписи пользователя <span class="box__heading__count">{{$radio_recordings_count}}</span>
                 </div>
             </a>
             <div class="box__inner">
-                <div class="videos-list">
+                <div class="records-list">
                     @foreach ($radio_recordings as $record)
                         @include('blocks/radio_recording', ['record' => $record])
                     @endforeach

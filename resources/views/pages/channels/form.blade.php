@@ -1,17 +1,22 @@
 @extends('layouts.default', ['vue' => true])
 @section('content')
     <form class="form box" method="POST">
-        <div class="breadcrumbs">
-            <a class="breadcrumbs__item" href="{{$is_radio ? "/radio" : "/video"}}">Архив</a>
-            @if ($channel)
-                <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
-                <a class="breadcrumbs__item breadcrumbs__item--current">Редактировать</a>
-            @else
-                <a class="breadcrumbs__item breadcrumbs__item--current">{{$is_radio ? "Новая радиостанция" : "Новый канал"}}</a>
-            @endif
+        <div class="box__breadcrumbs">
+            <div class="breadcrumbs">
+                <a class="breadcrumbs__item" href="{{$is_radio ? "/radio" : "/video"}}">Архив</a>
+                @if ($channel)
+                    <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
+                    <a class="breadcrumbs__item breadcrumbs__item--current">Редактировать</a>
+                @else
+                    <a class="breadcrumbs__item breadcrumbs__item--current">{{$is_radio ? "Новая радиостанция" : "Новый канал"}}</a>
+                @endif
+            </div>
         </div>
+
         <div class="box__heading">
-            {{ $is_radio ? ($channel ? "Редактировать радиостанцию: ".$channel->name : "Добавить радиостанцию") : ($channel ? "Редактировать канал: ".$channel->name : "Добавить канал") }}
+            <div class="box__heading__inner">
+                {{ $is_radio ? ($channel ? "Редактировать радиостанцию: ".$channel->name : "Добавить радиостанцию") : ($channel ? "Редактировать канал: ".$channel->name : "Добавить канал") }}
+            </div>
         </div>
         <input type="hidden" name="is_radio" value="{{$is_radio ? 1 : 0}}"/>
         <div class="box__inner">
@@ -69,14 +74,17 @@
                     </label>
                 </div>
             </div>
-            <div class="input-container">
 
+            <!--
+            <div class="input-container">
                 <label class="input-container__label">Фон для общей страницы</label>
                 <div class="input-container__inner">
                     <input class="input" name="background"  value="{{$channel ? $channel->background : ""}}"/>
                     <span class="input-container__message"></span>
                 </div>
             </div>
+            -->
+
             <div class="input-container">
                 <label class="input-container__label">История названий</label>
                 <div class="input-container__inner">
@@ -89,9 +97,12 @@
         @csrf
     </form>
     @if ($channel)
-    <form class="form box" action="/channels/merge" method="POST">
+    <form data-confirm="1" data-confirm-text="Вы уверены? Страница канала будет удалена, а все передачи и записи перейдут в выбранный вами" class="form box" action="/channels/merge" method="POST">
         <div class="box__heading">
-            Объединить канал
+            <div class="box__heading__inner">
+                Объединить каналы
+            </div>
+
         </div>
         <div class="box__inner">
             <input value="{{$channel->id}}" type="hidden" name="original_id" />

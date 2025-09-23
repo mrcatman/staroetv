@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\HTMLHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
 use App\Models\AdditionalChannel;
@@ -29,10 +30,11 @@ class ProgramsController extends Controller {
             $programs = $programs->where(['genre_id' => $category->id]);
             $page_title = $category->name;
         }
-        $program_ids = $programs->orderBy('records_count', 'desc')->pluck('id');
+        $program_ids = $programs->pluck('id');
 
-        $programs = $programs->orderBy('records_count', 'desc')->limit(15)->get();
+        $programs = $programs->orderBy('views', 'desc')->limit(20)->get();
         $records_conditions = [
+            'show_years' => true,
             'is_radio' => $is_radio,
             'is_interprogram' => false,
             'program_id_in' => $program_ids
@@ -56,14 +58,14 @@ class ProgramsController extends Controller {
             $programs = $programs->where(['genre_id' => $category->id]);
         }
 
-        $programs = $programs->orderBy('records_count', 'desc')->get();
-        $programs = $programs->slice(12);
+        $programs = $programs->orderBy('views', 'desc')->get();
+        $programs = $programs->slice(20);
         return [
             'status' => 1,
             'data' => [
                 'dom' => [
                     [
-                        'replace' => '.programs-list--all',
+                        'replace' => '.programs-list',
                         'html' => view("blocks/programs_list", ['programs' => $programs])->render()
                     ],
                     [
@@ -111,8 +113,15 @@ class ProgramsController extends Controller {
                 }
             }
         }
+
+        $related_programs = [];
+        if ($program->genre_id) {
+            $related_programs = Program::where(['channel_id' => $channel->id, 'genre_id' => $program->genre_id])->where('id', '!=', $program->id)->inRandomOrder()->limit(10)->get();
+        }
+
         return view("pages.programs.show", [
             'program' => $program,
+            'related_programs' => $related_programs,
             'unknown' => $unknown,
             'channel' => $channel,
             'records_conditions' => $conditions,
@@ -227,6 +236,10 @@ class ProgramsController extends Controller {
         } else {
             $data['date_of_closedown'] = null;
         }
+        if (isset($data['description'])) {
+            $data['description'] = HTMLHelper::sanitize($data['description']);
+        }
+
         $program->fill($data);
         $program->author_id = auth()->user()->id;
         $program->save();

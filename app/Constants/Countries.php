@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers\Constants;
+namespace App\Constants;
 
 class Countries
 {

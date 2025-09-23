@@ -28,6 +28,8 @@
     &--dark {
         background: var(--box-color-dark)!important;
         color: var(--box-text-color-dark);
+        --box-color-hover: var(--box-color-hover-dark);
+        --links-color: var(--box-text-color-dark);
     }
 
     &--stretch {
@@ -39,26 +41,26 @@
     }
 
     &__heading {
-        min-height: 1.75rem;
+        min-height: 2em;
         text-align: left;
-        font-size: 1.25rem;
         display: flex;
         text-decoration: none;
         align-items: center;
         justify-content: space-between;
-        border: none;
+        gap: var(--col-margin);
         border-bottom: 1px solid var(--border-color);
-        padding: 1rem 1rem 0.75rem;
-        white-space: nowrap;
+        padding: 1em;
         text-overflow: ellipsis;
-        transition: all .25s;
+
         @include light() {
-            min-height: 2em;
-            padding: 1em;
+
             position: relative;
             border-bottom: none;
             align-items: center;
-            font-size: 1em;
+
+            @include mobile {
+                align-items: flex-start;
+            }
             &:after {
                 content: '';
                 display: block;
@@ -71,18 +73,22 @@
                 opacity: .5;
             }
         }
+        &__buttons {
+            flex: 1;
+        }
         &__inner {
             max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
             @include light() {
-                width: 100%;
                 line-height: 1;
                 display: flex;
                 align-items: center;
                 font-weight: 600;
                 font-size: 1.625em;
+                @include mobile {
+                    font-size: 1.3125em;
+                }
             }
+
             strong {
                 color: var(--primary);
             }
@@ -91,17 +97,12 @@
             }
         }
         @include mobile {
-            overflow: auto;
             align-items: flex-start;
-            font-size: 1.125em;
             flex-direction: column;
         }
         &__right {
-            .buttons-row {
-                @include light() {
-                    margin: 0 0 .5em;
-                }
-            }
+            margin-left: auto;
+            white-space: nowrap;
             &:empty {
                 display: none;
             }

@@ -7,7 +7,7 @@ const loadRecords = ({container, conditions, link}) => {
 
     const data = Object.fromEntries(new URLSearchParams(link ? link.split('?')[1] : window.location.search));
     if (!data.sort) {
-        data.sort = $(container).find('.records-list__sort__item--active').data('sort');
+        data.sort = $(container).find('.records-list__sort__items .top-list__item--active').data('sort');
     }
     if (!data.sort) {
         data.sort = $('.records-list__sort__mobile option:selected').val();
@@ -15,12 +15,11 @@ const loadRecords = ({container, conditions, link}) => {
     if (!data.page) {
         data.page = 1;
     }
-    if (!data.search) {
-        const search = $(container).find('.records-list__sort__search input').val();
-        if (search && search.trim().length) {
-            data.search = search;
-        }
-    }
+    //if (!data.search) {
+       // if (search && search.trim().length) {
+            data.search = $(container).find('.records-list__sort__search input').val();
+        //}
+    //}
     if (!data.year) {
         const year = $('.records-list__years').find('.top-list__item--active').data('year');
         if (year && parseInt(year) > 0) {

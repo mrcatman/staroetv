@@ -1,17 +1,13 @@
 .regions {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
+    gap: .75em 0;
     margin: 1em 0;
+
     &__container {
         @include mobile() {
             font-size: .875em;
-        }
-    }
-    &__search {
-        padding: 1.5em 0 0;
-        font-size: 1.25em;
-        .input {
-            width: calc(100% - 1.5em);
         }
     }
 }
@@ -19,11 +15,23 @@
 .region {
     display: flex;
     align-items: center;
-    margin: 0 .75em .75em 0;
     background: var(--bg-darker);
     padding: .5em .75em;
-    border-radius: .25em;
+    border-top-left-radius: .5em;
+    border-bottom-left-radius: .5em;
     flex-wrap: wrap;
+    &--active {
+        background: var(--bg-darker-2);
+    }
+    &--all {
+        border-top-right-radius: .5em;
+        border-bottom-right-radius: .5em;
+        margin-right: .75em;
+    }
+
+    &--parent-active {
+        color: var(--primary);
+    }
 
     &__name {
         font-size: 1.25em;
@@ -40,20 +48,26 @@
 
     &__city {
         cursor: pointer;
-        font-size: 1.25em;
+        font-size: 1.125em;
+        background: var(--bg-darker);
+        padding: .5em .75em;
+        &--first {
+
+        }
+        &--last {
+            border-top-right-radius: .5em;
+            border-bottom-right-radius: .5em;
+            margin-right: .75em;
+        }
+        &--parent-active {
+            background: var(--bg-darker-2);
+        }
+
         &--active {
-            font-weight: bold;
-        }
-        &__count {
-            opacity: .5;
-        }
-        &--active &__count {
-            opacity: 1;
+            color: var(--primary);
         }
     }
-    &--active &__count {
-        color: var(--primary);
-    }
+
 
     &__name + &__cities &__city {
         font-size: 1em;
@@ -74,9 +88,6 @@
             width: 0;
         }
     }
-    &--active {
-        background: var(--primary);
-        color: #fff;
-    }
+
 }
 

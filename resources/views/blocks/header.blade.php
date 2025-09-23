@@ -110,7 +110,7 @@
             <a class="site-search__close">
                 <i class="fa fa-times"></i>
             </a>
-            <div class="site-search__top search-input-container">
+            <div class="site-search__top">
                 <input class="input site-search__input" placeholder="Поиск по сайту...">
             </div>
             <div class="site-search__results">

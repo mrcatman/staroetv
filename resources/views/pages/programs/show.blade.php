@@ -54,6 +54,7 @@
                             @if($program->cover_without_empty)
                                 <img class="program-page__logo" src="{{$program->cover_without_empty}}">
                             @endif
+                            <div class="program-page__texts">
                                 @if (count($program->unique_names) > 0)
                                     <div class="program-page__names">
                                         <strong>Также известна как:</strong>
@@ -61,7 +62,7 @@
                                     </div>
                                 @endif
                                 @if (!$unknown)
-                                    <div class="program-page__channels">
+                                    <div class="program__channels program-page__channels">
                                         @foreach ($program->channels_history as $program_channel)
                                             <a href="{{$program_channel['url']}}" class="program__channel__name">
                                                 @if ($program_channel['logo'])
@@ -73,12 +74,14 @@
                                         @endforeach
                                     </div>
                                 @endif
+                            </div>
+
                         </div>
-                        <div class="program-page__info">
+                        <div class="program-page__description channel-page__description">
                             @if ($program->description != "")
-                                {!! $program->description !!}
+                                <div class="channel-page__description__text">{!! $program->description !!}</div>
                             @else
-                                <div class="program-page__no-description">Описание программы еще не заполнено</div>
+                                <div class="channel-page__no-description program-page__no-description">Описание программы еще не заполнено</div>
                             @endif
 
                         </div>
@@ -144,6 +147,22 @@
                 </div>
             </div>
             <div class="col col--sidebar">
+                @if (count($related_programs) > 0)
+                    <div class="box">
+                        <div class="box__heading">
+                            <div class="box__heading__inner">
+                                Похожие передачи
+                            </div>
+                        </div>
+                        <div class="box__inner">
+                            <div class="records-list">
+                                @foreach ($related_programs as $program)
+                                    @include('blocks/record', ['record' => $program, 'title' => $program->name, 'hide_info' => true])
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
                 @include('blocks/generic_sidebar', ['hide_articles' => true, 'is_radio' => $channel ? $channel->is_radio : false])
             </div>
         </div>

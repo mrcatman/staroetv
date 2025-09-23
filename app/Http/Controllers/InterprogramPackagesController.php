@@ -16,15 +16,40 @@ use Carbon\Carbon;
 class InterprogramPackagesController extends Controller
 {
 
+    public function index() {
+        $channel_ids = $this->getChannelsInternalOrder();
+        $packages = InterprogramPackage::whereIn('channel_id', $channel_ids)->orderByRaw('FIELD(channel_id, '.implode(',', $channel_ids->toArray()).' )')->get()->groupBy('channel_id');
+        $new_list = [];
+        foreach ($packages as &$packages_list) {
+            $new_list[] = $packages_list->sortBy('date_start');
+        }
+
+        return view("pages.records.graphics-v2", [
+            'packages' => $new_list,
+        ]);
+    }
+
+    public function program() {
+        $channel_ids = $this->getChannelsInternalOrder();
+        $program_ids = Record::whereNotNull('program_id')->where(['is_interprogram' => true])->pluck('program_id');
+        $programs = Program::whereIn('channel_id', $channel_ids)->orderByRaw('FIELD(channel_id, '.implode(',', $channel_ids->toArray()).' )')->whereIn('id', $program_ids)->get()->groupBy('channel_id');
+        //$program_packages = InterprogramPackage::whereNotNull('program_id')->pluck('program_id');
+        //$programs_with_packages = Program::whereIn('channel_id', $channel_ids)->whereIn('id', $program_packages)->get();
+
+        return view("pages.records.graphics_programs", [
+            'programs' => $programs,
+        ]);
+    }
+
+
+
     public function show($channel_url, $package_url)
     {
         $channel = Channel::where(['url' => $channel_url])->orWhere(['id' => $channel_url])->first();
         if (!$channel) {
             return redirect("/");
         }
-        $base_link = null;
-        $related = null;
-        $records_with_annotations = null;
+        $annotations = [];
         $hide_unsorted = request()->input('hide_unsorted', true);
 
         if ($package_url == "other") {
@@ -60,40 +85,57 @@ class InterprogramPackagesController extends Controller
                 $q->orWhere(['url' => $package_url]);
             })->first();
             if (!$package) {
-                return redirect("/video");
+                return redirect($channel->full_url);
             }
             $base_link = $package->full_url;
 
             ViewsHelper::increment($package, 'interprogram');
             $related = InterprogramPackage::where(['channel_id' => $channel->id])->where('id', '!=', $package->id)->inRandomOrder()->limit(5)->get();
-            $records = $package->records->map(function ($record) {
-                return [
-                    'order' => $record->internal_order,
-                    'is_annotation' => false,
-                    'data' => $record
-                ];
-            });
-            $annotations = $package->annotations->map(function ($annotation) {
-                return [
-                    'order' => $annotation->order,
-                    'is_annotation' => true,
-                    'data' => $annotation
-                ];
-            });
+
+            $records = $package->records;
             if ($hide_unsorted) {
                 $records = $records->filter(function ($record) use ($types_to_hide) {
-                    return !in_array($record['data']->interprogram_type, $types_to_hide);
+                    return !in_array($record->interprogram_type, $types_to_hide);
                 });
             }
-            $records_with_annotations = $annotations->merge($records)->sortBy('order');
 
-        }
-        if (!$package) {
-            return redirect($channel->full_url);
+//            $records = $records->map(function ($record) {
+//                return [
+//                    'order' => $record->internal_order,
+//                    'is_annotation' => false,
+//                    'data' => $record
+//                ];
+//            });
+
+            $annotations = $package->annotations;
+            $annotations = $annotations->map(function ($annotation, $index) use ($annotations, $records) {
+                return [
+                    'annotation' => $annotation,
+                    'records' => $records->filter(function($record) use ($annotations, $annotation, $index) {
+                        return $record->internal_order > $annotation->order && (!isset($annotations[$index + 1]) || $record->internal_order < $annotations[$index + 1]->order);
+                    })
+                ];
+            });
+
+            if (count($annotations) > 0) {
+                $annotations->push([
+                    'annotation' => null,
+                    'records' => $records->filter(function ($record) use ($annotations) {
+                        return $record->internal_order > $annotations[count($annotations) - 1]['annotation']->order;
+                    })
+                ]);
+            }
+
+            $annotations->push([
+                'annotation' => null,
+                'records' => $records->filter(function($record) use ($annotations) {
+                    return count($annotations) == 0 || $record->internal_order < $annotations[0]['annotation']->order;
+                })
+            ]);
         }
 
         return view('pages.graphics.show', [
-            'records_with_annotations' => $records_with_annotations,
+            'annotations' => $annotations,
             'hide_unsorted' => $hide_unsorted,
             'base_link' => $base_link,
             'related' => $related,
@@ -457,4 +499,12 @@ class InterprogramPackagesController extends Controller
             'packages' => $packages
         ]);
     }
+
+    private function getChannelsInternalOrder($start_params) {
+        $federal_channel_ids = Channel::where($start_params)->where(['is_federal' => true])->orderBy('order', 'asc')->pluck('id');
+        $other_channel_ids = Channel::where($start_params)->where(['is_federal' => false, 'is_regional' => false])->orderBy('order', 'asc')->pluck('id');
+        $regional_channel_ids = Channel::where($start_params)->where(['is_regional' => true])->orderBy('order', 'asc')->pluck('id');
+        return $federal_channel_ids->merge($other_channel_ids)->merge($regional_channel_ids);
+    }
+
 }

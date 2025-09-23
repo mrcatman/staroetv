@@ -112,7 +112,7 @@ class ArticlesController extends Controller {
         ViewsHelper::increment($article, 'articles');
         $show_actions_panel = auth()->user() && auth()->user()->group_id > 2 && auth()->user()->group_id < 255;
 
-        return view("pages.article", [
+        return view("pages.articles.show", [
             'show_actions_panel' => $show_actions_panel,
             'article' => $article,
             'see_also' => $see_also
@@ -238,7 +238,7 @@ class ArticlesController extends Controller {
         $can_add = PermissionsHelper::allows('nwadd');
 
         $show_actions_panel = auth()->user() && auth()->user()->group_id > 2 && auth()->user()->group_id < 255;
-        return view("pages.articles", [
+        return view("pages.articles.index", [
             'tag' => $tag,
             'tags' => $tags,
             'search' => $search,
@@ -255,7 +255,7 @@ class ArticlesController extends Controller {
             return view('pages.errors.banned');
         }
         if (PermissionsHelper::allows('nwadd')) {
-            return view("pages.forms.articles", [
+            return view("pages.articles.form", [
                 'article' => null,
             ]);
         } else {
@@ -307,7 +307,7 @@ class ArticlesController extends Controller {
             $crossposts = $this->getCrossposts($article);
             $networks = $this->getCrosspostNetworks();
         }
-        return view("pages.forms.articles", [
+        return view("pages.articles.form", [
             'networks' => $networks,
             'crossposts' => $crossposts,
             'article' => $article,

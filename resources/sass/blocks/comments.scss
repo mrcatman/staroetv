@@ -229,10 +229,7 @@
         text-decoration: underline;
     }
 }
-.box--comments {
-    margin: calc(var(--col-margin) *2 ) 0 0;
-    height: auto!important;
-}
+
 .box .comments {
     flex: 1;
 }
@@ -246,16 +243,16 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 1em;
+    gap: var(--col-margin);
     &__preloader {
         padding: 5em 0 2.5em;
         text-align: center;
     }
     &__list {
-        margin: 0 0 -1em;
-        &:empty {
-            margin: -2em 0 0;
-        }
+        margin-top: 1em;
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
     }
 
     &__pages {

@@ -1,0 +1,108 @@
+@extends('layouts.default')
+@section('head')
+    <meta property="og:title" content="{{$article->title}}"/>
+    <meta property="og:description" content="{{$article->short_content}}"/>
+    <meta property='og:type' content="article"/>
+    @if ($article->cover_url != "")
+        <meta property="og:image" content="{{asset($article->cover_url)}}"/>
+    @endif
+@endsection
+@section('page-title')
+    {{$article->title}}
+@endsection
+@section('content')
+
+    <div class="row row--stretch">
+        <div class="col col--2">
+            <div class="row row--vertical">
+                <div class="box">
+                    <div class="box__inner">
+                        <div class="article-page">
+                            <div class="article-page__title">
+                                {{$article->title}}
+                            </div>
+                            @if ($article->cover_url != "")
+                                <img class="article-page__picture" src="{{$article->cover_url}}">
+                            @endif
+                            <div class="icon-blocks">
+                            <span class="icon-block"><i class="fa fa-calendar"></i><span
+                                    class="icon-block__text">{{$article->created_at}}</span></span>
+                                <span class="icon-block"><i class="fa fa-eye"></i><span
+                                        class="icon-block__text">{{$article->views}}</span></span>
+                                @if ($article->user)
+                                    <a href="{{$article->user->url}}" class="icon-block"><i class="fa fa-user"></i><span
+                                            class="icon-block__text">{{$article->user->username}}</span></a>
+                                @else
+                                    <span class="icon-block"><i class="fa fa-user"></i><span
+                                            class="icon-block__text">{{$article->username}}</span></span>
+                                @endif
+                                @if ($article->source != '')
+                                    <a target=_blank href="{{$article->source}}" class="icon-block"><i
+                                            class="fa fa-link"></i><span
+                                            class="icon-block__text">{{$article->source}}</span></a>
+                                @endif
+
+                            </div>
+
+                            <div class="tags-list">
+                                @foreach ($article->tags as $tag)
+                                    <a href="/articles?tag={{$tag->url}}" class="tags-list__item">{{$tag->name}}</a>
+                                @endforeach
+                            </div>
+
+                            @if ($show_actions_panel)
+                                <span data-id="{{$article->id}}"
+                                      class="button button--light button--dropdown  button--article-menu">
+                        <span class="button--dropdown__text">Действия</span>
+                         <span class="button--dropdown__icon">
+                             <i class="fa fa-chevron-down"></i>
+                         </span>
+                         <div class="button--dropdown__list" id="actions_list_{{$article->id}}"></div>
+                     </span>
+
+                            @endif
+
+                            <div class="inner-page__text">
+                                {!! $article->fixed_content !!}
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+                @include('blocks/comments', ['ajax' => false, 'lazyload' => true, 'page' => 1, 'conditions' => ['material_type' => $article->type_id ? $article->type_id : 1, 'material_id' => $article->original_id]])
+            </div>
+        </div>
+        <div class="col">
+            <div class="box">
+                <div class="box__heading">
+                    <div class="box__heading__inner">
+                        Поиск по разделу
+                    </div>
+                </div>
+                <div class="box__inner">
+                    <form action="/articles" class="small-search-form">
+                        @csrf
+                        <input class="input" name="search" placeholder="Поиск">
+                        <button class="button" type="submit">Найти</button>
+                    </form>
+                </div>
+            </div>
+            <div class="box">
+                <div class="box__heading">
+                    <div class="box__heading__inner">
+                        Смотрите также
+                    </div>
+                </div>
+                <div class="box__inner">
+                    <div class="see-also">
+                        @foreach ($see_also as $see_also_item)
+                            @include('blocks/article_small', ['article' => $see_also_item])
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+@endsection

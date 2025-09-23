@@ -28,7 +28,7 @@
         @include('blocks/header')
         <div class="content">
             <div id="app" class="content">
-                <div class="container @yield('container-class')" id="pjax-container">
+                <div class="container inner-page @yield('container-class')" id="pjax-container">
                     @endif
 
                     <div id="pjax-content" data-vue="{{isset($vue) && $vue ? 1 : 0}}">

@@ -11,6 +11,7 @@ trait HasChannel {
 
     public function getChannelNameDataAttribute()
     {
+        $name = null;
         if ($this->_channel_name_data) {
             return $this->_channel_name_data;
         }

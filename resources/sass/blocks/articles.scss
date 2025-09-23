@@ -408,13 +408,6 @@
     }
 }
 
-
-.inner-page--article {
-    &__bottom {
-        margin: 1em 0 0;
-    }
-}
-
 .news-blocks-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
@@ -516,6 +509,21 @@
 }
 
 
+.article-page {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--col-margin);
+
+    &__title {
+        font-size: 2.25em;
+        font-weight: 600;
+    }
+
+    &__picture {
+        width: 100%;
+    }
+}
 
 .tags-list {
     margin: .5em 0;
@@ -529,8 +537,4 @@
             filter: brightness(1.025);
         }
     }
-}
-
-.articles-page__categories-list {
-    margin: -1em 0 0;
 }

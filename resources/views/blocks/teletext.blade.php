@@ -1,7 +1,5 @@
 <a href="{{$teletext->url}}" class="record-item teletext-item @if ($teletext->pending) record-item--pending @endif">
-    <div class="record-item__cover teletext-item__cover">
-        {!! $teletext->cover_html !!}
-    </div>
+    <div class="record-item__cover teletext-item__cover" style="background-image: url('{{$teletext->cover}}')"></div>
     <div class="record-item__texts">
         <span class="record-item__title">
             {{$teletext->title}}

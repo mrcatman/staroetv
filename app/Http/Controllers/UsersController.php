@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 
+use App\Constants\Countries;
 use App\Helpers\BBCodesHelper;
-use App\Helpers\Constants\Countries;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use App\Mail\ChangeEmail;

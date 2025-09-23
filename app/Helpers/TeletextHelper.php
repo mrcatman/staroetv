@@ -37,7 +37,7 @@ class TeletextHelper {
     }
 
 
-    private static function processPage(Teletext $teletext, string $page): void
+    public static function processPage(Teletext $teletext, string $page): void
     {
         $dir = '/teletext/'.$teletext->id.'/'.$page.'.html';
         $temp_path = Storage::disk('temp')->path($dir);
@@ -47,7 +47,8 @@ class TeletextHelper {
 
         libxml_use_internal_errors(true);
         $doc = new \DOMDocument();
-        $doc->loadHTML(file_get_contents($temp_path));
+        $content = file_get_contents($temp_path);
+        $doc->loadHTML($content);
         $body = $doc->getElementsByTagName('body')[0];
 
         $links = $doc->getElementsByTagName('a');

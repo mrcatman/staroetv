@@ -438,20 +438,17 @@
     }
 
     &__link {
-        font-size: 1.5em;
+        font-size: 1.25em;
         text-decoration: none;
-        border-bottom: 1px solid var(--border-color);
         padding: .5em;
+        @include hover;
         @include mobile() {
             font-size: 1em;
         }
-        &--active, &-active:hover {
+        &--active {
             background: var(--bg-darker-2);
         }
 
-        &:hover {
-            background: var(--box-color-hover);
-        }
     }
 
     &__row {

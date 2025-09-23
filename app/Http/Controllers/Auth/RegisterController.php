@@ -45,10 +45,17 @@ class RegisterController extends Controller
                 Cache::put("recaptcha_" . $recaptcha_response, 1, 600);
             }
         }
+        if (!request()->input('rules')) {
+            return [
+                'status' => 0,
+                'text' => 'Почитайте правила сайта, пожалуйста!',
+            ];
+        }
         $data = request()->validate([
             'username' => ['required', 'string', 'max:255', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'rules' => ['accepted']
         ]);
 
 

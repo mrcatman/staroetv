@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\Constants\Countries;
-use App\Helpers\Constants\Permissions;
+use App\Constants\Permissions;
 use App\Helpers\PermissionsHelper;
 use App\Models\Article;
 use App\Models\Channel;

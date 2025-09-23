@@ -5,10 +5,13 @@
 @section('content')
     <form class="form box" action="{{$article ? "/articles/edit/".$article->id : "/articles/add"}}" method="POST">
         <div class="box__heading">
-            {{$article ? "Редактировать публикацию" : "Добавить публикацию"}}
+            <div class="box__heading__inner">
+                {{$article ? "Редактировать публикацию" : "Добавить публикацию"}}
+            </div>
+
             <div class="box__heading__right">
                 @if ($article)
-                    <a href="{{$article->full_url}}" class="box__heading__link">Назад</a>
+                    <a href="{{$article->full_url}}" class="button button--light">Назад</a>
                 @endif
             </div>
         </div>

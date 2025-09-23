@@ -24,6 +24,15 @@ class Program extends Model {
         return $this->belongsTo(Channel::class);
     }
 
+    public function comments() {
+        return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => self::TYPE_PROGRAMS]);
+    }
+
+    public function genre()
+    {
+        return $this->belongsTo(Genre::class);
+    }
+
     public function getNameAttribute() {
         return str_replace("&quot;", "", $this->attributes['name']);
     }
@@ -95,9 +104,11 @@ class Program extends Model {
 
     public function getChannelsHistoryAttribute()
     {
-        return Cache::remember('programs_channels___names_' . $this->id, 1800, function () {
+        return Cache::remember('programs_channels_names_' . $this->id, 1800, function () {
+            $used_channel_ids = [];
             $channels = [];
             if ($this->channel) {
+                $used_channel_ids[] = $this->channel->id;
                 $date_start = $this->date_of_start;
                 $date_end = $this->date_of_closedown;
                 if ($date_end && count($this->additionalChannels) > 0) {
@@ -125,7 +136,8 @@ class Program extends Model {
                 ];
             }
             foreach ($this->additionalChannels as $additional_channel) {
-                if ($additional_channel->channel) {
+                if ($additional_channel->channel && !in_array($additional_channel->channel_id, $used_channel_ids)) {
+                    $used_channel_ids[] = $additional_channel->channel_id;
                     $channels[] = [
                         'url' => $additional_channel->channel->full_url,
                         'id' => $additional_channel->channel_id,

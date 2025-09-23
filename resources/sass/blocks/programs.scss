@@ -56,10 +56,9 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: .5em;
+        gap: .5em 1em;
         font-size: .875em;
         align-items: center;
-
     }
 
 
@@ -69,10 +68,12 @@
             margin: 0 .5em 0 0;
         }
         &__name {
+            @include hover;
             display: flex;
             align-items: center;
             font-size: 1.125em;
             text-decoration: none;
+            text-align: center;
         }
     }
 
@@ -89,46 +90,28 @@
     @include light() {
         padding: 0;
     }
+    &--with-show-all {
+        padding-bottom: 2.75em!important;
+    }
     &__show-all {
         position: absolute;
+        z-index: 10;
         bottom: 0;
         background: linear-gradient(180deg, rgba(255, 255, 255, 0), var(--box-color) 75%);
         left: 0;
         width: 100%;
         text-align: center;
-        padding: 3em 0 1em;
+        padding-top: 2em;
     }
 }
 
 .program-page {
-    &__info {
-        font-family: var(--font-texts);
-        line-height: 1.6;
-        p {
-            margin: 1em 0 0;
-        }
-    }
-
     &__logo {
         max-width: 25%;
-        margin: 0 1.5em 0 0;
-    }
-
-    &__no-description {
-        font-size: 1.25em;
-        color: #aaa;
-        font-family: var(--font-texts);
-        @include mobile {
-            font-size: 1em;
-        }
+        margin: 0 1em 1em 0;
     }
     &__channels {
-        display: flex;
-        flex-wrap: wrap;
+        font-size: 1.125em;
         margin: 1em 0 0;
-
-        .program__channel__name {
-            margin: 0 1em 0 0;
-        }
     }
 }

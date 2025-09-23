@@ -20,10 +20,7 @@
                         <div class="box__inner">
                             <div class="programs-list">
                                 @foreach ($programs_list as $program)
-                                    <div class="program">
-                                        <a href="{{$program->full_url}}/graphics" class="program__cover" style="background-image: url({{$program->cover_url}})"></a>
-                                        <a href="{{$program->full_url}}/graphics" class="program__name">{{$program->name}}</a>
-                                    </div>
+                                    @include('blocks.program', ['url' => $program->full_url.'/graphics'])
                                 @endforeach
 
                             </div>

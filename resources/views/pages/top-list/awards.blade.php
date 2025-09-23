@@ -2,7 +2,10 @@
 @section('content')
     <div class="box">
         <div class="box__heading">
-           Рейтинг активности пользователей по разделам
+            <div class="box__heading__inner">
+                Рейтинг активности пользователей по разделам
+            </div>
+
         </div>
         <div class="box__inner">
             <div class="users-top">

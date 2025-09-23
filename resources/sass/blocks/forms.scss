@@ -41,14 +41,13 @@
         }
 
         &__element {
-            width: 1em;
-            height: 1em;
+            width: 1.75em;
+            height: 1.75em;
             background: var(--box-color);
-            margin: 0 0 0 1em;
             border: 1px solid var(--border-color);
-            @include mobile() {
-                margin: 0;
-            }
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     }
 
@@ -64,8 +63,8 @@
     &--checkbox input[type="checkbox"]:checked + &--checkbox__element:before {
         content: "";
         display: block;
-        width: .5em;
-        height: .5em;
+        width: 1em;
+        height: 1em;
         background: #555;
         margin: .25em;
     }
@@ -124,6 +123,19 @@
         flex: 1;
         display: flex;
         align-items: flex-start;
+        &--with-icon .input {
+            padding-left: 2.5em;
+        }
+    }
+
+    &__icon {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        padding: 0 .75em;
+        display: flex;
+        align-items: center;
     }
 
     &__label {
@@ -139,11 +151,15 @@
 
     &__message {
         color: #f00;
-        margin: .75em;
         font-size: .875em;
         position: absolute;
-        right: .5em;
         top: 0;
+        right: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        pointer-events: none;
+        padding: 0 .75em;
         @include mobile() {
             bottom: -1.75em;
             top: unset;
@@ -246,7 +262,8 @@
 
 .horisontal-delimiter {
     background: var(--border-color);
-    margin: 3em 0;
+    opacity: 0.5;
+    margin: .5em 0;
     width: 100%;
     height: 1px;
 }

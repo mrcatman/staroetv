@@ -27,10 +27,24 @@ class Record extends Model {
 
     public function getDescriptionWithTimecodesAttribute()
     {
-        return preg_replace_callback('/([0-9]{1,2}):([0-9]{1,2})(?::([0-9]{1,2}))?/', function ($timecode) {
+        return nl2br(preg_replace_callback('/([0-9]{1,2}):([0-9]{1,2})(?::([0-9]{1,2}))?/', function ($timecode) {
             $time = count($timecode) == 4 ? $timecode[1] * 3600 + $timecode[2] * 60 + $timecode[3] : $timecode[1] * 60 + $timecode[2];
             return '<a class="timecode" onclick="player.currentTime = ' . $time . ';player.play()">' . $timecode[0] . '</a>';
-        },  $this->description);
+        },  $this->description));
+    }
+
+    public function getDescriptionTopicsAttribute()
+    {
+        if (trim($this->description) == '') {
+            return [];
+        }
+        $topics = explode("\n", preg_replace_callback('/([0-9]{1,2}):([0-9]{1,2})(?::([0-9]{1,2}))?/', function ($timecode) {
+            return '-';
+        },  $this->description));
+        foreach ($topics as &$topic) {
+            $topic = str_replace('- -', '-',$topic);
+        }
+        return array_slice($topics, 0, 5);
     }
 
     public function getTitleWithoutTagsAttribute() {
@@ -72,7 +86,7 @@ class Record extends Model {
 
 
     public function coverPicture() {
-        return $this->hasOne('App\Models\Picture', 'id', 'cover_id');
+        return $this->hasOne(Picture::class, 'id', 'cover_id');
     }
 
     public function getCoverAttribute() {
@@ -131,20 +145,42 @@ class Record extends Model {
 
     public function getBroadcastDateAttribute()
     {
-        return ($this->day ? str_pad((string)$this->day, 2, " ", STR_PAD_LEFT)."." : "").($this->month ?  str_pad((string)$this->month, 2, "0", STR_PAD_LEFT)."." : "").($this->year ? $this->year : "");
+        if ($this->day) {
+            return str_pad((string)$this->day, 2, " ", STR_PAD_LEFT) . "." . ($this->month ? str_pad((string)$this->month, 2, "0", STR_PAD_LEFT) . "." : "") . ($this->year ? $this->year : "");
+        }
+        if ($this->month) {
+            $month_names = DatesHelper::monthNames();
+            if (isset($month_names[$this->month - 1])) {
+                return $month_names[$this->month - 1] . ' ' . $this->year;
+            }
+        }
+        return $this->year;
+    }
 
+    private function removeExcludes($text)
+    {
+        $text = preg_replace('"(https?://.*)(?=;)"', '', $text);
+
+        $excludes = ['фрагменты', 'фрагмент', 'отрывок',  'не с начала', 'не до конца'];
+
+        foreach ($excludes as $exclude) {
+            $text = trim(str_replace($exclude, '', $text));
+        }
+        return trim(str_replace('()', '', $text));
     }
 
     public function getParsedShortDescriptionAttribute()
     {
         if ($this->short_description != '') {
-            return $this->short_description;
+            return $this->removeExcludes($this->short_description);
         }
+
         preg_match('/(.*?)\((.*?), (.*?)\)(.*)/', $this->title, $matches);
         if (isset($matches[4]) && $matches[4] != '') {
-            return trim($matches[4]);
+            $description = trim($matches[4]);
+            return $this->removeExcludes($description);
         }
-        return null;
+        return '';
     }
 
     private function capitalize($string, $encoding)
@@ -194,7 +230,7 @@ class Record extends Model {
 
 
     public function comments() {
-        return $this->hasMany('App\Models\Comment', 'material_id', 'original_id')->where(['material_type' => self::TYPE_VIDEOS]);
+        return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => self::TYPE_VIDEOS]);
     }
 
     public function getCreatedAtAttribute() {
@@ -292,6 +328,17 @@ class Record extends Model {
 
     public function advertisingTypeData() {
         return $this->belongsTo(Genre::class, "advertising_type", "id");
+    }
+
+    public function getFormattedDurationAttribute()
+    {
+        if (!$this->length) {
+            return '';
+        }
+        if ($this->length < 60 * 60) {
+            return gmdate("i:s", $this->length);
+        }
+        return gmdate("H:i:s", $this->length);
     }
 
     public function setSupposedDate() {

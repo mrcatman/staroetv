@@ -98,6 +98,17 @@ class RecordsController extends Controller {
         });
     }
 
+    public function buildOtherCategoriesList()
+    {
+        return Cache::remember('other_categories_list', 60 * 20, function() {
+            $other_categories = Genre::where(['type' => 'videos_other'])->get();
+            foreach ($other_categories as $other_category) {
+                $other_category->cover_url = Record::where(['other_category_id' => $other_category->id])->whereNotNull('cover_id')->inRandomOrder()->limit(1)->first()->coverPicture->url;
+            }
+            return $other_categories;
+        });
+    }
+
     public function index($params) {
         if (!PermissionsHelper::allows('contentapprove')) {
             $params['pending'] = false;
@@ -107,6 +118,9 @@ class RecordsController extends Controller {
         $data['params'] = $params;
         $data['last_records'] = $last_records;
         $data['events'] = [];
+
+        $other_categories = !$params['is_radio'] ? $this->buildOtherCategoriesList() : [];
+        $data['other_categories'] = $other_categories;
        // $data['events'] = HistoryEvent::approved()->orderBy('id', 'desc')->limit(3)->get();
         return view("pages.records.index", $data);
     }
@@ -460,39 +474,6 @@ class RecordsController extends Controller {
         ]);
     }
 
-    private function getChannelsInternalOrder($start_params) {
-        $federal_channel_ids = Channel::where($start_params)->where(['is_federal' => true])->orderBy('order', 'asc')->pluck('id');
-        $other_channel_ids = Channel::where($start_params)->where(['is_federal' => false, 'is_regional' => false])->orderBy('order', 'asc')->pluck('id');
-        $regional_channel_ids = Channel::where($start_params)->where(['is_regional' => true])->orderBy('order', 'asc')->pluck('id');
-        return $federal_channel_ids->merge($other_channel_ids)->merge($regional_channel_ids);
-    }
-
-    public function interprogramV2($start_params) {
-        $channel_ids = $this->getChannelsInternalOrder($start_params);
-        $packages = InterprogramPackage::whereIn('channel_id', $channel_ids)->orderByRaw('FIELD(channel_id, '.implode(',', $channel_ids->toArray()).' )')->get()->groupBy('channel_id');
-        $new_list = [];
-        foreach ($packages as &$packages_list) {
-            $new_list[] = $packages_list->sortBy('date_start');
-        }
-
-        return view("pages.records.graphics_v2", [
-            'packages' => $new_list,
-        ]);
-    }
-
-    public function programsGraphics($start_params) {
-        $channel_ids = $this->getChannelsInternalOrder($start_params);
-        $program_ids = Record::whereNotNull('program_id')->where(['is_interprogram' => true])->pluck('program_id');
-        $programs = Program::whereIn('channel_id', $channel_ids)->orderByRaw('FIELD(channel_id, '.implode(',', $channel_ids->toArray()).' )')->whereIn('id', $program_ids)->get()->groupBy('channel_id');
-        //$program_packages = InterprogramPackage::whereNotNull('program_id')->pluck('program_id');
-        //$programs_with_packages = Program::whereIn('channel_id', $channel_ids)->whereIn('id', $program_packages)->get();
-
-        return view("pages.records.graphics_programs", [
-            'programs' => $programs,
-        ]);
-    }
-
-
     public function other($start_params, $category_url = null) {
         $params = ['channel_unknown' => true, 'is_advertising' => false];
 
@@ -797,6 +778,8 @@ class RecordsController extends Controller {
         } else {
             $record->title = $record->generateTitle();
         }
+        $record->title = strip_tags($record->title);
+
         if ($has_uploaded_video) {
             $record->use_own_player = true;
             $record->source_type = "local";
@@ -1318,6 +1301,9 @@ class RecordsController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         };
+
+        Cache::forget('record_'.$record->id);
+        $record->use_own_player = true;
         $record->telegram_id = request()->input('telegram_id');
         $record->save();
         return [
@@ -1478,7 +1464,7 @@ class RecordsController extends Controller {
         //foreach ($records_by_date as $month => &$records) {
             //ksort($records['days']);
        // }
-        return view('pages.records.calendar_year', ['year' => $year,'records_by_month' => $records_by_month]);
+        return view('pages.records.calendar-year', ['year' => $year,'records_by_month' => $records_by_month]);
     }
 
     public function calendarMonth($year, $month) {
@@ -1548,7 +1534,7 @@ class RecordsController extends Controller {
         }
 
 
-        return view('pages.records.calendar_month', [
+        return view('pages.records.calendar-month', [
             'channels_by_id' => $channels_by_id,
             'month_name' => $month_name,
             'month_name_full' => $month_name_full,

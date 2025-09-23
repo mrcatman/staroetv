@@ -57,7 +57,7 @@
                         </div>
                     </div>
                 </div>
-                @include('blocks/comments', ['class' => 'record-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => 11, 'material_id' => $teletext->id]])
+                @include('blocks/comments', ['class' => 'record-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Models\Teletext::TYPE_TELETEXT, 'material_id' => $teletext->id]])
             </div>
             <div class="col col--1 record-page__related-container">
                 @if ($related && count ($related) > 0)

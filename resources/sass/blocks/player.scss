@@ -54,9 +54,25 @@
     &--video &__controls__inner {
         align-items: center;
         display: flex;
+        gap: .5em;
         justify-content: flex-end;
         text-align: center;
         flex: 1;
+    }
+
+    &--video &__control {
+        width: 2.625em;
+        height: 2.625em;
+        display: flex!important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__control--fullscreen .plyr__tooltip {
+        left: calc(50% - 1.25em);
+        &:before {
+            left: calc(50% + 1.25em);
+        }
     }
 
     &--audio &__controls {
@@ -148,7 +164,6 @@
             &--fullscreen {
                 color: #fff;
                 position: absolute!important;
-                position: absolute;
                 top: .5em;
                 right: .5em;
             }

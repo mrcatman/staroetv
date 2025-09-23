@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\HTMLHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
 use App\Models\AdditionalChannel;
@@ -94,7 +95,7 @@ class ChannelsController extends Controller {
                 'channel' => $channel,
                 'programs' => $genres,
                 'interprogram_packages' => $interprogram_packages,
-                'records_conditions' => ['channel_id' => $channel->id, 'is_advertising' => false, 'is_radio' => $channel->is_radio],
+                'records_conditions' => ['show_years' => true, 'channel_id' => $channel->id, 'is_advertising' => false, 'is_radio' => $channel->is_radio],
                 'records_conditions_interprogram' => ['channel_id' => $channel->id, 'is_interprogram' => true, 'is_radio' => $channel->is_radio]
             ];
         });
@@ -108,7 +109,7 @@ class ChannelsController extends Controller {
             return view("pages.errors.403");
         }
         $is_radio = !!request()->input('is_radio', false);
-        return view("pages.forms.channel", [
+        return view("pages.channels.form", [
             'channel' => null,
             'is_radio' => $is_radio,
         ]);
@@ -124,7 +125,7 @@ class ChannelsController extends Controller {
         }
         $is_radio = $channel->is_radio;
         $all_channels = Channel::where(['is_radio' => $channel->is_radio])->where('id', '!=', $id)->get();
-        return view("pages.forms.channel", [
+        return view("pages.channels.form", [
             'channel' => $channel,
             'all_channels' => $all_channels,
             'is_radio' => $is_radio,
@@ -189,6 +190,11 @@ class ChannelsController extends Controller {
                 throw $error;
             }
         }
+
+        if (isset($data['description'])) {
+            $data['description'] = HTMLHelper::sanitize($data['description']);
+        }
+
         $channel->fill($data);
         $channel->save();
         if (request()->has('channel_names')) {
@@ -222,7 +228,7 @@ class ChannelsController extends Controller {
         return [
             'status' => 1,
             'text' => 'Информация о канале обновлена',
-            'redirect_to' => '/channels/'.$channel->id.'/edit'
+            'redirect_to' => $channel->full_url
         ];
     }
 

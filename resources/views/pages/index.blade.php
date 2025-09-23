@@ -3,7 +3,7 @@
     <meta property="og:image" content="https://staroetv.su/img/og_cover.png">
 @endsection
 @section('content')
-    <div class="inner-page__content main-page">
+    <div class="main-page">
         <div class="main-page__intro">
             <video class="main-page__intro__video" autoplay muted loop>
                 <source src="/splashscreen/videos/noise.mp4"/>

@@ -1,40 +1,42 @@
 @extends('layouts.default')
 @section('page-title')
-    Календарь
+    {{$year}} год - Календарь
 @endsection
 @section('content')
     <div class="inner-page calendar-page">
-
         <div class="row row--align-start">
             <div class="col col--2-5">
                 <div class="box">
                     <div class="box__breadcrumbs">
                         <div class="breadcrumbs">
                             <a class="breadcrumbs__item" href="/video">Архив</a>
-                            <a class="breadcrumbs__item breadcrumbs__item--current">Календарь</a>
+                            <a class="breadcrumbs__item" href="/video/calendar">Календарь</a>
+                            <a class="breadcrumbs__item breadcrumbs__item--current">{{$year}}</a>
                         </div>
                     </div>
                     <div class="box__heading">
                         <div class="box__heading__inner">
-                            Записи по годам
+                            Все записи за {{$year}} год
                         </div>
                     </div>
                     <div class="box__inner">
-                        <div class="calendar-page__years">
-                            @foreach ($years as $year)
-                                <a href="/video/calendar/{{$year->year}}" class="calendar-page__year">
-                                    <span class="calendar-page__year__value">{{$year->year}}</span>
-                                    <span class="calendar-page__year__count">{{$year->count_year}}</span>
+                        <div class="calendar-page__months">
+                            @foreach ($records_by_month as $month => $month_data)
+                                <a href="/video/calendar/{{$year}}/{{$month}}" class="calendar-page__month">
+                                    <span class="calendar-page__month__value">{{$month_data['name']}}</span>
+                                    <span class="calendar-page__month__count">{{$month_data['count']}}</span>
                                 </a>
                             @endforeach
                         </div>
                     </div>
                 </div>
+
             </div>
 
             <div class="col col--sidebar">
                 @include('blocks/generic_sidebar', ['hide_articles' => true, 'is_radio' => false])
             </div>
-
         </div>
+
+    </div>
 @endsection

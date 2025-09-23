@@ -4,7 +4,7 @@
 @endsection
 @section('content')
     <div class="inner-page">
-        <div class="box box--top">
+        <div class="box">
             <div class="box__heading">
                 <div class="box__heading__inner">
                     {{$params['is_radio'] ? "Архив старых радиозаписей" : "Архив старых телезаписей"}}
@@ -32,7 +32,7 @@
 
         <div class="inner-page__content inner-page__content--no-padding">
             <div class="row row--stretch">
-                <div class="col col--3">
+                <div class="col col--2-5">
                     <div class="box">
                         <div class="box__inner">
                             @include('blocks/records_search', ['is_radio' => $params['is_radio']])
@@ -43,9 +43,6 @@
                                     <a class="tab" data-content="abroad">СНГ</a>
                                     <a class="tab" data-content="other">Другие</a>
                                 </div>
-
-                                @if (!$params['is_radio'])<a class="button button--light channels-list-page__button--other"  href="/video/other" >Прочее</a>@endif
-
 
                             </div>
                             <div class="tab-content" data-id="channels" data-tab="federal">
@@ -71,19 +68,32 @@
                         </div>
                     </div>
                     @if (!$params['is_radio'] && count($events) > 0)
-                    <div class="box">
-                        <a href="/events" class="box__heading">
-                            <div class="box__heading__inner">
-                                Подборки записей
+                        <div class="box">
+                            <a href="/events" class="box__heading">
+                                <div class="box__heading__inner">
+                                    Подборки записей
+                                </div>
+                            </a>
+                            <div class="box__inner">
+                                @foreach($events as $event)
+                                    @include('blocks/event', ['big' => true, 'event' => $event])
+                                @endforeach
                             </div>
-                        </a>
+                        </div>
+                    @endif
+
+                    @if (count($other_categories) > 0)
+                    <div class="box">
                         <div class="box__inner">
-                            @foreach($events as $event)
-                                @include('blocks/event', ['big' => true, 'event' => $event])
-                            @endforeach
+                            <div class="programs-list">
+                                @foreach ($other_categories as $other_category)
+                                    @include('blocks.program', ['program' => $other_category, 'url' => '/video/other/'.$other_category->url])
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                     @endif
+
                     <div class="box box--dark">
                         <div class="box__heading">
                             <div class="box__heading__inner">
@@ -92,11 +102,11 @@
                         </div>
                         <div class="box__inner">
                             @if(!$params['is_radio'])
-                            <div class="records-list  records-list--thumbs">
-                                @foreach($last_records as $record)
-                                    @include('blocks/record', ['record' => $record])
-                                @endforeach
-                            </div>
+                                <div class="records-list  records-list--thumbs">
+                                    @foreach($last_records as $record)
+                                        @include('blocks/record', ['record' => $record])
+                                    @endforeach
+                                </div>
                             @else
                                 <div class="records-list">
                                     @foreach($last_records as $record)
@@ -113,7 +123,7 @@
                 <div class="col">
                     <div class="box">
                         <div class="box__inner">
-                           @include ('blocks/records_material_categories', ['is_radio' => $params['is_radio']])
+                            @include ('blocks/records_material_categories', ['is_radio' => $params['is_radio']])
                         </div>
                     </div>
                     @include('blocks/banner')

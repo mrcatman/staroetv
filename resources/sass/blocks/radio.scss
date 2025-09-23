@@ -1,28 +1,18 @@
 .radio-recording {
-    margin: .5em 0;
     text-decoration: none;
     color: inherit;
     display: flex;
     align-items: center;
-    padding: .5em;
-    background: rgba(0, 0, 0, 0);
     transition: all .25s;
     width: 100%;
     &--pending {
         opacity: .5;
     }
+    @include hover;
     @include mobile() {
         font-size: .75em;
     }
-    @include light() {
-        margin: 0 .5em .5em;
-        padding: .5em;
-        box-sizing: border-box;
-        width: calc(100% - 1em);
-    }
-    &:hover {
-        background: var(--box-color-hover);
-    }
+
     &__button {
         color: #fff;
         width: 4em;
@@ -34,8 +24,8 @@
     }
 
     &__title {
-        font-size: 1.125em;
-        font-weight: bold;
+        font-size: 1.25em;
+        font-weight: 600;
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 3;
@@ -77,11 +67,5 @@
         &:last-of-type {
             border-bottom: 0px;
         }
-    }
-}
-
-.box--dark .radio-recording {
-    &:hover {
-        background: var(--box-color-hover-dark);
     }
 }

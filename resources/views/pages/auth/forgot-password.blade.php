@@ -2,7 +2,10 @@
 @section('content')
     <form class="form box" method="POST" >
         <div class="box__heading">
-            Восстановление аккаунта
+            <div class="box__heading__inner">
+                Восстановление аккаунта
+            </div>
+
         </div>
         <div class="box__inner">
             <div class="response"></div>

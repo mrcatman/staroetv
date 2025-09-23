@@ -2,7 +2,10 @@
 @section('content')
     <form class="form box" method="POST" action="{{ route('login') }}">
         <div class="box__heading">
-            Вход на сайт
+            <div class="box__heading__inner">
+                Вход на сайт
+            </div>
+
         </div>
         <div class="box__inner">
             <div class="response"></div>

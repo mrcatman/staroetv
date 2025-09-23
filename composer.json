@@ -16,7 +16,8 @@
         "laravel/octane": "^2.12",
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6",
-        "mews/captcha": "^3.4"
+        "mews/captcha": "^3.4",
+        "ext-curl": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

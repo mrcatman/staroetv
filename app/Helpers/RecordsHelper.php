@@ -18,7 +18,10 @@ class RecordsHelper {
         if (isset($conditions['program_id_in'])) {
             $records = $records->where(function($q) use ($conditions) {
                 $q->whereIn('program_id', $conditions['program_id_in']);
-                if (in_array(null, (array)$conditions['program_id_in'])) {
+                if (
+                    (is_array($conditions['program_id_in']) && in_array(null, $conditions['program_id_in'])) ||
+                    (!is_array($conditions['program_id_in']) && $conditions['program_id_in']->contains(null)))
+                {
                     $q->orWhereNull('program_id');
                 }
             });
@@ -114,7 +117,6 @@ class RecordsHelper {
             ksort($years);
         }
         $records = $records->orderBy($sort_field, $sort_order);
-
         $count = $records->count();
         $list = $records->paginate(36);
         return [
@@ -130,8 +132,5 @@ class RecordsHelper {
             'selected_month' => $selected_month,
         ];
     }
-
-
-
 
 }

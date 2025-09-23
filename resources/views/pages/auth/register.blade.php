@@ -2,7 +2,10 @@
 @section('content')
     <form class="form  form--with-captcha box" method="POST" action="{{ route('register') }}">
         <div class="box__heading">
-            Регистрация
+            <div class="box__heading__inner">
+                Регистрация
+            </div>
+
         </div>
         <div class="box__inner">
             <div class="response"></div>
@@ -29,7 +32,8 @@
                 </div>
             </div>
             <div class="input-container">
-                <label class="input-container__label">Повторите пароль<span class="input-container__required">*</span></label>
+                <label class="input-container__label">Повторите пароль<span
+                        class="input-container__required">*</span></label>
                 <div class="input-container__inner">
                     <input class="input" type="password" required name="password_confirmation" value=""/>
                     <span class="input-container__message"></span>
@@ -43,7 +47,16 @@
                     <span class="input-container__message"></span>
                 </div>
             </div>
-            <div class="horisontal-delimiter"></div>
+
+            <label class="input-container input-container--checkbox">
+                <input type="checkbox" name="rules"/>
+                <div class="input-container--checkbox__element"></div>
+                <div class="input-container__label">
+                    Я ознакомился с <a target="_blank" href="/index/0-133">правилами сайта</a>
+                </div>
+            </label>
+
+
             <button class="button">Регистрация</button>
         </div>
         @csrf

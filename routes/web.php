@@ -73,12 +73,8 @@ Route::any('/video/other', function () {
     return (new \App\Http\Controllers\RecordsController())->other(['is_radio' => false]);
 });
 
-Route::any('/video/graphics', function () {
-    return (new \App\Http\Controllers\RecordsController())->interprogramV2(['is_radio' => false]);
-});
-Route::any('/video/graphics/programs', function () {
-    return (new \App\Http\Controllers\RecordsController())->programsGraphics(['is_radio' => false]);
-});
+Route::any('/video/graphics', [InterprogramPackagesController::class, 'index']);
+Route::any('/video/graphics/programs', [InterprogramPackagesController::class, 'program']);
 
 Route::any('/video/graphics_old', function () {
     return (new \App\Http\Controllers\RecordsController())->interprogram(['is_radio' => false]);
@@ -168,7 +164,7 @@ Route::get('/records/categories', [RecordsController::class, 'categories']);
 Route::any('/records/ajax', [RecordsController::class, 'ajax']);
 Route::post('/records/screenshot', [RecordsController::class, 'screenshot']);
 Route::post('/records/set-telegram-id', [RecordsController::class, 'setTelegramID']);
-Route::get('/records/playlist-ajax/{id}','RecordsController@playlistAjax');
+Route::get('/records/playlist-ajax/{id}', [RecordsController::class, 'playlistAjax']);
 
 Route::post('/programs/approve', [ProgramsController::class, 'approve']);
 Route::get('/programs/{id}', [ProgramsController::class, 'show']);

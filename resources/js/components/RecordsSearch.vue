@@ -2,7 +2,7 @@
     <form @submit="onSubmit" ref="form" method="GET" :action="action" class="records-search--container">
         <div class="records-search">
             <div class="records-search__inner">
-                <div class="records-search__input-container search-input-container">
+                <div class="records-search__input-container">
                     <input v-model="data.search" class="input" placeholder="Поиск по записям" name="search"/>
                 </div>
                 <button class="button button--light">Найти</button>
@@ -83,7 +83,10 @@
             <div class="form__preloader" v-show="isLoading"><img src="../../../public/img/ajax.gif"></div>
             <div class="records-search__programs" v-if="programsList && programsList.length > 0">
                 <a :href="'/programs/' + program.id" class="program" v-for="program in programsList" :key="program.id">
-                    <div class="program__cover" :style="{backgroundImage: `url(${program.cover})`}"></div>
+                    <div class="program__cover">
+                        <div class="program__cover__foreground" :style="{backgroundImage: `url(${program.cover})`}"></div>
+                        <div class="program__cover__background" :style="{backgroundImage: `url(${program.cover})`}"></div>
+                    </div>
                     <div class="program__name">{{program.name}}</div>
                 </a>
             </div>

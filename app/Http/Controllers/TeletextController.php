@@ -10,20 +10,94 @@ use App\Models\Channel;
 use App\Models\Program;
 use App\Models\Record;
 use App\Models\Teletext;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class TeletextController extends Controller {
 
+    private $texts = [
+        [
+            'name' => 'Центр-Инфо',
+            'channels' => [
+                ['url' => 'tv-center']
+            ]
+        ],
+        [
+            'name' => 'Блиц-Текст',
+            'channels' => [
+                ['url' => 'ntv']
+            ]
+        ],
+        [
+            'name' => 'Телеинф',
+            'channels' => [
+                ['url' => 'ort', 'date_start' => [1,1,1992], 'date_end' => [1,1,2002]],
+            ]
+        ]
+    ];
 
     public function index() {
         $params = [];
         if (!PermissionsHelper::allows('contentapprove')) {
             $params['pending'] = false;
         }
-        $teletext = Teletext::where($params)->paginate(24);
+
+
+        $sections = [];
+        foreach ($this->texts as $text) {
+            $section = [
+                'name' => $text['name'],
+                'channels' => [],
+                'items' => []
+            ];
+
+            $items = Teletext::inRandomOrder()->limit(5);
+            foreach ($text['channels'] as $channel_params) {
+                if (!isset($channels[$channel_params['url']])) {
+                    $channels[$channel_params['url']] = Channel::where(['url' => $channel_params['url']])->first();
+                }
+
+                $channel = $channels[$channel_params['url']];
+                if (isset($channel_params['date_start'])) {
+                    $date_start = Carbon::createFromDate($channel_params['date_start'][2], $channel_params['date_start'][1], $channel_params['date_start'][0]);
+                    $date_end = Carbon::createFromDate($channel_params['date_end'][2], $channel_params['date_end'][1], $channel_params['date_end'][0]);
+                    $items = $items->orWhere(function ($q) use ($channel, $date_start, $date_end) {
+                        $q->where(['channel_id' => $channel->id]);
+                        return $q->whereBetween('date', [$date_start, $date_end]);
+                    });
+
+                    $names = $channel->names->filter(function($name) use ($date_start, $date_end) {
+                        return $name->date_start->gt($date_start) || $name->date_end->lt($date_end);
+                    })->unique('name');
+                    foreach ($names as $name) {
+                        $section['channels'][] = [
+                            'url' => $channel->full_url,
+                            'name' => $name->name,
+                            'logo' => $name->logo ? $name->logo->url : null
+                        ];
+                    }
+                } else {
+                    $items = $items->orWhere(function ($q) use ($channel) {
+                        $q->where(['channel_id' => $channel->id]);
+                    });
+                    $section['channels'][] = [
+                        'url' => $channel->full_url,
+                        'name' => $channel->name,
+                        'logo' => $channel->logo ? $channel->logo->url : null
+                    ];
+                }
+            }
+
+            $section['items'] = $items->get();
+
+            $sections[] = $section;
+        }
+
+        $new = Teletext::where($params)->orderBy('created_at', 'desc')->paginate(24);
         return view('pages.teletext.index', [
-            'teletext' => $teletext,
+            'new' => $new,
+            'sections' => $sections
         ]);
     }
 

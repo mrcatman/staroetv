@@ -13,7 +13,7 @@
 @endsection
 @section('content')
     <div class="inner-page record-page">
-        <div class="box box--top">
+        <div class="box">
             <div class="box__breadcrumbs">
                 <a class="breadcrumbs__item" href="{{$record->is_radio ? "/radio" : "/video"}}">Архив</a>
                 @if ($record->is_advertising)
@@ -109,7 +109,7 @@
                 </div>
                 @include('blocks/comments', ['class' => 'record-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => 10, 'material_id' => $record->ucoz_id]])
             </div>
-            <div class="col col--2 record-page__related-container">
+            <div class="col col--1-5 record-page__related-container">
                 @if ($playlist)
                     <div data-current-id="{{$record->id}}" class="box box--dark playlist">
                         <div class="box__heading box__heading--small">
@@ -138,8 +138,9 @@
 
                             <a href="{{$record->program->full_url}}" class="box__heading box__heading--small">
                                 <div class="box__heading__inner">
-                                    Другие выпуски программы <span
-                                        class="box__heading__count">{{$record->program->name}}</span>
+                                    <span>
+                                        Другие выпуски программы <span class="box__heading__count">{{$record->program->name}}</span>
+                                    </span>
                                 </div>
                             </a>
                             <div class="box__inner">

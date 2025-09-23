@@ -129,6 +129,9 @@ class ForumController extends Controller {
 
     public function subforum($id, $page = 1) {
         $forum = Forum::find($id);
+        if (!$forum) {
+            return redirect('/forum');
+        }
         $parent_forum = Forum::find($forum->parent_id);
         if (!PermissionsHelper::checkGroupAccess('can_view', $forum)) {
           //  return redirect('/forum');

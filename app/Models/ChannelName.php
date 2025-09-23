@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Models;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class ChannelName extends Model {
@@ -11,23 +10,22 @@ class ChannelName extends Model {
     protected $with = ['logo'];
     protected $appends = ['years_range'];
 
+    protected $casts = [
+        'date_start' => 'date',
+        'date_end' => 'date'
+    ];
+
     public function channel() {
         return $this->belongsTo(Channel::class);
     }
 
     public function logo() {
-        return $this->hasOne('App\Models\Picture', 'id', 'logo_id');
+        return $this->hasOne(Picture::class, 'id', 'logo_id');
     }
 
     public function getYearsRangeAttribute() {
-        $date_start = null;
-        $date_end = null;
-        if ($this->date_start) {
-            $date_start = Carbon::createFromFormat("Y-m-d", $this->date_start);
-        }
-        if ($this->date_end) {
-            $date_end = Carbon::createFromFormat("Y-m-d", $this->date_end);
-        }
+        $date_start = $this->date_start;
+        $date_end = $this->date_end;
         if (!$date_start && !$date_end) {
             return "";
         }

@@ -3,7 +3,7 @@
     {{$channel->name}}
 @endsection
 @section('content')
-    <div class="inner-page channel-page">
+    <div class="channel-page">
         <div class="row row--align-start">
             <div class="col col--2-5">
 
@@ -95,11 +95,14 @@
                                     <div class="channel-page__no-description">Описание канала еще не заполнено</div>
                                 @endif
 
+                                @if ($channel->is_regional || $channel->is_abroad)
                                 <div class="channel-page__description__params">
+                                    <!--
                                     @if (count($channel->unique_names) > 0)
                                         <div class="page__description__param">Также известен как:
                                             <strong>{{$channel->unique_names_list}}</strong></div>
                                     @endif
+                                    -->
                                     @if ($channel->is_regional)
                                         <div class="page__description__param">Город/регион:
                                             <strong>{{$channel->city}}</strong></div>
@@ -109,6 +112,7 @@
                                             <strong>{{$channel->country}}</strong></div>
                                     @endif
                                 </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -140,30 +144,23 @@
 
                     </div>
                 </div>
-                @if(count($programs) > 0)
-                    <div class="categories-list">
-                        @foreach($programs as $index => $genre)
-                            <a data-selector=".category" data-toggle-class="category--active"
-                               data-show-block-selector=".programs-list" data-show-block-id="{{$genre->id}}"
-                               class="category @if ($index == 0) category--active @endif">{{$genre->name}}</a>
-                        @endforeach
-                    </div>
-                @endif
                 <div class="box__inner">
+                    @if(count($programs) > 0)
+                        <div class="categories-list">
+                            @foreach($programs as $index => $genre)
+                                <a data-selector=".category" data-toggle-class="category--active"
+                                   data-show-block-selector=".programs-list" data-show-block-id="{{$genre->id}}"
+                                   class="category @if ($index == 0) category--active @endif">{{$genre->name}}</a>
+                            @endforeach
+                        </div>
+                    @endif
                     <div class="channel-page__programs">
 
                         @foreach($programs as $index => $genre)
                             <div class="programs-list" data-block-id="{{$genre->id}}"
                                  @if ($index != 0) style="display: none" @endif>
                                 @foreach ($genre->programs as $program)
-                                    <a href="{{$program->full_url}}?from={{$channel->id}}"
-                                       class="program @if ($program->pending) program--pending @endif">
-                                        <div class="program__cover">
-                                            <div class="program__cover__foreground" style="background-image: url({{$program->cover_url}})"></div>
-                                            <div class="program__cover__background" style="background-image: url({{$program->cover_url}})"></div>
-                                        </div>
-                                        <span class="program__name">{{$program->name}}</span>
-                                    </a>
+                                    @include('blocks.program', ['url' => $program->full_url.'?from='.$channel->id])
                                 @endforeach
                             </div>
                         @endforeach

@@ -1,31 +1,42 @@
 @extends('layouts.default')
+@section('title')
+    {{$page->title}}
+@endsection
 @section('content')
     <div class="inner-page">
-        <div class="inner-page__header">
-            <div class="inner-page__header__title">{{$page->title}}</div>
-            <div class="inner-page__header__right">
+        <div class="box">
+            <div class="box__heading">
+                <div class="box__heading__inner">
+                    {{$page->title}}
+                </div>
                 @if (\App\Helpers\PermissionsHelper::allows('sipedt') || \App\Helpers\PermissionsHelper::allows('sipdel'))
-                    <span class="button button--light button--dropdown">
+                    <div class="box__heading__right">
+
+                        <span class="button button--light button--dropdown">
                         <span class="button--dropdown__text">Действия</span>
                         <span class="button--dropdown__icon">
                             <i class="fa fa-chevron-down"></i>
                         </span>
                         <div class="button--dropdown__list">
                             @if (\App\Helpers\PermissionsHelper::allows('sipedt'))
-                                <a class="button--dropdown__list__item" href="/pages/{{$page->id}}/edit">Редактировать</a>
+                                <a class="button--dropdown__list__item"
+                                   href="/pages/{{$page->id}}/edit">Редактировать</a>
                             @endif
                             @if (\App\Helpers\PermissionsHelper::allows('sipdel'))
-                                 <a class="button--dropdown__list__item button--delete-page">Удалить</a>
+                                <a class="button--dropdown__list__item button--delete-page">Удалить</a>
                             @endif
                         </div>
                     </span>
+
+                    </div>
                 @endif
             </div>
-        </div>
-        <div class="inner-page__content">
-            <div class="inner-page__text-block inner-page__text-block--static">
-                {!! $page->content !!}
+            <div class="box__inner">
+                <div class="inner-page__text-block inner-page__text-block--static">
+                    {!! $page->content !!}
+                </div>
             </div>
+
         </div>
     </div>
     @if (\App\Helpers\PermissionsHelper::allows('sipdel'))

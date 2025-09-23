@@ -13,7 +13,7 @@ class Channel extends Model {
     const TYPE_CHANNELS = 100;
 
     public function comments() {
-        return $this->hasMany('App\Models\Comment', 'material_id', 'original_id')->where(['material_type' => self::TYPE_CHANNELS]);
+        return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => self::TYPE_CHANNELS]);
     }
 
     public function records() {
