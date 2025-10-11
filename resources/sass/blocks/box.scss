@@ -26,7 +26,7 @@
     }
 
     &--dark {
-        background: var(--box-color-dark)!important;
+        background: var(--box-color-dark) !important;
         color: var(--box-text-color-dark);
         --box-color-hover: var(--box-color-hover-dark);
         --links-color: var(--box-text-color-dark);
@@ -48,76 +48,94 @@
         align-items: center;
         justify-content: space-between;
         gap: var(--col-margin);
-        border-bottom: 1px solid var(--border-color);
         padding: 1em;
         text-overflow: ellipsis;
+        position: relative;
 
-        @include light() {
+        @include mobile {
+            align-items: flex-start;
+        }
 
-            position: relative;
-            border-bottom: none;
-            align-items: center;
-
-            @include mobile {
-                align-items: flex-start;
-            }
-            &:after {
-                content: '';
-                display: block;
-                position: absolute;
-                bottom: -2px;
-                left: 1em;
-                width: calc(100% - 2em);
-                height: 1px;
-                background: var(--border-color);
-                opacity: .5;
+        &:before {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(90deg, #fff 0, #fff 2.45em, rgba(255, 255, 255, 0) 2.5em, rgba(255, 255, 255, 0) 5em 5em);
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 0;
+            @include light() {
+                display: none;
             }
         }
+        &:after {
+            content: '';
+            display: block;
+            position: absolute;
+            bottom: -2px;
+            left: 1em;
+            width: calc(100% - 2em);
+            height: 1px;
+            background: var(--border-color);
+            opacity: .5;
+        }
+
         &__buttons {
             flex: 1;
         }
+
         &__inner {
             max-width: 100%;
+
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.625em;
             @include light() {
                 line-height: 1;
-                display: flex;
-                align-items: center;
-                font-weight: 600;
-                font-size: 1.625em;
-                @include mobile {
-                    font-size: 1.3125em;
-                }
             }
-
-            strong {
-                color: var(--primary);
-            }
-            i {
-                margin-right: .5em;
+            @include mobile {
+                font-size: 1.3125em;
             }
         }
+
+        a, strong {
+            color: var(--primary);
+        }
+
+        i {
+            margin-right: .5em;
+        }
+
         @include mobile {
             align-items: flex-start;
             flex-direction: column;
         }
+
         &__right {
             margin-left: auto;
             white-space: nowrap;
+
             &:empty {
                 display: none;
             }
+
             @include mobile {
                 margin: 1em 0 0;
             }
         }
+
         &__count {
-            font-size: 1.35em;
-            margin: 0 0 0 0.05em;
-            @include light() {
-                margin: 0 0 .125em .25em;
-                font-size: 1.25em;
-            }
+            margin: 0 0 .125em .25em;
+            font-size: 1.25em;
+            color: var(--primary);
         }
+
         &__link {
             font-size: .75em;
         }
@@ -143,7 +161,14 @@
     &--dark &__heading {
         color: var(--box-text-color-dark);
         border-bottom: 1px solid var(--border-color-dark);
+        @include light() {
+            border-bottom-width: 0;
+            &:after {
+                opacity: .25;
+            }
+        }
     }
+
     &--dark &__inner {
         @include light() {
             color: var(--box-text-color-dark);
@@ -157,6 +182,17 @@
         @include light() {
             padding: 1em;
         }
+
+        &:empty {
+            display: none;
+        }
+    }
+
+    &__pager {
+        .pagination {
+            margin: 0 1em;
+        }
+
     }
 }
 
@@ -169,6 +205,7 @@ a.box__heading .box__heading__inner:after {
     opacity: .75;
     font-size: .875em;
 }
+
 a.box__heading:hover {
     color: var(--primary);
 }

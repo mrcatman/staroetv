@@ -9,13 +9,13 @@
             </div>
         </div>
         <div class="regions" v-show="search.length === 0">
-            <div class="region region--all" :class="{'region--active': selectedRegion === null, 'region--parent-active': selectedRegion === null}"
+            <div class="region region--all" :class="{ 'region--active': selectedRegion === null, 'region--parent-active': selectedRegion === null}"
                  @click="selectedRegion = null">
                 <div class="region__name">Все</div>
             </div>
             <template v-for="(region, regionName) in data">
                 <div class="region" @click="selectRegion(regionName)"
-                     :class="{'region--active': selectedRegion === regionName, 'region--parent-active': selectedRegion === regionName && !selectedCity}"
+                     :class="{'region--last':Object.keys(region.cities).length <= 1, 'region--active': selectedRegion === regionName, 'region--parent-active': selectedRegion === regionName && !selectedCity}"
                      v-if="region.channels.length || Object.keys(region.cities).length">
                     <div class="region__name">
                         {{ regionName }}
@@ -24,7 +24,7 @@
                 </div>
                 <div
                     v-if="Object.keys(region.cities).length > 1"
-                    :class="{'region__city--parent-active': selectedRegion === regionName, 'region__city--active': selectedCity === cityName, 'region__city--first': cityName === Object.keys(region.cities)[0], 'region__city--last': cityName === Object.keys(region.cities)[Object.keys(region.cities).length - 1] }"
+                    :class="{'region__city--parent-active': selectedRegion === regionName, 'region__city--active': selectedCity === cityName, 'region--last': cityName === Object.keys(region.cities)[Object.keys(region.cities).length - 1] }"
                     @click.stop="selectCity(cityName, regionName)" v-for="(cityChannels, cityName) in region.cities"
                     :key="cityName" class="region__city">
                     {{ cityName }}

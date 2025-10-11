@@ -127,9 +127,7 @@
 
         <input type="hidden" id="tagcount" value="">
         <div class="bb-editor__text-container">
-            <textarea class="bb-editor__text" rows="8" name="message" id="message" cols="93">@if (isset($content))
-                    {{$content}}
-                @endif</textarea>
+            <textarea class="bb-editor__text" rows="8" name="message" id="message" cols="93">@if (isset($content)){{$content}}@endif</textarea>
             <div class="bb-editor__smiles">
                 <div class="bb-editor__smiles__list">
                     @foreach (\App\Models\Smile::where(['show_in_panel' => true])->get() as $smile)

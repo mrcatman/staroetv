@@ -49,6 +49,19 @@ $(body).on('click', '.captcha', function() {
 
 $(body).on('submit', '.form', function (e) {
     e.preventDefault();
+
+    let confirmed = true;
+    if ($(this).data('confirm')) {
+        let text = $(this).data('confirm-text') || "Вы уверены?";
+        if (!confirm(text)) {
+            confirmed = false;
+        }
+    }
+
+    if (!confirmed) {
+        return;
+    }
+
     const url = $(this).attr('action') || window.location.pathname;
     $('#editor').each(function () {
         let $textarea = $(this);
@@ -59,7 +72,7 @@ $(body).on('submit', '.form', function (e) {
 
     const data = $(this).serializeArray();
     const checkboxesData = {};
-    $(this).find('input[type="checkbox"]').each(function() {
+    $(this).find('input[type="checkbox"]').each(function () {
         if ($(this).attr('name') !== "") {
             if ($(this).attr('value') !== "" && $(this).attr('value') !== undefined) {
                 let name = $(this).attr('name');
@@ -77,8 +90,11 @@ $(body).on('submit', '.form', function (e) {
     Object.keys(checkboxesData).forEach(name => {
         data.push({name, value: checkboxesData[name]})
     });
-    $(this).find('input[type="file"]').each(function() {
-        data.push({name: $(this).attr('name'), value: $(this).attr('multiple') ? $(this)[0].files : $(this)[0].files[0]})
+    $(this).find('input[type="file"]').each(function () {
+        data.push({
+            name: $(this).attr('name'),
+            value: $(this).attr('multiple') ? $(this)[0].files : $(this)[0].files[0]
+        })
     });
 
     $(this).append('<div class="form__preloader"><img src="/images/ajax.gif"></div>');
@@ -92,13 +108,6 @@ $(body).on('submit', '.form', function (e) {
 
     const response = $(this).find('.response');
 
-    let confirmed = true;
-    if ($(this).data('confirm')) {
-        let text = $(this).data('confirm-text') || "Вы уверены?";
-        if (!confirm(text)) {
-            confirmed = false;
-        }
-    }
 
     const isMultipart = $(this).attr('enctype') === 'multipart/form-data';
 
@@ -160,7 +169,7 @@ $(body).on('submit', '.form', function (e) {
             }
             if (!$(this).data('noscroll')) {
                 if ($(response).length > 0) {
-                    $(response)[0].scrollIntoView({ behavior: "smooth", block: "center" });
+                    $(response)[0].scrollIntoView({behavior: "smooth", block: "center"});
                 }
             }
         })
@@ -191,19 +200,19 @@ $(body).on('submit', '.form', function (e) {
                 }
             });
     };
-    if (confirmed) {
-        if ($(this).hasClass('form--with-captcha')) {
-            grecaptcha.ready(function() {
-                grecaptcha.execute('6LccwdUZAAAAANbvD4YOUIKQXR77BP8Zg5A-a9UT', {action: 'submit'}).then(function(token) {
-                    formData['g-recaptcha-response'] = token;
-                    submit();
-                });
-            });
 
-        } else {
-            submit();
-        }
+    if ($(this).hasClass('form--with-captcha')) {
+        grecaptcha.ready(function () {
+            grecaptcha.execute('6LccwdUZAAAAANbvD4YOUIKQXR77BP8Zg5A-a9UT', {action: 'submit'}).then(function (token) {
+                formData['g-recaptcha-response'] = token;
+                submit();
+            });
+        });
+
+    } else {
+        submit();
     }
+
 });
 
 $(body).on('change', '.input-container--checkbox--toggle input[type="checkbox"]', function(e) {

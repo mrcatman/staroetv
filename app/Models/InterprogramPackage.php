@@ -128,7 +128,7 @@ class InterprogramPackage extends Model {
     public function getFullUrlAttribute() {
         $url = $this->url ? $this->url : $this->id;
         if ($this->program) {
-            return $this->program->full_url."/graphics#".$this->id;
+            return $this->program->full_url."/graphics#package_".$this->id;
         }
         $channel = $this->channel;
         return $channel->full_url."/".($channel->is_radio ? "jingles" : "graphics") . "/" . $url;

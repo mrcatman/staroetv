@@ -1,4 +1,7 @@
 @extends('layouts.default')
+@section('page-title')
+    Рейтинг активности пользователей по разделам
+@endsection
 @section('content')
     <div class="box">
         <div class="box__heading">

@@ -106,12 +106,17 @@
 }
 
 .program-page {
+    &__texts {
+        display: flex;
+        flex-direction: column;
+        gap: var(--col-margin)
+    }
     &__logo {
         max-width: 25%;
         margin: 0 1em 1em 0;
     }
     &__channels {
+        justify-content: flex-start;
         font-size: 1.125em;
-        margin: 1em 0 0;
     }
 }

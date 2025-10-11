@@ -6,7 +6,8 @@ class HighlightHelper {
         if ($strip_tags) {
             $string = strip_tags($string);
         }
-        $highlighted = preg_replace("~$string~iu", "<span class='highlight'>$0</span>", $text);
-        return $highlighted;
+
+        return preg_replace('/(?![^<>]*>)'.preg_quote($string,"/").'/i', '<span class="highlight">$0</span>', $text);
+
     }
 }

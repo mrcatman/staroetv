@@ -70,7 +70,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        @include('blocks/records_list', ['conditions' => $records_conditions])
+                        @include('blocks/records.list', ['conditions' => $records_conditions])
                     </div>
                 </div>
             </div>

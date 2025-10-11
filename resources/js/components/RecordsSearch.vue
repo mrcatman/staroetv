@@ -158,8 +158,9 @@
     .records-search {
         box-shadow: var(--block-box-shadow);
         border-bottom: 1px solid var(--border-color);
-        background: var(--box-color);
+        margin: -1.125em -1.125em 0;
         @include light() {
+            margin: 0;
             box-shadow: none;
             border: none;
         }

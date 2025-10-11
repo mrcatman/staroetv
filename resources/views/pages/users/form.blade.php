@@ -1,12 +1,15 @@
 @extends('layouts.default', ['vue' => true])
+@section('page-title')
+    Редактирование профиля
+@endsection
 @section('content')
-    <form class="form box box--top" action="/profile/edit" method="POST">
+    <form class="form box" action="/profile/edit" method="POST">
         <div class="box__heading">
             <div class="box__heading__inner">
-                Редактирование личной информации
+                Редактирование профиля
             </div>
             <div class="box__heading__right">
-                <a class="button" href="/index/8-{{$user->id}}">Назад</a>
+                <a class="button button--light" href="/index/8-{{$user->id}}">Назад</a>
             </div>
         </div>
         <div class="box__inner">

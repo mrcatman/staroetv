@@ -59,11 +59,11 @@
                         @include('blocks/news', ['class' => 'news-block--card', 'show_cover' => true, 'news_item' => $news_item])
                     @endforeach
                 </div>
-                <div class="pager-container news-blocks-list__pager-container">
-                    {{$articles->appends(request()->except('_token'))->links()}}
-                </div>
             </div>
         </div>
+    </div>
+    <div class="box__pager">
+        {{$articles->appends(request()->except('_token'))->links()}}
     </div>
  </div>
 @endsection

@@ -177,8 +177,7 @@ class VideoCutController extends Controller {
         return [
             'status' => 1,
             'text' => $video->use_own_player ? 'Перенаправление...' : 'Видео поставлено в очередь загрузки',
-            'command' => $command,
-          //  'redirect_to' => '/cut/' . $cut->id
+            'redirect_to' => '/cut/' . $cut->id
         ];
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Periods;
 use App\Helpers\HTMLHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
@@ -25,22 +26,41 @@ class ProgramsController extends Controller {
 
         $channel_ids  = Channel::where(['is_radio' => $is_radio])->where(['is_regional' => false])->where(['is_abroad' => false])->pluck('id');
         $programs = Program::where(['pending' => false])->withCount('records')->whereIn('channel_id', $channel_ids);
+        $programs->where('url', '!=', 'unknown-program');
 
         if ($category) {
             $programs = $programs->where(['genre_id' => $category->id]);
             $page_title = $category->name;
         }
+
+        $programs = $programs->orderBy('views', 'desc');
+
+        $period = Periods::find(request()->input('period'), '');
+        if ($period) {
+            $programs = $programs->whereHas('records', function ($query) use ($period) {
+                $query->whereBetween('date', Periods::getDatesInterval($period));
+            });
+        }
+
         $program_ids = $programs->pluck('id');
 
-        $programs = $programs->orderBy('views', 'desc')->limit(20)->get();
+        if (!$period) {
+            $programs = $programs->limit(20);
+        }
+
+        $programs = $programs->get();
         $records_conditions = [
             'show_years' => true,
             'is_radio' => $is_radio,
             'is_interprogram' => false,
             'program_id_in' => $program_ids
         ];
+        if ($period) {
+            $records_conditions['period'] = $period;
+        }
 
         return view('pages.records.programs', [
+            'period' => $period,
             'params' => $params,
             'page_title' => $page_title,
             'records_conditions' => $records_conditions,
@@ -59,7 +79,7 @@ class ProgramsController extends Controller {
         }
 
         $programs = $programs->orderBy('views', 'desc')->get();
-        $programs = $programs->slice(20);
+        //$programs = $programs->slice(20);
         return [
             'status' => 1,
             'data' => [
@@ -88,7 +108,7 @@ class ProgramsController extends Controller {
         }
         ViewsHelper::increment($program, 'programs');
 
-        $conditions = [ 'show_years' => true, 'new_titles' => true, 'program_id' => $program->id, 'is_interprogram' => false];
+        $conditions = [ 'show_years' => true, 'new_titles' => !$program->show_full_titles, 'program_id' => $program->id, 'is_interprogram' => false];
         if ($program->channel) {
             $conditions['is_radio'] = $program->channel->is_radio;
         }
@@ -136,7 +156,7 @@ class ProgramsController extends Controller {
         if (!$channel || !$channel->can_edit) {
             return view("pages.errors.403");
         }
-        return view("pages.forms.program", [
+        return view("pages.programs.form", [
             'program' => null,
             'channel' => $channel,
         ]);
@@ -161,7 +181,7 @@ class ProgramsController extends Controller {
             $all_channels = Channel::pluck('name', 'id');
             $all_programs = [];
         }
-        return view("pages.forms.program", [
+        return view("pages.programs.form", [
             'program' => $program,
             'channel' => $program->channel,
             'all_channels' => $all_channels,
@@ -215,7 +235,7 @@ class ProgramsController extends Controller {
             'genre_id' => 'sometimes',
             'cover_id' => 'sometimes',
             'url' => 'sometimes',
-            'channel_id' => 'sometimes'
+            'channel_id' => 'sometimes',
         ]);
         if (request()->has('url') && request()->input('url') != '') {
             $same_url_program = Program::where(['url' => request()->input('url')])->first();
@@ -239,6 +259,7 @@ class ProgramsController extends Controller {
         if (isset($data['description'])) {
             $data['description'] = HTMLHelper::sanitize($data['description']);
         }
+        $program->show_full_titles = !!request()->input('show_full_titles', false);
 
         $program->fill($data);
         $program->author_id = auth()->user()->id;
@@ -359,7 +380,7 @@ class ProgramsController extends Controller {
         $programs = $programs->sortBy('order')->values();
         unset($channel->programs);
         $genres = Genre::where(['type' => 'programs'])->get();
-        return view('pages.forms.programs-list', [
+        return view('pages.programs.list-form', [
             'channel' => $channel,
             'programs' => $programs,
             'genres' => $genres

@@ -1,25 +1,30 @@
 @extends('layouts.default', ['vue' => true])
 @section('content')
     <form class="form box" method="POST">
-        <div class="breadcrumbs">
-            @if ($program)
-                <a class="breadcrumbs__item" href="{{$program->channel->is_radio ? "/radio" : "/video"}}">Архив</a>
-                <a class="breadcrumbs__item" href="{{$program->full_url}}">{{$program->name}}</a>
-                <a class="breadcrumbs__item" href="{{$program->full_url}}/graphics">Графика</a>
-            @elseif ($channel)
-            <a class="breadcrumbs__item" href="{{$channel->is_radio ? "/radio" : "/video"}}">Архив</a>
-            <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
-            <a class="breadcrumbs__item" href="{{$channel->full_url}}#interprogram">Графика</a>
-           @endif
-            @if ($package)
-                <a class="breadcrumbs__item" href="{{$package->full_url}}">{{$package->name != "" ? $package->name : $package->years_range}}</a>
-                <a class="breadcrumbs__item breadcrumbs__item--current">Редактировать</a>
-            @else
-                <a class="breadcrumbs__item breadcrumbs__item--current">Новый пакет оформления</a>
-            @endif
+        <div class="box__breadcrumbs">
+            <div class="breadcrumbs">
+                @if ($program)
+                    <a class="breadcrumbs__item" href="{{$program->channel->is_radio ? "/radio" : "/video"}}">Архив</a>
+                    <a class="breadcrumbs__item" href="{{$program->full_url}}">{{$program->name}}</a>
+                    <a class="breadcrumbs__item" href="{{$program->full_url}}/graphics">Графика</a>
+                @elseif ($channel)
+                    <a class="breadcrumbs__item" href="{{$channel->is_radio ? "/radio" : "/video"}}">Архив</a>
+                    <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
+                    <a class="breadcrumbs__item" href="{{$channel->full_url}}#interprogram">Графика</a>
+                @endif
+                @if ($package)
+                    <a class="breadcrumbs__item" href="{{$package->full_url}}">{{$package->name != "" ? $package->name : $package->years_range}}</a>
+                    <a class="breadcrumbs__item breadcrumbs__item--current">Редактировать</a>
+                @else
+                    <a class="breadcrumbs__item breadcrumbs__item--current">Новый пакет оформления</a>
+                @endif
+            </div>
         </div>
+
         <div class="box__heading">
-            {{ $package ? "Редактировать пакет оформления: ".$package->years_range : ($program ? "Добавить пакет оформления для программы ".$program->name : "Добавить пакет оформления для канала ".$channel->name) }}
+            <div class="box__heading__inner">
+                {{ $package ? "Редактировать пакет оформления: ".$package->years_range : ($program ? "Добавить пакет оформления для программы ".$program->name : "Добавить пакет оформления для канала ".$channel->name) }}
+            </div>
         </div>
         <div class="box__inner">
             <div class="response"></div>
@@ -58,13 +63,7 @@
                     <span class="input-container__message"></span>
                 </div>
             </div>
-        @if ($package)
-                <records-list-picker name="records_data" :list="{{$package->records}}" :annotations="{{$package->annotations}}" :meta="{is_radio: {{$channel->is_radio ? "true" : "false"}}}" :params="{is_interprogram: true, interprogram_package_id: {{$package->id}}, @if ($program) program_id: {{$program->id}} @else channel_id: {{$channel->id}} @endif }" :unset-params="{is_interprogram: false, interprogram_package_id: null}" :interprogram-editor="true" :select="{is_interprogram: true, interprogram_package_id: null, is_advertising: false, @if ($program) program_id: {{$program->id}} @else channel_id: {{$channel->id}} @endif}"/>
-            @else
-                <h2>Сохраните пакет, чтобы начать добавлять записи</h2>
-            @endif
-        </div>
-        <div class="box__inner">
+
            <div class="row">
                <div class="col">
                    <div class="input-container input-container--vertical input-container--calendar-top">
@@ -86,7 +85,11 @@
                </div>
             </div>
 
-
+            @if ($package)
+                <records-list-picker name="records_data" :list="{{$package->records}}" :annotations="{{$package->annotations}}" :meta="{is_radio: {{$channel->is_radio ? "true" : "false"}}}" :params="{is_interprogram: true, interprogram_package_id: {{$package->id}}, @if ($program) program_id: {{$program->id}} @else channel_id: {{$channel->id}} @endif }" :unset-params="{is_interprogram: false, interprogram_package_id: null}" :interprogram-editor="true" :select="{is_interprogram: true, interprogram_package_id: null, is_advertising: false, @if ($program) program_id: {{$program->id}} @else channel_id: {{$channel->id}} @endif}"/>
+            @else
+                <h2>Сохраните пакет, чтобы начать добавлять записи</h2>
+            @endif
             <button class="button">Сохранить</button>
         </div>
         @csrf

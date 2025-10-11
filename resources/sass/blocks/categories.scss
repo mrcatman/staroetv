@@ -2,16 +2,14 @@
     background: var(--bg-darker-2);
     text-decoration: none;
     padding: .75em 1.125em;
-    margin: .5em 0;
     display: inline-block;
     cursor: pointer;
-
+    user-select: none;
     &:hover {
         background: var(--bg-darker-3);
     }
 
     @include light() {
-        margin: 0;
         background: none;
         transition: all .2s;
         border-radius: .5em;
@@ -38,6 +36,7 @@
 
 .categories-list {
     padding: 1em;
+    margin: -1.125em -1.125em 1em;
     background: var(--bg-darker);
     white-space: nowrap;
     overflow: auto;
@@ -49,7 +48,8 @@
         }
     }
     @include light() {
-        padding: 0 0 1em;
+        padding: 0;
+        margin: 0 0 1em;
         background: none;
     }
     @include mobile() {

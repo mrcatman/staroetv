@@ -32,7 +32,7 @@ class Teletext extends Model {
 
     public function getUrlAttribute()
     {
-        return "/teletext/" . $this->id;
+        return "/teletext/" . $this->id.'?update_cover=1&page=100';
     }
 
     public function comments() {
@@ -80,7 +80,7 @@ class Teletext extends Model {
         $this->save();
     }
 
-    public function getTitleAttribute()
+    public function getDateFormattedAttribute()
     {
         $date = $this->year;
         if ($this->day != null) {
@@ -88,8 +88,12 @@ class Teletext extends Model {
         } else if ($this->month != null) {
             $date = DatesHelper::monthNames()[$this->month].' '.$this->year;
         }
+        return $date;
+    }
 
-        return $this->channel_name.' ('.$date.')';
+    public function getTitleAttribute()
+    {
+        return $this->channel_name.' ('.$this->date_formatted.')';
     }
 
     public function getPageContent($page)

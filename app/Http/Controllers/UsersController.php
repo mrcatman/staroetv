@@ -115,7 +115,7 @@ class UsersController extends Controller {
         if (!$user) {
             return redirect("/");
         }
-        return view("pages.forms.user", [
+        return view("pages.users.form", [
             'edit_id' => $edit_id,
             'user' => $user,
             'countries' => Countries::LIST
@@ -125,7 +125,7 @@ class UsersController extends Controller {
     public function editPassword() {
         $user = auth()->user();
 
-        return view("pages.forms.user-password", [
+        return view("pages.users.password-form", [
             'user' => $user,
         ]);
     }
@@ -342,20 +342,6 @@ class UsersController extends Controller {
                 ]
             ]
         ];
-    }
-
-
-    public function comments($id) {
-        $user = User::find($id);
-        if (!$user) {
-            return redirect("/");
-        }
-        $comments = Comment::where(['user_id' => $id])->orderBy('id', 'desc')->paginate(30);
-
-        return view("pages.users.comments", [
-            'comments' => $comments,
-            'user' => $user,
-        ]);
     }
 
     public function videos($id) {

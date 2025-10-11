@@ -100,6 +100,12 @@
     }
 }
 
+.box--dark .button--light {
+    &:hover {
+        background: var(--bg-darker-2);
+    }
+}
+
 
 
 .buttons-row {

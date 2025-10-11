@@ -176,8 +176,13 @@ class Record extends Model {
         }
 
         preg_match('/(.*?)\((.*?), (.*?)\)(.*)/', $this->title, $matches);
-        if (isset($matches[4]) && $matches[4] != '') {
-            $description = trim($matches[4]);
+        $description = isset($matches[4]) && $matches[4] != '' ?  trim($matches[4]) : null;
+        if (!$description) {
+            preg_match('/(.*?)\((.*?)\)(.*)/', $this->title, $matches);
+            $description = isset($matches[3]) && $matches[3] != '' ?  trim($matches[3]) : null;
+        }
+
+        if ($description) {
             return $this->removeExcludes($description);
         }
         return '';

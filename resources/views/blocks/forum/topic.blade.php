@@ -3,10 +3,15 @@
         <div class="forum__info">
             <a href="/forum/{{$topic->forum_id}}-{{$topic->id}}-0-17-1" class="forum__title">
                 @if ($topic->is_closed)
-                    <div class="forum__locked">
+                    <div class="forum__param">
                         <i class="fa fa-lock"></i>
                     </div>
                 @endif
+                    @if ($topic->is_poll)
+                        <div class="forum__param">
+                            <i class="fa fa-chart-bar"></i>
+                        </div>
+                    @endif
                 @if (isset($search) && $search)
                    {!! \App\Helpers\HighlightHelper::highlight($topic->title, $search, true) !!}
                 @else

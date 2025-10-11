@@ -1,6 +1,6 @@
 @extends('layouts.default')
 @section('content')
-    <div class="inner-page user-page" data-user-id="{{$user->id}}">
+    <div class="user-page" data-user-id="{{$user->id}}">
 
 
         <div class="user-page__top">
@@ -46,11 +46,15 @@
                             <div class="box__heading__inner">
                                 <span>Пользователь <strong>{{$user->username}}</strong></span>
                             </div>
-                            <div class="box__heading__right">
+                            <div class="box__heading__buttons">
                                 @if ((auth()->user() && $user->id == auth()->user()->id) || \App\Helpers\PermissionsHelper::allows('usedita'))
-                                    <a href="/profile/edit" class="button">Обновить профиль</a>
+                                    <a href="/profile/edit" class="button">
+                                        <i class="fa fa-edit"></i>
+                                        Обновить профиль</a>
                                     @if ($user->id == auth()->user()->id)
-                                        <a href="/profile/password" class="button">Сменить пароль</a>
+                                        <a href="/profile/password" class="button">
+                                            <i class="fa fa-key"></i>
+                                            Сменить пароль</a>
                                     @endif
                                 @endif
                             </div>
@@ -68,6 +72,7 @@
                                     </div>
                                     <br>
                                     @if (\App\Helpers\PermissionsHelper::allows('usrepl') && auth()->user()->id != $user->id)
+                                        <br>
                                         <select data-user-id="{{$user->id}}" name="user_group" class="select-classic">
                                             @foreach(\App\Models\UserGroup::all() as $group)
                                                 <option @if ($group->id == $user->group_id) selected
@@ -92,11 +97,14 @@
                                         <strong>Был на сайте: </strong>{{$user->was_online}}
                                     </div>
                                     <div class="user-info__buttons">
-                                        <a href="/forum/user-messages/{{$user->id}}" class="button button--flat">Посты
-                                            на форуме</a>
+                                        <a href="/forum/user-messages/{{$user->id}}" class="button button--light">
+                                            <i class="fa fa-comment"></i>
+                                            Посты на форуме</a>
                                         @if (auth()->user() && auth()->user()->id != $user->id)
-                                            <a href="/pm/send?user_id={{$user->id}}" class="button button--flat">Отправить
-                                                личное сообщение</a>
+                                            <a href="/pm/send?user_id={{$user->id}}" class="button button--light">
+                                                <i class="fa fa-envelope"></i>
+                                                Отправить личное сообщение
+                                            </a>
                                         @endif
                                         @if (auth()->user() && auth()->user()->id == $user->id)
                                             @if (\App\Helpers\PermissionsHelper::allows('admbar'))

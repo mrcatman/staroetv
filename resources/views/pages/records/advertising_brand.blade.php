@@ -13,6 +13,6 @@
         <div class="inner-page__header">
             <div class="inner-page__header__title">{{$brand}}</div>
         </div>
-        @include('blocks/records_list', ['class' => 'records-list__outer--full-page', 'conditions' => $records_conditions, 'title_param' => 'short_title'])
+        @include('blocks/records.list', ['class' => 'records-list__outer--full-page', 'conditions' => $records_conditions, 'title_param' => 'short_title'])
     </div>
 @endsection

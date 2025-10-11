@@ -1,8 +1,17 @@
 @extends('layouts.default')
+@section('page-title')
+    Изменение пароля
+@endsection
 @section('content')
     <form class="form box" action="/profile/password" method="POST">
         <div class="box__heading">
-            Редактирование пароля
+            <div class="box__heading__inner">
+                Изменение пароля
+            </div>
+            <div class="box__heading__right">
+                <a class="button button--light" href="/index/8-{{auth()->user()->id}}">Назад</a>
+            </div>
+
         </div>
         <div class="box__inner">
             <div class="response"></div>

@@ -18,7 +18,7 @@ class CreateTeletextTable extends Migration
             $table->text('description')->nullable();
             $table->unsignedTinyInteger('quality')->default(9);
             $table->integer('channel_id');
-            $table->integer('author_id');
+            $table->integer('author_id')->nullable();
             $table->boolean('pending');
 
             $table->text('pages')->nullable();

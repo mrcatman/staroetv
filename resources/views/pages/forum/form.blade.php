@@ -1,7 +1,6 @@
 @extends('layouts.default', ['vue' => true])
 @section('content')
     <div class="forum-page forum-page--form">
-        <div class="forum-section">
             <div class="forum__top-panel__outer">
                 <div class="forum__top-panel">
                     <div class="forum__top-panel__inner">
@@ -21,7 +20,10 @@
             </div>
             <form class="form box" action="{{$forum ? "/forum/edit/".$forum->id : "/forum/new"}}" method="POST">
                 <div class="box__heading">
-                    {{$forum ? 'Редактировать форум "'.$forum->title.'"' : "Создать новый форум"}}
+                    <div class="box__heading__inner">
+                        {{$forum ? 'Редактировать форум "'.$forum->title.'"' : "Создать новый форум"}}
+                    </div>
+
                 </div>
                 <div class="box__inner">
                     <div class="response"></div>
@@ -116,6 +118,6 @@
                 </div>
                 @csrf
             </form>
-        </div>
+
     </div>
 @endsection

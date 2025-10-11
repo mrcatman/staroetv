@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\HTMLHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
 use App\Models\Annotation;
@@ -60,6 +61,7 @@ class InterprogramPackagesController extends Controller
                 'channel_id' => $channel->id,
                 'is_interprogram' => true,
                 'is_selected' => false,
+                'show_years' => true
             ];
             if ($hide_unsorted) {
                 $conditions['interprogram_package_id'] = null;
@@ -214,7 +216,7 @@ class InterprogramPackagesController extends Controller
                 return view("pages.errors.403");
             }
         }
-        return view("pages.forms.interprogram-package", [
+        return view("pages.graphics.form", [
             'package' => null,
             'program' => $program,
             'channel' => $channel,
@@ -342,7 +344,12 @@ class InterprogramPackagesController extends Controller
         //if (!$channel->can_edit) {
         //    return view("pages.errors.403");
         //}
-        return view("pages.forms.interprogram-package", [
+
+        $types_to_hide = [22];
+        $package->records = $package->records->filter(function ($record) use ($types_to_hide) {
+            return !in_array($record->interprogram_type, $types_to_hide);
+        })->values();
+        return view("pages.graphics.form", [
             'package' => $package,
             'program' => $program,
             'channel' => $channel,
@@ -397,6 +404,11 @@ class InterprogramPackagesController extends Controller
             'cover_id' => 'sometimes',
             'url' => 'sometimes'
         ]);
+
+        if (isset($data['description'])) {
+            $data['description'] = HTMLHelper::sanitize($data['description']);
+        }
+
         $package->fill($data);
         if (request()->input('name', '') == "") {
             $package->name = "";
@@ -492,18 +504,20 @@ class InterprogramPackagesController extends Controller
                 'is_other' => true,
                 'records' => $not_sorted_interprogram
             ]));
-
         }
+        $related_program_ids = InterprogramPackage::whereNotNull('program_id')->where('id', '!=', $package->id)->inRandomOrder()->limit(10)->pluck('program_id');
+        $related_programs = Program::whereIn('id', $related_program_ids)->get();
         return view('pages.programs.graphics', [
             'program' => $program,
-            'packages' => $packages
+            'packages' => $packages,
+            'related_programs' => $related_programs
         ]);
     }
 
-    private function getChannelsInternalOrder($start_params) {
-        $federal_channel_ids = Channel::where($start_params)->where(['is_federal' => true])->orderBy('order', 'asc')->pluck('id');
-        $other_channel_ids = Channel::where($start_params)->where(['is_federal' => false, 'is_regional' => false])->orderBy('order', 'asc')->pluck('id');
-        $regional_channel_ids = Channel::where($start_params)->where(['is_regional' => true])->orderBy('order', 'asc')->pluck('id');
+    private function getChannelsInternalOrder() {
+        $federal_channel_ids = Channel::where(['is_federal' => true])->orderBy('order', 'asc')->pluck('id');
+        $other_channel_ids = Channel::where(['is_federal' => false, 'is_regional' => false])->orderBy('order', 'asc')->pluck('id');
+        $regional_channel_ids = Channel::where(['is_regional' => true])->orderBy('order', 'asc')->pluck('id');
         return $federal_channel_ids->merge($other_channel_ids)->merge($regional_channel_ids);
     }
 

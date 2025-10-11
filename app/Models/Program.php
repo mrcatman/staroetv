@@ -115,13 +115,13 @@ class Program extends Model {
                     $date_end = $this->additionalChannels[0]->date_start;
                 }
                 if (!$date_start) {
-                    $record_first = Record::where(['program_id' => $this->id, 'channel_id' => $this->channel_id])->orderBy('supposed_date', 'ASC')->first();
+                    $record_first = Record::whereNotNull('year')->where(['program_id' => $this->id, 'channel_id' => $this->channel_id])->orderBy('supposed_date', 'ASC')->first();
                     if ($record_first) {
                         $date_start = $record_first->supposed_date;
                     };
                 }
                 if (!$date_end) {
-                    $record_last = Record::where(['program_id' => $this->id, 'channel_id' => $this->channel_id])->orderBy('supposed_date', 'DESC')->first();
+                    $record_last = Record::whereNotNull('year')->where(['program_id' => $this->id, 'channel_id' => $this->channel_id])->orderBy('supposed_date', 'DESC')->first();
                     if ($record_last) {
                         $date_end = $record_last->supposed_date;
                     };
@@ -159,7 +159,7 @@ class Program extends Model {
 
                 if (count($names) === 0) {
                     $names = ChannelName::where(['channel_id' => $channel['id']]);
-                    if ( $channel['date_start']) {
+                    if ($channel['date_start']) {
                         $names = $names->whereDate('date_start', '<=', $channel['date_start'])->whereNull('date_end');
                     }
                     $names = $names->get();
@@ -209,13 +209,13 @@ class Program extends Model {
                     }
                 }
                 if ($name_data['name'] == "") {
-                    $channel =  Channel::find($channel['id']);
+                    $channel = Channel::find($channel['id']);
                     $name_data['name'] = $channel->name;
                 }
                 $data[] = $name_data;
             }
             return $data;
-       });
+        });
     }
 
     public static function findByIdOrUrl($id) {

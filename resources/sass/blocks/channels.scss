@@ -48,7 +48,7 @@
         top: 0;
         left: 0;
         width: calc(100% - 2em);
-        height: calc(100% - 4em);
+        height: calc(100% - 5em);
         border: none;
         background-size: contain;
         margin: 1em;
@@ -174,16 +174,6 @@
 
 .channel-page {
     &__top {
-        padding: 1.5em;
-        @include light() {
-            padding: 0;
-        }
-        @include mobile() {
-            padding: 1em;
-            @include light() {
-                padding: 0;
-            }
-        }
     }
     &__description {
         flex: 3;
@@ -303,38 +293,4 @@
     }
 }
 
-.vhs-block {
-    text-decoration: none;
-    color: unset;
-    width: 100%;
-    margin: var(--col-margin) auto;
-    height: calc(100% - var(--col-margin) * 2);
-    max-height: 50em;
-    background: url("/img/vhs-texture.png");
-    background-size: contain;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    @include mobile() {
-        background-size: 100% auto;
-    }
-    &:hover {
-        filter: brightness(1.05);
-    }
-
-    &__text {
-        background: rgba(0, 0, 0, 0.75);
-        font-size: 4em;
-        font-weight: bold;
-        padding: .25em .5em;
-        color: #fff;
-        text-shadow: -1px 1px 5px #000, 1px -1px 5px #000, 0 0 1em #000;
-        line-height: 1.25;
-        @include mobile() {
-            margin: 2em 0;
-            font-size: 3em;
-        }
-    }
-}
 

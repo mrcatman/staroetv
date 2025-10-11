@@ -87,6 +87,9 @@
                          </a>
                     </span>
                 @endif
+                @if (\App\Helpers\PermissionsHelper::allows('fredit'))
+                    {{ $message->ip }}
+                @endif
             </div>
         </div>
     </div>
@@ -106,7 +109,6 @@
                 Сообщение отредактировал <span class="forum-message__edited-by__username">{{$message->edited_by}}</span> - {{$message->edited_at}}
             </div>
             @endif
-                @if (request()->has('test'))@json($message->ip)@endif
         </div>
         <div class="forum-message__edit-form" style="display:none"></div>
         @if ($message->user && $message->user->signature != "")
@@ -129,7 +131,10 @@
                         <a class="button button--light forum-message__delete"><i class="fa fa-trash"></i><span class="button__text">Удалить</span></a>
                     @endif
                     @auth
-                        <a onclick="bb.insertQuote({{$message->id}},'{{$message->username}}');" onmouseover="bb.getSelection()" class="button button--light forum-message__quote"><i class="fa fa-quote-right"></i><span class="button__text">Цитата</span></a>
+                        <a onclick="bb.insertQuote({{$message->id}},'{{$message->username}}');" onmouseover="bb.getSelection()" class="button button--light forum-message__quote">
+                            <i class="fa fa-quote-right"></i>
+                            <span class="button__text">Цитата</span>
+                        </a>
                     @endauth
                 </div>
 

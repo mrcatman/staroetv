@@ -50,6 +50,7 @@ import './modules/search'
 import './modules/mobile-menu'
 import './modules/playlist'
 import './modules/survey'
+import './modules/previews'
 import './modules/teletext'
 
 function onPageChange() {
@@ -76,13 +77,30 @@ const onReady = () => {
     $(document).pjax('a[target!="_blank"]', '#pjax-container', {timeout: 10000});
     onPageChange();
 
-    $(document).on('pjax:start', () => {
+    let lastLoadedUrl = window.location.href;
+
+    let isPaginationRequest = false;
+    let paginationScrollTop;
+
+    $(document).on('pjax:start', (e) => {
+        isPaginationRequest = lastLoadedUrl.split('?')[0] === window.location.href.split('?')[0];
+        if (isPaginationRequest) {
+            paginationScrollTop = $(e.relatedTarget).closest('.box')[0].offsetTop;
+        }
+
         $('body').addClass('page-loading');
     });
     $(document).on('pjax:success', () => {
+        lastLoadedUrl = window.location.href;
         window.recaptchaLoaded = false;
         $('body').removeClass('page-loading');
         onPageChange();
+
+        if (isPaginationRequest) {
+            window.scrollTo({
+                top: paginationScrollTop,
+            })
+        }
     });
     $(document).on('pjax:popstate', () => {
         setTimeout(() => {

@@ -18,7 +18,7 @@ class Picture extends Model {
         }
 
         if (str_starts_with($url, '/') && app()->isLocal()) {
-            return 'https://staroetv.su'.$url;
+             return 'https://staroetv.su'.$url;
         }
         return $url;
     }

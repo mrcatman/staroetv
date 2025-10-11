@@ -4,7 +4,7 @@
     }
 
     &__list {
-
+        margin-top: 1em;
     }
 
     &__empty {
@@ -40,11 +40,9 @@
     font-size: 1.125em;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    padding: .125em .5em;
-    &:hover {
-        background: var(--box-color-hover);
-    }
+    padding: .5em;
+    @include hover;
+    text-decoration: none;
     &:nth-of-type(2n) {
         background: var(--bg-darker);
     }
@@ -56,15 +54,21 @@
         background: var(--bg-darker-2)!important;
     }
 
+    &__main {
+
+    }
+
     &__title {
+        color: inherit;
         font-size: 1.125em;
         text-decoration: none;
         font-weight: 500;
-        margin: .75em .75em .75em 0;
     }
 
     &__time {
         display: inline-block;
+        white-space: nowrap;
+        font-size: .9375em;
         margin-left: auto;
         font-weight: 500;
     }

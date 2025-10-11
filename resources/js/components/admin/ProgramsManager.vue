@@ -44,7 +44,7 @@
                         </div>
                         -->
                         <div v-for="(genre, $index) in genres" :key="genre.id">
-                            <h3>{{genre.name}}</h3>
+                            <h3 class="programs-manager__heading">{{genre.name}}</h3>
                             <draggable group="programs" :key="'genre_'+genre.id" v-model="programsByGenre[genre.id]" class="programs-manager__items">
                                 <div class="programs-manager__item"  v-for="program in programsByGenre[genre.id]" :key="program.name">
                                     <span class="programs-manager__item__name">{{program.name}}</span>
@@ -69,20 +69,23 @@
 </template>
 <style lang="scss">
     .programs-manager {
-        padding: 1em;
         &__cols {
             display: flex;
+            gap: var(--col-margin);
         }
 
         &__col {
             flex: 1;
-            margin: 0 1em 0 0;
             display: flex;
             flex-direction: column;
             max-height: 75vh;
             overflow: auto;
         }
 
+        &__heading {
+            margin: .5em 0;
+            font-size: 1.25em;
+        }
         &__item {
             display: flex;
             align-items: center;
@@ -92,10 +95,12 @@
             background: var(--bg-darker-2);
             border: 1px solid var(--border-color);
             font-weight: 400;
+            &__actions {
+                white-space: nowrap;
+            }
             &__action {
                 margin: 0 0 0 .5em;
                 font-size: .875em;
-                color: #999;
                 text-decoration: underline;
                 cursor: pointer;
             }

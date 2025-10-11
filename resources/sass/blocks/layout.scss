@@ -4,7 +4,7 @@ body {
     font-size: 14px;
     --primary: #ff6a00;
     --primary-highlight: #ff8313;
-    --border-color: #ddd;
+    --border-color: #eee;
     --box-color: #fff;
     --box-color-hover: #fafafa;
     --bg-darker: #fafafa;
@@ -148,6 +148,9 @@ a {
     &--button {
         flex: unset;
     }
+    &--sidebar .box:first-of-type {
+        margin-top: 0;
+    }
 }
 
 * {
@@ -218,4 +221,91 @@ hr {
 
 .grecaptcha-badge {
     display: none !important;
+}
+
+.link {
+    display: block;
+    margin: 0 0 var(--col-margin);
+    border-radius: .75em;
+    overflow: hidden;
+    &__img {
+        width: 100%;
+    }
+}
+
+.vhs-block {
+    text-decoration: none;
+    color: unset;
+    width: 100%;
+    margin: var(--col-margin) auto;
+    height: calc(100% - var(--col-margin) * 2);
+    max-height: 50em;
+    background: url("/img/vhs-texture.png");
+    background-size: contain;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @include mobile() {
+        background-size: 100% auto;
+    }
+    &:hover {
+        filter: brightness(1.05);
+    }
+
+    &__text {
+        background: rgba(0, 0, 0, 0.75);
+        font-size: 4em;
+        font-weight: bold;
+        padding: .25em .5em;
+        color: #fff;
+        text-shadow: -1px 1px 5px #000, 1px -1px 5px #000, 0 0 1em #000;
+        line-height: 1.25;
+        @include mobile() {
+            margin: 2em 0;
+            font-size: 3em;
+        }
+    }
+}
+
+blockquote {
+    border-left: .25em solid var(--primary);
+    margin: 0;
+    padding: 0 1em;
+    font-style: italic;
+    font-size: 1.125em;
+    line-height: 1.7;
+}
+
+.certain-ratio-wrapper {
+    margin: 1em 0;
+    position: relative;
+    > * {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.generic-sidebar {
+    .record-item__info {
+        display: none;
+    }
+    .radio-recording__info {
+        display: none;
+    }
+}
+
+
+.small-search-form {
+    display: flex;
+    margin: 0 .5em;
+    @include light() {
+        margin: 0;
+    }
+    .input {
+        margin: 0;
+    }
 }

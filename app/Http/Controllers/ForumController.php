@@ -86,7 +86,6 @@ class ForumController extends Controller {
             }
         } else {
             $forums = Forum::where(['parent_id' => 0])->get();
-
             $users_on_forum = User::where('last_page_seen', 'LIKE', '%forum%')->where('was_online', '>=', Carbon::now()->subMinutes($this->online_time))->get();
             $users_by_subforum = [];
             foreach ($users_on_forum as $user) {
@@ -399,7 +398,7 @@ class ForumController extends Controller {
         return [
             'status' => 1,
             'data' => [
-                'html' =>  view("blocks/forum_form", ['inline' => true, 'edit_id' => $message->id, 'topic_id' => $message->topic_id, 'content' => $original_bb])->render()
+                'html' =>  view("blocks.forum.bb-editor", ['inline' => true, 'edit_id' => $message->id, 'topic_id' => $message->topic_id, 'content' => $original_bb])->render()
             ]
         ];
     }
@@ -447,7 +446,7 @@ class ForumController extends Controller {
                 'dom' => [
                     [
                         'replace' => $selector,
-                        'html' => view("blocks/forum_message", ['inner' => true, 'ajax' => true, 'fixed' => $message->is_fixed, 'message' => $message])->render()
+                        'html' => view("blocks.forum.message", ['inner' => true, 'ajax' => true, 'fixed' => $message->is_fixed, 'message' => $message])->render()
                     ]
                 ]
             ]
@@ -619,7 +618,7 @@ class ForumController extends Controller {
                     '_dom' => [
                         [
                             'replace' => "#".$last_message->id,
-                            'html' => view("blocks/forum_message",  ['inner' => true, 'fixed' => false, 'message' => $last_message])->render()
+                            'html' => view("blocks.forum.message",  ['inner' => true, 'fixed' => false, 'message' => $last_message])->render()
                         ]
                     ]
                 ]
@@ -676,7 +675,7 @@ class ForumController extends Controller {
                 '_dom' => [
                     [
                         'append_to' => ".forum-section__messages",
-                        'html' => view("blocks/forum_message",  ['fixed' => false, 'message' => $message_obj])->render()
+                        'html' => view("blocks.forum.message",  ['fixed' => false, 'message' => $message_obj])->render()
                     ]
                 ]
             ]
@@ -686,7 +685,7 @@ class ForumController extends Controller {
     public function newTopic($id) {
         $forum = Forum::find($id);
         $parent_forum = Forum::find($forum->parent_id);
-        return view("pages.forum.topic_form", [
+        return view("pages.forum.topic-form", [
             'questionnaire' => null,
             'forum_id' => $id,
             'topic' => null,
@@ -704,7 +703,7 @@ class ForumController extends Controller {
             $questionnaire->load('variants');
             $questionnaire = $questionnaire->toArray();
         }
-        return view("pages.forum.topic_form", [
+        return view("pages.forum.topic-form", [
             'questionnaire' => $questionnaire,
             'forum_id' => $id,
             'topic' => $topic,
@@ -1041,7 +1040,7 @@ class ForumController extends Controller {
             'status' => 1,
             'data' => [
                 'title' => 'Профиль пользователя '.$message->user->username,
-                'html' => view("blocks/forum_profile", [ 'message' => $message])->render()
+                'html' => view("blocks.forum.profile", [ 'message' => $message])->render()
             ]
         ];
     }

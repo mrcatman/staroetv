@@ -32,7 +32,11 @@
     &--parent-active {
         color: var(--primary);
     }
-
+    &--last {
+        border-top-right-radius: .5em;
+        border-bottom-right-radius: .5em;
+        margin-right: .75em;
+    }
     &__name {
         font-size: 1.25em;
         cursor: pointer;
@@ -51,14 +55,8 @@
         font-size: 1.125em;
         background: var(--bg-darker);
         padding: .5em .75em;
-        &--first {
 
-        }
-        &--last {
-            border-top-right-radius: .5em;
-            border-bottom-right-radius: .5em;
-            margin-right: .75em;
-        }
+
         &--parent-active {
             background: var(--bg-darker-2);
         }

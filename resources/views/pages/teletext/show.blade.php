@@ -3,10 +3,14 @@
     {{$teletext->title}}
 @endsection
 @section('content')
-    <div class="inner-page record-page teletext-page">
-        <div class="box box--top">
+    <div class="record-page teletext-page">
+        <div class="box">
             <div class="box__breadcrumbs">
                 <a class="breadcrumbs__item" href="/teletext">Архив телетекста</a>
+                @if ($breadcrumb)
+                    <a class="breadcrumbs__item" href="{{$breadcrumb['url']}}">{{$breadcrumb['name']}}</a>
+
+                @endif
             </div>
             <div class="box__heading">
                 <div class="box__heading__inner">

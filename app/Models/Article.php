@@ -288,6 +288,8 @@ class Article extends Model {
             $url = null;
         }
 
+        $url = str_replace('vk.me', 'userapi.com', $url);
+
         return $url;
     }
 

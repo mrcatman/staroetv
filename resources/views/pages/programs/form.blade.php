@@ -1,20 +1,26 @@
 @extends('layouts.default', ['vue' => true])
 @section('content')
     <form class="form box" method="POST">
-        <div class="breadcrumbs">
-            @if ($channel)
-                <a class="breadcrumbs__item" href="{{$channel->is_radio ? "/radio" : "/video"}}">Архив</a>
-                <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
-            @endif
-            @if ($program)
-                <a class="breadcrumbs__item" href="{{$program->full_url}}">{{$program->name}}</a>
-                <a class="breadcrumbs__item breadcrumbs__item--current">Редактировать</a>
-            @else
-                <a class="breadcrumbs__item breadcrumbs__item--current">Новая программа</a>
-            @endif
+        <div class="box__breadcrumbs">
+            <div class="breadcrumbs">
+                @if ($channel)
+                    <a class="breadcrumbs__item" href="{{$channel->is_radio ? "/radio" : "/video"}}">Архив</a>
+                    <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
+                @endif
+                @if ($program)
+                    <a class="breadcrumbs__item" href="{{$program->full_url}}">{{$program->name}}</a>
+                    <a class="breadcrumbs__item breadcrumbs__item--current">Редактировать</a>
+                @else
+                    <a class="breadcrumbs__item breadcrumbs__item--current">Новая программа</a>
+                @endif
+            </div>
         </div>
+
         <div class="box__heading">
-            {{ ($program ? "Редактировать программу: ".$program->name : "Добавить программу") }}
+            <div class="box__heading__inner">
+                {{ ($program ? "Редактировать программу: ".$program->name : "Добавить программу") }}
+            </div>
+
         </div>
         <div class="box__inner">
             <div class="response"></div>
@@ -76,6 +82,12 @@
                     <span class="input-container__message"></span>
                 </div>
             </div>
+            <label class="input-container input-container--checkbox">
+                <input type="checkbox" name="show_full_titles" {{$program && $program->show_full_titles ? "checked" : ""}}>
+                <div class="input-container--checkbox__element"></div>
+                <div class="input-container__label">Показывать полные названия видео</div>
+            </label>
+
             <div class="row">
                 <div class="col">
                     <div class="input-container input-container--vertical">
@@ -98,6 +110,9 @@
                     </div>
                 </div>
             </div>
+
+
+
             <additional-channels-editor
                 :data='@json($program ? $program->additionalChannels : [])'></additional-channels-editor>
 
@@ -106,9 +121,12 @@
         @csrf
     </form>
     @if ($program)
-        <form class="form box" action="/programs/merge" method="POST">
+        <form data-confirm="1" data-confirm-text="Вы уверены? Страница программы будет удалена, а все записи перейдут в выбранную вами" class="form box" action="/programs/merge" method="POST">
             <div class="box__heading">
-                Объединить программы
+                <div class="box__heading__inner">
+                    Объединить программы
+                </div>
+
             </div>
             <div class="box__inner">
                 <input value="{{$program->id}}" type="hidden" name="original_id"/>

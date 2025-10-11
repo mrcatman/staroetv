@@ -1,6 +1,7 @@
 @extends('layouts.default', ['vue' => true])
 @section('content')
-    <form class="box box--top" method="POST">
+    <form class="box"
+          method="POST">
         <div class="box__heading">
             <div class="box__heading__inner">
                 {{$data['is_radio'] ? ($record ? "Редактировать радиозапись" : "Добавить радиозапись") :  ($record ? "Редактировать видео" : "Добавить видео")}}

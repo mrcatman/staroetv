@@ -7,42 +7,45 @@
 @endsection
 @extends('layouts.default')
 @section('content')
-    <div class="inner-page interprogram-page">
-        <div class="row row--align-start">
-            <div class="col col--2-5">
-                <div class="box">
-                    <div class="box__breadcrumbs">
-                        <div class="breadcrumbs">
-                            <a class="breadcrumbs__item" href="/{{$channel->is_radio ? "radio" : "video"}}">Архив</a>
-                            <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
-                            <a class="breadcrumbs__item" href="{{$channel->full_url}}#interprogram">Оформление</a>
-                            <a class="breadcrumbs__item breadcrumbs__item--current">{{$package->full_name}}</a>
+    <div class="row row--align-start">
+        <div class="col col--2-5">
+            <div class="box">
+                <div class="box__breadcrumbs">
+                    <div class="breadcrumbs">
+                        <a class="breadcrumbs__item" href="/{{$channel->is_radio ? "radio" : "video"}}">Архив</a>
+                        <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
+                        <a class="breadcrumbs__item" href="{{$channel->full_url}}#interprogram">Оформление</a>
+                        <a class="breadcrumbs__item breadcrumbs__item--current">{{$package->full_name}}</a>
+                    </div>
+                </div>
+                <div class="box__heading">
+                    @if ($other)
+                        <div class="box__heading__inner">Заставки канала {{$channel->all_names_with_main}}</div>
+                        <div class="box__heading__right">
+                            <a href="{{$base_link}}?hide_unsorted={{$hide_unsorted ? 0 : 1}}"
+                               class="input-container input-container--checkbox">
+                                <input disabled type="checkbox" @if ($hide_unsorted) checked="checked"
+                                       @endif name="hide_unsorted">
+                                <div class="input-container--checkbox__element"></div>
+                                <div class="input-container__label">Скрыть рекламные блоки и анонсы</div>
+                            </a>
                         </div>
-                    </div>
-                    <div class="box__heading">
-                        @if ($other)
-                            <div class="box__heading__inner">Заставки канала {{$channel->all_names_with_main}}</div>
-                            <div class="box__heading__right">
-                                <a href="{{$base_link}}?hide_unsorted={{$hide_unsorted ? 0 : 1}}"
-                                   class="input-container input-container--checkbox">
-                                    <input disabled type="checkbox" @if ($hide_unsorted) checked="checked"
-                                           @endif name="hide_unsorted">
-                                    <div class="input-container--checkbox__element"></div>
-                                    <div class="input-container__label">Скрыть рекламные блоки и анонсы</div>
-                                </a>
-                            </div>
-                    </div>
-                    @else
-                        <div class="box__heading__inner">
+                </div>
+                @else
+                    <div class="box__heading__inner">
+                        <div>
                             {{$package->full_name}}
                             @if ($package->author != "")
+
                                 <div class="interprogram-packages-list-item__author">
-                                    Автор:<strong>{{$package->author}}</strong>
+                                    Автор:&nbsp;<strong>{{$package->author}}</strong>
                                 </div>
                             @endif
                         </div>
-                        @if ($package->can_edit)
-                            <div class="box__heading__right">
+
+                    </div>
+                    @if ($package->can_edit)
+                        <div class="box__heading__right">
                                 <span class="button button--light button--dropdown">
                                     <span class="button--dropdown__text">Действия</span>
                                     <span class="button--dropdown__icon">
@@ -58,85 +61,91 @@
                                                data-confirm-form-url="/graphics/delete">Удалить</a>
                                         </div>
                                     </span>
-                            </div>
-                        @endif
+                        </div>
                     @endif
-                </div>
+                @endif
+            </div>
+            @if (!$other)
                 <div class="box__inner">
-                    @if (!$other)
-                        <div class="interprogram-packages-list-item__inner">
+
+                    <div class="interprogram-packages-list-item__inner">
+                        @if ($package->descriptiion != '')
                             <div
                                 class="interprogram-packages-list-item__description">{!! $package->description !!}
                             </div>
-                            <div class="interprogram-packages-list-item__videos">
-                                @foreach($annotations as $annotation)
-                                    <div class="interprogram-packages-list-item__section">
-                                        @if ($annotation['annotation'])
-                                            <div class="interprogram-annotation">
-                                                <div
-                                                    class="interprogram-annotation__title">{{$annotation['annotation']->title}}</div>
-                                                <div
-                                                    class="interprogram-annotation__text">{{$annotation['annotation']->text}}</div>
-                                            </div>
-                                        @endif
-                                        <div class="records-list records-list--thumbs">
-                                            @foreach ($annotation['records'] as $record)
-                                                @include('blocks/record')
-                                            @endforeach
+                        @endif
+                        <div class="interprogram-packages-list-item__videos">
+                            @foreach($annotations as $annotation)
+                                <div class="interprogram-packages-list-item__section">
+                                    @if ($annotation['annotation'])
+                                        <div class="interprogram-annotation">
+                                            <div
+                                                class="interprogram-annotation__title">{{$annotation['annotation']->title}}</div>
+                                            <div
+                                                class="interprogram-annotation__text">{{$annotation['annotation']->text}}</div>
                                         </div>
+                                    @endif
+                                    <div class="records-list records-list--thumbs">
+                                        @foreach ($annotation['records'] as $record)
+                                            @include('blocks/record')
+                                        @endforeach
                                     </div>
+                                </div>
 
-                                @endforeach
-
-                            </div>
+                            @endforeach
 
                         </div>
-                    @else
-                        @include('blocks/records_list', ['conditions' => $records_conditions])
-                    @endif
+
+                    </div>
                 </div>
-            </div>
-            @if (!$other)
+        </div>
                 @include('blocks/comments', ['class' => 'interprogram-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Models\InterprogramPackage::TYPE_INTERPROGRAM, 'material_id' => $package->id]])
+
+            @else
+
+                @include('blocks/records.list', ['conditions' => $records_conditions])
             @endif
         </div>
-        @if (count($related) > 0)
-            <div class="col col--sidebar">
 
-                <div class="col">
-                    <div class="box">
-                        <div class="box__heading box__heading--small">
-                            <div class="box__heading__inner">
-                                Смотрите также
-                            </div>
-                        </div>
-                        <div class="box__inner">
-                            <div class="interprogram-page__related">
-                                @foreach ($related as $item)
-                                    <a href="{{$item->full_url}}" class="record-item">
-                                        <div class="record-item__cover"
-                                             style="background-image: url({{$item->one_cover}})"></div>
-                                        <div class="record-item__texts">
+    <div class="col col--sidebar">
+
+        <div class="col">
+            @if (count($related) > 0)
+            <div class="box">
+                <div class="box__heading box__heading--small">
+                    <div class="box__heading__inner">
+                        Смотрите также
+                    </div>
+                </div>
+                <div class="box__inner">
+                    <div class="interprogram-page__related">
+                        <div class="records-list">
+                            @foreach ($related as $item)
+                                <a href="{{$item->full_url}}" class="record-item">
+                                    <div class="record-item__cover"
+                                         style="background-image: url({{$item->one_cover}})"></div>
+                                    <div class="record-item__texts">
                                         <span class="record-item__title">
                                             {{$item->name != "" ? $item->name : $item->years_range}}
                                         </span>
-                                            <div class="record-item__info">
-                                                @if ($item->name != "")
-                                                    <span class="record-item__date">
+                                        <div class="record-item__info">
+                                            @if ($item->name != "")
+                                                <span class="record-item__date">
                                                     <i class="fa fa-calendar"></i>{{$item->years_range}}
                                                  </span>
-                                                @endif
-                                            </div>
+                                            @endif
                                         </div>
-                                    </a>
-                                @endforeach
-                            </div>
+                                    </div>
+                                </a>
+                            @endforeach
                         </div>
+
                     </div>
-                    @endif
-                    @include('blocks/generic_sidebar', ['hide_articles' => true])
                 </div>
             </div>
-
+            @endif
+            @include('blocks/generic_sidebar', ['hide_articles' => true])
+        </div>
     </div>
+
 @endsection

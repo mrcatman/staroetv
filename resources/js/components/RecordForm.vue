@@ -8,7 +8,7 @@
         <Response :data="response" v-if="!inModal"/>
 
         <div class="input-container" v-if="record && canEditAll">
-            <label class="input-container__label">Дата добавления видео</label>
+            <label class="input-container__label">Дата добавления</label>
             <div class="input-container__inner">
                 <div class="input-container__element-outer">
                     <div class="input-container__overlay-outer">

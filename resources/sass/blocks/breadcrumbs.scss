@@ -1,16 +1,11 @@
 .breadcrumbs {
-    padding: 1rem 1rem 0;
     background: var(--box-color);
     color: var(--text-lightest);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    border: 1px solid var(--border-color);
     border-bottom: 0;
-    @include light() {
-        padding: 0;
-        border: none;
-    }
+
     @include mobile {
         font-size: 1.125em;
     }

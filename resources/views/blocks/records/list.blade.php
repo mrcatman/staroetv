@@ -5,9 +5,11 @@
 
 @php($hide_if_zero = isset($hide_if_zero) ? $hide_if_zero : false)
 @php($block_title = isset($block_title) ? $block_title : "Записи")
+@php($is_radio = isset($conditions['is_radio']) && $conditions['is_radio'])
+
 @if (!$hide_if_zero || count($records_data['records']) > 0)
     @if (!isset($ajax) || !$ajax)
-        <div class="box box--dark records-list__outer @if(isset($class)) {{$class}} @endif"
+        <div class="box box--dark records-list__ajax-container records-list__outer @if(isset($class)) {{$class}} @endif"
              data-block-title="{{$block_title}}" data-conditions="{{json_encode($conditions)}}"
              @if (isset($title_param)) data-title-param="{{$title_param}}" @endif>
             @endif
@@ -18,7 +20,6 @@
             </div>
             <div class="box__inner">
                 <div class="records-list__filters">
-
                     <div class="records-list__sort">
                         <div class="top-list records-list__sort__items">
                             <a class="top-list__item @if ($records_data['sort'] == "newer") top-list__item--active @endif"
@@ -86,7 +87,7 @@
 
                 </div>
 
-                @php($is_radio = isset($conditions['is_radio']) && $conditions['is_radio'])
+
                 <div class="records-list @if(!$is_radio) records-list--thumbs @endif">
                     @if (isset($search) && $search != '' && count($records_data['records']) === 0)
                         <div class="records-list__nothing-found">По запросу <strong>"{{$search}}"</strong> ничего не
@@ -105,7 +106,9 @@
                         @endif
                     @endforeach
                 </div>
-                <div class="records-list__pager-container">{{$records_data['records']->links()}}</div>
+            </div>
+            <div class="box__pager">
+                {{$records_data['records']->links()}}
             </div>
             @if (!isset($ajax) || !$ajax)
         </div>

@@ -5,9 +5,12 @@
 @section('content')
     <div class="box">
         <div class="box__heading">
-            {{ $crosspost ? "Изменить пост" : "Новый пост в соцсетях" }}
+            <div class="box__heading__inner">
+                {{ $crosspost ? "Изменить пост" : "Новый пост в соцсетях" }}
+            </div>
+
             <div class="box__heading__right">
-                <a href="/crossposts" class="button">Назад</a>
+                <a href="/crossposts" class="button button--light">Назад</a>
             </div>
         </div>
         <div class="box__inner">

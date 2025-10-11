@@ -46,7 +46,7 @@ $(body).on('click', '.playlist__item a', function(e) {
     $('.playlist__item').removeClass('playlist__item--active');
     $(playlistItem).addClass('playlist__item--active');
     $('.playlist .box__inner').animate({
-        scrollTop: $(playlistItem).offsetTop
+        scrollTop: $(playlistItem)[0].offsetTop
     }, 250);
     if ($(window).width() <= 768) {
         $([document.documentElement, document.body]).animate({
@@ -76,8 +76,9 @@ window.execOnMounted.push(() => {
         let recordId = $(playlist).data('current-id');
         let playlistItem = $(playlist).find('.playlist__item[data-id='+recordId+']');
         $(playlistItem).addClass('playlist__item--active');
+
         $('.playlist .box__inner').animate({
-            scrollTop: $(playlistItem).offsetTop
+            scrollTop: $(playlistItem)[0].offsetTop
         }, 250);
 
         window.onRecordEnded = () => {

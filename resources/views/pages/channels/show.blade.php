@@ -171,7 +171,7 @@
 
         @php($can_edit_interprogram = \App\Helpers\PermissionsHelper::allows('additionalown'))
         @if ($channel->is_radio)
-            @include('blocks/records_list', ['hide_if_zero' => true, 'conditions' => $records_conditions_interprogram, 'block_title' => 'Заставки, отбивки, джинглы ('.$channel->name.')'])
+            @include('blocks/records.list', ['hide_if_zero' => true, 'conditions' => $records_conditions_interprogram, 'block_title' => 'Заставки, отбивки, джинглы ('.$channel->name.')'])
         @else
             @if (count($interprogram_packages) > 0 || $can_edit_interprogram)
                 <div class="box" id="interprogram">
@@ -197,7 +197,7 @@
             @endif
         @endif
         <div class="row">
-            @include('blocks/records_list', ['conditions' => $records_conditions])
+            @include('blocks/records.list', ['conditions' => $records_conditions])
         </div>
         @if (count($channel->articles) > 0)
             <div class="box">

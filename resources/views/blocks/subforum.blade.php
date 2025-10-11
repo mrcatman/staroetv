@@ -1,12 +1,13 @@
 <div class="forum @if($subforum->is_closed) forum--closed @endif @if(!$subforum->is_read) forum--unread @endif">
     <div class="forum__top">
         <div class="forum__info">
-            @if ($subforum->is_closed)
-                <div class="forum__locked">
-                    <i class="fa fa-lock"></i>
-                </div>
-            @endif
+
             <a href="/forum/{{$subforum->id}}" class="forum__title">
+                @if ($subforum->is_closed)
+                    <div class="forum__param">
+                        <i class="fa fa-lock"></i>
+                    </div>
+                @endif
                 {{$subforum->title}}
             </a>
             @if ($subforum->description != "")

@@ -28,7 +28,7 @@
     --modal-header-color: #fafafa;
     --modal-color: #b5b5b5;
     --modal-background-color: #060606;
-    --col-margin: .25em;
+    --col-margin: .75em;
     --font-main: "Literata", sans-serif;
     --font-texts: "Literata", serif;
 
@@ -74,13 +74,8 @@
         z-index: 1;
         opacity: 1;
     }
-    .box {
-        &__heading {
-            &__count {
-                color: var(--primary);
-            }
-        }
-    }
+
+
     .forum-message {
         &__content .uSpoilerButton {
             background: var(--bg-darker);
@@ -126,8 +121,6 @@
         }
     }
     .content > #pjax-container {
-        background: none!important;
-        padding: 0 1em;
         &:before {
             content: "";
             display: block;

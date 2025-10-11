@@ -50,7 +50,7 @@
                     <div class="box__inner">
                         <div class="records-list records-list--small">
                             @foreach($records as $record)
-                                @include('blocks.record', ['record' => $record])
+                                @include('blocks.record')
                             @endforeach
                         </div>
                     </div>

@@ -2,7 +2,10 @@
 @section('content')
     <form class="form box" action="/cut/download-external" method="POST">
         <div class="box__heading">
-            Загрузить видео для обрезки
+            <div class="box__heading__inner">
+                Загрузить видео для обрезки
+            </div>
+
         </div>
         <div class="box__inner">
             <div class="response"></div>

@@ -5,9 +5,15 @@
 @section('content')
     <div class="box">
         <div class="box__heading">
-            Посты в соцсетях
-            <div class="box__heading__right">
-                <a href="/crossposts/add" class="button">Создать новый пост</a>
+            <div class="box__heading__inner">
+
+                Посты в соцсетях
+            </div>
+            <div class="box__heading__buttons">
+                <a href="/crossposts/add" class="button">
+                    <i class="fa fa-plus"></i>
+                    Создать новый пост
+                </a>
             </div>
         </div>
         <div class="box__inner">

@@ -37,12 +37,24 @@
 
         <div class="records-list-picker box box--dark">
             <div class="box__heading">
-                Выбор записей
-                <div class="box__heading__right">
+                <div class="box__heading__inner">
+                    Выбор записей
+                </div>
+
+                <div class="box__heading__buttons">
                     <div class="buttons-row">
-                        <a class="button" @click="showSearchPanel()">Выбрать с сайта</a>
-                        <a class="button" @click="showAddPanel()">Загрузить новое видео</a>
-                        <a class="button button--light" v-if="annotations" @click="addAnnotation()">Добавить аннотацию</a>
+                        <a class="button" @click="showSearchPanel()">
+                            <i class="fa fa-film"></i>
+                            Выбрать с сайта
+                        </a>
+                        <a class="button" @click="showAddPanel()">
+                            <i class="fa fa-upload"></i>
+                            Загрузить новое видео
+                        </a>
+                        <a class="button button--light" v-if="annotations" @click="addAnnotation()">
+                            <i class="fa fa-list"></i>
+                            Добавить аннотацию
+                        </a>
                     </div>
                 </div>
             </div>
@@ -53,12 +65,12 @@
                 <option value="other">Остальные</option>
             </select>
             -->
-            <div class="box__inner records-list-picker__items">
+            <div ref="items" class="box__inner records-list-picker__items">
 
                 <div class="records-list__empty" v-if="recordsList.length === 0">Нет записей</div>
                 <component :is="disableDrag ? 'div' : 'draggable'" @change="onDragChange" v-model="recordsList" class="records-list">
-                    <div v-for="(record, $index) in recordsList" :key="$index">
-                        <div v-if="!record.is_annotation" v-show="showRecords === 'all' || (showRecords === 'main' && record.is_selected) || (showRecords === 'other' &&!record.is_selected)" class="record-item records-list-picker__item" :class="{'records-list-picker__item--updating': record.updating, 'records-list-picker__item--selected': record.is_selected}">
+                    <div v-for="(record, $index) in recordsList" :key="$index" class="records-list-picker__item">
+                        <div v-if="!record.is_annotation" v-show="showRecords === 'all' || (showRecords === 'main' && record.is_selected) || (showRecords === 'other' &&!record.is_selected)" class="record-item record-item--unselectable" :class="{'records-list-picker__item--updating': record.updating, 'records-list-picker__item--selected': record.is_selected}">
                             <div class="records-list-picker__buttons">
                                 <!--
                                 <a class="records-list-picker__button" v-if="!hideSelectedButton" @click="setSelected(record)">{{record.is_selected ? "Удалить из осн.списка" : "Добавить в осн.список"}}</a>
@@ -93,19 +105,12 @@
 </template>
 <style lang="scss">
     .records-list-picker {
-        margin: 0 0 1em;
-        &__header {
-
-        }
-        &__title {
-            font-size: 1.5em;
-            font-weight: 600;
+        &__item {
+            width: 100%;
         }
         &__items {
             margin: 1em 0 0;
-           .records-list--thumbs {
-                margin: 0;
-            }
+
         }
         &__type-select {
             width: 16em;
@@ -140,7 +145,7 @@
         }
          &__fields-container {
             max-width: calc(100% - 5em);
-            margin: 0 .125em;
+            margin: .25em .125em;
             .input {
                 width: 100%;
             }
@@ -285,6 +290,12 @@
                     is_annotation: true,
                     title: '',
                     text: ''
+                })
+                this.$nextTick(() => {
+                    this.$refs.items.scrollIntoView({
+                        block: 'end',
+                        behavior: 'smooth'
+                    })
                 })
             },
             onDragChange() {

@@ -3,7 +3,7 @@
     {{$program->name}}
 @endsection
 @section('content')
-    <div class="inner-page program-page">
+    <div class="program-page">
         <div class="row row--align-start">
             <div class="col col--2-5">
                 <div class="box">
@@ -89,7 +89,7 @@
                 </div>
 
                 <div class="row">
-                    @include('blocks/records_list', ['conditions' => $records_conditions])
+                    @include('blocks/records.list', ['conditions' => $records_conditions])
                 </div>
                 @if (count($program->articles) > 0)
                     <div class="box">
@@ -129,9 +129,9 @@
                                             @endforeach
                                         </div>
                                     @else
-                                        <div class="small-videos-list">
+                                        <div class="records-list records-list--thumbs">
                                             @foreach($program->design as $record)
-                                                @include('blocks/video_small', ['video' => $record])
+                                                @include('blocks/record')
                                             @endforeach
                                         </div>
                                     @endif

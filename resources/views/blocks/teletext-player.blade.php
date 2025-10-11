@@ -12,12 +12,19 @@
             <a href="?page={{$navigation['prev']}}" class="button button--light teletext-controls__button teletext-controls__prev">
                 <<
             </a>
-            <select class="input teletext-controls__select">
-                @foreach($teletext->pages as $teletext_page)
-                    <option @if ($page == $teletext_page) selected
-                            @endif value="{{$teletext_page}}">{{$teletext_page}}</option>
-                @endforeach
-            </select>
+            <div class="teletext-controls__select-container">
+                <select class="input teletext-controls__select">
+                    @foreach($teletext->pages as $teletext_page)
+                        <option @if ($page == $teletext_page) selected
+                                @endif value="{{$teletext_page}}">{{$teletext_page}}</option>
+                    @endforeach
+                </select>
+                <div class="teletext-controls__subpages">
+                    <div class="teletext-controls__subpages__title">Подстраницы: </div>
+                    <div class="teletext-controls__subpages__list"></div>
+                </div>
+            </div>
+
             <a href="?page={{$navigation['next']}}" class="button button--light teletext-controls__button teletext-controls__next">
                 >>
             </a>

@@ -5,7 +5,7 @@
             <div class="forum__top-panel__outer">
                 <div class="forum__top-panel">
                     <div class="forum__top-panel__inner">
-                        @include('blocks/forum_buttons')
+                        @include('blocks.forum.buttons')
                         <div class="forum-section__breadcrumbs">
                             <a class="forum-section__breadcrumb" href="/forum">Форум</a>
                             @if ($parent_forum) <a class="forum-section__breadcrumb" href="/forum/{{$parent_forum->id}}">{{$parent_forum->title}}</a> @endif
@@ -21,7 +21,10 @@
             </div>
             <form class="form box" method="POST">
                 <div class="box__heading">
-                    {{$topic ? 'Редактировать тему "'.$topic->title.'"' : "Создать новую тему"}}
+                    <div class="box__heading__inner">
+                        {{$topic ? 'Редактировать тему "'.$topic->title.'"' : "Создать новую тему"}}
+                    </div>
+
                 </div>
                 <div class="box__inner">
                     <div class="response"></div>
@@ -44,7 +47,7 @@
                         <label class="input-container__label">Сообщение</label>
                         <div class="input-container__inner">
                             <div class="forum-section__form bb-editor">
-                            @include('blocks/forum_form', ['show_buttons' => false])
+                            @include('blocks.forum.bb-editor', ['show_buttons' => false])
                             </div>
                         </div>
                     </div>

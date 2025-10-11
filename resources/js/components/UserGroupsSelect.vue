@@ -28,13 +28,16 @@
 </template>
 <style lang="scss">
     .user-groups-select {
+        flex: 1;
         &__items {
-            display: flex;
-            flex-wrap: wrap;
+            padding: 0 1em;
+            display: grid;
+            gap: 0 .5em;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             font-size: .75em;
-            background: #fafafa;
-            border: 1px solid #ccc;
-            color: #333;
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+
         }
         &__item {
             &--all-groups {

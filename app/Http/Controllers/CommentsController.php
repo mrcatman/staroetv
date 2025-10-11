@@ -8,9 +8,32 @@ use App\Models\Channel;
 use App\Models\Comment;
 use App\Models\CommentRating;
 use App\Models\Record;
+use App\Models\User;
 use App\Notifications\NewCommentReply;
 
 class CommentsController extends Controller {
+
+    public function latest()
+    {
+        $comments = Comment::orderBy('id', 'desc')->where('material_type', '!=', '3')->paginate(24);
+        return view("pages.users.comments", [
+            'comments' => $comments,
+            'user' => null,
+        ]);
+    }
+
+    public function user($id) {
+        $user = User::find($id);
+        if (!$user) {
+            return redirect("/");
+        }
+        $comments = Comment::where(['user_id' => $id])->orderBy('id', 'desc')->paginate(30);
+
+        return view("pages.users.comments", [
+            'comments' => $comments,
+            'user' => $user,
+        ]);
+    }
 
     public function ajax() {
         $conditions = request()->input('conditions');

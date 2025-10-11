@@ -505,7 +505,7 @@ class RecordsController extends Controller {
             return view('pages.errors.banned');
         }
         $can_upload = PermissionsHelper::allows('viupload');
-        return view ("pages.forms.record", [
+        return view ("pages.records.form", [
             'can_edit_all' => false,
             'can_upload' => $can_upload,
             'upload_endpoint' => $this->uploadEndpoint,
@@ -534,7 +534,7 @@ class RecordsController extends Controller {
         $can_upload = PermissionsHelper::allows('viupload');
         $can_edit_all = PermissionsHelper::allows('viedit');
         $record->original_added_at_ts = $ts;
-        return view ("pages.forms.record", [
+        return view ("pages.records.form", [
             'data' => [
                 'is_radio' => request()->has('is_radio') ? !!request()->input('is_radio') : $record->is_radio
             ],
@@ -1158,7 +1158,7 @@ class RecordsController extends Controller {
 
     public function ajax() {
         $conditions = request()->input('conditions');
-        $records_data = RecordsHelper::get($conditions);
+        $records_data = RecordsHelper::get($conditions, true);
         $data =  [
             'ajax' => true,
             'records_data' => $records_data,
@@ -1176,7 +1176,7 @@ class RecordsController extends Controller {
         return [
             'status' => 1,
             'data' => [
-                'html' => view('blocks.records_list', $data)->render()
+                'html' => view('blocks.records.list', $data)->render()
             ]
         ];
     }

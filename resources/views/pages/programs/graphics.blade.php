@@ -1,64 +1,111 @@
 @extends('layouts.default')
 @section('content')
     <div class="inner-page channel-page">
-        <div class="breadcrumbs">
-            <a class="breadcrumbs__item" href="/{{$program->channel->is_radio ? "radio" : "video"}}">Архив</a>
-            <a class="breadcrumbs__item" href="{{$program->channel->full_url}}">{{$program->channel->name}}</a>
-            <a class="breadcrumbs__item" href="{{$program->full_url}}">{{$program->name}}</a>
-            <a class="breadcrumbs__item breadcrumbs__item--current">Оформление</a>
-        </div>
-        <div class="inner-page__header">
-            <div class="inner-page__header__title">Заставки программы {{$program->name}}</div>
-            @if(\App\Helpers\PermissionsHelper::allows('additionalown'))
-                <a class="button" href="/programs/{{$program->id}}/graphics/add">Добавить</a>
-            @endif
-        </div>
-        <div class="inner-page__content">
-            @foreach ($packages as $package)
-                <div class="box interprogram-packages-list-item" id="package_{{$package->id}}">
+        <div class="row row--align-start">
+            <div class="col col--2-5">
+                <div class="box">
+                    <div class="box__breadcrumbs">
+                        <div class="breadcrumbs">
+                            <a class="breadcrumbs__item" href="/{{$program->channel->is_radio ? "radio" : "video"}}">Архив</a>
+                            <a class="breadcrumbs__item"
+                               href="{{$program->channel->full_url}}">{{$program->channel->name}}</a>
+                            <a class="breadcrumbs__item" href="{{$program->full_url}}">{{$program->name}}</a>
+                            <a class="breadcrumbs__item breadcrumbs__item--current">Оформление</a>
+                        </div>
+                    </div>
                     <div class="box__heading">
                         <div class="box__heading__inner">
-                            {{$package->name != "" ? ($package->name . ($package->years_range != "" ? " (".$package->years_range.")" : "")) : $package->years_range}}&nbsp;&nbsp;
-                            @if ($package->author != "")<div class="interprogram-packages-list-item__author"> (Автор: <strong>{{$package->author}}</strong>)</div>@endif
+                            Заставки программы {{$program->name}}
                         </div>
-                        <div class="box__heading__right">
-                            @if ($package->can_edit && !$package->is_other)
-                                <div class="interprogram-packages-list-item__options">
-                                    <span class="button button--light button--dropdown" >
+                        @if(\App\Helpers\PermissionsHelper::allows('additionalown'))
+                            <div class="box__heading__buttons">
+                                <a class="button" href="/programs/{{$program->id}}/graphics/add"><i
+                                        class="fa fa-plus"></i>Добавить</a>
+                            </div>
+                        @endif
+                    </div>
+
+                    @foreach ($packages as $package)
+                        <div class="interprogram-packages-list-item" id="package_{{$package->id}}">
+                            <div class="box__heading">
+                                <div class="box__heading__inner">
+                                    {{$package->name != "" ? ($package->name . ($package->years_range != "" ? " (".$package->years_range.")" : "")) : $package->years_range}}
+                                </div>
+                                <div class="box__heading__right">
+                                    @if ($package->can_edit && !$package->is_other)
+                                        <div class="interprogram-packages-list-item__options">
+                                    <span class="button button--light button--dropdown">
                                         <span class="button--dropdown__text">Действия</span>
                                         <span class="button--dropdown__icon">
                                             <i class="fa fa-chevron-down"></i>
                                         </span>
                                         <div class="button--dropdown__list">
-                                            <a class="button--dropdown__list__item" href="/programs/{{$program->id}}/graphics/edit/{{$package->id}}">Редактировать</a>
-                                            <a class="button--dropdown__list__item" data-confirm-form-input-name="package_id" data-confirm-form-input-value="{{$package->id}}" data-confirm-form-text="Вы уверены?" data-confirm-form-url="/graphics/delete">Удалить</a>
+                                            <a class="button--dropdown__list__item"
+                                               href="/programs/{{$program->id}}/graphics/edit/{{$package->id}}">Редактировать</a>
+                                            <a class="button--dropdown__list__item"
+                                               data-confirm-form-input-name="package_id"
+                                               data-confirm-form-input-value="{{$package->id}}"
+                                               data-confirm-form-text="Вы уверены?"
+                                               data-confirm-form-url="/graphics/delete">Удалить</a>
                                         </div>
                                     </span>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="box__inner">
-                        <div class="interprogram-packages-list-item__inner">
-
-                            <div class="interprogram-packages-list-item__description">{!! $package->description !!}</div>
-                            <div class="interprogram-packages-list-item__videos">
-                                <div class="records-list records-list--thumbs">
-                                    @if ($package->visibleRecords &&  count($package->visibleRecords) > 0)
-                                        @foreach($package->visibleRecords as $record)
-                                            @include('blocks/video_small', ['video' => $record])
-                                        @endforeach
-                                    @else
-                                        @foreach($package->records as $record)
-                                            @include('blocks/video_small', ['video' => $record])
-                                        @endforeach
+                                        </div>
                                     @endif
                                 </div>
                             </div>
+                            <div class="box__inner">
+                                <div class="interprogram-packages-list-item__inner">
+
+                                    <div
+                                        class="interprogram-packages-list-item__description">
+                                            {!! $package->description !!}
+
+                                        @if ($package->author != "")<br/><i>Создатель(-и):&nbsp;<strong>{{$package->author}}</strong></i>@endif
+                                    </div>
+                                    <div class="interprogram-packages-list-item__videos">
+                                        <div class="records-list records-list--thumbs">
+                                            @if ($package->visibleRecords &&  count($package->visibleRecords) > 0)
+                                                @foreach($package->visibleRecords as $record)
+                                                    @include('blocks/record')
+                                                @endforeach
+                                            @else
+                                                @foreach($package->records as $record)
+                                                    @include('blocks/record')
+                                                @endforeach
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    @endforeach
+                </div>
+            </div>
+
+            @if (count($related_programs) > 0)
+                <div class="col col--sidebar">
+
+                    <div class="col">
+                        <div class="box">
+                            <div class="box__heading box__heading--small">
+                                <div class="box__heading__inner">
+                                    Смотрите также
+                                </div>
+                            </div>
+                            <div class="box__inner">
+                                <div class="interprogram-page__related">
+                                    <div class="records-list">
+                                        @foreach ($related_programs as $program)
+                                            @include('blocks/record', ['record' => $program, 'url' => '/programs/'.($program->url ?: $program->id).'/graphics', 'title' => $program->name, 'hide_info' => true])
+                                        @endforeach
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                        @include('blocks/generic_sidebar', ['hide_articles' => true])
                     </div>
                 </div>
-            @endforeach
         </div>
-    </div>
 @endsection

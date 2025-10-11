@@ -174,8 +174,11 @@
                         <div class="box">
                             <a href="{{$record->channel->full_url}}" class="box__heading box__heading--small">
                                 <div class="box__heading__inner">
-                                    {{$record->is_radio ? "Еще записи с радиостанции" : "Еще записи с канала"}} <span
-                                        class="box__heading__count">{{$record->channel_name}}</span>
+                                    <span>
+                                         {{$record->is_radio ? "Ещё записи с радиостанции" : "Ещё записи с канала"}} <span
+                                            class="box__heading__count">{{$record->channel_name}}</span>
+                                    </span>
+
                                 </div>
                             </a>
                             <div class="box__inner">

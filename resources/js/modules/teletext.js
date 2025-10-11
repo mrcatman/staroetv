@@ -20,6 +20,8 @@ const loadPage = (page) => {
         $('.teletext-controls__prev').attr('href', `?page=${prevPage}`);
         $('.teletext-controls__next').attr('href', `?page=${nextPage}`);
 
+        initSubpages();
+
         if (pushState) {
             const url = new URL(window.location.href);
             url.searchParams.set('page', page);
@@ -28,6 +30,25 @@ const loadPage = (page) => {
 
         pushState = true;
     })
+}
+
+const initSubpages = () => {
+    const subpages = $('.record-page__player-container .subpage');
+    $(subpages).hide();
+    $(subpages).first().show();
+
+    const container =  $('.teletext-controls__subpages');
+    const list =  $('.teletext-controls__subpages__list');
+
+    $(list).html('');
+    if (subpages.length > 1) {
+        for (let i = 1; i <= subpages.length; i++) {
+            $(list).append(`<a class="teletext-controls__subpage ${i === 1 ? 'teletext-controls__subpage--active'  : ''}">${i}</a>`)
+        }
+        $(container).show();
+    } else {
+        $(container).hide();
+    }
 }
 
 const onKeydown = (e) => {
@@ -56,10 +77,20 @@ const initTeletext = () => {
 
     pages = [...$(pageSelect)[0].options].map(o => o.value);
     currentPage = $(pageSelect).val();
+    initSubpages();
 
     $(pageSelect).select2().on('change', function() {
         loadPage($(this).val());
     });
+
+    $('body').on('click', '.teletext-controls__subpage', function() {
+        $('.teletext-controls__subpage').removeClass('teletext-controls__subpage--active');
+        $(this).addClass('teletext-controls__subpage--active');
+
+        const subpages = $('.record-page__player-container .subpage');
+        $(subpages).hide();
+        $(subpages).eq(parseInt($(this).text()) - 1).show();
+    })
 
     $('.teletext-controls__prev, .teletext-controls__next, .teletext a').on('click', function(e) {
         e.preventDefault();

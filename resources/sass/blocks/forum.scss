@@ -59,10 +59,6 @@
                 margin: 0 0 .25em;
             }
         }
-
-        .forum__locked {
-            background: var(--box-color-hover-dark);
-        }
     }
 
     & &__title {
@@ -81,53 +77,13 @@
         }
     }
 
-    &__bottom {
-        background: var(--box-color-dark);
-        @include light() {
-            background: none;
-            color: unset;
-        }
-
-        .forum-section__search {
-            @include light() {
-                padding: 1em 0;
-            }
-        }
-
-        .forum-section__search .input {
-
-            @include light() {
-                background: var(--bg-darker-2);
-            }
-        }
-
-        .forum-section__pager {
-            @include light() {
-                padding: 0;
-            }
-        }
-
-        .forum-section__pager-container {
-            @include light() {
-                padding: 1em 0;
-            }
-            @include mobile() {
-                padding: 0;
-                margin: 0 0 1em;
-            }
-        }
-    }
-
-    &__bottom &__breadcrumb {
-        @include light() {
-            color: unset;
-        }
-    }
-
-    &__bottom &__breadcrumbs {
-        @include light() {
-            background: none;
-            border-bottom: 1px solid var(--border-color) !important;
+    &__pager-container {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--col-margin);
+        .pagination {
+            margin: 0;
+            padding: 0;
         }
     }
 
@@ -174,57 +130,17 @@
         }
 
         &__nothing-found {
-            background: var(--box-color);
-            font-size: 1.5em;
-            padding: 1em;
-            border-bottom: 1px solid var(--border-color);
+            font-size: 1.3125em;
         }
     }
-
-    &__pager-container {
-        background: var(--bg-darkest-2);
-        padding: 1em;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        @include light() {
-            background: none;
-            padding: 0;
-        }
-        @include mobile() {
-            margin: 0 -.5em;
-            display: flex;
-            flex-direction: column-reverse;
-        }
-    }
-
-    &__pager-container &__search {
-        @include mobile {
-            margin: 0 0 1.5em;
-            font-size: .875em;
-        }
-    }
-
-    &__pager {
-        color: var(--text-color);
-        margin: 0 0 -1em;
-        @include light() {
-            background: none;
-            padding: 1.5em 0 .75em;
-        }
-        @include mobile {
-            width: 100%;
-        }
-    }
-
     &__search {
-        flex: 1;
         text-align: right;
         margin: 0;
+        margin-left: auto;
         min-width: 16em;
-        color: var(--box-text-color-dark);
         display: flex;
         justify-content: flex-end;
+
         @include mobile() {
             font-size: .75em;
             width: 100%;
@@ -241,25 +157,15 @@
 
         .input {
             min-width: 16em;
-            background: var(--box-color-hover-dark);
-            border: 1px solid var(--box-color-hover-dark);
-            margin: 0;
-            flex: unset;
             @include mobile() {
                 min-width: unset;
                 flex: 1;
-            }
-            @include light() {
-                background: var(--box-color-hover-dark);
-                border: unset;
-                padding: .65em;
             }
         }
 
         .button {
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
-            margin: 0;
         }
 
         &--subforum {
@@ -309,16 +215,9 @@
             padding: .875em;
         }
 
-        &--index {
-            margin: 0 0 calc(-1em + 1px);
+        &--bottom {
             @include light() {
-                box-shadow: var(--block-box-shadow);
-                background: var(--box-color-dark);
-                border-bottom: 1px solid var(--border-color-dark);
-                .forum-section__search .input {
-                    background: var(--box-color-hover-dark);
-                    border: 1px solid var(--box-color-hover-dark);
-                }
+                padding: 0;
             }
         }
 
@@ -354,9 +253,8 @@
     }
 
     &__breadcrumb {
-        color: var(--box-text-color-dark);
+        color: inherit;
         text-decoration: none;
-        font-weight: 300;
         cursor: pointer;
         @include mobile {
             padding: .5em 0;
@@ -375,7 +273,6 @@
         &:last-of-type {
             cursor: default;
             font-weight: 500;
-            color: #fff;
 
             &:hover {
                 text-decoration: none;
@@ -388,16 +285,9 @@
     }
 
     &__form {
-        background: var(--bg-darker);
-        padding: 1em !important;
-        width: calc(100% - 2em);
+
         @include mobile() {
             font-size: 0.875em;
-            @include light() {
-
-                margin: 0 -1em;
-                width: 100%;
-            }
         }
 
         .input-container__message {
@@ -406,23 +296,17 @@
         }
     }
 
-    .form {
+    .bb-editor {
         margin: 0;
+        padding: 1em;
+        background: none;
     }
 }
 
 .forum {
-    background: var(--box-color);
     display: flex;
     width: 100%;
     position: relative;
-    @include mobile() {
-
-    }
-
-    &:hover {
-        background: var(--box-color-hover);
-    }
 
     @include mobile() {
         flex-direction: column;
@@ -449,27 +333,44 @@
             height: 100%;
             background: var(--primary);
             @include light() {
-                opacity: 0;
+                width: .25em;
             }
         }
     }
 
+    &__info {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        transition: color .2s;
+        &:hover {
+            color: var(--primary);
+        }
+    }
+    &--unread &__info {
+        margin-left: 1em;
+    }
     &__title {
         font-size: 1.25em;
         font-weight: bold;
+        width: 100%;
+        color: inherit;
+        padding: .25em 0;
         @include light() {
             font-weight: 400;
         }
         @include mobile() {
             @include light() {
-                font-weight: 600;
                 font-size: 1.3125em;
             }
         }
     }
 
     &__description {
-        display: block;
+        width: 100%;
     }
 
     &__users {
@@ -497,6 +398,10 @@
                 padding: 0;
             }
         }
+    }
+
+    &:last-of-type &__top, &:last-of-type &__last-topic {
+        border-bottom-width: 0;
     }
 
     &__numbers {
@@ -527,8 +432,8 @@
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        flex: 1;
-        padding: 0.5em 1em;
+        flex: .75;
+        padding: .5em 1em;
         position: relative;
         text-align: right;
         text-decoration: none;
@@ -599,58 +504,19 @@
         }
     }
 
-    &__bottom {
-        padding: 0;
-        margin: 1em 0 0;
-        background: var(--box-color-dark);
-        @include light() {
-            margin: 2.5em 0 0;
-            background: none;
-        }
-        @include mobile() {
-            font-size: .75em;
-        }
-
-        &__line {
-            box-shadow: var(--block-box-shadow);
-            background: var(--box-color);
-            font-size: 1.25em;
-            margin: 0 0 .75em;
-            @include light() {
-                box-shadow: none;
-                margin: 0 0 .75em;
-            }
-
-            &__heading {
-                background: var(--box-color-dark);
-                color: var(--box-text-color-dark);
-                padding: 1em 1.25em;
-                font-weight: 500;
-                @include light() {
-                    background: none;
-                    padding: .5em 0;
-                    color: unset;
-                    border-bottom: 2px solid var(--primary);
-                }
-            }
-
-            &__text {
-                padding: 1em 1.25em;
-                @include light() {
-                    padding: .5em 0;
-                }
-            }
-        }
+    &__stats {
+        font-size: 1.125em;
+        line-height: 1.6;
     }
 
-    &__locked {
-        font-size: .875em;
+    &__param {
+        font-size: .75em;
         padding: .25em;
         background: var(--bg-darker-2);
         width: 1.5em;
         height: 1.5em;
         display: inline-block;
-        margin: 0 .5em 0 0;
+        margin-right: .25em;
         text-align: center;
         line-height: 1.5;
         border-radius: .25em;
@@ -681,22 +547,23 @@
             font-size: 1.125em;
             background: var(--bg-darker-2);
             text-decoration: none;
-            padding: .25em 1em;
+            padding: .25em .75em;
             border-radius: 5em;
-            margin: 0 .5em 0 0;
             box-shadow: var(--block-box-shadow);
+            font-weight: 600;
+            transition: all .2s;
             @include light() {
-                background: none;
+                background: rgba(255, 255, 255, .07);
                 box-shadow: none;
                 color: var(--box-text-color-dark);
-                font-weight: bold;
             }
 
             &:hover {
                 background: var(--bg-darkest);
                 color: var(--box-text-color-dark);
                 @include light() {
-                    background: rgba(255, 255, 255, .1);
+                    color: var(--primary);
+                    background: rgba(255, 255, 255, .12);
                 }
             }
 
@@ -716,6 +583,7 @@
         left: -1em;
         width: calc(100% + 2em);
         background: var(--box-color-dark);
+        color: var(--box-text-color-dark);
         height: 7em;
         @include mobile() {
             position: unset;
@@ -738,15 +606,10 @@
         }
 
         &__outer {
-            height: 7em;
+            height: 6em;
             @include mobile() {
                 height: unset;
                 margin: 0 -1em;
-            }
-            @include light() {
-                & + .forum-section__messages {
-                    margin: 2em 0 0;
-                }
             }
         }
 
@@ -778,34 +641,10 @@
             }
         }
 
-        & + div {
-            margin-top: 7em;
-        }
+
     }
 }
 
-.forum-page {
-    &--form {
-
-        .forum__top-panel {
-            height: 3.25em;
-        }
-
-        .forum__top-panel__outer {
-            height: 4em;
-        }
-    }
-
-    &--topic-form {
-        .forum__top-panel {
-            height: 6.25em;
-        }
-
-        .forum__top-panel__outer {
-            height: 7em;
-        }
-    }
-}
 
 .forum-message {
     display: flex;
@@ -813,9 +652,11 @@
     margin: .5em 0;
     border: 1px solid var(--border-color);
     font-size: 1.125em;
+    border-radius: .5em;
+    padding: 1em;
 
-    iframe {
-        max-width: 100%;
+    &:empty {
+        display: none;
     }
 
     @include mobile() {
@@ -829,14 +670,16 @@
         box-shadow: none;
     }
 
+    iframe {
+        max-width: 100%;
+    }
     &__top {
         display: flex;
-        background: var(--bg-darker);
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
         white-space: nowrap;
-        width: 16em;
+        width: 12em;
 
         @include mobile {
             z-index: 10;
@@ -849,9 +692,9 @@
     }
 
     &__content {
+        line-height: 1.4;
         position: relative;
         flex: 2;
-        background: var(--box-color);
         @include mobile {
             padding: .5em !important;
             border: none !important;
@@ -938,7 +781,7 @@
     }
 
     &__avatar {
-        margin: 1em 1em 0;
+        margin: 1em 0;
         width: 12em;
         @include mobile {
             display: none;
@@ -946,9 +789,9 @@
     }
 
     &__user-texts {
-        margin: 1em;
         text-align: center;
         display: flex;
+        gap: .25em;
         flex-direction: column;
         align-items: center;
         @include mobile {
@@ -998,23 +841,23 @@
 
     &__username {
         color: var(--text-lighter);
-        font-weight: bold;
-        margin: 0 0 .5em;
+        font-weight: 600;
+        text-decoration: none;
         width: calc(100% - 1.25em);
         text-align: center;
         border: none;
-        padding: 1em 0 0;
+        transition: color .2s;
+        margin-bottom: .5em;
+        &:hover {
+            color: var(--primary);
+        }
+
         @include mobile {
             font-size: .875em;
             background: none;
             border: none;
             display: none;
         }
-    }
-
-    &__content {
-        flex: 1;
-        padding: 1em;
     }
 
     &__group-icon {
@@ -1035,10 +878,10 @@
         position: relative;
         z-index: 1;
         border-bottom: 1px solid var(--border-color);
-        background: var(--bg-darker);
         font-weight: 500;
         font-size: .875em;
-        padding: 1em 1.25em;
+        background: none;
+        padding: 0 0 1em;
         @include mobile {
             display: none;
         }
@@ -1049,6 +892,10 @@
         flex: 3.5;
         display: flex;
         flex-direction: column;
+        padding-left: 1em;
+        gap: var(--col-margin);
+        margin-left: 1em;
+
         @include mobile {
             border: none;
             flex: unset;
@@ -1093,9 +940,8 @@
 
     &__signature {
         font-size: .875em;
-        padding: 1em;
+        padding-top: 1em;
         border-top: 1px solid var(--border-color);
-        background: var(--bg-darker);
         @include mobile {
             padding: .5em;
             img {
@@ -1105,45 +951,21 @@
     }
 
     &__actions {
-        padding: .5em 1em;
+        padding: 1em 0 0;
         display: flex;
         align-items: center;
         justify-content: space-between;
         font-size: .875em;
-        background: var(--bg-darker-2);
         border: none;
         border-top: 1px solid var(--border-color);
         @include mobile {
             display: none;
         }
-
-        .button__text {
-            display: none;
-        }
-
-        &__left {
-            @include mobile {
-
-            }
-        }
-
-        &__right {
-            .button {
-                i {
-                    margin: 0;
-                }
-            }
-        }
-    }
-
-    &__edit-form {
-        padding: 1em;
     }
 
     &__user-comment {
         font-size: .875em;
         white-space: normal;
-        margin: 0 0 1em;
     }
 
     &__mobile-left {

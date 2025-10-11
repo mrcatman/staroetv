@@ -5,37 +5,132 @@ namespace App\Http\Controllers;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\TeletextHelper;
 use App\Helpers\ViewsHelper;
-use App\Jobs\ProcessTeletext;
 use App\Models\Channel;
-use App\Models\Program;
-use App\Models\Record;
 use App\Models\Teletext;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class TeletextController extends Controller {
 
     private $texts = [
         [
-            'name' => 'Центр-Инфо',
+            'name' => 'Телеинф',
+            'url' => 'teleinf',
             'channels' => [
-                ['url' => 'tv-center']
+                ['url' => 'ort', 'date_start' => [1,1,1991], 'date_end' => [31,12,2003]],
+            ]
+        ],
+        [
+            'name' => 'Телетекст Первого канала',
+            'url' => 'channel-one',
+            'channels' => [
+                ['url' => 'ort', 'date_start' => [1,1,2004], 'date_end' => [1,1,2020]],
+            ]
+        ],
+        [
+            'name' => 'Р-Тел',
+            'url' => 'r-tel',
+            'channels' => [
+                ['url' => 'rtr']
             ]
         ],
         [
             'name' => 'Блиц-Текст',
+            'url' => 'blitz-text',
             'channels' => [
                 ['url' => 'ntv']
             ]
         ],
         [
-            'name' => 'Телеинф',
+            'name' => 'Центр-Инфо',
+            'url' => 'center-info',
             'channels' => [
-                ['url' => 'ort', 'date_start' => [1,1,1992], 'date_end' => [1,1,2002]],
+                ['url' => 'tv-center']
             ]
-        ]
+        ],
+        [
+            'name' => 'Мостекст',
+            'url' => 'mostext',
+            'channels' => [
+                ['url' => 'mtk'],
+                ['url' => '2x2'],
+            ]
+        ],
     ];
+
+    private function findResults($query, $text)
+    {
+        $channels = [];
+        foreach ($text['channels'] as $channel_params) {
+
+            $channel = Channel::where(['url' => $channel_params['url']])->first();
+            if (isset($channel_params['date_start'])) {
+                $date_start = Carbon::createFromDate($channel_params['date_start'][2], $channel_params['date_start'][1], $channel_params['date_start'][0]);
+                $date_end = Carbon::createFromDate($channel_params['date_end'][2], $channel_params['date_end'][1], $channel_params['date_end'][0]);
+                $query = $query->orWhere(function ($q) use ($channel, $date_start, $date_end) {
+                    $q->where(['channel_id' => $channel->id]);
+                    return $q->whereBetween('date', [$date_start, $date_end]);
+                });
+
+                $names = $channel->names->filter(function($name) use ($date_start) {
+                    return (!$name->date_end || $name->date_end->gt($date_start));
+                })->unique('name');
+                foreach ($names as $name) {
+                    $channels[] = [
+                        'id' => $channel->id,
+                        'url' => $channel->full_url,
+                        'name' => $name->name,
+                        'logo' => $name->logo ? $name->logo->url : null
+                    ];
+                }
+            } else {
+                $query = $query->orWhere(function ($q) use ($channel) {
+                    $q->where(['channel_id' => $channel->id]);
+                });
+                $channels[] = [
+                    'id' => $channel->id,
+                    'url' => $channel->full_url,
+                    'name' => $channel->name,
+                    'logo' => $channel->logo ? $channel->logo->url : null
+                ];
+            }
+        }
+        return [$query, $channels];
+    }
+
+    private function getBreadcrumb(Teletext $teletext)
+    {
+        if (!$teletext->channel) {
+            return null;
+        }
+        $texts = array_values(array_filter($this->texts, function($text) use ($teletext) {
+            foreach ($text['channels'] as $channel_params) {
+                if ($channel_params['url'] == $teletext->channel->url) {
+                    if (!isset($channel_params['date_start'])) {
+                        return true;
+                    }
+                    $date_start = Carbon::createFromDate($channel_params['date_start'][2], $channel_params['date_start'][1], $channel_params['date_start'][0]);
+                    $date_end = Carbon::createFromDate($channel_params['date_end'][2], $channel_params['date_end'][1], $channel_params['date_end'][0]);
+                    if ($teletext->date->gt($date_start) && $teletext->date->lt($date_end)) {
+                        return true;
+                    }
+
+                }
+            }
+            return false;
+        }));
+        if (count($texts) > 0) {
+            return [
+                'name' => $texts[0]['name'],
+                'url' => '/teletext/channels/'.$texts[0]['url']
+            ];
+        }
+        return [
+            'name' => $teletext->channel_name,
+            'url' => '/teletext/channels/'.($teletext->channel->url ? $teletext->channel->url : $teletext->channel->id)
+        ];
+    }
 
     public function index() {
         $params = [];
@@ -43,61 +138,103 @@ class TeletextController extends Controller {
             $params['pending'] = false;
         }
 
-
+        $used_channel_ids = [];
         $sections = [];
         foreach ($this->texts as $text) {
             $section = [
                 'name' => $text['name'],
-                'channels' => [],
-                'items' => []
+                'url' => $text['url'],
             ];
 
-            $items = Teletext::inRandomOrder()->limit(5);
-            foreach ($text['channels'] as $channel_params) {
-                if (!isset($channels[$channel_params['url']])) {
-                    $channels[$channel_params['url']] = Channel::where(['url' => $channel_params['url']])->first();
-                }
-
-                $channel = $channels[$channel_params['url']];
-                if (isset($channel_params['date_start'])) {
-                    $date_start = Carbon::createFromDate($channel_params['date_start'][2], $channel_params['date_start'][1], $channel_params['date_start'][0]);
-                    $date_end = Carbon::createFromDate($channel_params['date_end'][2], $channel_params['date_end'][1], $channel_params['date_end'][0]);
-                    $items = $items->orWhere(function ($q) use ($channel, $date_start, $date_end) {
-                        $q->where(['channel_id' => $channel->id]);
-                        return $q->whereBetween('date', [$date_start, $date_end]);
-                    });
-
-                    $names = $channel->names->filter(function($name) use ($date_start, $date_end) {
-                        return $name->date_start->gt($date_start) || $name->date_end->lt($date_end);
-                    })->unique('name');
-                    foreach ($names as $name) {
-                        $section['channels'][] = [
-                            'url' => $channel->full_url,
-                            'name' => $name->name,
-                            'logo' => $name->logo ? $name->logo->url : null
-                        ];
-                    }
-                } else {
-                    $items = $items->orWhere(function ($q) use ($channel) {
-                        $q->where(['channel_id' => $channel->id]);
-                    });
-                    $section['channels'][] = [
-                        'url' => $channel->full_url,
-                        'name' => $channel->name,
-                        'logo' => $channel->logo ? $channel->logo->url : null
-                    ];
-                }
-            }
+            $query = Teletext::inRandomOrder()->limit(4);
+            [$items, $channels] = $this->findResults($query, $text);
 
             $section['items'] = $items->get();
+            $section['channels'] = $channels;
+            foreach ($channels as $channel) {
+                $used_channel_ids[] = $channel['id'];
+            }
 
             $sections[] = $section;
         }
 
-        $new = Teletext::where($params)->orderBy('created_at', 'desc')->paginate(24);
+        $other_channel_ids = Teletext::whereNotIn('channel_id', $used_channel_ids)->pluck('channel_id')->unique();
+        $channels = Channel::whereIn('id', $other_channel_ids)->get();
+        foreach ($channels as $channel) {
+            $section = [
+                'name' => 'Телетекст '.$channel->name,
+                'url' => $channel->url,
+                'channels' => [
+                    [
+                        'url' => $channel->full_url,
+                        'name' => $channel->name,
+                        'logo' => $channel->logo ? $channel->logo->url : null
+                    ]
+                ],
+            ];
+            $section['items'] = Teletext::where(['channel_id' => $channel->id])->inRandomOrder()->limit(4)->get();
+
+            $sections[] = $section;
+        }
+
+        $items = Teletext::where($params)->orderBy('created_at', 'desc');
+        $years = (clone $items)->where('year', '>', 0)->groupBy('year')->select('year', DB::raw('count(*) as count'))->pluck('count', 'year')->sortKeys();
+        $selected_year = request()->input('year');
+        if ($selected_year) {
+            $items = $items->where(['year' => $selected_year]);
+        }
+        $items = $items->paginate(24);
+
         return view('pages.teletext.index', [
-            'new' => $new,
+            'items' => $items,
+            'years' => $years,
+            'selected_year' => $selected_year,
             'sections' => $sections
+        ]);
+    }
+
+    public function channel($url)
+    {
+        $texts = array_values(array_filter($this->texts, function($text) use ($url) {
+            return $text['url'] == $url;
+        }));
+
+        $query = Teletext::query()->orderBy('created_at', 'desc');
+        $channels = [];
+        if (count($texts) > 0) {
+            $text = $texts[0];
+            $title = $text['name'];
+
+            [$items, $channels] = $this->findResults($query, $text);
+        } else {
+            $channel = Channel::findByIdOrUrl($url);
+            if (!$channel) {
+                return redirect('/teletext');
+            }
+            $title = $channel->name;
+            $items = $query->where(['channel_id' => $channel->id]);
+            $channels = [$channel];
+        }
+
+        $years = (clone $items)->where('year', '>', 0)->groupBy('year')->select('year', DB::raw('count(*) as count'))->pluck('count', 'year')->sortKeys();
+        $selected_year = request()->input('year');
+        if ($selected_year) {
+            $items = $items->where(['year' => $selected_year]);
+        }
+
+        $items = $items->paginate(24);
+
+        $related = Teletext::inRandomOrder()->limit(10)->get();
+
+        return view('pages.teletext.channel', [
+            'url' => $url,
+            'title' => $title,
+            'years' => $years,
+            'selected_year' => $selected_year,
+            'items' => $items,
+            'channels' => $channels,
+            'related' => $related,
+
         ]);
     }
 
@@ -106,7 +243,6 @@ class TeletextController extends Controller {
         if (!$teletext || !count($teletext->pages)) {
             return redirect("/");
         }
-        ViewsHelper::increment($teletext, 'teletext');
 
         $page = request()->input('page', $teletext->pages[0]);
         if (!in_array($page, $teletext->pages)) {
@@ -118,9 +254,12 @@ class TeletextController extends Controller {
             return $content;
         }
 
+        ViewsHelper::increment($teletext, 'teletext');
         $related = Teletext::where('id', '!=', $teletext->id)->inRandomOrder()->limit(10)->get();
 
         $index = array_search($page, $teletext->pages);
+
+        $breadcrumb = $this->getBreadcrumb($teletext);
 
         $navigation = [
             'prev' => $index > 0 ? $teletext->pages[$index - 1] : $teletext->pages[count($teletext->pages) - 1],
@@ -129,6 +268,7 @@ class TeletextController extends Controller {
 
         return view("pages.teletext.show", [
             'teletext' => $teletext,
+            'breadcrumb' => $breadcrumb,
             'page' => $page,
             'content' => $content,
             'navigation' => $navigation,
@@ -140,7 +280,7 @@ class TeletextController extends Controller {
         if (!PermissionsHelper::allows('teletextown') && !PermissionsHelper::allows('teletext')) {
             return view("pages.errors.403");
         }
-        return view("pages.forms.teletext", [
+        return view("pages.teletext.form", [
             'teletext' => null,
             'channels' => $this->getChannels()
         ]);
@@ -154,7 +294,7 @@ class TeletextController extends Controller {
         if (!$teletext->can_edit) {
             return view("pages.errors.403");
         }
-        return view("pages.forms.teletext", [
+        return view("pages.teletext.form", [
             'teletext' => $teletext,
             'channels' => $this->getChannels()
         ]);
@@ -223,7 +363,7 @@ class TeletextController extends Controller {
             }
             $teletext->fill($data);
 
-            if (!$is_new) {
+            if ($is_new) {
                 $teletext->author_id = auth()->user()->id;
                 $teletext->pending = !PermissionsHelper::allows('contentapprove');
             }
@@ -243,34 +383,26 @@ class TeletextController extends Controller {
         }
     }
 
-    public function delete() {
-        $program = Program::find(request()->input('program_id'));
-        if (!$program) {
+    public function delete()
+    {
+        $teletext = Teletext::find(request()->input('teletext_id'));
+        if (!$teletext) {
             return [
                 'status' => 0,
-                'text' => 'Канал не найден'
+                'text' => 'Телетекст не найден'
             ];
         }
-        if (!$program->can_edit) {
+        if (!$teletext->can_edit) {
             return [
                 'status' => 0,
                 'text' => 'Ошибка доступа'
             ];
         }
-        Record::where(['program_id' => $program->id])->update(['program_id' => -1]);
-        $program->delete();
-        if (request()->input('_from_confirm_form')) {
-            return [
-                'status' => 1,
-                'text' => 'Программа удалена',
-                'redirect_to' => '/video'
-            ];
-        } else {
-            return [
-                'status' => 1,
-                'text' => 'Программа удалена'
-            ];
-        }
+        $teletext->delete();
+        return [
+            'status' => 1,
+            'text' => 'Телетекст удален'
+        ];
     }
 
     public function approve() {

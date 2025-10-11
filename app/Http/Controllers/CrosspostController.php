@@ -73,7 +73,7 @@ class CrosspostController extends Controller {
 
     public function add() {
         $services = $this->getServicesList();
-        return view("pages.forms.crossposting", [
+        return view("pages.crossposting.form", [
             'crosspost' => null,
             'services' => $services
         ]);
@@ -87,7 +87,7 @@ class CrosspostController extends Controller {
     public function edit($id) {
         $services = $this->getServicesList();
         $crosspost = SocialPost::find($id);
-        return view("pages.forms.crossposting", [
+        return view("pages.crossposting.form", [
             'crosspost' => $crosspost,
             'services' => $services
         ]);

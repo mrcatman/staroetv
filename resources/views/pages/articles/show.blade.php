@@ -14,7 +14,6 @@
 
     <div class="row row--stretch">
         <div class="col col--2">
-            <div class="row row--vertical">
                 <div class="box">
                     <div class="box__inner">
                         <div class="article-page">
@@ -36,12 +35,22 @@
                                     <span class="icon-block"><i class="fa fa-user"></i><span
                                             class="icon-block__text">{{$article->username}}</span></span>
                                 @endif
-                                @if ($article->source != '')
+                                @if ($article->source != '' && !str_contains($article->source, 'staroetv.su'))
                                     <a target=_blank href="{{$article->source}}" class="icon-block"><i
                                             class="fa fa-link"></i><span
                                             class="icon-block__text">{{$article->source}}</span></a>
                                 @endif
+                                @if ($show_actions_panel)
+                                    <span data-id="{{$article->id}}"
+                                          class="button button--light button--dropdown  button--article-menu">
+                        <span class="button--dropdown__text">Действия</span>
+                         <span class="button--dropdown__icon">
+                             <i class="fa fa-chevron-down"></i>
+                         </span>
+                         <div class="button--dropdown__list" id="actions_list_{{$article->id}}"></div>
+                     </span>
 
+                                @endif
                             </div>
 
                             <div class="tags-list">
@@ -50,17 +59,6 @@
                                 @endforeach
                             </div>
 
-                            @if ($show_actions_panel)
-                                <span data-id="{{$article->id}}"
-                                      class="button button--light button--dropdown  button--article-menu">
-                        <span class="button--dropdown__text">Действия</span>
-                         <span class="button--dropdown__icon">
-                             <i class="fa fa-chevron-down"></i>
-                         </span>
-                         <div class="button--dropdown__list" id="actions_list_{{$article->id}}"></div>
-                     </span>
-
-                            @endif
 
                             <div class="inner-page__text">
                                 {!! $article->fixed_content !!}
@@ -71,7 +69,7 @@
                     </div>
                 </div>
                 @include('blocks/comments', ['ajax' => false, 'lazyload' => true, 'page' => 1, 'conditions' => ['material_type' => $article->type_id ? $article->type_id : 1, 'material_id' => $article->original_id]])
-            </div>
+
         </div>
         <div class="col">
             <div class="box">
@@ -103,6 +101,5 @@
                 </div>
             </div>
         </div>
-    </div>
     </div>
 @endsection

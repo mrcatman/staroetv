@@ -2,8 +2,11 @@
 @section('content')
     <div class="private-messages box">
         <div class="box__heading">
-            Написать новое сообщение
-            <div class="box__heading__right box__heading__right--full-width"><a class="button" href="/pm">Назад</a></div>
+            <div class="box__heading__inner">
+                Написать новое сообщение
+            </div>
+
+            <div class="box__heading__right"><a class="button button--light" href="/pm">Назад</a></div>
        </div>
         <div class="private-messages__inner box__inner">
             <form method="POST" class="form">

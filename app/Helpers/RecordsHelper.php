@@ -1,6 +1,7 @@
 <?php
 namespace App\Helpers;
 
+use App\Constants\Periods;
 use App\Models\Channel;
 use App\Models\Record;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,10 @@ class RecordsHelper {
             });
 
             unset($conditions['program_id_in']);
+        }
+        if (isset($conditions['period'])) {
+            $records = $records->whereBetween('date', Periods::getDatesInterval($conditions['period']));
+            unset($conditions['period']);
         }
         if (isset($conditions['interprogram_type_in'])) {
             $records = $records->whereIn('interprogram_type', $conditions['interprogram_type_in']);
@@ -71,10 +76,10 @@ class RecordsHelper {
         return $records;
     }
 
-    public static function get($conditions)
+    public static function get($conditions, $ajax = false)
     {
         $query_params = request()->except(['_pjax', 'block_title']);
-        $base_link = request()->url();
+        $base_link = $ajax ? parse_url(request()->headers->get('referer'), PHP_URL_PATH) : request()->url();
 
         $sort = "added";
         $sort_field = "original_added_at";
