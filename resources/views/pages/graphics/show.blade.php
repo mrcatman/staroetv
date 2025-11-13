@@ -55,7 +55,6 @@
                                         <a class="button--dropdown__list__item"
                                            href="/channels/{{$channel->id}}/graphics/edit/{{$package->id}}">Редактировать</a>
                                             <a class="button--dropdown__list__item"
-                                               data-confirm-form-input-name="package_id"
                                                data-confirm-form-input-value="{{$package->id}}"
                                                data-confirm-form-text="Вы уверены, что хотите удалить пакет?"
                                                data-confirm-form-url="/graphics/delete">Удалить</a>
@@ -87,7 +86,7 @@
                                     @endif
                                     <div class="records-list records-list--thumbs">
                                         @foreach ($annotation['records'] as $record)
-                                            @include('blocks/record')
+                                            @include('blocks.records.item')
                                         @endforeach
                                     </div>
                                 </div>
@@ -99,53 +98,17 @@
                     </div>
                 </div>
         </div>
-                @include('blocks/comments', ['class' => 'interprogram-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Models\InterprogramPackage::TYPE_INTERPROGRAM, 'material_id' => $package->id]])
+        @include('blocks/comments', [ 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Models\InterprogramPackage::TYPE_INTERPROGRAM, 'material_id' => $package->id]])
 
-            @else
+        @else
 
-                @include('blocks/records.list', ['conditions' => $records_conditions])
-            @endif
-        </div>
+            @include('blocks.records.list', ['conditions' => $records_conditions])
+        @endif
+    </div>
 
     <div class="col col--sidebar">
-
-        <div class="col">
-            @if (count($related) > 0)
-            <div class="box">
-                <div class="box__heading box__heading--small">
-                    <div class="box__heading__inner">
-                        Смотрите также
-                    </div>
-                </div>
-                <div class="box__inner">
-                    <div class="interprogram-page__related">
-                        <div class="records-list">
-                            @foreach ($related as $item)
-                                <a href="{{$item->full_url}}" class="record-item">
-                                    <div class="record-item__cover"
-                                         style="background-image: url({{$item->one_cover}})"></div>
-                                    <div class="record-item__texts">
-                                        <span class="record-item__title">
-                                            {{$item->name != "" ? $item->name : $item->years_range}}
-                                        </span>
-                                        <div class="record-item__info">
-                                            @if ($item->name != "")
-                                                <span class="record-item__date">
-                                                    <i class="fa fa-calendar"></i>{{$item->years_range}}
-                                                 </span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </a>
-                            @endforeach
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            @endif
-            @include('blocks/generic_sidebar', ['hide_articles' => true])
-        </div>
+        @include('blocks.interprogram.related')
+        @include('blocks/generic_sidebar', ['hide_articles' => true])
     </div>
 
 @endsection

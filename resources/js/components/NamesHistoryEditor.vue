@@ -61,16 +61,11 @@
     .channel-names {
         flex: 1;
          font-size: 1.25em;
-        padding: 0;
-        background: var(--bg-darker);
-        border: 1px solid var(--border-color);
         font-family: unset;
         &__bottom {
             font-size: .75em;
-            padding: 1em;
             margin: 0;
             border: none;
-            background: var(--bg-darker-2);
         }
         &__datepicker-container {
             margin: -2.25em .5em 0 .5em!important;
@@ -91,7 +86,6 @@
 
         &__inner {
             font-size: .75em;
-            margin: -1em 0 0;
         }
     }
 </style>

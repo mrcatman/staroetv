@@ -5,10 +5,9 @@
     background: var(--box-color);
     box-shadow: var(--block-box-shadow);
     border-top: 1px solid var(--border-color);
-
+    position: relative;
     @include light() {
         background: #fff;
-        box-shadow: none;
         border: 1px solid var(--border-color);
         border-radius: .75em;
         flex: 1;
@@ -18,10 +17,22 @@
         margin: .5em 0;
     }
 
-    &--top {
+    &:before {
+        z-index: 0;
+        background-image: url("/resources/images/fabric.jpg");
+        background-size: 200px;
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        opacity: .12;
         @include light() {
-            border-top-left-radius: 0;
-            border-top-right-radius: 0;
+            filter: contrast(2.25);
+            opacity: .06;
         }
     }
 
@@ -37,7 +48,12 @@
     }
 
     &__breadcrumbs {
-        padding: 1em 1em 0;
+        padding: 1em;
+        background: linear-gradient(to right, #111 30%, #454545);
+        @include light() {
+            padding: 1em 1em 0;
+            background: none;
+        }
     }
 
     &__heading {
@@ -52,8 +68,10 @@
         text-overflow: ellipsis;
         position: relative;
 
-        @include mobile {
-            align-items: flex-start;
+        @include mobile() {
+            min-height: unset;
+            flex-direction: column;
+            align-items: stretch;
         }
 
         &:before {
@@ -64,7 +82,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(90deg, #fff 0, #fff 2.45em, rgba(255, 255, 255, 0) 2.5em, rgba(255, 255, 255, 0) 5em 5em);
+            background: repeating-linear-gradient(90deg, #fff 0, #fff 1.74em, rgba(255, 255, 255, 0) 1.75em, rgba(255, 255, 255, 0) 3.5em 3.5em);
+            mask-image: linear-gradient(to bottom, black 20%, transparent 100%);
             opacity: 0.05;
             pointer-events: none;
             z-index: 0;
@@ -81,7 +100,6 @@
             width: calc(100% - 2em);
             height: 1px;
             background: var(--border-color);
-            opacity: .5;
         }
 
         &__buttons {
@@ -112,11 +130,6 @@
             margin-right: .5em;
         }
 
-        @include mobile {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
         &__right {
             margin-left: auto;
             white-space: nowrap;
@@ -126,12 +139,11 @@
             }
 
             @include mobile {
-                margin: 1em 0 0;
+                margin: 0;
             }
         }
 
         &__count {
-            margin: 0 0 .125em .25em;
             font-size: 1.25em;
             color: var(--primary);
         }
@@ -196,6 +208,27 @@
     }
 }
 
+.col--sidebar .box {
+    &__inner {
+        &:before {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(90deg, #fff 0, #fff 1.74em, rgba(255, 255, 255, 0) 1.75em, rgba(255, 255, 255, 0) 3.5em 3.5em);
+            mask-image: linear-gradient(to bottom, black 0%, transparent 95%);
+            opacity: 0.0175;
+            pointer-events: none;
+            z-index: 0;
+            @include light() {
+                display: none;
+            }
+        }
+    }
+}
 
 a.box__heading .box__heading__inner:after {
     font-family: "Font Awesome 5 Free";

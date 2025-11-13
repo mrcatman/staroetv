@@ -9,21 +9,34 @@
                 {{$params['is_radio'] ? "Архив старых радиозаписей" : "Архив старых телезаписей"}}
             </div>
             <div class="box__heading__right">
-                @if (\App\Helpers\PermissionsHelper::allows('channelsown'))
-                    @if ($params['is_radio'])
-                        <a class="button" href="/channels/add?is_radio=1">Добавить радиостанцию</a>
-                    @else
-                        <a class="button" href="/channels/add?is_radio=0">Добавить канал</a>
+                @if (\App\Helpers\PermissionsHelper::allows('channelsown') || \App\Helpers\PermissionsHelper::allows('viadd'))
+                <div class="buttons-row">
+                    @if (\App\Helpers\PermissionsHelper::allows('channelsown'))
+                        @if ($params['is_radio'])
+                            <a class="button" href="/channels/add?is_radio=1">Добавить радиостанцию</a>
+                        @else
+                            <a class="button" href="/channels/add?is_radio=0">Добавить канал</a>
+                        @endif
                     @endif
-                @endif
 
-                @if (\App\Helpers\PermissionsHelper::allows('viadd'))
-                    @if ($params['is_radio'])
-                        <a class="button" href="/radio/add">Добавить радиозапись</a>
-                    @else
-                        <a class="button" href="/video/add">Добавить видео</a>
-                        <a class="button" href="/mass-upload">Массовая загрузка</a>
+                    @if (\App\Helpers\PermissionsHelper::allows('viadd'))
+                        @if ($params['is_radio'])
+                            <a class="button" href="/radio/add">
+                                <i class="fa fa-file-audio"></i>
+                                Добавить радиозапись
+                            </a>
+                        @else
+                            <a class="button" href="/video/add">
+                                <i class="fa fa-film"></i>
+                                Добавить видео
+                            </a>
+                            <a class="button" href="/mass-upload">
+                                <i class="fa fa-upload"></i>
+                                Массовая загрузка
+                            </a>
+                        @endif
                     @endif
+                </div>
                 @endif
             </div>
         </div>
@@ -104,13 +117,13 @@
                         @if(!$params['is_radio'])
                             <div class="records-list  records-list--thumbs">
                                 @foreach($last_records as $record)
-                                    @include('blocks/record', ['record' => $record])
+                                    @include('blocks.records.item', ['record' => $record])
                                 @endforeach
                             </div>
                         @else
                             <div class="records-list">
                                 @foreach($last_records as $record)
-                                    @include('blocks/radio_recording', ['record' => $record])
+                                    @include('blocks.records.radio-item', ['record' => $record])
                                 @endforeach
                             </div>
                         @endif
@@ -120,7 +133,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col">
+            <div class="col col--sidebar">
                 <div class="box">
                     <div class="box__inner">
                         @include ('blocks/records_material_categories', ['is_radio' => $params['is_radio']])

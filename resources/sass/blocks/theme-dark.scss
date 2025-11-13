@@ -6,6 +6,7 @@
     --border-color: #444444;
     --box-color-hover: #1b1b1b;
     --bg-darker: #292929;
+    --inputs-color: --bg-darker;
     --bg-darkest: #777;
     --box-color-dark: #282828;
     --box-text-color-dark: #fff;
@@ -226,10 +227,4 @@
         height: 49em;
     }
 
-}
-
-@include mobile() {
-    .content > #pjax-container {
-        padding: 0!important;
-    }
 }

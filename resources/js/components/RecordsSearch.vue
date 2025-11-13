@@ -174,7 +174,7 @@
                 padding: 0 0 1em;
                 box-shadow: none;
                 border-bottom: 1px solid var(--border-color);
-                margin-bottom: 2em;
+                margin-bottom: 1em;
             }
             @include mobile {
                 padding: 1em 1em .5em .5em;

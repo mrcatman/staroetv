@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\EncryptCookies;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
@@ -26,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->app['request']->server->set('HTTPS','on');
-        Paginator::useBootstrapFour();;
+        Paginator::useBootstrapFour();
+        EncryptCookies::except('theme-dark');
     }
 }

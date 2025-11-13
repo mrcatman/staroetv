@@ -12,8 +12,8 @@
     border-radius: 0;
     margin: 0 0 -1px;
     @include mobile {
-        font-size: .75em;
-        display: flex;
+        flex: 1;
+        font-size: .875em;
     }
 
     &:hover {
@@ -22,9 +22,7 @@
     }
     &--active {
         border-bottom: 2px solid var(--primary);
-        @include mobile {
-            border-bottom: 4px solid var(--primary);
-        }
+
 
         &:hover {
             border-bottom: 2px solid var(--primary);
@@ -40,9 +38,7 @@
     width: 100%;
     display: flex;
     @include mobile {
-        width: auto;
-        overflow: auto;
-        overflow-y: hidden;
+        flex-wrap: wrap;
     }
     &--full-size {
         display: flex;

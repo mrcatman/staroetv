@@ -26,7 +26,7 @@
                         <div class="box__inner">
                             <div class="interprogram-packages-list">
                                 @foreach($channel_packages as $package)
-                                    @include('blocks.interprogram_package', ['package' => $package])
+                                    @include('blocks.interprogram.package')
                                 @endforeach
                             </div>
                         </div>

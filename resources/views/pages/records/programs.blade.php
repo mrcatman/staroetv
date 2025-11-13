@@ -8,10 +8,10 @@
             <div class="channel-page__programs">
                 <div class="categories-list">
                     <a class="category @if (!$period) category--active @endif"
-                       href="{{request()->url()}}?{{http_build_query(\App\Helpers\ArraysHelper::diffAssoc(request()->query(), ['period']))}}">Все</a>
+                       href="{{request()->url()}}?{{http_build_query(\App\Helpers\ArraysHelper::diffAssoc(request()->query(), ['page','period']))}}">Все</a>
                     @foreach(\App\Constants\Periods::LIST as $period_item)
                         <a class="category @if ($period && $period['url'] == $period_item['url']) category--active @endif"
-                           href="{{request()->url()}}?{{http_build_query(array_merge(request()->query(), ['period' => $period_item['url']]))}}">{{$period_item['name']}}</a>
+                           href="{{request()->url()}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc(request()->query(), ['page', 'year']), ['period' => $period_item['url']]))}}">{{$period_item['name']}}</a>
                     @endforeach
                 </div>
                 <div
@@ -26,6 +26,6 @@
             </div>
         </div>
     </div>
-    @include('blocks/records.list', ['conditions' => $records_conditions])
+    @include('blocks.records.list', ['conditions' => $records_conditions])
 
 @endsection

@@ -44,7 +44,7 @@
     </div>
 
     @guest
-        @include('blocks/login_form')
+        @include('blocks.auth.login-modal')
     @endguest
     @include('blocks/survey_form')
 </body>
@@ -52,7 +52,7 @@
 <script src="https://yastatic.net/share2/share.js"></script>
 <script src="https://www.google.com/recaptcha/api.js?render=6LccwdUZAAAAANbvD4YOUIKQXR77BP8Zg5A-a9UT"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-
+<script async src="https://telegram.org/js/telegram-widget.js?22"></script>
 <script src="//cdn.ckeditor.com/4.12.1/standard/ckeditor.js"></script>
 @endif
 @if (!$pjax)

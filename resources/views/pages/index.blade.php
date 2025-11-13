@@ -50,7 +50,7 @@
                     <div class="box__inner">
                         <div class="records-list records-list--small">
                             @foreach($records as $record)
-                                @include('blocks.record')
+                                @include('blocks.records.item')
                             @endforeach
                         </div>
                     </div>
@@ -85,7 +85,7 @@
                         <div class="box__inner">
                             <div class="records-list">
                                 @foreach($last_viewed as $last_viewed_record)
-                                    @include('blocks/record', ['record' => $last_viewed_record])
+                                    @include('blocks.records.item', ['record' => $last_viewed_record])
                                 @endforeach
                             </div>
 
@@ -103,7 +103,7 @@
                         <div class="box__inner">
                             <div class="records-list">
                                 @foreach($in_this_day as $in_this_day_record)
-                                    @include('blocks/record', ['record' => $in_this_day_record])
+                                    @include('blocks.records.item', ['record' => $in_this_day_record])
                                 @endforeach
                             </div>
                         </div>

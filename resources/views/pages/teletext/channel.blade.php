@@ -19,7 +19,7 @@
             <div class="col col--3 teletext-page__content">
                 @include('blocks.teletext.list')
             </div>
-            <div class="col col--1 record-page__related-container">
+            <div class="col col--sidebar col--1 record-page__related-container">
                 @if ($related && count ($related) > 0)
                     <div class="box">
                         <div class="box__heading box__heading--small">

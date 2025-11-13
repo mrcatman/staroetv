@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Forum;
 
 use App\Helpers\BBCodesHelper;
 use App\Helpers\DatesHelper;
 use App\Helpers\ForumPaginator;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
+use App\Http\Controllers\Controller;
 use App\Models\Forum;
 use App\Models\ForumMessage;
 use App\Models\ForumTopic;

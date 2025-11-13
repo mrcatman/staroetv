@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Helpers\CaptchaHelper;
 use App\Mail\VerifyAccount;
 use App\Models\User;
 use App\Http\Controllers\Controller;
@@ -22,29 +23,13 @@ class RegisterController extends Controller
 
     public function register()
     {
-        $recaptcha_response = request()->input('g-recaptcha-response');
-        if (!Cache::has("recaptcha_" . $recaptcha_response)) {
-            $curl = curl_init();
-            curl_setopt_array($curl, [
-                CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_URL => 'https://www.google.com/recaptcha/api/siteverify',
-                CURLOPT_POST => 1,
-                CURLOPT_POSTFIELDS => [
-                    'secret' => "6LccwdUZAAAAAM_qSrMovsqGl3WQKmGjag1n0OkW",
-                    'response' => $recaptcha_response
-                ]
-            ]);
-            $captcha_status = json_decode(curl_exec($curl));
-            curl_close($curl);
-            if (!isset($captcha_status->score) || $captcha_status->score < 0.5 ) {
-                return [
-                    'status' => 0,
-                    'text' => 'Скорее всего вы робот :(',
-                ];
-            } else {
-                Cache::put("recaptcha_" . $recaptcha_response, 1, 600);
-            }
+        if (!CaptchaHelper::verify()) {
+            return [
+                'status' => 0,
+                'text' => 'Скорее всего вы робот :(',
+            ];
         }
+
         if (!request()->input('rules')) {
             return [
                 'status' => 0,
@@ -57,8 +42,6 @@ class RegisterController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'rules' => ['accepted']
         ]);
-
-
 
         $user = new User();
         $user->username = $data['username'];

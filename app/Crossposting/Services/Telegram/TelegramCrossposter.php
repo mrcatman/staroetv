@@ -10,8 +10,6 @@ class TelegramCrossposter extends BaseCrossposter {
     public $public_name = "Telegram";
     public $can_auto_connect = false;
 
-    protected $base_url = "https://api.telegram.org/bot";
-
     public function __construct() {
         parent::__construct();
         $this->settings_manager = new TelegramSettingsManager($this);
@@ -38,7 +36,7 @@ class TelegramCrossposter extends BaseCrossposter {
         $params['chat_id'] = $group_id;
         $params['parse_mode'] = "html";
 
-        $request_url = $this->base_url.$token."/".$url;
+        $request_url = 'https://api.telegram.org/bot'.$token."/".$url;
         $res = $this->client->request('POST', $request_url, [
             'json' => $params,
         ]);

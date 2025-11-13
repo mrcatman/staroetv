@@ -28,7 +28,7 @@ function editAwardCallback(res) {
 }
 window.editAwardCallback = editAwardCallback;
 $(body).on('click', '.awards-history__item__button--delete', function() {
-    let id = $(this).parents('.awards-history__item').data('id');
+    const id = $(this).parents('.awards-history__item').data('id');
     if (confirm("Вы уверены, что хотите удалить эту награду?")) {
         $.post('/awards/delete', {id}).done(res => {
             if (res.status) {
@@ -41,6 +41,13 @@ $(body).on('click', '.awards-history__item__button--delete', function() {
 });
 
 $(body).on('click', '.forum-message__awards__number', function() {
-    let user_id = $(this).data('user-id');
+    const user_id = $(this).data('user-id');
     showModalAjax($.post('/awards/ajax', {user_id}), '#awards_history_' + user_id);
+});
+
+
+$(body).on('click', '.awards-list__item', function() {
+    const id = $(this).data('id');
+    $(this).parents('.awards-list').find('input[name="award_id"]').val(id);
+    $(this).parents('.awards-list').find('.awards-list__form').show();
 });

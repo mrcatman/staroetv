@@ -7,7 +7,7 @@ window.execOnMounted.push(() => {
         placeholder,
         ajax: {
             method: 'POST',
-            url: $(this).data('is-radio') ? '/radio/brands?' + searchParams.toString() : '/video/brands?' + searchParams.toString(),
+            url: $(this).data('is-radio') ? '/radio/commercials-search?' + searchParams.toString() : '/video/commercials-search?' + searchParams.toString(),
             dataType: 'json',
             processResults: function (data) {
                 let brands = data.data.brands.map(brand => {

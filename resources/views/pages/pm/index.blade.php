@@ -46,7 +46,7 @@
                                   class="form" action="/pm/delete">
                                 @csrf
                                 <input type="hidden" name="message_id" value="{{$message->id}}"/>
-                                <button class="private-message__button">
+                                <button class="button button--light">
                                     <span class="tooltip">Удалить сообщение</span>
                                     <i class="fa fa-times"></i>
                                 </button>
@@ -57,7 +57,7 @@
                                       class="form" action="/pm/cancel">
                                     @csrf
                                     <input type="hidden" name="message_id" value="{{$message->id}}"/>
-                                    <button class="private-message__button">
+                                    <button class="button button--light">
                                         <span class="tooltip">Отменить групповую рассылку</span>
                                         <i class="fa fa-backspace"></i>
                                     </button>

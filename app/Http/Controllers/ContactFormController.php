@@ -2,52 +2,65 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\ContactMessage;
-use App\Models\User;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Mail\Mailable;
+
+use App\Helpers\CaptchaHelper;
+use App\Mail\ContactMessage;
+use App\Mail\DigitizationMessage;
 
 class ContactFormController extends Controller {
 
-    protected $admin_email = "kittenizator@yandex.ru";
+    private function sendToAdmin(Mailable $message)
+    {
+        Mail::to(config('site.admin_email'))->send($message);
+
+        $text = $message->subject.PHP_EOL.$message->render();
+        $text = str_replace('<br>', '', $text);
+        $text = str_replace('<hr>', '________________', $text);
+        Http::post('https://api.telegram.org/bot'.config('tokens.telegram').'/sendMessage', [
+            'chat_id' => config('site.admin_telegram_id'),
+            'text' => $text,
+            'parse_mode' => 'html',
+        ]);
+    }
 
     public function show() {
         return view("pages.contact.index");
     }
 
+    public function digitization()
+    {
+        return view("pages.contact.digitization");
+    }
+
     public function send() {
-        $recaptcha_response = request()->input('g-recaptcha-response');
-        if (!Cache::has("recaptcha_".$recaptcha_response)) {
-            $curl = curl_init();
-            curl_setopt_array($curl, [
-                CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_URL => 'https://www.google.com/recaptcha/api/siteverify',
-                CURLOPT_POST => 1,
-                CURLOPT_POSTFIELDS => [
-                    'secret' => "6LccwdUZAAAAAM_qSrMovsqGl3WQKmGjag1n0OkW",
-                    'response' => $recaptcha_response
-                ]
-            ]);
-            $captcha_status = json_decode(curl_exec($curl));
-            curl_close($curl);
-            if (!isset($captcha_status->score) || $captcha_status->score < 0.5) {
-                return [
-                    'status' => 0,
-                    'text' => 'Вы, скорее всего, робот :( Но если всё-таки нет, напишите ваш вопрос напрямую на kittenizator@yandex.ru',
-                ];
-            } else {
-                Cache::put("recaptcha_" . $recaptcha_response, 1, 600);
-            }
-        }
+        CaptchaHelper::verify();
         $data = request()->validate([
             'name' => 'required',
             'contact' => 'required',
             'text' => 'required',
         ]);
-        Mail::to($this->admin_email)->send(new ContactMessage($data));
+        $this->sendToAdmin(new ContactMessage($data));
         return [
             'status' => 1,
             'text' => 'Ваше сообщение отправлено. В ближайшее время с вами свяжется администратор сайта'
+        ];
+    }
+
+    public function digitizationSend() {
+        CaptchaHelper::verify();
+        $data = request()->validate([
+            'city' => 'required',
+            'name' => 'required',
+            'contact' => 'required',
+            'text' => 'required',
+        ]);
+        $this->sendToAdmin(new DigitizationMessage($data));
+        return [
+            'status' => 1,
+            'text' => 'Ваша заявка отправлена. В ближайшее время с вами свяжется администратор сайта'
         ];
     }
 }

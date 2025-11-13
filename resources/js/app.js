@@ -51,6 +51,7 @@ import './modules/mobile-menu'
 import './modules/playlist'
 import './modules/survey'
 import './modules/previews'
+import './modules/telegram-auth'
 import './modules/teletext'
 
 function onPageChange() {

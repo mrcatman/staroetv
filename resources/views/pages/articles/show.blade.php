@@ -60,7 +60,7 @@
                             </div>
 
 
-                            <div class="inner-page__text">
+                            <div class="text-content">
                                 {!! $article->fixed_content !!}
                             </div>
                         </div>
@@ -71,7 +71,7 @@
                 @include('blocks/comments', ['ajax' => false, 'lazyload' => true, 'page' => 1, 'conditions' => ['material_type' => $article->type_id ? $article->type_id : 1, 'material_id' => $article->original_id]])
 
         </div>
-        <div class="col">
+        <div class="col col--sidebar">
             <div class="box">
                 <div class="box__heading">
                     <div class="box__heading__inner">
@@ -89,7 +89,7 @@
             <div class="box">
                 <div class="box__heading">
                     <div class="box__heading__inner">
-                        Смотрите также
+                        Читайте также
                     </div>
                 </div>
                 <div class="box__inner">

@@ -15,7 +15,7 @@
             @endif
             <div class="box__heading">
                 <div class="box__heading__inner">
-                    {{$block_title}} <span class="box__heading__count">{{$records_data['count']}}</span>
+                    {{$block_title}}&nbsp;<span class="box__heading__count">{{$records_data['count']}}</span>
                 </div>
             </div>
             <div class="box__inner">
@@ -54,12 +54,12 @@
                     @if ($records_data['years'])
                         <div class="top-list records-list__years">
                             <a class="top-list__item top-list__item--all @if (!$records_data['selected_year']) top-list__item--active @endif"
-                               href="{{$records_data['base_link']}}?{{http_build_query(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'year', 'month']))}}">
+                               href="{{$records_data['base_link']}}?{{http_build_query(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'year', 'month', 'page']))}}">
                                 <span class="top-list__item__name">Все годы</span>
                             </a>
                             @foreach ($records_data['years'] as $year => $count)
                                 <a class="top-list__item @if ($records_data['selected_year'] == $year) top-list__item--active @endif"
-                                   href="{{$records_data['base_link']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'year', 'month']), ['year' => $year]))}}">
+                                   href="{{$records_data['base_link']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'year', 'month', 'page']), ['year' => $year]))}}">
                                     <span class="top-list__item__name">{{$year}}</span>
                                     <span class="top-list__item__count">{{$count}}</span>
                                 </a>
@@ -100,15 +100,15 @@
                             @php($data['title'] = $record->{$title_param})
                         @endif
                         @if ($is_radio)
-                            @include('blocks/radio_recording', $data)
+                            @include('blocks.records.radio-item', $data)
                         @else
-                            @include('blocks/record', $data)
+                            @include('blocks.records.item', $data)
                         @endif
                     @endforeach
                 </div>
             </div>
             <div class="box__pager">
-                {{$records_data['records']->links()}}
+                {{$records_data['records']->appends(request()->except('_token'))->links()}}
             </div>
             @if (!isset($ajax) || !$ajax)
         </div>

@@ -1,11 +1,14 @@
-
 .input-container {
-    margin: 1em 0;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     text-decoration: none;
+    gap: var(--col-margin);
+    flex: 1;
+    width: 100%;
     @include mobile {
         flex-direction: column;
+        align-items: flex-start;
+        gap: .25em;
     }
 
     &__required {
@@ -35,6 +38,7 @@
         gap: .5em;
         @include mobile() {
             flex-direction: row;
+            align-items: center;
         }
 
         input[type="checkbox"] {
@@ -145,10 +149,8 @@
         min-width: 10em;
         font-size: 1.125em;
         font-weight: 400;
-        margin: .5em 1em 0 0;
 
         @include mobile() {
-            margin: 0 0 .5em;
         }
     }
 
@@ -280,7 +282,7 @@
     flex: 1;
     font: inherit;
     padding: .55em;
-    background: var(--bg-darker);
+    background: var(--inputs-color);
     border: 1px solid var(--border-color);
     height: 1.35em;
     box-shadow: none;
@@ -320,11 +322,17 @@ textarea.input {
     display: none;
     border-radius: 0;
     margin: 0 0 1em;
+    width: 100%;
+    box-sizing: border-box;
     color: var(--box-text-color-dark);
     padding: 1em 1.5em;
     font-weight: bold;
     @include mobile() {
         padding: 1em;
+    }
+
+    &:empty {
+        display: none;
     }
 
     a {
@@ -370,6 +378,7 @@ textarea.input {
 }
 
 #cke_editor {
+    border-color: var(--border-color);
     flex: 1;
 }
 
@@ -385,10 +394,14 @@ textarea.input {
 
     &__reset {
         position: absolute;
-        top: .5em;
-        right: .5em;
+        top: 0;
+        right: 0.5em;
+        height: 100%;
         text-decoration: underline;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+
     }
 
     & > div {
@@ -404,6 +417,19 @@ textarea.input {
 
 .form {
     position: relative;
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--col-margin);
+    }
+
+    &__section-label {
+        font-size: 1.25em;
+        font-weight: 600;
+
+    }
 
     &__preloader {
         position: absolute;
@@ -423,14 +449,13 @@ textarea.input {
 
     &__bottom {
         display: flex;
+        flex-wrap: wrap;
+        gap: var(--col-margin);
         align-items: center;
+        width: 100%;
 
         &--with-margin {
             margin-bottom: 1em;
-        }
-
-        .button {
-            margin: 0 .75em 0 0;
         }
 
         &__left {
@@ -441,12 +466,14 @@ textarea.input {
         &__right {
             flex: 1;
             display: flex;
+            gap: var(--col-margin);
             justify-content: flex-end;
         }
 
         &__link {
+            cursor: pointer;
+            text-decoration: underline;
             font-size: .875em;
-            margin: 0 0 0 1em;
         }
     }
 
@@ -554,7 +581,7 @@ textarea.input {
     background: none;
     color: inherit;
     border-radius: 0;
-    background: var(--bg-darker);
+    background: var(--inputs-color);
     border: 1px solid var(--border-color);
     height: 2.65em;
 
@@ -583,13 +610,13 @@ textarea.input {
 
 .select2-container--default {
     .select2-selection--single {
-        height: 2.25em !important;
+        height: 2.6em !important;
         border-radius: 0 !important;
         display: flex !important;
         align-items: center !important;
         background: none !important;
         border: 1px solid var(--border-color) !important;
-        background: var(--bg-darker) !important;
+        background: var(--inputs-color) !important;
 
         .select2-selection__rendered {
             color: inherit !important;
@@ -738,38 +765,6 @@ textarea.input {
             color: var(--primary);
             border-bottom-color: 1px solid var(--primary);
             font-weight: bold;
-        }
-    }
-}
-
-.inputs-group {
-    margin: 0 -1em;
-    padding: 0 0 1em;
-    @include light() {
-        margin: 0;
-    }
-
-    &__title {
-        border: none;
-        background: var(--box-color-dark);
-        color: var(--box-text-color-dark);
-        padding: .75em 1.25em;
-        font-size: 1.25em;
-        font-weight: 500;
-        border-bottom: 1px solid var(--border-color-dark);
-        @include light() {
-            background: none;
-            color: unset;
-            padding: .5em 0;
-            font-weight: 600;
-            border-bottom: 1px solid var(--primary);
-        }
-    }
-
-    &__contents {
-        padding: 0 1.25em .5em;
-        @include light() {
-            padding: 0;
         }
     }
 }

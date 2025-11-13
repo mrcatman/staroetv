@@ -38,6 +38,7 @@
 
     &__sort {
         display: flex;
+        gap: calc(var(--col-margin) * 2);
         align-items: center;
         justify-content: space-between;
         @include mobile() {
@@ -305,17 +306,6 @@
         display: none;
     }
 
-    .record-item {
-        width: 100%;
-        font-size: 1em;
-        padding: 0.5rem 0.75rem;
-        /* border-bottom: 1px solid var(--border-color); */
-        &:last-of-type {
-            border: none;
-        }
-    }
-
-
     &__description {
         margin: 1em 0 0;
         font-size: 1rem;
@@ -519,15 +509,12 @@
 }
 
 .record-categories {
-    background: var(--bg-darker);
     display: flex;
     flex-wrap: wrap;
-    padding: 1.5em 1.5em .5em;
-    border: 1px solid var(--border-color);
+    gap: var(--col-margin);
 
     &__item-container {
-        width: 50%;
-        margin: 0 0 1em;
+        width: calc(50% - var(--col-margin));
         @include mobile {
             width: 100%;
         }
@@ -538,14 +525,10 @@
         @include mobile {
             font-size: 1.25em;
         }
-        border-bottom: 1px solid;
         text-decoration: none;
-
-        &:hover {
-            opacity: .75;
-        }
+        @include hover;
         &--active {
-            border-bottom: none;
+            color: var(--primary);
         }
         &__count {
             font-weight: bold;
@@ -614,10 +597,16 @@
     @include mobile() {
         height: unset!important;
     }
-    .box__inner {
-        padding: 0;
+
+    &__items {
+        padding: 0!important;
         overflow: auto;
+        overflow-x: hidden;
         height: 100%;
+    }
+
+    &__item {
+        padding: .375em 1em;
     }
 
     .record-item__info {
@@ -628,20 +617,28 @@
         border-bottom: 1px solid var(--border-color-dark);
         border-top: 1px solid var(--border-color-dark);
         padding: 1em;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: .5em;
+        &:first-of-type {
+            border-top: none;
+        }
         &__title {
             font-size: 1.25em;
             text-transform: uppercase;
             font-weight: bold;
-            margin: 0 0 .25em;
+        }
+        &__text {
+            margin-top: .5em;
+            &:empty {
+                display: none;
+            }
         }
     }
 
     &__item {
         &--active {
             background: var(--box-color-hover-dark);
-        }
-        &:last-of-type {
-            margin-bottom: 3em;
         }
     }
 }

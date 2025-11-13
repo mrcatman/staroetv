@@ -8,7 +8,15 @@ use App\Models\Channel;
 use App\Models\Page;
 use App\Models\User;
 
-class PagesController extends Controller {
+class PagesController extends EntityController {
+
+    protected $entity_class;
+    protected $permissions = [
+        'approve' => '',
+        'delete' => 'sipdel'
+    ];
+
+    protected $redirect_after_delete = '/';
 
     public function show($id) {
         $page = Page::find($id);
@@ -110,29 +118,6 @@ class PagesController extends Controller {
             'status' => 1,
             'text' => 'Сохранено',
             'redirect_to' => $page->full_url
-        ];
-    }
-
-
-    public function delete() {
-        if (!PermissionsHelper::allows('sipdel')) {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-        $page = Page::find(request()->input('page_id'));
-        if (!$page) {
-            return [
-                'status' => 0,
-                'text' => 'Страница не найдена'
-            ];
-        }
-        $page->delete();
-        return [
-            'status' => 1,
-            'text' => 'Удалено',
-            'redirect_to' => "/"
         ];
     }
 

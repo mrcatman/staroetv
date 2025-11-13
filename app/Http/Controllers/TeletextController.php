@@ -11,7 +11,15 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
-class TeletextController extends Controller {
+class TeletextController extends EntityController {
+
+    protected $entity_class = Teletext::class;
+    protected $permissions = [
+        'approve' => 'contentapprove',
+    ];
+
+    protected $redirect_after_delete = '/teletext';
+
 
     private $texts = [
         [
@@ -312,24 +320,8 @@ class TeletextController extends Controller {
         return $this->fillData($teletext);
     }
 
-    public function update($id) {
-        $teletext = Teletext::find($id);
-        if (!$teletext) {
-            return [
-                'status' => 0,
-                'text' => 'Телетекст не найден'
-            ];
-        }
-        if (!$teletext->can_edit) {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-        return $this->fillData($teletext);
-    }
-
-    private function fillData(Teletext $teletext) {
+    protected function fillData($teletext)
+    {
         if (request()->has('cover_id')) {
             $data = request()->validate([
                 'cover_id' => 'required|exists:pictures,id',
@@ -339,98 +331,49 @@ class TeletextController extends Controller {
             return [
                 'status' => 1,
             ];
-        } else {
-            $data = request()->validate([
-                'channel_id' => 'required|exists:channels,id',
-                'quality' => 'numeric|min:1|max:10',
-                'description' => 'sometimes',
-                'year' => 'sometimes|numeric',
-                'month' => 'sometimes|numeric',
-                'day' => 'sometimes|numeric',
+        }
+
+        $data = request()->validate([
+            'channel_id' => 'required|exists:channels,id',
+            'quality' => 'numeric|min:1|max:10',
+            'description' => 'sometimes',
+            'year' => 'sometimes|numeric',
+            'month' => 'sometimes|numeric',
+            'day' => 'sometimes|numeric',
+        ]);
+
+        $is_new = !$teletext->id;
+        $file = request()->file('file');
+        if ($is_new && !$file) {
+            throw ValidationException::withMessages([
+                'file' => ['Не загружен файл'],
             ]);
-
-            $is_new = !$teletext->id;
-            $file = request()->file('file');
-            if ($is_new && !$file) {
-                throw ValidationException::withMessages([
-                    'file' => ['Не загружен файл'],
-                ]);
-            }
-            if ($file && $file->getClientOriginalExtension() != 't42') {
-                throw ValidationException::withMessages([
-                    'file' => ['Загрузите файл с расширением .t42'],
-                ]);
-            }
-            $teletext->fill($data);
-
-            if ($is_new) {
-                $teletext->author_id = auth()->user()->id;
-                $teletext->pending = !PermissionsHelper::allows('contentapprove');
-            }
-
-            $teletext->setSupposedDate();
-
-
-            if ($file) {
-                TeletextHelper::process($teletext, $file);
-            }
-
-            return [
-                'status' => 1,
-                'text' => $is_new ? 'Телетекст добавлен' : 'Телетекст обновлён',
-                'redirect_to' => '/teletext/' . $teletext->id . (!$teletext->cover_id ? '?update_cover=1' : '')
-            ];
         }
-    }
+        if ($file && $file->getClientOriginalExtension() != 't42') {
+            throw ValidationException::withMessages([
+                'file' => ['Загрузите файл с расширением .t42'],
+            ]);
+        }
+        $teletext->fill($data);
 
-    public function delete()
-    {
-        $teletext = Teletext::find(request()->input('teletext_id'));
-        if (!$teletext) {
-            return [
-                'status' => 0,
-                'text' => 'Телетекст не найден'
-            ];
+        if ($is_new) {
+            $teletext->author_id = auth()->user()->id;
+            $teletext->pending = !PermissionsHelper::allows('contentapprove');
         }
-        if (!$teletext->can_edit) {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
+
+        $teletext->setSupposedDate();
+
+        if ($file) {
+            TeletextHelper::process($teletext, $file);
         }
-        $teletext->delete();
+
         return [
             'status' => 1,
-            'text' => 'Телетекст удален'
+            'text' => $is_new ? 'Телетекст добавлен' : 'Телетекст обновлён',
+            'redirect_to' => '/teletext/' . $teletext->id . (!$teletext->cover_id ? '?update_cover=1' : '')
         ];
     }
 
-    public function approve() {
-        $teletext = Teletext::find(request()->input('id'));
-        if (!$teletext) {
-            return [
-                'status' => 0,
-                'text' => 'Телетекст не найден'
-            ];
-        }
-        $can_approve = PermissionsHelper::allows('contentapprove');
-        if ($can_approve) {
-            $status = request()->input('status', !$teletext->pending);
-            $teletext->pending = $status;
-            $teletext->save();
-            return [
-                'status' => 1,
-                'data' => [
-                    'approved' => !$status
-                ]
-            ];
-        } else {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-    }
 
 
     private function getChannels()

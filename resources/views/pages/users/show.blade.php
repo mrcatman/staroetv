@@ -46,18 +46,22 @@
                             <div class="box__heading__inner">
                                 <span>Пользователь <strong>{{$user->username}}</strong></span>
                             </div>
-                            <div class="box__heading__buttons">
-                                @if ((auth()->user() && $user->id == auth()->user()->id) || \App\Helpers\PermissionsHelper::allows('usedita'))
-                                    <a href="/profile/edit" class="button">
-                                        <i class="fa fa-edit"></i>
-                                        Обновить профиль</a>
-                                    @if ($user->id == auth()->user()->id)
-                                        <a href="/profile/password" class="button">
-                                            <i class="fa fa-key"></i>
-                                            Сменить пароль</a>
-                                    @endif
-                                @endif
-                            </div>
+                            @if ((auth()->user() && $user->id == auth()->user()->id) || \App\Helpers\PermissionsHelper::allows('usedita'))
+                                <div class="box__heading__buttons">
+                                    <div class="buttons-row">
+
+                                        <a href="/profile/edit" class="button">
+                                            <i class="fa fa-edit"></i>
+                                            Обновить профиль</a>
+                                        @if ($user->id == auth()->user()->id)
+                                            <a href="/profile/password" class="button">
+                                                <i class="fa fa-key"></i>
+                                                Сменить пароль</a>
+                                        @endif
+
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                         <div class="box__inner">
                             @if (\Session::has('after_confirm'))
@@ -87,14 +91,17 @@
                                             ботом или злостным нарушителем.
                                         </div>
                                     @endif
-                                    <div class="user-info__item">
-                                        <strong>Имя: </strong>{{$user->name}}
-                                    </div>
+                                    @if ($user->name != '-')
+                                        <div class="user-info__item">
+                                            <strong>Имя: </strong>{{$user->name}}
+                                        </div>
+                                    @endif
                                     <div class="user-info__item">
                                         <strong>Дата регистрации: </strong>{{$user->created_at}}
                                     </div>
                                     <div class="user-info__item">
-                                        <strong>Был на сайте: </strong>{{$user->was_online}}
+                                        <strong>Был на
+                                            сайте: </strong>{{$user->was_online ? $user->was_online : 'никогда'}}
                                     </div>
                                     <div class="user-info__buttons">
                                         <a href="/forum/user-messages/{{$user->id}}" class="button button--light">
@@ -172,13 +179,13 @@
         <div class="box box--dark">
             <a href="/users/{{$user->id}}/videos" class="box__heading">
                 <div class="box__heading__inner">
-                    Видео пользователя <span class="box__heading__count">{{$videos_count}}</span>
+                    Видео пользователя&nbsp;<span class="box__heading__count">{{$videos_count}}</span>
                 </div>
             </a>
             <div class="box__inner">
                 <div class="records-list records-list--thumbs ">
                     @foreach ($videos as $record)
-                        @include('blocks/record', ['record' => $record])
+                        @include('blocks.records.item', ['record' => $record])
                     @endforeach
                 </div>
 
@@ -189,13 +196,13 @@
         <div class="box">
             <a href="/users/{{$user->id}}/radio" class="box__heading">
                 <div class="box__heading__inner">
-                    Радиозаписи пользователя <span class="box__heading__count">{{$radio_recordings_count}}</span>
+                    Радиозаписи пользователя&nbsp;<span class="box__heading__count">{{$radio_recordings_count}}</span>
                 </div>
             </a>
             <div class="box__inner">
                 <div class="records-list">
                     @foreach ($radio_recordings as $record)
-                        @include('blocks/radio_recording', ['record' => $record])
+                        @include('blocks.records.radio-item', ['record' => $record])
                     @endforeach
                 </div>
             </div>
@@ -208,7 +215,7 @@
                 <div class="box">
                     <a href="/users/{{$user->id}}/comments" class="box__heading">
                         <div class="box__heading__inner">
-                            Комментарии пользователя <span class="box__heading__count">{{count($user->comments)}}</span>
+                            Комментарии пользователя&nbsp;<span class="box__heading__count">{{count($user->comments)}}</span>
                         </div>
                     </a>
                     <div class="box__inner">

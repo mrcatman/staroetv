@@ -11,7 +11,7 @@ use Intervention\Image\ImageManager;
 use Intervention\Image\Laravel\Facades\Image;
 use Intervention\Image\Exceptions\DecoderException;
 
-class UploadController extends Controller
+class PictureUploadController extends Controller
 {
     public $maxSize = 10485760;
 
@@ -67,14 +67,23 @@ class UploadController extends Controller
         }
     }
 
-    public function uploadPictures(Request $request) {
+    public function upload(Request $request)
+    {
         if ($user = auth()->user()) {
             $file = $request->file('picture');
             if ($file) {
                 if ($file->getSize() >= $this->maxSize) {
-                    return ['status'=>0,'text'=>'Картинка слишком большая. Попробуйте сжать файл перед загрузкой'];
+                    return ['status' => 0, 'text' => 'Картинка слишком большая. Попробуйте сжать файл перед загрузкой'];
                 }
+
+                $id = ($request->has('id') && $request->input('id') != -1) ? $request->input('id') : $user->id;
+                $full_folder = "uploads/" . date("dmY");
+                if (!file_exists(public_path("pictures/" . $full_folder))) {
+                    mkdir(public_path("pictures/" . $full_folder), 0777, true);
+                }
+
                 try {
+
                     if (!Str::endsWith($file->getClientOriginalName(), "svg")) {
                         $picture = Image::read($file);
                         if ($picture->width() > 900) {
@@ -85,35 +94,31 @@ class UploadController extends Controller
                         if ($mime == "jpeg") {
                             $mime = "jpg";
                         }
-                        $id = ($request->has('id') && $request->input('id') != -1) ? $request->input('id') : $user->id;
+
                         $filename = $id . "-" . uniqid() . "." . $mime;
-                        $full_folder = "uploads/" . date("dmY");
                         $full_path = $full_folder . "/" . $filename;
-                        if (!file_exists(public_path("pictures/" . $full_folder))) {
-                            mkdir(public_path("pictures/" . $full_folder), 0777, true);
-                        }
+
                         $picture->save(public_path("pictures/" . $full_path), 75);
                     } else {
-                        $id = ($request->has('id') && $request->input('id') != -1) ? $request->input('id') : $user->id;
+
                         $filename = $id . "-" . uniqid() . ".svg";
-                        $full_folder = "uploads/" . date("dmY");
                         $full_path = $full_folder . "/" . $filename;
-                        if (!file_exists(public_path("pictures/" . $full_folder))) {
-                            mkdir(public_path("pictures/" . $full_folder), 0777, true);
-                        }
-                        Storage::disk('public_data')->putFileAs('pictures/'.$full_folder, $file, $filename);
+
+                        Storage::disk('public_data')->putFileAs('pictures/' . $full_folder, $file, $filename);
                     }
-                    $picture_item = new Picture();
-                    $picture_item->user_id = $user->id;
-                    if ($user) {
-                        if (request()->has('tag')) {
-                            $picture_item->tag = request()->input('tag');
-                        }
-                        if (request()->has('channel_id')) {
-                            $picture_item->channel_id = request()->input('channel_id');
-                        }
+
+                    $picture_item = new Picture([
+                        'user_id' => $user->id,
+                        'url' => '/pictures/' . $full_path
+                    ]);
+
+                    if (request()->has('tag')) {
+                        $picture_item->tag = request()->input('tag');
                     }
-                    $picture_item->url = "/pictures/" . $full_path;
+                    if (request()->has('channel_id')) {
+                        $picture_item->channel_id = request()->input('channel_id');
+                    }
+
                     $picture_item->save();
                     return [
                         'status' => 1,
@@ -122,13 +127,14 @@ class UploadController extends Controller
                         ]
                     ];
                 } catch (DecoderException $e) {
-                    return ['status'=>0,'text'=>'Формат картинки не распознан'];
+                    return ['status' => 0, 'text' => 'Формат картинки не распознан'];
                 }
             } else {
                 return ['status' => 0, 'text' => 'Файл не передан'];
             }
         } else {
-            return ['status'=>0,'text'=>'Ошибка доступа'];
+            return ['status' => 0, 'text' => 'Ошибка доступа'];
         }
     }
+
 }

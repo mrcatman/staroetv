@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Constants\Permissions;
 use App\Helpers\PermissionsHelper;
+use App\Http\Controllers\ArticlesController;
+use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Channel;
 use App\Models\Genre;

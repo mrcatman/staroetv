@@ -7,7 +7,8 @@ body {
     --border-color: #eee;
     --box-color: #fff;
     --box-color-hover: #fafafa;
-    --bg-darker: #fafafa;
+    --inputs-color: #fdfdfd;
+    --bg-darker: #efefef;
     --bg-darkest: #777;
     --bg-darkest-2: #333;
     --box-color-dark: #111;
@@ -23,14 +24,14 @@ body {
     --text-lightest: #777;
     --col-margin: 1em;
     --links-color: #333;
-    --site-background-color: #fff;
+    --site-background-color: #ebe2da;
     --bg-darker-2: #e6e6e6;
     --bg-darker-3: #dddd;
     --modal-header-background-color: #111;
     --modal-header-color: #fafafa;
     --modal-color: #333;
     --modal-background-color: #eee;
-    --block-box-shadow: 0 0.2em 1em -0.25em rgba(0, 0, 0, 0.21);
+    --block-box-shadow: 0 0 .5em inset #deb99e14, 0 .5em 5em -1.25em #69524057;
     --font-main: "Raleway", sans-serif;
     --font-texts: "Merriweather", serif;
     overflow-x: hidden;
@@ -223,7 +224,7 @@ hr {
     display: none !important;
 }
 
-.link {
+.picture-link {
     display: block;
     margin: 0 0 var(--col-margin);
     border-radius: .75em;
@@ -240,7 +241,7 @@ hr {
     margin: var(--col-margin) auto;
     height: calc(100% - var(--col-margin) * 2);
     max-height: 50em;
-    background: url("/img/vhs-texture.png");
+    background: url("/resources/images/vhs-texture.png");
     background-size: contain;
     position: relative;
     display: flex;

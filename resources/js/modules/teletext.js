@@ -107,13 +107,13 @@ const initTeletext = () => {
     }
 }
 
-window.onpopstate = (e) => {
+$(window).on('popstate', function() {
     const url = new URL(window.location.href);
     if (url.pathname.startsWith('/teletext/') && url.searchParams.get('page')) {
         pushState = false;
         $(pageSelect).val(url.searchParams.get('page')).trigger('change')
     }
-};
+});
 
 const updateCover = () => {
     const callback = () => {

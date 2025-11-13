@@ -10,7 +10,7 @@
         max-height: calc(100vh - 4em);
     }
     &__form {
-        padding: 0 1em 1em;
+        padding: 1em;
     }
 
     &--top {
@@ -49,9 +49,6 @@
         margin: 1em 0 1.25em;
     }
 
-    .button {
-        font-size: .875em;
-    }
 
     &__nothing-found {
         padding: .875em;
@@ -118,15 +115,6 @@
         }
     }
 
-    .input-container__label {
-        min-width: 0;
-        margin: .625em 0 0;
-        white-space: nowrap;
-        padding: 0 1em 0 0;
-        font-size: 1em;
-        font-weight: normal;
-    }
-
     .input-container--with-errors .input {
         box-shadow: none;
         border: 1px solid #f00;
@@ -137,18 +125,11 @@
         margin: 0 0 .5em;
     }
 
-    .input-container--checkbox__element {
-        margin: 0;
-    }
-
     .select2 {
         width: auto !important;
         flex: 1;
     }
 
-    .input-container--checkbox .input-container__label {
-        margin: 0 1em 0 .5em !important;
-    }
 
     &__list-item {
         border-bottom: 1px solid var(--border-color);

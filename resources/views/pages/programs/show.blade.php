@@ -7,7 +7,7 @@
         <div class="row row--align-start">
             <div class="col col--2-5">
                 <div class="box">
-                    <div class="box__heading">
+                    <div class="box__breadcrumbs">
                         <div class="breadcrumbs">
                             @if ($channel)
                                 <a class="breadcrumbs__item"
@@ -38,7 +38,7 @@
                                                data-approve-id="{{$program->id}}">{{$program->pending ? "Одобрить" : "Скрыть"}}</a>
                                         @endif
                                         @if ($program->can_edit)
-                                            <a class="button--dropdown__list__item" data-confirm-form-input-name="program_id"
+                                            <a class="button--dropdown__list__item"
                                                data-confirm-form-input-value="{{$program->id}}"
                                                data-confirm-form-text="Вы уверены, что хотите удалить программу?"
                                                data-confirm-form-url="/programs/delete">Удалить</a>
@@ -79,7 +79,7 @@
                         </div>
                         <div class="program-page__description channel-page__description">
                             @if ($program->description != "")
-                                <div class="channel-page__description__text">{!! $program->description !!}</div>
+                                <div class="text-content">{!! $program->description !!}</div>
                             @else
                                 <div class="channel-page__no-description program-page__no-description">Описание программы еще не заполнено</div>
                             @endif
@@ -89,7 +89,7 @@
                 </div>
 
                 <div class="row">
-                    @include('blocks/records.list', ['conditions' => $records_conditions])
+                    @include('blocks.records.list', ['conditions' => $records_conditions])
                 </div>
                 @if (count($program->articles) > 0)
                     <div class="box">
@@ -125,13 +125,13 @@
                                     @if (count($program->interprogramPackages) > 0)
                                         <div class="interprogram-packages-list">
                                             @foreach($program->interprogramPackages as $package)
-                                                @include('blocks/interprogram_package', ['package' => $package])
+                                                @include('blocks.interprogram.package', ['package' => $package])
                                             @endforeach
                                         </div>
                                     @else
                                         <div class="records-list records-list--thumbs">
                                             @foreach($program->design as $record)
-                                                @include('blocks/record')
+                                                @include('blocks.records.item')
                                             @endforeach
                                         </div>
                                     @endif
@@ -157,7 +157,7 @@
                         <div class="box__inner">
                             <div class="records-list">
                                 @foreach ($related_programs as $program)
-                                    @include('blocks/record', ['record' => $program, 'title' => $program->name, 'hide_info' => true])
+                                    @include('blocks.records.item', ['record' => $program, 'title' => $program->name, 'hide_info' => true])
                                 @endforeach
                             </div>
                         </div>

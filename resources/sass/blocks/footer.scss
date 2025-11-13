@@ -21,6 +21,7 @@
             margin: 0 auto;
             max-width: 1400px;
             display: flex;
+            gap: var(--col-margin);
             align-items: center;
             @include mobile() {
                 flex-direction: column;
@@ -32,9 +33,10 @@
             font-size: 1.25em;
             text-decoration: none;
             color: var(--box-text-color-dark);
-            margin: 0 1em 0 0;
-            &:hover {
-                border-bottom: 1px solid;
+
+            @include hover;
+            &:before {
+                background: var(--box-color-hover-dark);
             }
             @include mobile() {
                 font-size: 1em;

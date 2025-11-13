@@ -13,9 +13,9 @@
             <div class="records-list">
                 @foreach($records as $record)
                     @if ($record->is_radio)
-                        @include('blocks/radio_recording', ['record' => $record])
+                        @include('blocks.records.radio-item', ['record' => $record])
                     @else
-                        @include('blocks/record', ['record' => $record])
+                        @include('blocks.records.item', ['record' => $record])
                     @endif
                 @endforeach
             </div>

@@ -312,17 +312,17 @@
         background: var(--bg-darker);
         border-left: 1px solid var(--border-color);
         border-right: 1px solid var(--border-color);
+        margin-bottom: var(--col-margin);
         @include light() {
-            border: 1px solid var(--border-color);
+            padding: 0;
+            background: none;
+            border-width: 0;
         }
         &__inner {
             display: flex;
+            flex-wrap: wrap;
+            gap: .25em;
         }
-
-        &__item {
-            margin: 0 .25em 0 0;
-        }
-
         &__found {
             font-size: 1.125em;
             margin: 1em 0 0;
@@ -352,17 +352,41 @@
             padding: 0;
             border: none;
         }
+
+        tbody {
+            @include mobile() {
+                display: flex;
+                flex-direction: column;
+                gap: 2em;
+            }
+        }
+
         td {
             padding: .25em 1em;
             border-bottom: 1px solid var(--border-color);
             text-align: center;
+            @include mobile() {
+                border: none;
+            }
         }
 
         tr:last-of-type td {
             border: none;
         }
+
+        tr {
+            @include mobile() {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
         thead {
             background: var(--bg-darker);
+            @include mobile() {
+                display: none;
+            }
             td {
                 font-size: 1.125em;
                 padding: .75em 0;
@@ -371,6 +395,13 @@
                     padding: .5em 1.25em;
                     font-size: 1em;
                 }
+            }
+        }
+        &__label {
+            display: none;
+            @include mobile() {
+                display: inline-block;
+                font-weight: 600;
             }
         }
     }

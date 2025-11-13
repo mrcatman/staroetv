@@ -12,14 +12,17 @@
 */
 
 
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\ArticlesController;
+use App\Http\Controllers\Auth\ProfileController;
+use App\Http\Controllers\Auth\ProfileTelegramController;
 use App\Http\Controllers\AwardsController;
 use App\Http\Controllers\ChannelsController;
 use App\Http\Controllers\CommentsController;
 use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\CrosspostController;
-use App\Http\Controllers\ForumController;
+use App\Http\Controllers\Forum\ForumController;
+use App\Http\Controllers\Forum\QuestionnairesController;
 use App\Http\Controllers\HistoryEventsController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\InterprogramPackagesController;
@@ -27,19 +30,18 @@ use App\Http\Controllers\MassUploadController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\PrivateMessagesController;
 use App\Http\Controllers\ProgramsController;
-use App\Http\Controllers\QuestionnairesController;
 use App\Http\Controllers\RecordsController;
 use App\Http\Controllers\ReputationController;
 use App\Http\Controllers\SiteSearchController;
 use App\Http\Controllers\TeletextController;
 use App\Http\Controllers\TopListController;
-use App\Http\Controllers\UploadController;
+use App\Http\Controllers\PictureUploadController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\VideoCutController;
 use App\Http\Controllers\WarningsController;
 
-Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], function() {
-    Route::get('/', [IndexController::class, 'index']);
+Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], function () {
+    Route::get('/', [IndexController::class, 'index'])->name('index');
     Route::get('/promo', [IndexController::class, 'promo']);
 
     Route::get('/new-design', function () {
@@ -49,34 +51,56 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         return view('pages.new-design-v1');
     });
 
-// VIDEOS
-    Route::get('/video', function () {
-        return (new \App\Http\Controllers\RecordsController())->index(['is_radio' => false]);
-    });
-    Route::get('/video/add', function () {
-        return (new \App\Http\Controllers\RecordsController())->add(['is_radio' => false]);
-    });
-    Route::any('/video/commercials', function () {
-        return (new \App\Http\Controllers\RecordsController())->advertising(['is_radio' => false]);
-    });
-    Route::any('/video/commercials-search', function () {
-        return (new \App\Http\Controllers\RecordsController())->advertisingBrands(['is_radio' => false]);
-    });
-    Route::any('/video/brands', function () {
-        return (new \App\Http\Controllers\RecordsController())->advertisingBrands(['is_radio' => false]);
-    });
-    Route::any('/video/search', function () {
-        return (new \App\Http\Controllers\RecordsController())->search(['is_radio' => false]);
-    });
-    Route::any('/video/other/{category}', function ($category_url) {
-        return (new \App\Http\Controllers\RecordsController())->other(['is_radio' => false], $category_url);
-    });
-    Route::any('/video/other', function () {
-        return (new \App\Http\Controllers\RecordsController())->other(['is_radio' => false]);
-    });
+    // VIDEOS + RADIO
+    foreach (['video', 'radio'] as $prefix) {
+        Route::group(['prefix' => $prefix], function () use ($prefix) {
+            $is_radio = $prefix === 'radio';
 
-    Route::any('/video/graphics', [InterprogramPackagesController::class, 'index']);
-    Route::any('/video/graphics/programs', [InterprogramPackagesController::class, 'program']);
+            Route::get('', function () use ($is_radio) {
+                return (new \App\Http\Controllers\RecordsController())->index(['is_radio' => $is_radio]);
+            })->name('records.' . $prefix);
+            Route::get('add', function () use ($is_radio) {
+                return (new \App\Http\Controllers\RecordsController())->add(['is_radio' => $is_radio]);
+            })->name('records.' . $prefix . '.add');
+
+            Route::any('search', function () use ($is_radio) {
+                return (new \App\Http\Controllers\RecordsController())->search(['is_radio' => $is_radio]);
+            })->name('records.' . $prefix . '.search');
+
+            Route::any('other', function () use ($is_radio) {
+                return (new \App\Http\Controllers\RecordsController())->other(['is_radio' => $is_radio]);
+            })->name('records.' . $prefix . '.other');
+            Route::any('other/{category}', function ($category_url) use ($is_radio) {
+                return (new \App\Http\Controllers\RecordsController())->other(['is_radio' => $is_radio], $category_url);
+            })->name('records.' . $prefix . '.other.category');
+
+            Route::any('commercials', function () use ($is_radio) {
+                return (new \App\Http\Controllers\RecordsController())->advertising(['is_radio' => $is_radio]);
+            })->name('records.' . $prefix . '.commercials');
+
+            Route::any('commercials-search', function () use ($is_radio) {
+                return (new \App\Http\Controllers\RecordsController())->advertisingBrands(['is_radio' => $is_radio]);
+            })->name('records.' . $prefix . '.commercials-search');
+
+            Route::get('programs', function () use ($is_radio) {
+                return (new \App\Http\Controllers\ProgramsController())->index(['is_radio' => $is_radio]);
+            })->name('records.' . $prefix . '.programs');
+            Route::get('programs/ajax', function () use ($is_radio) {
+                return (new \App\Http\Controllers\ProgramsController())->loadAll(['is_radio' => $is_radio]);
+            })->name('records.' . $prefix . '.programs.ajax');
+            Route::get('calendar', [RecordsController::class, 'calendar']);
+            Route::get('calendar/{year}', [RecordsController::class, 'calendarYear']);
+            Route::get('calendar/{year}/{month}', [RecordsController::class, 'calendarMonth']);
+            Route::get('{id}/edit', [RecordsController::class, 'edit']);
+            Route::get('{id}', [RecordsController::class, 'show']);
+        });
+    }
+
+    Route::get('/video/vip/{id}/{channel?}/{url}', [RecordsController::class, 'ucozRedirect']);
+    Route::get('/video/vip/{id}//{url}', [RecordsController::class, 'ucozRedirect']);
+
+    Route::any('/video/graphics', [InterprogramPackagesController::class, 'index'])->name('records.video.graphics');
+    Route::any('/video/graphics/programs', [InterprogramPackagesController::class, 'program'])->name('records.video.programs-graphics');
 
     Route::any('/video/graphics_old', function () {
         return (new \App\Http\Controllers\RecordsController())->interprogram(['is_radio' => false]);
@@ -89,84 +113,47 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         return (new \App\Http\Controllers\RecordsController())->getVideosForAuthor($author_id);
     });
 
-    Route::get('/video/programs', function () {
-        return (new \App\Http\Controllers\ProgramsController())->index(['is_radio' => false]);
-    });
-    Route::get('/video/programs/ajax', function () {
-        return (new \App\Http\Controllers\ProgramsController())->loadAll(['is_radio' => false]);
-    });
-    Route::get('/video/calendar', [RecordsController::class, 'calendar']);
-    Route::get('/video/calendar/{year}', [RecordsController::class, 'calendarYear']);
-    Route::get('/video/calendar/{year}/{month}', [RecordsController::class, 'calendarMonth']);
-    Route::get('/video/{id}/edit', [RecordsController::class, 'edit']);
-    Route::get('/video/{id}', [RecordsController::class, 'show']);
-    Route::get('/video/vip/{id}/{channel?}/{url}', [RecordsController::class, 'showOld']);
-    Route::get('/video/vip/{id}//{url}', [RecordsController::class, 'showOld']);
-
-    Route::get('/mass-upload', [MassUploadController::class, 'index']);
-    Route::get('/mass-upload-list', [MassUploadController::class, 'fetchList']);
-    Route::post('/mass-upload', [MassUploadController::class, 'fetchList']);
-    Route::get('/mass-upload/from-device', [MassUploadController::class, 'uploadFromDevice']);
-    Route::get('/mass-upload/import-from-telegram', [MassUploadController::class, 'importFromTelegram']);
-    Route::get('/mass-upload/import-old-from-telegram', [MassUploadController::class, 'importOldFromTelegram']);
-
-// RADIO
     Route::get('/dir', function () {
-        return (new \App\Http\Controllers\RecordsController())->index(['is_radio' => true]);
-    });
-    Route::get('/radio', function () {
-        return (new \App\Http\Controllers\RecordsController())->index(['is_radio' => true]);
+        return redirect(route('records.radio'));
     });
 
-    Route::any('/radio/search', function () {
-        return (new \App\Http\Controllers\RecordsController())->search(['is_radio' => true]);
-    });
-    Route::any('/radio/other', function () {
-        return (new \App\Http\Controllers\RecordsController())->other(['is_radio' => true]);
-    });
-    Route::any('/radio/commercials', function () {
-        return (new \App\Http\Controllers\RecordsController())->advertising(['is_radio' => true]);
-    });
-    Route::any('/radio/commercials-search', function () {
-        return (new \App\Http\Controllers\RecordsController())->advertisingBrands(['is_radio' => true]);
-    });
-    Route::any('/radio/brands', function () {
-        return (new \App\Http\Controllers\RecordsController())->advertisingBrands(['is_radio' => true]);
-    });
-    Route::get('/radio/add', function () {
-        return (new \App\Http\Controllers\RecordsController())->add(['is_radio' => true]);
-    });
     Route::any('/radio/jingles', function () {
         return (new \App\Http\Controllers\RecordsController())->interprogram(['is_radio' => true]);
-    });
-    Route::get('/radio/programs', function () {
-        return (new \App\Http\Controllers\ProgramsController())->index(['is_radio' => true]);
-    });
-    Route::get('/radio/programs/ajax', function () {
-        return (new \App\Http\Controllers\ProgramsController())->loadAll(['is_radio' => true]);
-    });
-    Route::get('/radio/{id}', [RecordsController::class, 'show']);
-    Route::get('/radio/{id}/edit', [RecordsController::class, 'edit']);
+    })->name('records.radio.jingles');
 
-    Route::get('/embed/{id}', [RecordsController::class, 'embed']);
 
-    Route::post('/records/approve', [RecordsController::class, 'approve']);
-    Route::any('/records/search', function () {
-        return (new \App\Http\Controllers\RecordsController())->search([]);
+    Route::get('/embed/{id}', [RecordsController::class, 'embed'])->name('records.embed');
+
+    Route::group(['prefix' => 'records'], function () {
+        Route::post('approve', [RecordsController::class, 'approve'])->name('records.approve');
+        Route::any('search', function () {
+            return (new \App\Http\Controllers\RecordsController())->search([]);
+        })->name('records.search');
+        Route::post('upload', [RecordsController::class, 'upload'])->name('records.upload');
+        Route::any('after-upload', [RecordsController::class, 'afterUpload'])->name('records.after-upload');
+        Route::post('/records/download', [RecordsController::class, 'download']);
+        Route::post('/records/mass-edit', [RecordsController::class, 'massEdit']);
+        Route::post('/records/add', [RecordsController::class, 'save']);
+        Route::post('/records/{id}/edit', [RecordsController::class, 'update']);
+        Route::any('/records/getinfo', [RecordsController::class, 'getInfo']);
+        Route::post('/records/delete', [RecordsController::class, 'delete']);
+        Route::get('/records/categories', [RecordsController::class, 'categories']);
+        Route::any('/records/ajax', [RecordsController::class, 'ajax']);
+        Route::post('/records/screenshot', [RecordsController::class, 'screenshot']);
+        Route::post('/records/set-telegram-id', [RecordsController::class, 'setTelegramID']);
+        Route::get('/records/playlist-ajax/{id}', [RecordsController::class, 'playlistAjax']);
     });
-    Route::post('/records/upload', [RecordsController::class, 'upload']);
-    Route::any('/records/after-upload', [RecordsController::class, 'afterUpload']);
-    Route::post('/records/download', [RecordsController::class, 'download']);
-    Route::post('/records/mass-edit', [RecordsController::class, 'massEdit']);
-    Route::post('/records/add', [RecordsController::class, 'save']);
-    Route::post('/records/{id}/edit', [RecordsController::class, 'update']);
-    Route::any('/records/getinfo', [RecordsController::class, 'getInfo']);
-    Route::post('/records/delete', [RecordsController::class, 'delete']);
-    Route::get('/records/categories', [RecordsController::class, 'categories']);
-    Route::any('/records/ajax', [RecordsController::class, 'ajax']);
-    Route::post('/records/screenshot', [RecordsController::class, 'screenshot']);
-    Route::post('/records/set-telegram-id', [RecordsController::class, 'setTelegramID']);
-    Route::get('/records/playlist-ajax/{id}', [RecordsController::class, 'playlistAjax']);
+
+
+    Route::group(['prefix' => 'mass-upload'], function () {
+        Route::get('', [MassUploadController::class, 'index'])->name('mass-upload.index');
+        Route::post('', [MassUploadController::class, 'fetchList'])->name('mass-upload.list');
+        Route::get('from-device', [MassUploadController::class, 'uploadFromDevice'])->name('mass-upload.from-device');
+    });
+
+    //  Route::get('/mass-upload/import-from-telegram', [MassUploadController::class, 'importFromTelegram']);
+    //  Route::get('/mass-upload/import-old-from-telegram', [MassUploadController::class, 'importOldFromTelegram']);
+
 
     Route::post('/programs/approve', [ProgramsController::class, 'approve']);
     Route::get('/programs/{id}', [ProgramsController::class, 'show']);
@@ -255,9 +242,9 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
     Route::post('/teletext/approve', [TeletextController::class, 'approve']);
 
 
-    Route::post('/upload/pictures/by-url', [UploadController::class, 'uploadPicturesByURL']);
-    Route::get('/upload/pictures/getbychannel/{id}', [UploadController::class, 'getPicturesByChannel']);
-    Route::post('/upload/pictures', [UploadController::class, 'uploadPictures']);
+    Route::post('/upload/pictures/by-url', [PictureUploadController::class, 'uploadPicturesByURL']);
+    Route::get('/upload/pictures/getbychannel/{id}', [PictureUploadController::class, 'getPicturesByChannel']);
+    Route::post('/upload/pictures', [PictureUploadController::class, 'upload']);
 
     Route::post('/comments/ajax', [CommentsController::class, 'ajax']);
     Route::post('/comments/add', [CommentsController::class, 'add']);
@@ -382,6 +369,9 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
     Route::get('/index/0-3', [ContactFormController::class, 'show']);
     Route::get('/contact', [ContactFormController::class, 'show']);
     Route::post('contact', [ContactFormController::class, 'send']);
+    Route::get('/contact', [ContactFormController::class, 'show']);
+    Route::get('/tape-digitization', [ContactFormController::class, 'digitization']);
+    Route::post('/tape-digitization', [ContactFormController::class, 'digitizationSend']);
 
 //PAGES
     Route::get('/index/0-{id}', [\App\Http\Controllers\PagesController::class, 'show']);
@@ -430,16 +420,20 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
     Route::get('/index/15', [UsersController::class, 'list']);
     Route::get('/index/15-{page}', [UsersController::class, 'list']);
     Route::post('/index/15', [UsersController::class, 'list']);
-    Route::get('/index/11', [UsersController::class, 'edit']);
-    Route::get('/index/11-{id}-0-1', [UsersController::class, 'edit']);
-    Route::get('/profile/edit', [UsersController::class, 'edit']);
-    Route::get('/profile/edit/{id}', [UsersController::class, 'edit']);
-    Route::post('/profile/edit', [UsersController::class, 'save']);
-    Route::get('/profile/password', [UsersController::class, 'editPassword']);
-    Route::post('/profile/password', [UsersController::class, 'savePassword']);
-    Route::get('/profile/notifications', [UsersController::class, 'getNotifications']);
+    Route::get('/index/11', [ProfileController::class, 'edit']);
+    Route::get('/index/11-{id}-0-1', [ProfileController::class, 'edit']);
+    Route::get('/profile/edit', [ProfileController::class, 'edit']);
+    Route::get('/profile/edit/{id}', [ProfileController::class, 'edit']);
+    Route::post('/profile/edit', [ProfileController::class, 'save']);
+    Route::get('/profile/password', [ProfileController::class, 'editPassword']);
+    Route::post('/profile/password', [ProfileController::class, 'savePassword']);
+    Route::get('/profile/notifications', [ProfileController::class, 'getNotifications']);
+    Route::get('/users/change-email/{code}', [ProfileController::class, 'changeEmail']);
+    Route::get('/profile/telegram/register', [ProfileTelegramController::class, 'registerForm']);
+    Route::post('/profile/telegram/register', [ProfileTelegramController::class, 'register']);
+    Route::post('/profile/telegram/connect', [ProfileTelegramController::class, 'connect']);
+    Route::post('/profile/telegram/disconnect', [ProfileTelegramController::class, 'disconnect']);
 
-    Route::get('/users/change-email/{code}', [UsersController::class, 'changeEmail']);
     Route::get('/users/{id}/videos', [UsersController::class, 'videos']);
     Route::get('/users/{id}/radio', [UsersController::class, 'radioRecordings']);
 

@@ -1,0 +1,121 @@
+.text-content {
+    font-size: 1.125em;
+    font-family: var(--font-texts);
+    @include mobile() {
+        font-size: 1em;
+    }
+    &:empty {
+        display: none;
+    }
+    p {
+        margin: 0 0 .5em;
+        line-height: 1.75;
+        word-spacing: normal;
+    }
+
+    h2 {
+        margin: 0;
+        font-weight: 500;
+    }
+
+    h3 {
+        margin: 0;
+        font-weight: 500;
+    }
+    img {
+        max-width: 100%;
+        @include mobile() {
+            height: unset !important;
+        }
+    }
+    p:empty {
+        display: none;
+    }
+    p.u {
+        font-weight: normal;
+        font-style: italic;
+        font-size: 1.125em;
+    }
+    .inner-page__text p {
+        line-height: 1.75;
+    }
+    .oldstat {
+        line-height: 1.75;
+    }
+
+    p > strong:only-child {
+        font-size: 1.125em;
+    }
+
+
+    p:empty + br {
+        display: none;
+    }
+
+    .next {
+        border-left: .25em solid var(--primary);
+        font-weight: bold;
+        padding: 0 0 0 .5em;
+        font-size: 1.125em;
+    }
+
+    iframe {
+        display: block;
+    }
+
+    .q, blockquote {
+        font-style: italic;
+        margin: 0;
+        border: none!important;
+        position: relative;
+        padding: 1em 1.57em;
+        font-size: 1.125em;
+        background: no-repeat;
+        text-align: center;
+        &:before {
+            content: "«";
+            display: inline-block;
+            position: absolute;
+            top: .675em;
+            left: 0;
+            font-size: 1.325em;
+        }
+        &:after {
+            content: "»";
+            display: inline-block;
+            position: absolute;
+            bottom: 1.25em;
+            right: 0;
+            font-size: 1.325em;
+        }
+        strong {
+            display: block;
+        }
+    }
+
+    .sig {
+        width: 100%;
+        font-style: italic;
+        color: #777;
+    }
+
+    .sig img {
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .sigv {
+        color: #777;
+        font-style: italic;
+        font-size: .875em;
+    }
+
+    .sigv iframe {
+        display: block;
+        margin: 0 0 .25em;
+    }
+
+    li br {
+        display: none;
+    }
+}

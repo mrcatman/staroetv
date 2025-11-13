@@ -43,9 +43,7 @@
     &--multiline {
         display: flex;
         flex-wrap: wrap;
-        .category {
-            margin: 0 .5em .5em 0;
-        }
+        gap: .5em;
     }
     @include light() {
         padding: 0;

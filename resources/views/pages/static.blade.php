@@ -32,7 +32,7 @@
                 @endif
             </div>
             <div class="box__inner">
-                <div class="inner-page__text-block inner-page__text-block--static">
+                <div class="text-content">
                     {!! $page->content !!}
                 </div>
             </div>

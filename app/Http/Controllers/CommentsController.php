@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\MaterialTypes;
 use App\Helpers\BBCodesHelper;
 use App\Helpers\PermissionsHelper;
-use App\Models\Channel;
+
 use App\Models\Comment;
 use App\Models\CommentRating;
+
 use App\Models\Record;
 use App\Models\User;
 use App\Notifications\NewCommentReply;
+use App\Notifications\NewMaterialComment;
 
 class CommentsController extends Controller {
+
 
     public function latest()
     {
@@ -49,73 +53,108 @@ class CommentsController extends Controller {
         ];
     }
 
-    public function add() {
-        if (PermissionsHelper::allows("comadd") && !PermissionsHelper::isBanned()) {
-            if (request()->has('material_type') && request()->has('material_id')) {
-                if (request()->has('message') && request()->input('message') != "") {
-                    $text = BBCodesHelper::BBToHTML(request()->input('message'));
-                    $comment = new Comment([
-                        'material_type' => request()->input('material_type'),
-                        'material_id' => request()->input('material_id'),
-                        'username' => auth()->user()->username,
-                        'name' => '',
-                        'email' => '',
-                        'ip_address' => request()->header('x-real-ip'),
-                        'text' => $text,
-                        'rating' => 0,
-                        'user_id' => auth()->user()->id,
-                        'original_text' => request()->input('message')
-                    ]);
-                    $parent = null;
-                    $selector = '.comments__list';
-                    if (request()->has('parent_id')) {
-                        $parent_id = request()->input('parent_id');
-                        if ((int)$parent_id > 0) {
-                            $parent = Comment::find($parent_id);
-                            if (!$parent) {
-                                return [
-                                    'status' => 0,
-                                    'text' => 'Не найден родительский комментарий'
-                                ];
-                            }
-                            $comment->parent_id = $parent_id;
-                            $selector = '.comment[data-id="' . $parent_id . '"] .comment__children';
-                        }
-                    }
-                    $comment->save();
-                    if ($parent && $parent->user) {
-                        $parent->user->notify(new NewCommentReply($parent, $comment));
-                    }
-                    return [
-                        'status' => 1,
-                        'text' => 'Комментарий добавлен',
-                        'data' => [
-                            'dom' => [
-                                [
-                                    'prepend_to' => $selector,
-                                    'html' => view("blocks/comment", ['ajax' => true, 'comment' => $comment])->render()
-                                ]
-                            ]
-                        ]
-                    ];
-                } else {
-                    return [
-                        'status' => 0,
-                        'text' => 'Не заполнено поле "Комментарий"'
-                    ];
-                }
-            } else {
-                return [
-                    'status' => 0,
-                    'text' => 'Ошибка доступа'
-                ];
-            }
-        } else {
+    public function add()
+    {
+        $user = auth()->user();
+
+        if (!$user || !PermissionsHelper::allows("comadd") || PermissionsHelper::isBanned()) {
             return [
                 'status' => 0,
                 'text' => 'Вы не можете оставлять комментарии'
             ];
         }
+        if (!request()->has('material_type') || !request()->has('material_id')) {
+            return [
+                'status' => 0,
+                'text' => 'Неверные данные'
+            ];
+        }
+
+        $material_type = request()->input('material_type');
+        $material_id = request()->input('material_id');
+        $allowed_material_types = MaterialTypes::LIST;
+
+        if (!isset($allowed_material_types[$material_type])) {
+            return [
+                'status' => 0,
+                'text' => 'Неверные данные'
+            ];
+        }
+
+        if ($material_type == Record::TYPE_VIDEOS) {
+            $material = Record::where(['ucoz_id' => $material_id])->first();
+        } else {
+            $material = $allowed_material_types[$material_type]::find($material_id);
+        }
+
+        if (!$material) {
+            return [
+                'status' => 0,
+                'text' => 'Материал не найден'
+            ];
+        }
+
+        $original_text = request()->input('message', '');
+        if (trim($original_text) == '') {
+            return [
+                'status' => 0,
+                'text' => 'Не заполнено поле "Комментарий"'
+            ];
+        }
+
+        $text = BBCodesHelper::BBToHTML($original_text);
+
+        $comment = new Comment([
+            'material_type' => $material_type,
+            'material_id' => $material_id,
+            'username' => $user->username,
+            'name' => '',
+            'email' => '',
+            'ip_address' => request()->header('x-real-ip'),
+            'text' => $text,
+            'rating' => 0,
+            'user_id' => $user->id,
+            'original_text' => $original_text,
+        ]);
+
+        $parent = null;
+        $selector = '.comments__list';
+        if (request()->has('parent_id')) {
+            $parent_id = request()->input('parent_id');
+            if ((int)$parent_id > 0) {
+                $parent = Comment::find($parent_id);
+                if (!$parent) {
+                    return [
+                        'status' => 0,
+                        'text' => 'Не найден родительский комментарий'
+                    ];
+                }
+                $comment->parent_id = $parent_id;
+                $selector = '.comment[data-id="' . $parent_id . '"] .comment__children';
+            }
+        }
+
+        $comment->save();
+        if ($parent && $parent->user) {
+            $parent->user->notify(new NewCommentReply($parent, $comment));
+        }
+
+        if ($material->user && $material->user->id != $user->id) {
+            $material->user->notify(new NewMaterialComment($comment));
+        }
+
+        return [
+            'status' => 1,
+            'text' => 'Комментарий добавлен',
+            'data' => [
+                'dom' => [
+                    [
+                        'prepend_to' => $selector,
+                        'html' => view("blocks/comment", ['ajax' => true, 'comment' => $comment])->render()
+                    ]
+                ]
+            ]
+        ];
     }
 
     public function edit() {

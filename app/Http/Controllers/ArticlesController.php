@@ -11,11 +11,18 @@ use App\Helpers\ViewsHelper;
 use App\Models\ArticleBinding;
 use App\Models\Comment;
 use App\Models\Crosspost;
+use App\Models\Program;
 use App\Models\Tag;
 use App\Models\TagMaterial;
 use Illuminate\Support\Facades\Cache;
 
-class ArticlesController extends Controller {
+class ArticlesController extends EntityController {
+
+    protected $entity_class = Program::class;
+    protected $permissions = [
+        'approve' => 'nwapprove'
+    ];
+    protected $redirect_after_delete = '/articles';
 
     public $types_data = [
         Article::TYPE_NEWS => [
@@ -82,14 +89,15 @@ class ArticlesController extends Controller {
         if (!$article) {
             $url = "/".request()->path();
             $article = Article::where(['original_url' => $url])->first();
-            if (!$article  || ($article->pending && !$this->canEdit($article))) {
+            if (!$article  || ($article->pending && !$article->can_edit)) {
                 return redirect("/");
             }
             return redirect($article->url);
         }
-        if (!$article  || ($article->pending && !$this->canEdit($article))) {
+        if (!$article  || ($article->pending && !$article->can_edit)) {
             return redirect("/");
         }
+
         return redirect("/articles/".$article->slug);
     }
 
@@ -107,6 +115,11 @@ class ArticlesController extends Controller {
         });
 
         $article = $data['article'];
+
+        if ($article->id == 2006) {
+            return redirect('/tape-digitization');
+        }
+
         $see_also = $data['see_also'];
 
         ViewsHelper::increment($article, 'articles');
@@ -119,76 +132,12 @@ class ArticlesController extends Controller {
         ]);
     }
 
-    public function approve()
-    {
-        $article = Article::find(request()->input('id'));
-        if (!$article) {
-            return [
-                'status' => 0,
-                'text' => 'Статья не найдена'
-            ];
-        }
-        $can_approve = PermissionsHelper::allows('nwapprove');
-        if ($can_approve) {
-            $status = request()->input('status', !$article->pending);
-            $article->pending = $status;
-            $article->save();
-            return [
-                'status' => 1,
-                'data' => [
-                    'approved' => !$status
-                ]
-            ];
-        } else {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-    }
-
-    public function delete() {
-        $article = Article::find(request()->input('article_id'));
-        if (!$article) {
-            return [
-                'status' => 0,
-                'text' => 'Статья не найдена'
-            ];
-        }
-        $redirect_to = "/articles";
-        $can_delete = $this->canDelete($article);
-        if ($can_delete) {
-            $article->delete();
-        }
-        return [
-            'status' => 1,
-            'text' => 'Удалено',
-            'redirect_to' => $redirect_to
-        ];
-    }
-
-    public function canEdit($article) {
-        if (PermissionsHelper::isBanned()) {
-            return false;
-        }
-        return auth()->user() && (auth()->user()->id === $article->user_id && PermissionsHelper::allows('nwoedit')) || PermissionsHelper::allows('nwedit');
-    }
-
-    public function canCrosspost($article) {
+    public function canCrosspost() {
         if (PermissionsHelper::isBanned()) {
             return false;
         }
         return auth()->user() && PermissionsHelper::allows('nwcrosspost');
     }
-
-
-    public function canDelete($article) {
-        if (PermissionsHelper::isBanned()) {
-            return false;
-        }
-        return auth()->user() && (auth()->user()->id === $article->user_id && PermissionsHelper::allows('nwodel')) || PermissionsHelper::allows('nwdel');
-    }
-
 
     public function list() {
         $category = null;
@@ -293,12 +242,8 @@ class ArticlesController extends Controller {
 
     public function edit($id) {
         $article = Article::find($id);
-        if (!$article) {
+        if (!$article || !$article->can_edit) {
             return redirect("/");
-        }
-        $can_edit = $this->canEdit($article);
-        if (!$can_edit ) { // || ($article->pending && $article->user_id != auth()->user()->id)
-            return view('pages.errors.403');
         }
 
         $crossposts = null;
@@ -323,7 +268,7 @@ class ArticlesController extends Controller {
                     'text' => 'Статья не найдена'
                 ];
             }
-            $can_crosspost = $this->canCrosspost($article);
+            $can_crosspost = $this->canCrosspost();
             if (!$can_crosspost) {
                 return [
                     'status' => 0,
@@ -371,7 +316,7 @@ class ArticlesController extends Controller {
                 'text' => 'Статья не найдена'
             ];
         }
-        $can_crosspost = $this->canCrosspost($article);
+        $can_crosspost = $this->canCrosspost();
         if (!$can_crosspost) {
             return [
                 'status' => 0,
@@ -523,7 +468,8 @@ class ArticlesController extends Controller {
             'slug' => 'sometimes'
         ]);
         $article->fill($data);
-        $article->save();
+        $this->saveEntity($article);
+
         $this->setTags($article);
         return [
             'status' => 1,

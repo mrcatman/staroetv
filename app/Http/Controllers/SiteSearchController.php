@@ -176,7 +176,7 @@ class SiteSearchController extends Controller {
         }
         $articles_types = [
             Article::TYPE_ARTICLES => ['url' => 'articles', 'title' => 'Статьи'],
-            Article::TYPE_NEWS => ['url' => 'news', 'title' => 'Новости'],''
+            Article::TYPE_NEWS => ['url' => 'news', 'title' => 'Новости'],
         ];
         foreach ($articles_types as $articles_type => $articles_data) {
             $articles = Article::approved()->where(['type_id' => $articles_type])->where(function($q) use ($search) {

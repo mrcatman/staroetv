@@ -1,5 +1,5 @@
-<a class="vhs-block" href="/news/2013-10-14-2780">
+<a class="vhs-block" href="/tape-digitization">
     <div class="vhs-block__text">
-        Ищем редкие записи
+        Нам<br/>нужны ваши кассеты
     </div>
 </a>

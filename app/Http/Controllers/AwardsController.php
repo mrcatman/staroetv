@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Actions;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\PermissionsHelper;
 use App\Models\Award;
 use App\Models\User;
@@ -46,14 +48,14 @@ class AwardsController extends Controller {
             if (!$award) {
                 return [
                     'status' => 0,
-                    'text' => 'Награда не существует'
+                    'text' => 'Ошибка: награда не существует'
                 ];
             }
             $user = User::find(request()->input('user_id'));
             if (!$user) {
                 return [
                     'status' => 0,
-                    'text' => 'Пользователь не найден'
+                    'text' => 'Ошибка: пользователь не найден'
                 ];
             }
             $comment = request()->input('comment', '');
@@ -65,6 +67,8 @@ class AwardsController extends Controller {
                 'comment' => $comment
             ]);
             $award_obj->save();
+            ActionsLogHelper::create($award_obj, Actions::Create);
+
             return [
                 'status' => 1,
                 'text' => 'Награда добавлена',
@@ -84,13 +88,16 @@ class AwardsController extends Controller {
             if (!$award) {
                 return [
                     'status' => 0,
-                    'text' => 'Ошибка: объект не найден'
+                    'text' => 'Ошибка: награда не найдена'
                 ];
             }
             if (request()->has('comment')) {
                 $award->comment = request()->input('comment');
             }
+
+            ActionsLogHelper::create($award, Actions::Update);
             $award->save();
+
             return [
                 'status' => 1,
                 'text' => 'Сохранено',
@@ -112,10 +119,12 @@ class AwardsController extends Controller {
             if (!$award) {
                 return [
                     'status' => 0,
-                    'text' => 'Ошибка: объект не найден'
+                    'text' => 'Ошибка: награда не найдена'
                 ];
             }
             $award->delete();
+            ActionsLogHelper::create($award, Actions::Delete);
+
             return [
                 'status' => 1,
                 'text' => 'Удалено',

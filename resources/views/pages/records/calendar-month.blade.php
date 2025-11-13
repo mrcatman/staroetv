@@ -50,7 +50,7 @@
                                                 <div class="calendar-page__records">
                                                     <div class="records-list records-list--thumbs">
                                                         @foreach ($records as $record)
-                                                            @include('blocks/record')
+                                                            @include('blocks.records.item')
                                                         @endforeach
                                                     </div>
                                                 </div>

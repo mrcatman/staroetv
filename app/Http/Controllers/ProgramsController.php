@@ -14,20 +14,25 @@ use App\Models\Record;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
-class ProgramsController extends Controller {
+class ProgramsController extends EntityController {
+
+    protected $entity_class = Program::class;
+    protected $permissions = [
+        'approve' => 'contentapprove'
+    ];
+    protected $redirect_after_delete = '/video';
+
 
     public function index($params) {
-        $page_title = "Передачи";
         $is_radio = $params['is_radio'];
+
         $category = Genre::where(['url' => request()->input('category')])->first();
-        if (!$category) {
-            //return redirect(!$is_radio ? '/video' : '/radio');
-        }
 
         $channel_ids  = Channel::where(['is_radio' => $is_radio])->where(['is_regional' => false])->where(['is_abroad' => false])->pluck('id');
         $programs = Program::where(['pending' => false])->withCount('records')->whereIn('channel_id', $channel_ids);
         $programs->where('url', '!=', 'unknown-program');
 
+        $page_title = "Передачи";
         if ($category) {
             $programs = $programs->where(['genre_id' => $category->id]);
             $page_title = $category->name;
@@ -38,7 +43,7 @@ class ProgramsController extends Controller {
         $period = Periods::find(request()->input('period'), '');
         if ($period) {
             $programs = $programs->whereHas('records', function ($query) use ($period) {
-                $query->whereBetween('date', Periods::getDatesInterval($period));
+                $query->whereBetween('supposed_date', Periods::getDatesInterval($period));
             });
         }
 
@@ -209,24 +214,9 @@ class ProgramsController extends Controller {
         return $this->fillData($program);
     }
 
-    public function update($id) {
-        $program = Program::find($id);
-        if (!$program) {
-            return [
-                'status' => 0,
-                'text' => 'Программа не найдена'
-            ];
-        }
-        if (!$program->can_edit) {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-        return $this->fillData($program);
-    }
 
-    private function fillData($program) {
+
+    protected function fillData($program) {
         $data = request()->validate([
             'name' => 'required|min:1',
             'description' => 'sometimes',
@@ -237,6 +227,7 @@ class ProgramsController extends Controller {
             'url' => 'sometimes',
             'channel_id' => 'sometimes',
         ]);
+
         if (request()->has('url') && request()->input('url') != '') {
             $same_url_program = Program::where(['url' => request()->input('url')])->first();
             if ($same_url_program && $same_url_program->id != $program->id) {
@@ -246,24 +237,22 @@ class ProgramsController extends Controller {
                 throw $error;
             }
         }
-        if (isset($data['date_of_start'])) {
-            $data['date_of_start'] = Carbon::parse($data['date_of_start']);
-        } else {
-            $data['date_of_start'] = null;
-        }
-        if (isset($data['date_of_closedown'])) {
-            $data['date_of_closedown'] = Carbon::parse($data['date_of_closedown']);
-        } else {
-            $data['date_of_closedown'] = null;
-        }
+
+        $data['date_of_start'] = isset($data['date_of_start']) ? Carbon::parse($data['date_of_start']) : null;
+        $data['date_of_closedown'] = isset($data['date_of_closedown']) ? Carbon::parse($data['date_of_closedown']) : null;
+
         if (isset($data['description'])) {
             $data['description'] = HTMLHelper::sanitize($data['description']);
         }
-        $program->show_full_titles = !!request()->input('show_full_titles', false);
 
+        $data['show_full_titles'] = !!request()->input('show_full_titles', false);
+        if (!$program->author_id) {
+            $data['author_id'] = auth()->user()->id;
+        }
         $program->fill($data);
-        $program->author_id = auth()->user()->id;
-        $program->save();
+
+        parent::saveEntity($program);
+
         if (request()->has('additional_channels')) {
               $additional_channels = request()->input('additional_channels');
               $additional_channels = json_decode($additional_channels);
@@ -286,7 +275,7 @@ class ProgramsController extends Controller {
               }
 
         }
-        Cache::clear('programs_channels___names_'.$program->id);
+        Cache::delete('programs_channels_names_'.$program->id);
         return [
             'status' => 1,
             'text' => 'Информация о программе обновлена',
@@ -327,38 +316,6 @@ class ProgramsController extends Controller {
             'text' => 'Программа объединена',
             'redirect_to' => $merged ? '/programs/'.$merged->id.'/edit' : '/video'
         ];
-    }
-
-
-
-    public function delete() {
-        $program = Program::find(request()->input('program_id'));
-        if (!$program) {
-            return [
-                'status' => 0,
-                'text' => 'Канал не найден'
-            ];
-        }
-        if (!$program->can_edit) {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-        Record::where(['program_id' => $program->id])->update(['program_id' => -1]);
-        $program->delete();
-        if (request()->input('_from_confirm_form')) {
-            return [
-                'status' => 1,
-                'text' => 'Программа удалена',
-                'redirect_to' => '/video'
-            ];
-        } else {
-            return [
-                'status' => 1,
-                'text' => 'Программа удалена'
-            ];
-        }
     }
 
     public function editList($channel_id) {
@@ -421,32 +378,6 @@ class ProgramsController extends Controller {
         ];
     }
 
-    public function approve() {
-        $program = Program::find(request()->input('id'));
-        if (!$program) {
-            return [
-                'status' => 0,
-                'text' => 'Программа не найдена'
-            ];
-        }
-        $can_approve = PermissionsHelper::allows('contentapprove');
-        if ($can_approve) {
-            $status = request()->input('status', !$program->pending);
-            $program->pending = $status;
-            $program->save();
-            return [
-                'status' => 1,
-                'data' => [
-                    'approved' => !$status
-                ]
-            ];
-        } else {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-    }
 
     public function autocomplete() {
         $count = 30;
@@ -466,4 +397,13 @@ class ProgramsController extends Controller {
         ];
     }
 
+    protected function afterDelete($program)
+    {
+        Record::where(['program_id' => $program->id])->update(['program_id' => -1]);
+        return [
+            'status' => 1,
+            'text' => 'Программа удалена',
+            'redirect_to' => $program->channel->full_url
+        ];
+    }
 }

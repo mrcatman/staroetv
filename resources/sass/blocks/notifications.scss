@@ -16,7 +16,7 @@
             display: block;
             position: fixed;
             top: 1.75em;
-            right: .5em;
+            right: -.125em;
             color: var(--text-color);
             z-index: 10;
             font-size: 1.75em;
@@ -28,7 +28,7 @@
         left: 0;
         right: unset;
         position: fixed;
-        top: 5.25em;
+        top: 2.875em;
         width: 100%;
     }
     &__empty {
@@ -37,15 +37,30 @@
         font-size: 1.25em;
     }
 
+    &__items {
+
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: .5em;
+    }
+
     &__list {
-        width: 35vw;
+        width: 30em;
         background: var(--bg-darker);
         border: 1px solid var(--border-color);
         color: var(--text-lighter);
         box-shadow: var(--block-box-shadow);
         position: relative;
-        overflow: visible;
+        max-height: 35em;
+        overflow: auto;
+        padding: 1em;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--col-margin);
         @include mobile {
+            max-height: unset;
             width: 100%;
         }
         &:before {
@@ -72,44 +87,38 @@
     text-align: left;
     border-bottom: 1px solid var(--border-color);
     display: block;
-    padding: .5em;
-    &:hover {
-        background: var(--box-color-hover);
-    }
+    @include hover;
     &__reply-to {
         margin: 0 0 0 .25em;
         background: var(--bg-darker);
     }
 
     &__picture {
+        min-width: 3.5em;
         width: 3.5em;
         height: 3.5em;
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
-        margin: 0 .5em 0 0;
     }
+
 
     &__inner {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--col-margin);
     }
 
     &__text {
         font-size: .875em;
-        max-width: calc(100% - 5em);
     }
 
     &__quote {
-        font-size: 1.125em;
-
-        margin: .125em 0;
         color: var(--text-lighter);
     }
 
     &__time {
         font-size: .875em;
-        color: #777;
-        margin: .25em 0 0;
     }
 }

@@ -10,7 +10,7 @@ class HistoryEvent extends Model {
     protected $guarded = [];
     protected $table = "events";
 
-    const TYPE_HISTORY_EVENT = 102;
+    const TYPE_HISTORY_EVENT = 103;
 
     public function getCanEditAttribute() {
         if (PermissionsHelper::allows("history")) {

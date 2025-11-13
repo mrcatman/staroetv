@@ -50,7 +50,7 @@
         &__empty {
             width: 100%;
             height: 100%;
-            background: var(--bg-darker);
+            background: var(--inputs-color);
             color: var(--text-lightest);
             display: flex;
             align-items: center;

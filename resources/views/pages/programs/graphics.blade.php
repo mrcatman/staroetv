@@ -43,7 +43,6 @@
                                             <a class="button--dropdown__list__item"
                                                href="/programs/{{$program->id}}/graphics/edit/{{$package->id}}">Редактировать</a>
                                             <a class="button--dropdown__list__item"
-                                               data-confirm-form-input-name="package_id"
                                                data-confirm-form-input-value="{{$package->id}}"
                                                data-confirm-form-text="Вы уверены?"
                                                data-confirm-form-url="/graphics/delete">Удалить</a>
@@ -66,11 +65,11 @@
                                         <div class="records-list records-list--thumbs">
                                             @if ($package->visibleRecords &&  count($package->visibleRecords) > 0)
                                                 @foreach($package->visibleRecords as $record)
-                                                    @include('blocks/record')
+                                                    @include('blocks.records.item')
                                                 @endforeach
                                             @else
                                                 @foreach($package->records as $record)
-                                                    @include('blocks/record')
+                                                    @include('blocks.records.item')
                                                 @endforeach
                                             @endif
                                         </div>
@@ -85,7 +84,6 @@
             @if (count($related_programs) > 0)
                 <div class="col col--sidebar">
 
-                    <div class="col">
                         <div class="box">
                             <div class="box__heading box__heading--small">
                                 <div class="box__heading__inner">
@@ -96,7 +94,7 @@
                                 <div class="interprogram-page__related">
                                     <div class="records-list">
                                         @foreach ($related_programs as $program)
-                                            @include('blocks/record', ['record' => $program, 'url' => '/programs/'.($program->url ?: $program->id).'/graphics', 'title' => $program->name, 'hide_info' => true])
+                                            @include('blocks.records.item', ['record' => $program, 'url' => '/programs/'.($program->url ?: $program->id).'/graphics', 'title' => $program->name, 'hide_info' => true])
                                         @endforeach
                                     </div>
 
@@ -106,6 +104,5 @@
                         @endif
                         @include('blocks/generic_sidebar', ['hide_articles' => true])
                     </div>
-                </div>
         </div>
 @endsection

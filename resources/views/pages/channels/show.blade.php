@@ -35,7 +35,6 @@
                                         @endif
                                         @if ($channel->can_edit)
                                             <a class="button--dropdown__list__item"
-                                               data-confirm-form-input-name="channel_id"
                                                data-confirm-form-input-value="{{$channel->id}}"
                                                data-confirm-form-text="Вы уверены, что хотите удалить канал?"
                                                data-confirm-form-url="/channels/delete">Удалить</a>
@@ -90,7 +89,7 @@
                             @endif
                             <div class="channel-page__description">
                                 @if ($channel->description != "")
-                                    <div class="channel-page__description__text">{!! $channel->description !!}</div>
+                                    <div class="text-content">{!! $channel->description !!}</div>
                                 @else
                                     <div class="channel-page__no-description">Описание канала еще не заполнено</div>
                                 @endif
@@ -134,11 +133,16 @@
                     <div class="box__heading__right">
                         <div class="buttons-row">
                             @if ($programs_edit_own)
-                                <a href="{{$channel->full_url}}/programs/add" class="button button--light">Добавить</a>
+                                <a href="{{$channel->full_url}}/programs/add" class="button">
+                                    <i class="fa fa-edit"></i>
+                                    Добавить
+                                </a>
                             @endif
                             @if ($programs_edit)
-                                <a href="{{$channel->full_url}}/programs/edit" class="button button--light">Редактировать
-                                    список</a>
+                                <a href="{{$channel->full_url}}/programs/edit" class="button">
+                                    <i class="fa fa-list"></i>
+                                    Редактировать список
+                                </a>
                             @endif
                         </div>
 
@@ -171,7 +175,7 @@
 
         @php($can_edit_interprogram = \App\Helpers\PermissionsHelper::allows('additionalown'))
         @if ($channel->is_radio)
-            @include('blocks/records.list', ['hide_if_zero' => true, 'conditions' => $records_conditions_interprogram, 'block_title' => 'Заставки, отбивки, джинглы ('.$channel->name.')'])
+            @include('blocks.records.list', ['hide_if_zero' => true, 'conditions' => $records_conditions_interprogram, 'block_title' => 'Заставки, отбивки, джинглы ('.$channel->name.')'])
         @else
             @if (count($interprogram_packages) > 0 || $can_edit_interprogram)
                 <div class="box" id="interprogram">
@@ -188,7 +192,7 @@
                         <div class="box__inner">
                             <div class="interprogram-packages-list">
                                 @foreach($interprogram_packages as $package)
-                                    @include('blocks/interprogram_package', ['package' => $package])
+                                    @include('blocks.interprogram.package', ['package' => $package])
                                 @endforeach
                             </div>
                         </div>
@@ -197,7 +201,7 @@
             @endif
         @endif
         <div class="row">
-            @include('blocks/records.list', ['conditions' => $records_conditions])
+            @include('blocks.records.list', ['conditions' => $records_conditions])
         </div>
         @if (count($channel->articles) > 0)
             <div class="box">

@@ -12,7 +12,7 @@
 
 @endsection
 @section('content')
-    <div class="inner-page record-page">
+    <div class="record-page">
         <div class="box">
             <div class="box__breadcrumbs">
                 <a class="breadcrumbs__item" href="{{$record->is_radio ? "/radio" : "/video"}}">Архив</a>
@@ -45,7 +45,7 @@
                 @endif
             </div>
             <div class="box__heading">
-                <div class="box__heading__inner">
+                <div class="box__heading__inner" id="record_title">
                     {{$record->title_without_tags}}
                 </div>
                 <div class="box__heading__right">
@@ -65,7 +65,7 @@
                                    href="{{$record->channel && $record->channel->is_radio ? "/radio" : "/video"}}/{{$record->id}}/edit">Редактировать</a>
                                 <a class="button--dropdown__list__item" href="/cut/start/{{$record->id}}">Обрезка</a>
                                 @if (!$record->use_own_player)
-                                    <a class="button--dropdown__list__item" data-confirm-form-input-name="record_id"
+                                    <a class="button--dropdown__list__item"
                                        data-confirm-form-input-value="{{$record->id}}"
                                        data-confirm-form-text="Вы уверены, что хотите загрузить эту запись в хранилище сайта из внешнего источника?"
                                        data-confirm-form-url="/records/download">Загрузить на сайт</a>
@@ -74,7 +74,7 @@
                                 @if (!$record->is_radio)
                                     <a class="button--dropdown__list__item" data-show-modal="#update_preview">Обновить превью</a>
                                 @endif
-                                <a class="button--dropdown__list__item" data-confirm-form-input-name="record_id"
+                                <a class="button--dropdown__list__item"
                                    data-confirm-form-input-value="{{$record->id}}"
                                    data-confirm-form-text="Вы уверены, что хотите удалить эту запись?"
                                    data-confirm-form-url="/records/delete">Удалить</a>
@@ -107,9 +107,9 @@
                         </div>
                     </div>
                 </div>
-                @include('blocks/comments', ['class' => 'record-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => 10, 'material_id' => $record->ucoz_id]])
+                @include('blocks/comments', ['class' => 'record-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Models\Record::TYPE_VIDEOS, 'material_id' => $record->ucoz_id]])
             </div>
-            <div class="col col--1-5 record-page__related-container">
+            <div class="col col--sidebar col--1-5 record-page__related-container">
                 @if ($playlist)
                     <div data-current-id="{{$record->id}}" class="box box--dark playlist">
                         <div class="box__heading box__heading--small">
@@ -117,7 +117,7 @@
                                 Плейлист
                             </div>
                         </div>
-                        <div class="box__inner">
+                        <div class="box__inner playlist__items">
                             @foreach ($playlist as $item)
                                 @if ($item['is_annotation'])
                                     <div class="playlist__annotation">
@@ -126,107 +126,45 @@
                                     </div>
                                 @else
                                     <div class="playlist__item" data-id="{{$item['data']->id}}">
-                                        @include($record->is_radio ? 'blocks/radio_recording' : 'blocks/record', ['record' => $item['data']])
+                                        @include($record->is_radio ? 'blocks.records.radio-item' : 'blocks.records.item', ['record' => $item['data']])
                                     </div>
                                 @endif
                             @endforeach
                         </div>
                     </div>
-                @else
-                    @if ($related_program && count ($related_program) > 0)
+
+                    @if ($related_interprogram_packages)
+                    @include('blocks.interprogram.related', ['related' => $related_interprogram_packages])
+                    @endif
+                @endif
+                @foreach($related as $related_item)
+
+                    @if (count ($related_item['items']) > 0)
                         <div class="box">
 
-                            <a href="{{$record->program->full_url}}" class="box__heading box__heading--small">
-                                <div class="box__heading__inner">
-                                    <span>
-                                        Другие выпуски программы <span class="box__heading__count">{{$record->program->name}}</span>
+                            <{{$related_item['url'] ? 'a' : 'div'}} @if ($related_item['url']) href
+                            ="{{$related_item['url']}}" @endif class="box__heading box__heading--small">
+                            <div class="box__heading__inner">
+                                        <span>{{$related_item['heading']}}
+                                            @if ($related_item['entity_name'])
+                                                <span
+                                                    class="box__heading__count">{{$related_item['entity_name']}}</span>
+                                            @endif
                                     </span>
-                                </div>
-                            </a>
-                            <div class="box__inner">
-                                <div class="record-page__related">
-                                    @foreach ($related_program as $item)
-                                        @include($record->is_radio ? 'blocks/radio_recording' : 'blocks/record', ['record' => $item])
-                                    @endforeach
+                            </div>
+                        </{{$related_item['url'] ? 'a' : 'div'}}>
+                        <div class="box__inner">
+                            <div class="record-page__related">
+                                @foreach ($related_item['items'] as $item)
+                                    @include($record->is_radio ? 'blocks.records.radio-item' : 'blocks.records.item', ['record' => $item])
+                                @endforeach
 
-                                </div>
                             </div>
                         </div>
-                    @endif
-                    @if ($related_interprogram && count ($related_interprogram) > 0)
-                        <div class="box">
-                            <a href="{{$record->interprogramPackage->full_url}}"
-                               class="box__heading box__heading--small">
-                                <div class="box__heading__inner">
-                                    Еще записи этого оформления
-                                </div>
-                            </a>
-                            <div class="box__inner">
-                                <div class="record-page__related">
-                                    @foreach ($related_interprogram as $item)
-                                        @include($record->is_radio ? 'blocks/radio_recording' : 'blocks/record', ['record' => $item])
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                    @if ($related_channel && count($related_channel) > 0)
-                        <div class="box">
-                            <a href="{{$record->channel->full_url}}" class="box__heading box__heading--small">
-                                <div class="box__heading__inner">
-                                    <span>
-                                         {{$record->is_radio ? "Ещё записи с радиостанции" : "Ещё записи с канала"}} <span
-                                            class="box__heading__count">{{$record->channel_name}}</span>
-                                    </span>
-
-                                </div>
-                            </a>
-                            <div class="box__inner">
-                                <div class="record-page__related">
-                                    @foreach ($related_channel as $item)
-                                        @include($record->is_radio ? 'blocks/radio_recording' : 'blocks/record', ['record' => $item])
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                    @if ($related_advertising && count($related_advertising) > 0)
-                        <div class="box">
-                            <div class="box__heading box__heading--small">
-                                <div class="box__heading__inner">
-                                    Ещё
-                                    реклама <!--<span class="box__heading__count">{{$record->advertising_brand}}--></span>
-                                </div>
-                            </div>
-                            <div class="box__inner">
-                                <div class="record-page__related">
-                                    @foreach ($related_advertising as $item)
-                                        @include($record->is_radio ? 'blocks/radio_recording' : 'blocks/record', ['record' => $item])
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                    @if ($related_other && count($related_other) > 0)
-                        <div class="box">
-                            <div class="box__heading box__heading--small">
-                                <div class="box__heading__inner">
-                                    Другие записи
-                                </div>
-                            </div>
-                            <div class="box__inner">
-                                <div class="record-page__related">
-                                    @foreach ($related_other as $item)
-                                        @include($record->is_radio ? 'blocks/radio_recording' : 'blocks/record', ['record' => $item])
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    @endif
             </div>
             @endif
+            @endforeach
         </div>
-    </div>
     </div>
     @if ($record->can_edit)
         <div id="update_preview" data-title="Обновить превью" style="display:none">

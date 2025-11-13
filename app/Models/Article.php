@@ -20,6 +20,11 @@ class Article extends Model {
         self::TYPE_BLOG => 'blog'
     ];
 
+    public function getCanEditAttribute()
+    {
+        return auth()->user() && (auth()->user()->id === $this->user_id && PermissionsHelper::allows('nwodel')) || PermissionsHelper::allows('nwdel');
+    }
+
     public function getTitleAttribute() {
         return html_entity_decode($this->attributes['title']);
     }
@@ -247,7 +252,7 @@ class Article extends Model {
     }
 
     public function getSlugAttribute() {
-        return $this->getOriginal('url');
+        return $this->attributes['url'];
     }
 
     public function setSlugAttribute($url) {

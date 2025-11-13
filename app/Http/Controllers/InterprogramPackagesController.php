@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Actions;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\HTMLHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
 use App\Models\Annotation;
 use App\Models\Channel;
-use App\Models\ChannelName;
 use App\Models\InterprogramPackage;
 use App\Models\Program;
 use App\Models\Record;
@@ -341,9 +342,6 @@ class InterprogramPackagesController extends Controller
         if ($program) {
             $channel = $package->program->channel;
         }
-        //if (!$channel->can_edit) {
-        //    return view("pages.errors.403");
-        //}
 
         $types_to_hide = [22];
         $package->records = $package->records->filter(function ($record) use ($types_to_hide) {
@@ -385,6 +383,8 @@ class InterprogramPackagesController extends Controller
             ];
         }
         $package->delete();
+        ActionsLogHelper::create($package, Actions::Delete);
+
         return [
             'status' => 1,
             'text' => 'Пакет удален',
@@ -416,7 +416,9 @@ class InterprogramPackagesController extends Controller
         $package->date_start = Carbon::parse($data['date_start']);
         $package->date_end = Carbon::parse($data['date_end']);
 
+        ActionsLogHelper::create($package, $package->id ? Actions::Update : Actions::Create);
         $package->save();
+
         $new_annotation_ids = [];
         $old_annotation_ids = Annotation::where(['interprogram_package_id' => $package->id])->pluck('id')->toArray();
         if (!$is_new) {
@@ -486,11 +488,7 @@ class InterprogramPackagesController extends Controller
             return redirect("/");
         }
         $packages = $program->interprogramPackages;
-        foreach ($packages as $package) {
-            //$package->records = $package->records->sortByDesc('id');
-            //$records = $records->merge($this->getPackageRecordsByDate($package));
-            //$package->records_list = $records;
-        }
+
         $not_sorted_interprogram = $program->records->sortByDesc('id')->filter(function ($record) {
             return $record->is_interprogram && !$record->interprogram_package_id;
         });
@@ -505,7 +503,7 @@ class InterprogramPackagesController extends Controller
                 'records' => $not_sorted_interprogram
             ]));
         }
-        $related_program_ids = InterprogramPackage::whereNotNull('program_id')->where('id', '!=', $package->id)->inRandomOrder()->limit(10)->pluck('program_id');
+        $related_program_ids = InterprogramPackage::whereNotNull('program_id')->inRandomOrder()->limit(10)->pluck('program_id');
         $related_programs = Program::whereIn('id', $related_program_ids)->get();
         return view('pages.programs.graphics', [
             'program' => $program,

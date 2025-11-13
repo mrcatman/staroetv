@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Forum;
 
 use App\Helpers\PermissionsHelper;
+use App\Http\Controllers\Controller;
 use App\Models\Questionnaire;
 use App\Models\QuestionnaireAnswer;
 use App\Models\QuestionnaireVariant;

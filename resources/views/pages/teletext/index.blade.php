@@ -42,7 +42,7 @@
                         </div>
                         <div class="records-list records-list--thumbs teletext-item__latest-additions">
                             @foreach($section['items'] as $teletext)
-                                @include('blocks/record', ['record' => $teletext, 'title' => $teletext->date_formatted])
+                                @include('blocks.records.item', ['record' => $teletext, 'title' => $teletext->date_formatted])
                             @endforeach
                         </div>
 
@@ -56,7 +56,7 @@
         <div class="col col--2-5">
             @include('blocks.teletext.list')
         </div>
-        <div class="col">
+        <div class="col col--sidebar">
             @include('blocks/banner')
         </div>
     </div>

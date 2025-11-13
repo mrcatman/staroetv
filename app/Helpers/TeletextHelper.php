@@ -17,7 +17,7 @@ class TeletextHelper {
         Storage::disk('public_data')->makeDirectory($dir);
 
         $output_path = Storage::disk('temp')->path($dir);
-        Process::path(config('teletext.cwd'))->run('python3 -m teletext html "'.$output_path.'/" "'.$file_path.'"');
+        Process::path(config('site.teletext.cwd'))->run('python3 -m teletext html "'.$output_path.'/" "'.$file_path.'"');
 
         $pages = Storage::disk('temp')->allFiles($dir);
         $pages = array_map(function($page) {

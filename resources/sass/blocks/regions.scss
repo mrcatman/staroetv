@@ -2,9 +2,11 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: .75em 0;
+    gap: var(--col-margin) 0;
     margin: 1em 0;
-
+    &__search {
+        margin-top: var(--col-margin);
+    }
     &__container {
         @include mobile() {
             font-size: .875em;
@@ -41,9 +43,6 @@
         font-size: 1.25em;
         cursor: pointer;
         font-weight: 600;
-        @include mobile() {
-            margin: 0 .5em 0 0;
-        }
     }
 
     &__count {

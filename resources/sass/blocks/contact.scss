@@ -33,3 +33,60 @@
         }
     }
 }
+
+
+.digitization {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+
+    &__main {
+        font-size: 1.125em;
+        line-height: 1.6;
+    }
+
+    &__format {
+        font-size: 1.125em;
+        font-style: italic;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--col-margin);
+        align-items: center;
+
+        &__picture {
+            height: 9.75em;
+        }
+    }
+
+}
+
+
+.faq {
+    border: 1px solid var(--border-color);
+    border-radius: .5em;
+
+    &__question {
+        background: var(--bg-darker);
+        padding: 1em;
+        position: relative;
+        overflow: hidden;
+        font-weight: 600;
+
+        &:before {
+            content: '?';
+            display: block;
+            position: absolute;
+            font-size: 3.75em;
+            font-weight: bold;
+            right: .5em;
+            top: -.125em;
+            transform: rotate(-20deg);
+            opacity: .1;
+        }
+    }
+
+    &__answer {
+        padding: 1em;
+    }
+}

@@ -30,7 +30,7 @@
                                        data-approve-id="{{$event->id}}">{{$event->pending ? "Одобрить" : "Скрыть"}}</a>
                                 @endif
                                 @if ($event->can_edit)
-                                    <a class="button--dropdown__list__item" data-confirm-form-input-name="event_id"
+                                    <a class="button--dropdown__list__item"
                                        data-confirm-form-input-value="{{$event->id}}"
                                        data-confirm-form-text="Вы уверены, что хотите удалить подборку?"
                                        data-confirm-form-url="/events/delete">Удалить</a>
@@ -41,7 +41,7 @@
                 </div>
                 <div class="inner-page__content">
                     @if ( $event->description != '')
-                        <div class="inner-page__text-block event-page__content">
+                        <div class="text-content event-page__content">
                             {!! $event->description !!}
                         </div>
                     @endif
@@ -50,7 +50,7 @@
                     <div class="box event-page__block">
                         <div class="box__inner">
                             <div class="event-page__block-content">
-                                <div class="inner-page__text">
+                                <div class="text-content">
                                     {!! $block->description !!}
                                 </div>
                             </div>

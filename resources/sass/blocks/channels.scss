@@ -26,6 +26,7 @@
 
     @include mobile {
         display: flex;
+        gap: .5em;
         align-items: center;
         justify-content: center;
         padding: .5em;
@@ -84,11 +85,10 @@
         @include mobile {
             justify-content: flex-start;
             text-align: left;
-            padding: 0 1em;
-            font-size: 1.125em;
+            padding: 0;
+            font-size: 1em;
             height: auto;
             top: 0;
-
         }
     }
 }
@@ -183,16 +183,6 @@
         }
         &__params {
             margin-top: .75em;
-        }
-        &__text {
-            font-size: 1.125em;
-            line-height: 1.5em;
-            p {
-                margin: 0 0 .75em;
-                &:last-of-type {
-                    margin-bottom: 0;
-                }
-            }
         }
     }
 

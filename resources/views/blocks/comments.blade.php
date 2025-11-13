@@ -12,7 +12,7 @@
             <div class="box__heading">
                 <div class="box__heading__inner">
                     <i class="fa fa-comment"></i>
-                    Комментарии
+                    Комментарии&nbsp;
                     @if (!$lazyload)
                         <span class="box__heading__count">{{\App\Models\Comment::where($conditions)->count()}}</span>
                     @else
@@ -27,7 +27,7 @@
                     <div class="comments__form">
                         @if (!auth()->user())
                             <div class="comments__form__register">
-                                <a href="/login">Войдите</a> или <a href="/register">зарегистрируйтесь</a>, чтобы
+                                <a class="button--login" href="/login">Войдите</a> или <a href="/register">зарегистрируйтесь</a>, чтобы
                                 добавить комментарий
                             </div>
                         @else

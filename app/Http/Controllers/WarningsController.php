@@ -56,10 +56,12 @@ class WarningsController extends Controller {
                     'text' => 'Пользователь не найден'
                 ];
             }
+
             if ($data['weight'] == -1) {
                 $data['weight'] = 0;
             }
-            $ban = new UserWarning();
+
+            $ban = new UserWarning([]);
             $ban->to_id = $user->id;
             $ban->weight = $data['weight'] == 1 ? 1 : 0;
             $ban->from_id = auth()->user()->id;

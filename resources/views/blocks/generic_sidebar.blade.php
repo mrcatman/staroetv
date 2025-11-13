@@ -12,7 +12,7 @@
                 @endif
                 @php ($count = isset($count) && $count ? $count : 10)
                 @foreach (\App\Helpers\SidebarHelper::getRecords($is_radio, $count) as $record)
-                    @include($is_radio ? 'blocks/radio_recording' : 'blocks/record', ['record' => $record])
+                    @include($is_radio ? 'blocks.records.radio-item' : 'blocks.records.item', ['record' => $record])
                 @endforeach
             </div>
         </div>
@@ -20,7 +20,9 @@
     @if (!isset($hide_articles) || !$hide_articles)
     <div class="box">
         <div class="box__heading box__heading--small">
-            Читайте на нашем сайте
+            <div class="box__heading__inner">
+                Читайте на нашем сайте
+            </div>
         </div>
         <div class="box__inner">
             <div class="see-also">

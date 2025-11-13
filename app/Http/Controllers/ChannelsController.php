@@ -16,7 +16,14 @@ use App\Models\Record;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
-class ChannelsController extends Controller {
+class ChannelsController extends EntityController {
+
+    protected $entity_class = Channel::class;
+    protected $permissions = [
+        'create' => 'channelsown',
+        'approve' => 'contentapprove'
+    ];
+    protected $redirect_after_delete = '/video';
 
     public function show($url) {
         $data = Cache::remember('channel_'.$url, 60 * 10, function() use ($url) {
@@ -132,36 +139,7 @@ class ChannelsController extends Controller {
         ]);
     }
 
-    public function save() {
-        if (!PermissionsHelper::allows('channelsown') && !PermissionsHelper::allows('channels')) {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-        $channel = new Channel();
-        return $this->fillData($channel);
-    }
-
-    public function update($id) {
-
-        $channel = Channel::find($id);
-        if (!$channel) {
-            return [
-                'status' => 0,
-                'text' => 'Канал не найден'
-            ];
-        }
-        if (!$channel->can_edit) {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-        return $this->fillData($channel);
-    }
-
-    private function fillData($channel) {
+    protected function fillData($channel) {
         $data = request()->validate([
             'name' => 'required',
             'description' => 'sometimes',
@@ -196,7 +174,8 @@ class ChannelsController extends Controller {
         }
 
         $channel->fill($data);
-        $channel->save();
+        $this->saveEntity($channel);
+
         if (request()->has('channel_names')) {
             $names = request()->input('channel_names');
             $names = json_decode($names);
@@ -297,63 +276,6 @@ class ChannelsController extends Controller {
         ];
     }
 
-
-
-    public function delete() {
-        $channel = Channel::find(request()->input('channel_id'));
-        if (!$channel) {
-            return [
-                'status' => 0,
-                'text' => 'Канал не найден'
-            ];
-        }
-        if (!$channel->can_edit) {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-        $channel->delete();
-        if (request()->input('_from_confirm_form')) {
-            return [
-                'status' => 1,
-                'text' => 'Канал удален',
-                'redirect_to' => '/video'
-            ];
-        } else {
-            return [
-                'status' => 1,
-                'text' => 'Канал удален'
-            ];
-        }
-    }
-
-    public function approve() {
-        $channel = Channel::find(request()->input('id'));
-        if (!$channel) {
-            return [
-                'status' => 0,
-                'text' => 'Канал не найден'
-            ];
-        }
-        $can_approve = PermissionsHelper::allows('contentapprove');
-        if ($can_approve) {
-            $status = request()->input('status', !$channel->pending);
-            $channel->pending = $status;
-            $channel->save();
-            return [
-                'status' => 1,
-                'data' => [
-                    'approved' => !$status
-                ]
-            ];
-        } else {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-    }
 
     public function autocomplete() {
         $count = 30;

@@ -284,14 +284,12 @@
 
         &__register {
             font-size: 1.125em;
-            border-radius: 0;
             background: var(--box-color-dark);
             color: var(--box-text-color-dark);
-            margin: -1.25em;
-            padding: 1.25em 1.75em;
+            padding: 1em;
+            border-radius: .5em;
             a {
                 color: var(--primary);
-                font-weight: bold;
             }
         }
     }

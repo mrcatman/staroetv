@@ -2,16 +2,17 @@
 
 namespace App\Notifications;
 
+use App\Models\Comment;
 use Illuminate\Notifications\Notification;
 
 class NewCommentReply extends Notification
 {
     //use Queueable;
 
-    protected $message;
-    protected $quote;
+    protected Comment $reply_to;
+    protected Comment $comment;
 
-    public function __construct($reply_to, $comment) {
+    public function __construct(Comment $reply_to, Comment $comment) {
         $this->reply_to = $reply_to;
         $this->comment = $comment;
     }

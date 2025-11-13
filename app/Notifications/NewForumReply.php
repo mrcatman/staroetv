@@ -11,7 +11,7 @@ class NewForumReply extends Notification
 {
     //use Queueable;
 
-    protected $message;
+    protected ForumMessage $message;
     protected $quote;
 
     public function __construct(ForumMessage $message, $quote) {

@@ -152,6 +152,9 @@ $(body).on('submit', '.form', function (e) {
                 if ($(this).data('callback')) {
                     window[$(this).data('callback')](res);
                 }
+                if ($(this).data('reset')) {
+                    $(this)[0].reset();
+                }
             } else {
                 if ($(response).length > 0) {
                     $(response).removeClass('response--success').addClass('response--error').html(res.text);
@@ -224,11 +227,11 @@ $(body).on('change', '.input-container--checkbox--toggle input[type="checkbox"]'
 });
 
 $(body).on('click', '*[data-confirm-form-url]', function() {
-   let text = $(this).data('confirm-form-text') || "Вы уверены?";
-  let url = $(this).data('confirm-form-url');
-   let inputName = $(this).data('confirm-form-input-name');
-   let inputValue = $(this).data('confirm-form-input-value');
-   let formId = 'confirm_form_' + url.split('/').join('_');
+   const text = $(this).data('confirm-form-text') || "Вы уверены?";
+    const url = $(this).data('confirm-form-url');
+    const inputName = $(this).data('confirm-form-input-name') || 'id';
+    const inputValue = $(this).data('confirm-form-input-value');
+    const formId = 'confirm_form_' + url.split('/').join('_');
    $(body).append(`<div id="${formId}">
        <form action="${url}" data-auto-close-modal="1" class="form  modal-window__form">
           <input type="hidden" name="${inputName}" value="${inputValue}"/>

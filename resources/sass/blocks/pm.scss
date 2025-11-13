@@ -1,8 +1,4 @@
 .private-messages {
-    &__inner {
-        padding: 1.25em;
-    }
-
     &__list {
         margin-top: 1em;
     }
@@ -49,13 +45,13 @@
     &:empty {
         display: none;
     }
+    @include mobile() {
+        flex-direction: column;
+        align-items: stretch;
+    }
     &--unread {
         border-left: .25em solid var(--primary);
         background: var(--bg-darker-2)!important;
-    }
-
-    &__main {
-
     }
 
     &__title {
@@ -71,13 +67,15 @@
         font-size: .9375em;
         margin-left: auto;
         font-weight: 500;
+        @include mobile() {
+            flex: 1;
+        }
     }
 
     &__right {
         display: flex;
         flex: 1;
         align-items: center;
-        margin: 0 .5em 0 0;
     }
 
     &__button {
@@ -85,7 +83,6 @@
         padding: .5em 1em;
         color: #555;
         font-size: 1em;
-        margin: 0 0 0 .5em;
         cursor: pointer;
         background: no-repeat;
 

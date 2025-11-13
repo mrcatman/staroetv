@@ -1,5 +1,5 @@
 import { showModal, showModalAjax } from './modals';
-let body = $('body');
+const body = $('body');
 
 $(body).on('click', '.user-page__info-block__value--reputation', function() {
     let user_id = $('.user-page').data('user-id');
