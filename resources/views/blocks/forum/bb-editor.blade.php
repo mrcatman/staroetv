@@ -1,6 +1,5 @@
 <form class="form bb-editor @if (isset($inline) && $inline) bb-editor--inline @endif"
-      data-callback="forumMessageCallback" @if (isset($edit_id)) action="/forum/edit-message"
-      @else  action="/forum/post-message" @endif method="POST" data-reset="1" data-auto-close-modal="1">
+      data-callback="forumMessageCallback" action="{{$edit_id ? route('forum.messages.update') : route('forum.messages.create')}}" method="POST" data-reset="1" data-auto-close-modal="1">
     <div class="bb-editor__inner">
         @if (isset($edit_id))
             <input type="hidden" name="message_id" value="{{$edit_id}}"/>

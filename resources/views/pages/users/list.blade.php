@@ -84,7 +84,7 @@
                                 @endif
                             </td>
                             <td>
-                                <a class="users-list__link" href="/index/8-{{$user->id}}">{{$user->username}}</a>
+                                <a class="users-list__link" href="{{route('users.show', $user)}}">{{$user->username}}</a>
                             </td>
                             @if ($is_moderator)
                                 <td>

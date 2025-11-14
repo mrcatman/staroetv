@@ -1,7 +1,7 @@
 <div class="forum @if($topic->is_closed) forum--closed @endif @if($topic->is_fixed) forum--fixed @endif @if(!$topic->is_read) forum--unread @endif">
     <div class="forum__top">
         <div class="forum__info">
-            <a href="/forum/{{$topic->forum_id}}-{{$topic->id}}-0-17-1" class="forum__title">
+            <a href="{{route('forum.topics.show', [$topic->forum_id, $topic->id])}}" class="forum__title">
                 @if ($topic->is_closed)
                     <div class="forum__param">
                         <i class="fa fa-lock"></i>
@@ -19,7 +19,7 @@
                 @endif
             </a>
             @if ($topic->description != "")
-            <a href="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" class="forum__description">
+            <a href="{{route('forum.topics.show', [$topic->forum_id, $topic->id])}}" class="forum__description">
                 @if (isset($search) && $search)
                     {!! \App\Helpers\HighlightHelper::highlight($topic->description, $search, true) !!}
                 @else
@@ -48,15 +48,15 @@
         </div>
     </div>
     <div class="forum__last-topic">
-        <a href="" class="forum__last-topic__text">
+        <span class="forum__last-topic__text">
             Последнее обновление:
-        </a>
+        </span>
         <div class="forum__last-topic__info">
-            <a class="forum__last-topic__date">
-                {{$topic->last_reply_at}}
+            <a href="{{route('forum.topics.show-last-message', [$topic->forum_id, $topic->id])}}" class="forum__last-topic__date">
+                {{$topic->last_reply_at}} >>
             </a>
             <span class="forum__last-topic__username">
-                Сообщение от: <a href="/index/8-0-{{$topic->topic_last_username}}" class="forum__last-topic__username__text">{{$topic->topic_last_username}}</a>
+                Сообщение от: <a href="{{route('users.show-by-username', $topic->topic_last_username)}}" class="forum__last-topic__username__text">{{$topic->topic_last_username}}</a>
             </span>
         </div>
     </div>

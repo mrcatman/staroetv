@@ -10,7 +10,7 @@
     <div class="box">
         <div class="box__heading">
             @if ($user)
-                <div class="box__heading__inner">Комментарии пользователя <a
+                <div class="box__heading__inner">Комментарии пользователя&nbsp;<a
                         href="{{$user->url}}">{{$user->username}}</a></div>
             @else
                 <div class="box__heading__inner">Последние комментарии на сайте</div>

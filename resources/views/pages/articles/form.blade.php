@@ -3,7 +3,7 @@
     {{$article ? "Редактировать публикацию" : "Добавить публикацию"}}
 @endsection
 @section('content')
-    <form class="form box" action="{{$article ? "/articles/edit/".$article->id : "/articles/add"}}" method="POST">
+    <form class="form box" action="{{$article ? route('articles.edit', $article->id) : route('articles.add')}}" method="POST">
         <div class="box__heading">
             <div class="box__heading__inner">
                 {{$article ? "Редактировать публикацию" : "Добавить публикацию"}}

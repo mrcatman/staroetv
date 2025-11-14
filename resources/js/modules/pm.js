@@ -45,7 +45,7 @@ window.execOnMounted.push(function () {
     if ($(usersAutocomplete).length > 0) {
         $(usersAutocomplete).select2({
             ajax: {
-                method: 'POST',
+                method: 'GET',
                 url: '/users/autocomplete',
                 dataType: 'json',
                 processResults: function (data) {

@@ -8,4 +8,6 @@ class Genre extends Model {
     protected $guarded = [];
     public $timestamps = false;
 
+
+
 }

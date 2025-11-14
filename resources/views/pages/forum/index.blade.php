@@ -11,13 +11,13 @@
                         @include('blocks.forum.buttons')
                         <div
                             class="forum-section__breadcrumbs forum-section__breadcrumbs--index forum-section__breadcrumbs--with-search">
-                            <a class="forum-section__breadcrumb" href="/forum">Форум</a>
+                            <a class="forum-section__breadcrumb" href="{{route('forum.index')}}">Форум</a>
                             <div class="forum-section__title__buttons">
                                 @if (\App\Helpers\PermissionsHelper::allows('fredit'))
-                                    <a class="button" href="/forum/0/new">Новый форум</a>
+                                    <a class="button" href="{{route('forum.subforums.new', 0)}}">Новый форум</a>
                                 @endif
                             </div>
-                            <form action="/forum/" method="GET"
+                            <form action="{{route('forum.index')}}" method="GET"
                                   class="forum-section__search forum-section__search--subforum">
                                 <input placeholder="Поиск по форуму" class="input" name="s" value="{{$search}}">
                                 <select class="select-classic" name="type">
@@ -42,9 +42,11 @@
                     <div class="box__heading__inner">{{$forum->title}}</div>
                 </div>
                 <div class="box__inner">
-                    @foreach ($forum->subforums as $subforum)
-                        @include('blocks/subforum', ['subforum' => $subforum])
-                    @endforeach
+                    <div class="forum__list">
+                        @foreach ($forum->subforums as $subforum)
+                            @include('blocks/subforum', ['subforum' => $subforum])
+                        @endforeach
+                    </div>
                 </div>
             </div>
 
@@ -73,9 +75,12 @@
                         <div class="forum__stats">
                             Всего создано <strong>{{$stats['topics_count']}}</strong> тем, в которые добавлено
                             <strong>{{$stats['messages_count']}}</strong> ответов.<br>
-                            Зарегистрировано <strong>{{$stats['users_count']}}</strong> участников. Приветствуем нового участника
-                            <strong><a target="_blank"
-                                       href="{{$stats['last_user']->url}}">{{$stats['last_user']->username}}</a></strong>.
+                            Зарегистрировано <strong>{{$stats['users_count']}}</strong> участников. Приветствуем нового
+                            участника
+                            <strong>
+                                <a target="_blank"
+                                   href="{{$stats['last_user']->url}}">{{$stats['last_user']->username}}</a>
+                            </strong>.
 
                         </div>
 
@@ -84,6 +89,5 @@
             </div>
         </div>
     </div>
-
 
 @endsection

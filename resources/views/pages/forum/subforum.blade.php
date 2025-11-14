@@ -14,17 +14,20 @@
                     <div class="forum__top-panel__inner">
                         @include('blocks.forum.buttons')
                         <div class="forum-section__breadcrumbs forum-section__breadcrumbs--with-search">
-                            <a class="forum-section__breadcrumb" href="/forum">Форум</a>
+                            <a class="forum-section__breadcrumb" href="{{route('forum.index')}}">Форум</a>
                             @if ($parent_forum)
                                 <a class="forum-section__breadcrumb"
-                                   href="/forum/{{$parent_forum->id}}">{{$parent_forum->title}}</a>
+                                   href="{{route('forum.subforums.show', $parent_forum)}}">{{$parent_forum->title}}</a>
                             @endif
                             @if (!$forum && $search)
-                                <a class="forum-section__breadcrumb" href="/forum/">Поиск: {{$search}}</a>
+                                <a class="forum-section__breadcrumb"
+                                   href="{{route('forum.index')}}">Поиск: {{$search}}</a>
                             @elseif ($forum)
-                                <a class="forum-section__breadcrumb" href="/forum/{{$forum->id}}">{{$forum->title}}</a>
+                                <a class="forum-section__breadcrumb"
+                                   href="{{route('forum.subforums.show', $forum)}}">{{$forum->title}}</a>
                             @endif
-                            <form @if (!$forum) action="/forum" @else action="/forum/{{$forum->id}}" @endif method="GET"
+                            <form @if (!$forum) action="{{route('forum.index')}}"
+                                  @else action="{{route('forum.subforums.show', $forum)}}" @endif method="GET"
                                   class="forum-section__search forum-section__search--subforum">
                                 <input @if ($forum) placeholder="Поиск по подфоруму" @else placeholder="Поиск по форуму"
                                        @endif class="input" name="s" value="{{$search}}">
@@ -60,9 +63,12 @@
                             <div class="box__heading__inner">Подфорумы</div>
                         </div>
                         <div class="box__inner">
-                            @foreach ($forum->subforums as $subforum)
-                                @include('blocks/subforum', ['$subforum' => $subforum])
-                            @endforeach
+                            <div class="forum__list">
+                                @foreach ($forum->subforums as $subforum)
+                                    @include('blocks/subforum', ['$subforum' => $subforum])
+                                @endforeach
+                            </div>
+
                         </div>
                     </div>
                 @endif
@@ -77,9 +83,11 @@
                                 <div class="box__heading__inner">Важные темы</div>
                             </div>
                             <div class="box__inner">
-                                @foreach ($fixed_topics as $topic)
-                                    @include('blocks.forum.topic', ['topic' => $topic])
-                                @endforeach
+                                <div class="forum__list">
+                                    @foreach ($fixed_topics as $topic)
+                                        @include('blocks.forum.topic', ['topic' => $topic])
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
                     @endif
@@ -91,7 +99,7 @@
                                     <div class="box__heading__buttons">
                                         <div class="buttons-row">
                                             @if ($forum->can_create_new_topic)
-                                                <a class="button" href="/forum/{{$forum->id}}/new-topic">
+                                                <a class="button" href="{{route('forum.topics.new', $forum)}}">
                                                     <i class="fa fa-plus"></i>
                                                     Создать тему
                                                 </a>
@@ -101,13 +109,13 @@
                                     <div class="box__heading__right">
                                         <div class="buttons-row">
                                             @if ($forum->parent_id < 1 && \App\Helpers\PermissionsHelper::allows('fredit'))
-                                                <a class="button" href="/forum/{{$forum->id}}/new">
+                                                <a class="button" href="{{route('forum.subforums.new', $forum)}}">
                                                     <i class="fa fa-plus"></i>
                                                     Новый подфорум
                                                 </a>
                                             @endif
                                             @if (\App\Helpers\PermissionsHelper::allows('fredit'))
-                                                <a class="button" href="/forum/edit/{{$forum->id}}">
+                                                <a class="button" href="{{route('forum.subforums.edit', $forum)}}">
                                                     <i class="fa fa-edit"></i>
                                                     Редактировать форум
                                                 </a>
@@ -117,9 +125,11 @@
                                 </div>
                             @endif
                             <div class="box__inner">
-                                @foreach ($topics as $topic)
-                                    @include('blocks.forum.topic', ['topic' => $topic])
-                                @endforeach
+                                <div class="forum__list">
+                                    @foreach ($topics as $topic)
+                                        @include('blocks.forum.topic', ['topic' => $topic])
+                                    @endforeach
+                                </div>
                             </div>
                             <div class="box__pager">
                                 {{$paginator->links()}}

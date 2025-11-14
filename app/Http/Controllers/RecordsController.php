@@ -588,7 +588,7 @@ class RecordsController extends EntityController {
     }
 
 
-    public function getInfo() {
+    public function getInfo() { // todo refactor
         if (request()->has('vk_video_id')) {
             $vk_id = request()->input('vk_video_id');
             $token = config('tokens.vk');

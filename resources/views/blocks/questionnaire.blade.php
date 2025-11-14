@@ -1,3 +1,4 @@
+@if (count($questionnaire->variants) > 0)
 <div class="box box--dark" data-id="{{$questionnaire->id}}">
     @if ($questionnaire->title != '')
         <div class="box__heading">
@@ -68,3 +69,4 @@
     @endif
 </div>
 </div>
+@endif

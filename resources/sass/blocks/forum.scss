@@ -513,6 +513,10 @@
         }
     }
 
+    &__list {
+        margin: -1em 0;
+    }
+
     &__stats {
         font-size: 1.125em;
         line-height: 1.6;
@@ -529,6 +533,9 @@
         text-align: center;
         line-height: 1.5;
         border-radius: .25em;
+        &--dark {
+            background: var(--bg-darkest);
+        }
     }
 
     &__buttons {

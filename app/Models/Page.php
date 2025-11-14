@@ -15,10 +15,6 @@ class Page extends Model {
     }
 
     public function getFullUrlAttribute() {
-        if ($this->url) {
-            return "/pages/".$this->url;
-        } else {
-            return "/index/0-".$this->id;
-        }
+        return $this->id == 128 ? route('pages.team') : route('pages.show', $this);
     }
 }

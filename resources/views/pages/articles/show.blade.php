@@ -55,7 +55,7 @@
 
                             <div class="tags-list">
                                 @foreach ($article->tags as $tag)
-                                    <a href="/articles?tag={{$tag->url}}" class="tags-list__item">{{$tag->name}}</a>
+                                    <a href="{{route('articles.index', ['tag' => $tag->url])}}" class="tags-list__item">{{$tag->name}}</a>
                                 @endforeach
                             </div>
 
@@ -79,7 +79,7 @@
                     </div>
                 </div>
                 <div class="box__inner">
-                    <form action="/articles" class="small-search-form">
+                    <form action="{{route('articles.index')}}" class="small-search-form">
                         @csrf
                         <input class="input" name="search" placeholder="Поиск">
                         <button class="button" type="submit">Найти</button>

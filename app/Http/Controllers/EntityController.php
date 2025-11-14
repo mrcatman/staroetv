@@ -111,7 +111,7 @@ class EntityController extends Controller {
             ];
         }
 
-        $entity->delete($entity);
+        $entity->delete();
         return $this->afterDelete($entity);
     }
 

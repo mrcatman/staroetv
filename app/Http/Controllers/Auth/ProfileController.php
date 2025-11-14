@@ -193,7 +193,7 @@ class ProfileController extends Controller
         }
     }
 
-    public function getNotifications()
+    public function notifications()
     {
         $user = auth()->user();
         if (!$user) {

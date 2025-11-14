@@ -22,129 +22,16 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller {
 
-    public function getPermissions() {
-        $permissions_values = UserGroupConfig::get()->groupBy('option_name');
-        $groups = UserGroup::all();
-
-        $permissions = Permissions::LIST;
-        $default_groups = Permissions::DEFAULT_USER_GROUPS;
-        return view("pages.admin.permissions", [
-            'permissions' => $permissions,
-            'permissions_values' => $permissions_values,
-            'groups' => $groups,
-            'default_groups' => $default_groups
-        ]);
-    }
 
 
-    public function getChannels() {
-        $channels = Channel::with('logo')->get();
-        return view("pages.admin.channels", [
-            'channels' => $channels
-        ]);
-    }
 
 
-    public function getUsers() {
-        $users = User::all();
-        $groups = UserGroup::all();
-        return view("pages.admin.users", [
-            'groups' => $groups,
-            'users' => $users
-        ]);
-    }
-
-    public function changeUserGroup() {
-        if (!PermissionsHelper::allows('usrepl')) {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-        $user = User::find(request()->input('user_id'));
-        if (!$user) {
-            return [
-                'status' => 0,
-                'text' => 'Пользователь не найден'
-            ];
-        }
-        $group = UserGroup::find(request()->input('group_id', 1));
-        if (!$group) {
-            return [
-                'status' => 0,
-                'text' => 'Группа не найдена'
-            ];
-        }
-        if ($user->id === auth()->user()->id) {
-            return [
-                'status' => 0,
-                'text' => 'Вы не можете снять с себя админку'
-            ];
-        }
-        $user->group_id = request()->input('group_id', $group->id);
-        $user->save();
-        return [
-            'status' => 1,
-            'text' => 'Сохранено'
-        ];
-    }
-
-    public function changeUserPassword() {
-        $user = User::find(request()->input('user_id'));
-        if (!$user) {
-            return [
-                'status' => 0,
-                'text' => 'Пользователь не найден'
-            ];
-        }
-        if (!request()->has('new_password') || request()->input('new_password') == "") {
-            return [
-                'status' => 0,
-                'text' => 'Введите пароль'
-            ];
-        }
-        $password = request()->has('new_password');
-        $user->password = Hash::make($password);
-        $user->save();
-        return [
-            'status' => 1,
-            'text' => 'Сохранено'
-        ];
-    }
-
-    public function deleteUser() {
-        $user = User::find(request()->input('user_id'));
-        if (!$user) {
-            return [
-                'status' => 0,
-                'text' => 'Пользователь не найден'
-            ];
-        }
-        $user->delete();
-        return [
-            'status' => 1,
-            'text' => 'Пользователь удален'
-        ];
-    }
 
 
-    public function getChannelsOrder() {
-        $channels = Channel::with('logo')->orderBy('order', 'ASC')->get();
-        return view("pages.admin.channels_order", [
-            'channels' => $channels
-        ]);
-    }
 
-    public function setChannelsOrder() {
-        foreach (request()->input('order') as $channel_id => $order) {
-            Channel::where(['id' => $channel_id])->update(['order' => $order]);
 
-        }
-        return [
-            'status' => 1,
-            'text' => 'Сохранено',
-        ];
-    }
+
+
 
     public function getSmiles() {
         $smiles = Smile::with('picture')->get();
@@ -185,28 +72,7 @@ class AdminController extends Controller {
         ];
     }
 
-    public function savePermissions() {
-        $permissions = collect(json_decode(request()->input('permissions'), 1));
-        $permissions_to_add = $permissions->filter(function($permission) {
-            return !isset($permission['id']);
-        })->map(function ($permission) {
-            return [
-                'option_name' => $permission['permission_id'],
-                'option_value' => $permission['value'],
-                'group_id' => $permission['group_id']
-            ];
-        })->toArray();
-        UserGroupConfig::insert($permissions_to_add);
-        $existing = UserGroupConfig::all()->pluck('option_value', 'id');
-        foreach ($permissions as $permission) {
-            if (isset($permission['id'])) {
-                if ($permission['value'] != $existing->get($permission['id'])) {
-                    UserGroupConfig::where(['id' => $permission['id']])->update(['option_value' => $permission['value']]);
-                }
-            }
-        }
-        return ['status' => 1, 'text' => 'Сохранено'];
-    }
+
 
     public function getPages() {
         $static_pages = Page::all();
@@ -215,48 +81,6 @@ class AdminController extends Controller {
         ]);
     }
 
-    public function getCategories() {
-        $categories = Genre::all();
-        return view("pages.admin.categories", [
-            'categories' => $categories
-        ]);
-    }
-
-
-
-    public function saveCategories() {
-        $categories = collect(request()->input('categories'));
-        $ids = $categories->pluck('id')->toArray();
-        foreach ($categories as $category) {
-            unset($category['created_at']);
-            unset($category['updated_at']);
-            if (isset($category['id'])) {
-                $category_obj = Genre::find($category['id']);
-                $category_obj->fill($category);
-                $category_obj->save();
-            } else {
-                $category_obj = new Genre($category);
-                $category_obj->save();
-                $ids[] = $category_obj->id;
-            }
-        }
-        Genre::whereNotIn('id', $ids)->delete();
-        $all_categories = Genre::all();
-        return [
-            'status' => 1,
-            'text' => 'Сохранено',
-            'data' => [
-                'categories' => $all_categories
-            ]
-        ];
-    }
-
-    public function getReputationHistory() {
-        $reputation = UserReputation::orderBy('id', 'desc')->paginate(50);
-        return view("pages.admin.reputation", [
-            'reputation' => $reputation
-        ]);
-    }
 
     public function editorPanel() {
         if (PermissionsHelper::allows('redactorbar')) {

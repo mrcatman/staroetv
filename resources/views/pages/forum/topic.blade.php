@@ -10,20 +10,21 @@
                 <div class="forum__top-panel">
                     <div class="forum__top-panel__inner">
                         <div class="forum-section__breadcrumbs">
-                            <a class="forum-section__breadcrumb" href="/forum">Форум</a>
+                            <a class="forum-section__breadcrumb" href="{{route('forum.index')}}">Форум</a>
                             @if ($forum)
-                                <a class="forum-section__breadcrumb" href="/forum/{{$forum->id}}">{{$forum->title}}</a>
+                                <a class="forum-section__breadcrumb"
+                                   href="{{route('forum.subforums.show', $forum)}}">{{$forum->title}}</a>
                             @endif
                             @if ($subforum)
                                 <a class="forum-section__breadcrumb"
-                                   href="/forum/{{$subforum->id}}">{{$subforum->title}}</a>
+                                   href="{{route('forum.subforums.show', $subforum)}}">{{$subforum->title}}</a>
                             @endif
                             <a class="forum-section__breadcrumb">{{$topic->title}}</a>
                         </div>
                         <div class="forum-section__title">
                             <div class="forum-section__title__inner">
                                 @if ($topic->is_closed)
-                                    <div class="forum__param">
+                                    <div class="forum__param forum__param--dark">
                                         <i class="fa fa-lock"></i>
                                     </div>
                                 @endif
@@ -33,7 +34,7 @@
                                 </div>
                             </div>
                             <div class="forum-section__title__buttons">
-                                <form action="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" method="GET"
+                                <form action="{{route('forum.topics.show', [$topic->forum_id, $topic->id])}}" method="GET"
                                       class="forum-section__search">
                                     <input placeholder="Поиск по теме" class="input" name="s" value="{{$search}}">
                                     <button type="submit" class="button"><i class="fa fa-search"></i>Искать</button>
@@ -58,7 +59,7 @@
 
             @if ($topic->questionnaire_data)
                 <div class="questionnaire__container">
-                    @include('blocks/questionnaire', ['questionnaire' => $topic->questionnaire_data, 'show_results' => $show_results])
+                    @include('blocks.questionnaire', ['questionnaire' => $topic->questionnaire_data, 'show_results' => $show_results])
                 </div>
             @endif
             <div class="forum-section__messages">
@@ -82,41 +83,43 @@
             <div class="box">
                 <div class="box__heading">
                     <div class="forum-section__breadcrumbs forum-section__breadcrumbs--bottom">
-                        <a class="forum-section__breadcrumb" href="/forum">Форум</a>
+                        <a class="forum-section__breadcrumb" href="{{route('forum.index')}}">Форум</a>
                         @if ($forum)
-                            <a class="forum-section__breadcrumb" href="/forum/{{$forum->id}}">{{$forum->title}}</a>
+                            <a class="forum-section__breadcrumb" href="{{route('forum.subforums.show', $forum)}}">{{$forum->title}}</a>
                         @endif
                         @if ($subforum)
                             <a class="forum-section__breadcrumb"
-                               href="/forum/{{$subforum->id}}">{{$subforum->title}}</a>
+                               href="{{route('forum.subforums.show', $subforum)}}">{{$subforum->title}}</a>
                         @endif
                         <a class="forum-section__breadcrumb">{{$topic->title}}</a>
                     </div>
                 </div>
-                <div class="box__inner">@if (count($messages) > 0 || $fixed_message)@if ($show_pager)<div class="box__pager forum-section__pager-container">
-                                {{$paginator->links()}}
+                <div class="box__inner">
+                    @if ($show_pager && (count($messages) > 0 || $fixed_message))
+                        <div class="box__pager forum-section__pager-container">
+                            {{$paginator->links()}}
 
-                                <form action="/forum/{{$topic->forum_id}}-{{$topic->id}}-1" method="GET"
-                                      class="input-container forum-section__search forum-section__search--bottom">
+                            <form action="{{route('forum.topics.show', [$topic->forum_id, $topic->id])}}" method="GET"
+                                  class="input-container forum-section__search forum-section__search--bottom">
 
-                                    <div class="input-container__inner input-container__inner--with-icon">
-                                        <i class="fa fa-search input-container__icon"></i>
-                                        <input placeholder="Поиск по теме" class="input" name="s" value="{{$search}}">
-                                    </div>
+                                <div class="input-container__inner input-container__inner--with-icon">
+                                    <i class="fa fa-search input-container__icon"></i>
+                                    <input placeholder="Поиск по теме" class="input" name="s" value="{{$search}}">
+                                </div>
 
-                                    <button type="submit" class="button"><i class="fa fa-search"></i>Искать</button>
-                                </form>
-                            </div>@endif</div>
-                @endif
-                @if ($can_reply)
-                    <div class="forum-section__form">
-                        @include('blocks.forum.bb-editor', ['topic_id' => $topic->id])
-                    </div>
-                @endif
+                                <button type="submit" class="button"><i class="fa fa-search"></i>Искать</button>
+                            </form>
+                        </div>
+                    @endif
+                    @if ($can_reply)
+                        <div class="forum-section__form">
+                            @include('blocks.forum.bb-editor', ['topic_id' => $topic->id])
+                        </div>
+                    @endif
+                </div>
             </div>
-        </div>
 
-    </div>
+        </div>
     </div>
     @include('blocks/change_reputation_modal')
 @endsection

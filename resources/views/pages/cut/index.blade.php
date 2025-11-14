@@ -1,9 +1,10 @@
 @extends('layouts.default', ['vue' => true])
 @section('content')
-    <form class="form box" @if ($video) action="/cut/start/{{$video->id}}" @endif method="POST">
+    <form class="form box" @if ($video) action="{{route('cut.start', $video)}}" @endif method="POST">
         <div class="box__heading">
             <div class="box__heading__inner">
-                Обрезка видео @if ($video)
+                Обрезка видео
+                @if ($video)
                     {{$video->title}}
                 @endif
             </div>

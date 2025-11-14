@@ -45,7 +45,7 @@ class UsersController extends Controller {
         ]);
     }
 
-    public function list() {
+    public function index() {
         $on_page = request()->input('on_page', 50);
         if ($on_page <= 10 || $on_page >= 101) {
             $on_page = 10;

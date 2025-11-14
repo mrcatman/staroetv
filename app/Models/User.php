@@ -82,7 +82,7 @@ class User extends Authenticatable
 
 
     public function getUrlAttribute() {
-        return "/users/".$this->id;
+        return route('users.show', $this);
     }
 
     public function comments() {

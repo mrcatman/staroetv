@@ -4,9 +4,8 @@
         <div class="box__heading">
             <div class="box__heading__inner">
                 <span>
-                         {{$page_title}} пользователя <a href="{{$user->url}}">{{$user->username}}</a>
+                    {{$page_title}} пользователя <a href="{{$user->url}}">{{$user->username}}</a>
                 </span>
-
             </div>
         </div>
         <div class="box__inner">

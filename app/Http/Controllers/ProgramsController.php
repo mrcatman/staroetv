@@ -194,13 +194,15 @@ class ProgramsController extends EntityController {
         ]);
     }
 
-    public function save($channel_id) {
+    public function save() {
         if (!PermissionsHelper::allows('programsown') && !PermissionsHelper::allows('programs')) {
             return [
                 'status' => 0,
                 'text' => 'Ошибка доступа'
             ];
         }
+
+        $channel_id = request()->input('channel_id');
 
         $channel = Channel::findByIdOrUrl($channel_id);
         if (!$channel || !$channel->can_edit) {
@@ -209,6 +211,7 @@ class ProgramsController extends EntityController {
                 'text' => 'Ошибка доступа'
             ];
         }
+
         $program = new Program();
         $program->channel_id = $channel->id;
         return $this->fillData($program);

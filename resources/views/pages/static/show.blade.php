@@ -19,8 +19,7 @@
                         </span>
                         <div class="button--dropdown__list">
                             @if (\App\Helpers\PermissionsHelper::allows('sipedt'))
-                                <a class="button--dropdown__list__item"
-                                   href="/pages/{{$page->id}}/edit">Редактировать</a>
+                                <a class="button--dropdown__list__item" href="{{route('pages.edit', $page)}}">Редактировать</a>
                             @endif
                             @if (\App\Helpers\PermissionsHelper::allows('sipdel'))
                                 <a class="button--dropdown__list__item button--delete-page">Удалить</a>
@@ -41,8 +40,8 @@
     </div>
     @if (\App\Helpers\PermissionsHelper::allows('sipdel'))
         <div id="delete_page" data-title="Удалить страницу" style="display:none">
-            <form action="/pages/delete" class="form modal-window__form" data-auto-close-modal="1">
-                <input type="hidden" name="page_id" value="{{$page->id}}"/>
+            <form action="{{route('pages.delete')}}" class="form modal-window__form" data-auto-close-modal="1">
+                <input type="hidden" name="id" value="{{$page->id}}"/>
                 <div class="modal-window__small-text">
                     Вы уверены, что хотите удалить страницу?
                 </div>

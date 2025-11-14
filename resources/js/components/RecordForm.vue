@@ -339,7 +339,7 @@
 
     const usersAutocompleteOptions = {
         ajax: {
-            method: 'POST',
+            method: 'GET',
             url: '/users/autocomplete',
             dataType: 'json',
             processResults: function (data) {

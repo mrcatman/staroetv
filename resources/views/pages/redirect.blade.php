@@ -3,7 +3,10 @@
 <div class="inner-page">
     <div class="box">
         <div class="box__heading">
-            Переход по внешней ссылке
+            <div class="box__heading__inner">
+                Переход по внешней ссылке
+            </div>
+
         </div>
         <div class="box__inner">
             <div style="font-size: 1.325em">

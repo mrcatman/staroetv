@@ -139,7 +139,7 @@ class ArticlesController extends EntityController {
         return auth()->user() && PermissionsHelper::allows('nwcrosspost');
     }
 
-    public function list() {
+    public function index() {
         $category = null;
         $articles = Article::where(function($q) {
             $q->where('type_id', '!=', Article::TYPE_BLOG);

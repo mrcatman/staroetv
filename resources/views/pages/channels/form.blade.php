@@ -3,7 +3,7 @@
     <form class="form box" method="POST">
         <div class="box__breadcrumbs">
             <div class="breadcrumbs">
-                <a class="breadcrumbs__item" href="{{$is_radio ? "/radio" : "/video"}}">Архив</a>
+                <a class="breadcrumbs__item" href="{{route('records.'.($channel->is_radio ? 'radio' : 'video'))}}">Архив</a>
                 @if ($channel)
                     <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
                     <a class="breadcrumbs__item breadcrumbs__item--current">Редактировать</a>

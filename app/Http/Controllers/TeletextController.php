@@ -171,7 +171,7 @@ class TeletextController extends EntityController {
         foreach ($channels as $channel) {
             $section = [
                 'name' => 'Телетекст '.$channel->name,
-                'url' => $channel->url,
+                'url' => $channel->url ?? $channel->id,
                 'channels' => [
                     [
                         'url' => $channel->full_url,

@@ -3,7 +3,7 @@
         @if ($message->user->avatar)
             <img class="forum-message__user-texts--modal__avatar" src="{{$message->user->avatar->url}}"/>
         @endif
-        <a href="{{$message->user->url}}"   class="forum-message__user-texts--modal__username">
+        <a href="{{$message->user->url}}" class="forum-message__user-texts--modal__username">
             {{$message->username}}
         </a>
     </div>

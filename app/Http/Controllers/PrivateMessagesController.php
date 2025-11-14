@@ -61,7 +61,7 @@ class PrivateMessagesController extends Controller {
             return redirect("/");
         }
         $message = PrivateMessage::find($id);
-        $is_group = $message->is_group && strpos($message->group_ids, $user->group_id.",") !== false;
+        $is_group = $message->is_group && str_contains($message->group_ids, $user->group_id . ",");
         if (!$message || ($message->from_id != $user->id && $message->to_id != $user->id && !$is_group)) {
             return redirect("/");
         }
@@ -88,7 +88,7 @@ class PrivateMessagesController extends Controller {
         ]);
     }
 
-    public function send() {
+    public function create() {
         $user = auth()->user();
         if (!$user) {
             return redirect("/");
@@ -104,7 +104,7 @@ class PrivateMessagesController extends Controller {
         ]);
     }
 
-    public function post() {
+    public function save() {
         if (!$user = auth()->user()) {
             return [
                 'status' => 0,

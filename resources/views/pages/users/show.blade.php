@@ -50,13 +50,15 @@
                                 <div class="box__heading__buttons">
                                     <div class="buttons-row">
 
-                                        <a href="/profile/edit" class="button">
+                                        <a href="{{$user->id == auth()->user()->id ? route('profile.edit') : route('profile.edit.user', $user)}}" class="button">
                                             <i class="fa fa-edit"></i>
-                                            Обновить профиль</a>
+                                            Обновить профиль
+                                        </a>
                                         @if ($user->id == auth()->user()->id)
-                                            <a href="/profile/password" class="button">
+                                            <a href="{{route('profile.edit-password')}}" class="button">
                                                 <i class="fa fa-key"></i>
-                                                Сменить пароль</a>
+                                                Сменить пароль
+                                            </a>
                                         @endif
 
                                     </div>
@@ -104,11 +106,11 @@
                                             сайте: </strong>{{$user->was_online ? $user->was_online : 'никогда'}}
                                     </div>
                                     <div class="user-info__buttons">
-                                        <a href="/forum/user-messages/{{$user->id}}" class="button button--light">
+                                        <a href="{{route('forum.user-messages', $user)}}" class="button button--light">
                                             <i class="fa fa-comment"></i>
                                             Посты на форуме</a>
                                         @if (auth()->user() && auth()->user()->id != $user->id)
-                                            <a href="/pm/send?user_id={{$user->id}}" class="button button--light">
+                                            <a href="{{route('pm.add', ['user_id' => $user->id])}}" class="button button--light">
                                                 <i class="fa fa-envelope"></i>
                                                 Отправить личное сообщение
                                             </a>

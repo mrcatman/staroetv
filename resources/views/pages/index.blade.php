@@ -41,7 +41,7 @@
 
             <div class="col col--2">
                 <div class="box">
-                    <a href="/video" class="box__heading">
+                    <a href="{{route('records.video.index')}}" class="box__heading">
                         <div class="box__heading__inner">
                             <i class="fa fa-film"></i>
                             Последние пополнения телеархива
@@ -94,7 +94,7 @@
                 @endif
                 @if ($in_this_day && count($in_this_day) > 0)
                     <div class="box">
-                        <a href="/video/calendar" class="box__heading">
+                        <a href="{{route('records.video.calendar.index')}}" class="box__heading">
                             <div class="box__heading__inner">
                                 <i class="fa fa-calendar"></i>
                                 {{$date_text}} в истории
@@ -114,7 +114,7 @@
         <div class="row">
             <div class="col">
                 <div class="box">
-                    <a href="/articles" class="box__heading">
+                    <a href="{{route('articles.index')}}" class="box__heading">
                         <div class="box__heading__inner">
                             <i class="fa fa-newspaper"></i>
                             Публикации
@@ -148,7 +148,7 @@
         <div class="row row--stretch">
             <div class="col">
                 <div class="box">
-                    <a href="/forum" class="box__heading">
+                    <a href="{{route('forum.index')}}" class="box__heading">
                         <div class="box__heading__inner">
                             <i class="fa fa-comments"></i>
                             Форум
@@ -157,7 +157,7 @@
                     <div class="box__inner forum-topics-list">
                         @foreach ($forum_topics as $forum_topic)
                             <a class="forum-topics-list__item"
-                               href="/forum/{{$forum_topic->forum_id}}-{{$forum_topic->id}}-0-17-1">
+                               href="{{route('forum.topics.show-last-message', [$forum_topic->forum_id, $forum_topic->id])}}">
                                 <div class="forum-topics-list__item__title">{{$forum_topic->title}}</div>
                                 <div class="forum-topics-list__item__bottom">
                                     <div class="icon-blocks">
@@ -179,7 +179,7 @@
             @if (isset($comments))
                 <div class="col">
                     <div class="box box--comments-main-page">
-                        <a href="/new-comments" class="box__heading">
+                        <a href="{{route('comments.latest')}}" class="box__heading">
                             <div class="box__heading__inner">
                                 <i class="fa fa-comment"></i>
                                 Последние комментарии

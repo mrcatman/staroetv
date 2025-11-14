@@ -26,7 +26,7 @@
 <script>
     const channelsAutocompleteOptions = {
         ajax: {
-            method: 'POST',
+            method: 'GET',
             url: '/channels/autocomplete',
             dataType: 'json',
             processResults: function (data) {
@@ -46,7 +46,7 @@
     };
     const programsAutocompleteOptions = {
         ajax: {
-            method: 'POST',
+            method: 'GET',
             url: '/programs/autocomplete',
             dataType: 'json',
             processResults: function (data) {

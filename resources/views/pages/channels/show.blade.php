@@ -10,7 +10,7 @@
                 <div class="box">
                     <div class="box__breadcrumbs">
                         <div class="breadcrumbs">
-                            <a class="breadcrumbs__item" href="/{{$channel->is_radio ? "radio" : "video"}}">Архив</a>
+                            <a class="breadcrumbs__item" href="{{route('records.'.($channel->is_radio ? 'radio' : 'video'))}}">Архив</a>
                             <a class="breadcrumbs__item breadcrumbs__item--current">{{$channel->name}}</a>
                         </div>
                     </div>
@@ -27,7 +27,7 @@
                                     </span>
                                     <span class="button--dropdown__list">
                                         @if ($channel->can_edit)
-                                            <a class="button--dropdown__list__item" href="/channels/{{$channel->id}}/edit">Редактировать</a>
+                                            <a class="button--dropdown__list__item" href="{{route('channels.edit', $channel->id)}}">Редактировать</a>
                                         @endif
                                         @if (\App\Helpers\PermissionsHelper::allows('contentapprove'))
                                             <a class="button--dropdown__list__item" data-approve="channels"
@@ -133,13 +133,13 @@
                     <div class="box__heading__right">
                         <div class="buttons-row">
                             @if ($programs_edit_own)
-                                <a href="{{$channel->full_url}}/programs/add" class="button">
+                                <a href="{{route(($channel->is_radio ? 'radio-stations' : 'channels').'.programs.add', $channel->url)}}" class="button">
                                     <i class="fa fa-edit"></i>
                                     Добавить
                                 </a>
                             @endif
                             @if ($programs_edit)
-                                <a href="{{$channel->full_url}}/programs/edit" class="button">
+                                <a href="{{route(($channel->is_radio ? 'radio-stations' : 'channels').'.programs.edit-list', $channel->url)}}" class="button">
                                     <i class="fa fa-list"></i>
                                     Редактировать список
                                 </a>
@@ -183,7 +183,7 @@
                         <div class="box__heading__inner">Оформление канала ({{$channel->name}})</div>
                         @if ($can_edit_interprogram)
                             <div class="box__heading__right">
-                                <a href="{{$channel->full_url}}/graphics/add" class="button button--light">Добавить</a>
+                                <a href="{{route('graphics.channels.add', $channel->url)}}" class="button button--light">Добавить</a>
                             </div>
                         @endif
                     </div>

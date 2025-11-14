@@ -10,7 +10,7 @@
             </div>
             <div class="box__heading__buttons">
                 @if (\App\Helpers\PermissionsHelper::allows('teletextown'))
-                    <a class="button" href="/teletext/add">
+                    <a class="button" href="{{route('teletext.add')}}">
                         <i class="fa fa-plus"></i>
                         Добавить
                     </a>
@@ -27,7 +27,7 @@
             <div class="teletext-list">
                 @foreach ($sections as $section)
                     <div class="teletext-item">
-                        <a href="/teletext/channels/{{$section['url']}}" class="teletext-item__title">
+                        <a href="{{route('teletext.channel', $section['url'])}}" class="teletext-item__title">
                             {{$section['name']}}
                         </a>
                         <div class="program__channels teletext-item__channels">

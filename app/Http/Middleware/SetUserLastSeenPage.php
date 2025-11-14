@@ -14,6 +14,7 @@ class SetUserLastSeenPage
 //            $uri = $request->getRequestUri();
 //           // return redirect()->secure($uri);
 //        }
+
         if ($request->method() === "GET") {
             if ($user = auth()->user()) {
                 $user->ip_address = request()->header('x-real-ip', request()->ip());

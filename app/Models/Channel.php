@@ -70,7 +70,7 @@ class Channel extends Model {
         if (!$url) {
             $url = $this->id;
         }
-        return $this->base_url.$url;
+        return route(($this->is_radio ? 'radio_recordings' : 'channels') . '.show', $url);
     }
 
     public static function findByIdOrUrl($id) {

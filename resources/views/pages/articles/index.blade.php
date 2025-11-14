@@ -11,19 +11,19 @@
         <div class="box__heading__buttons">
             <div class="buttons-row">
             @if ($can_add)
-                <a href="/articles/add" class="button">
+                <a href="{{route('articles.add')}}" class="button">
                     <i class="fa fa-plus"></i>
                     Добавить
                 </a>
             @endif
             @if ($can_approve)
                 @if ($show_all)
-                    <a href="/articles" class="button">
+                    <a href="{{route('articles.index')}}" class="button">
                         <i class="fa fa-list"></i>
                         Показать только одобренные
                     </a>
                 @else
-                    <a href="/articles?show_all=1" class="button">
+                    <a href="{{route('articles.index', ['show_all' => true])}}" class="button">
                         <i class="fa fa-list"></i>Показать все
                     </a>
                 @endif
@@ -31,7 +31,7 @@
             </div>
         </div>
         <div class="box__heading__right">
-            <form action="/articles" class="input-container small-search-form">
+            <form action="{{route('articles.index')}}" class="input-container small-search-form">
                 @csrf
                 <div class="input-container__inner input-container__inner--with-icon">
                     <i class="fa fa-search input-container__icon"></i>

@@ -15,6 +15,8 @@
     @if (!$pjax)
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    @routes
+
     @yield('head')
 
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])

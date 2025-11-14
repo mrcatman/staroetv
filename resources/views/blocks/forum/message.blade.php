@@ -19,7 +19,7 @@
                     </a>
                     <div class="forum-message__date">
                         {{$message->created_at}}
-                        <a class="forum-message__link" target="_blank" href="/forum/0-{{$message->id}}">[ссылка]</a>
+                        <a class="forum-message__link" target="_blank" href="{{route('forum.redirect-to-message-by-id', $message)}}">[ссылка]</a>
                     </div>
                 </div>
             </div>
@@ -96,7 +96,7 @@
     <div class="forum-message__right">
         <div class="forum-message__date">
             {{$message->created_at}}
-            <a class="forum-message__link" target="_blank" href="/forum/0-{{$message->id}}">[ссылка]</a>
+            <a class="forum-message__link" target="_blank" href="{{route('forum.redirect-to-message-by-id', $message)}}">[ссылка]</a>
         </div>
         <div class="forum-message__content">
             @if (isset($highlight) && $highlight)

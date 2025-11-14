@@ -10,13 +10,11 @@ use App\Models\User;
 
 class PagesController extends EntityController {
 
-    protected $entity_class;
+    protected $entity_class = Page::class;
     protected $permissions = [
         'approve' => '',
         'delete' => 'sipdel'
     ];
-
-    protected $redirect_after_delete = '/';
 
     public function show($id) {
         $page = Page::find($id);
@@ -26,7 +24,7 @@ class PagesController extends EntityController {
 
         if (PermissionsHelper::checkGroupAccess("can_read", $page)) {
             ViewsHelper::increment($page,'pages');
-            return view("pages.static", [
+            return view("pages.static.show", [
                 'page' => $page,
             ]);
         } else {
@@ -41,7 +39,7 @@ class PagesController extends EntityController {
         }
         if (PermissionsHelper::checkGroupAccess("can_read", $page)) {
             ViewsHelper::increment($page,'pages');
-            return view("pages.static", [
+            return view("pages.static.show", [
                 'page' => $page,
             ]);
         } else {
@@ -54,7 +52,7 @@ class PagesController extends EntityController {
         if (!PermissionsHelper::allows('sipadd')) {
             return redirect('/');
         }
-        return view("pages.forms.static", [
+        return view("pages.static.form", [
             'page' => null,
         ]);
     }
@@ -64,7 +62,7 @@ class PagesController extends EntityController {
             return redirect('/');
         }
         $page = Page::where(['id' => $id])->first();
-        return view("pages.forms.static", [
+        return view("pages.static.form", [
             'page' => $page,
         ]);
     }
@@ -134,7 +132,7 @@ class PagesController extends EntityController {
                 },
                 $page->content
             );
-            return view("pages.static", [
+            return view("pages.static.show", [
                 'page' => $page,
             ]);
         } else {

@@ -13,16 +13,29 @@ use Illuminate\Support\Facades\DB;
 
 class TopListController extends Controller {
 
-    public $links = [
-        'videos' => 'Видеоархив',
-        'radio-recordings' => 'Радиоархив',
-        'news' => 'Новости',
-        'articles' => 'Статьи',
-        'forum' => 'Форум',
-        'comments' => 'Комментарии',
-        'awards' => 'Награды',
-        'reputation' => 'Репутация',
-    ];
+    private function links()
+    {
+        $links = [
+            'videos' => 'Видеоархив',
+            'radio-recordings' => 'Радиоархив',
+            'news' => 'Новости',
+            'articles' => 'Статьи',
+            'forum' => 'Форум',
+            'comments' => 'Комментарии',
+            'awards' => 'Награды',
+            'reputation' => 'Репутация',
+        ];
+
+        $list = [];
+        foreach ($links as $key => $name) {
+            $list[] = [
+                'name' => $name,
+                'url' => route('top-list.'.$key),
+                'active' => request()->route()->getName() == 'top-list.'.$key
+            ];
+        }
+        return $list;
+    }
 
     protected function pluralize($value, $texts) {
         $text = $texts[1];
@@ -50,7 +63,7 @@ class TopListController extends Controller {
             }
         }
         return view('pages.top-list.index', [
-            'links' => $this->links,
+            'links' => $this->links(),
             'list' => $list
         ]);
     }
@@ -70,7 +83,7 @@ class TopListController extends Controller {
             }
         }
         return view('pages.top-list.index', [
-            'links' => $this->links,
+            'links' => $this->links(),
             'list' => $list
         ]);
     }
@@ -90,7 +103,7 @@ class TopListController extends Controller {
             }
         }
         return view('pages.top-list.index', [
-            'links' => $this->links,
+            'links' => $this->links(),
             'list' => $list
         ]);
     }
@@ -110,7 +123,7 @@ class TopListController extends Controller {
             }
         }
         return view('pages.top-list.index', [
-            'links' => $this->links,
+            'links' => $this->links(),
             'list' => $list
         ]);
     }
@@ -130,7 +143,7 @@ class TopListController extends Controller {
             }
         }
         return view('pages.top-list.index', [
-            'links' => $this->links,
+            'links' => $this->links(),
             'list' => $list
         ]);
     }
@@ -150,7 +163,7 @@ class TopListController extends Controller {
             }
         }
         return view('pages.top-list.index', [
-            'links' => $this->links,
+            'links' => $this->links(),
             'list' => $list
         ]);
     }
@@ -171,7 +184,7 @@ class TopListController extends Controller {
             }
         }
         return view('pages.top-list.index', [
-            'links' => $this->links,
+            'links' => $this->links(),
             'list' => $list
         ]);
     }
@@ -209,7 +222,7 @@ class TopListController extends Controller {
             }
         }
         return view('pages.top-list.awards', [
-            'links' => $this->links,
+            'links' => $this->links(),
             'list' => $list
         ]);
     }
