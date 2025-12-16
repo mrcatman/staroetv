@@ -26,7 +26,7 @@ function showVisibleCounters() {
 
 window.pm = {
     updateCount() {
-        $.post('/pm/update').done(res => {
+        $.post(route('pm.update')).done(res => {
             if (res.status) {
                 replaceDom(res.data.dom);
                 setTimeout(() => {
@@ -46,7 +46,7 @@ window.execOnMounted.push(function () {
         $(usersAutocomplete).select2({
             ajax: {
                 method: 'GET',
-                url: '/users/autocomplete',
+                url: route('users.autocomplete'),
                 dataType: 'json',
                 processResults: function (data) {
                     return {

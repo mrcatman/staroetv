@@ -108,7 +108,6 @@ $(body).on('submit', '.form', function (e) {
 
     const response = $(this).find('.response');
 
-
     const isMultipart = $(this).attr('enctype') === 'multipart/form-data';
 
     const params = isMultipart ? {
@@ -236,7 +235,7 @@ $(body).on('click', '*[data-confirm-form-url]', function() {
        <form action="${url}" data-auto-close-modal="1" class="form  modal-window__form">
           <input type="hidden" name="${inputName}" value="${inputValue}"/>
           <input type="hidden" name="_from_confirm_form" value="1"/>
-          <div class="modal-window__small-text">
+          <div class="modal-window__text">
             ${text}
           </div>
           <div class="form__bottom">
@@ -246,7 +245,7 @@ $(body).on('click', '*[data-confirm-form-url]', function() {
           </div>
        </form>
    </div>`);
-   showModal('#' + formId, 'Подтверждение');
+   showModal(`#${formId}`, 'Подтверждение');
 });
 $(body).on('click', '*[data-show-modal]', function() {
     showModal($(this).data('show-modal'));

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Constants\MaterialTypes;
 use App\Helpers\BBCodesHelper;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
@@ -65,7 +66,7 @@ class Comment extends Model {
     }
 
     public function getUrlAttribute() {
-        if ($this->material_type === Article::TYPE_NEWS || $this->material_type === Article::TYPE_ARTICLES || $this->material_type === Article::TYPE_BLOG) {
+        if ($this->material_type === MaterialTypes::TYPE_NEWS || $this->material_type === MaterialTypes::TYPE_ARTICLES || $this->material_type === MaterialTypes::TYPE_BLOG) {
             $article = Article::where(['type_id' => $this->material_type, 'original_id' => $this->material_id])->first();
             if ($article) {
                 return $article->url;
@@ -74,17 +75,17 @@ class Comment extends Model {
             if ($article) {
                 return $article->url;
             }
-        } elseif ($this->material_type === Record::TYPE_VIDEOS) {
+        } elseif ($this->material_type === MaterialTypes::TYPE_RECORDS) {
             $record = Record::where(['ucoz_id' => $this->material_id])->first();
             if ($record) {
                 return $record->url;
             }
-        } elseif ($this->material_type === Channel::TYPE_CHANNELS) {
+        } elseif ($this->material_type === MaterialTypes::TYPE_CHANNELS) {
             $channel = Channel::find($this->material_id);
             if ($channel) {
                 return $channel->full_url;
             }
-        } elseif ($this->material_type === Program::TYPE_PROGRAMS) {
+        } elseif ($this->material_type === MaterialTypes::TYPE_PROGRAMS) {
             $program = Program::find($this->material_id);
             if ($program) {
                 return $program->full_url;

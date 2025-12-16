@@ -65,7 +65,7 @@
                         <div class="box__inner">
                             <div class="forum__list">
                                 @foreach ($forum->subforums as $subforum)
-                                    @include('blocks/subforum', ['$subforum' => $subforum])
+                                    @include('blocks.forum.subforum', ['$subforum' => $subforum])
                                 @endforeach
                             </div>
 

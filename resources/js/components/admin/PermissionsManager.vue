@@ -15,6 +15,7 @@
                 <response :light="true" :data="deletePanel.response"/>
             </div>
         </modal>
+
         <modal :loading="editPanel.loading" title="Редактирование группы" ref="editModal">
             <div class="input-container">
                 <label class="input-container__label">Название</label>
@@ -40,10 +41,7 @@
                 <response :light="true" :data="editPanel.response"/>
             </div>
         </modal>
-        <div class="admin-panel__heading-container">
-            <div class="admin-panel__heading">Группы пользователей и их права</div>
-        </div>
-        <div class="admin-panel__main-content">
+
             <table v-if="loaded" class="admin-panel__table permissions-manager__groups">
                 <thead>
                     <tr>
@@ -68,14 +66,14 @@
                     <tr v-for="(group, $index) in groupsData" :key="$index">
                         <td>{{group.id}}</td>
                         <td>{{group.name}}</td>
-                        <td>
-                            <img class="permissions-manager__group-icon" :src="group.icon"/>
+                        <td >
+                            <div class="permissions-manager__group-icon-svg" v-html="group.icon_svg_code"></div>
                         </td>
                         <td>
-                            <a @click="showEditModal(group)">Редактировать</a>
+                            <a class="button button--light" @click="showEditModal(group)">Редактировать</a>
                         </td>
                         <td>
-                            <a v-if="canDeleteGroup(group)" @click="showDeleteModal(group)">Удалить</a>
+                            <a class="button button--light" v-if="canDeleteGroup(group)" @click="showDeleteModal(group)">Удалить</a>
                         </td>
                     </tr>
                 </tbody>
@@ -114,16 +112,12 @@
                 </div>
             </div>
         </div>
-    </div>
 </template>
 <style lang="scss">
     .permissions-manager {
 
-        &__group-icon {
-            max-height: 5em;
-        }
-        &__groups {
-            font-size: 1.25em;
+        &__group-icon-svg {
+            padding: 0 1em;
         }
 
     }

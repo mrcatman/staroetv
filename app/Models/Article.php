@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\MaterialTypes;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use Illuminate\Database\Eloquent\Model;
@@ -10,14 +11,11 @@ use Illuminate\Support\Facades\Cache;
 class Article extends Model {
 
     protected $guarded = [];
-    const TYPE_ARTICLES = 1;
-    const TYPE_NEWS = 2;
-    const TYPE_BLOG = 8;
 
     const names = [
-        self::TYPE_ARTICLES => 'articles',
-        self::TYPE_NEWS => 'news',
-        self::TYPE_BLOG => 'blog'
+        MaterialTypes::TYPE_ARTICLES => 'articles',
+        MaterialTypes::TYPE_NEWS => 'news',
+        MaterialTypes::TYPE_BLOG => 'blog'
     ];
 
     public function getCanEditAttribute()
@@ -227,21 +225,21 @@ class Article extends Model {
     }
 
     public function getUrlAttribute() {
-        return "/articles/".$this->attributes['url'];
+        return route('articles.show', $this->attributes['url']);
 
         $day = $this->day;
         $month = $this->month;
         $year = $this->year;
 
-        if ($this->type_id == self::TYPE_NEWS) {
+        if ($this->type_id == MaterialTypes::TYPE_NEWS) {
             $path = "/news/".$year."-".$month."-".$day."-".$this->original_id;
             return $path;
         }
-        if ($this->type_id == self::TYPE_ARTICLES) {
+        if ($this->type_id == MaterialTypes::TYPE_ARTICLES) {
             $path = "/blog/".$year."-".$month."-".$day."-".$this->original_id;
             return $path;
         }
-        if ($this->type_id == self::TYPE_BLOG) {
+        if ($this->type_id == MaterialTypes::TYPE_BLOG) {
             $path = "/stuff/".$this->category_id."-1-0-".$this->original_id;
             return $path;
         }

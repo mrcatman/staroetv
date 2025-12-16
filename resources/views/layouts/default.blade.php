@@ -27,7 +27,7 @@
 </head>
 <body @if(request()->cookie('theme-dark', 0) == 1) class="theme-dark" @else class="theme-light" @endif>
     <div class="main">
-        @include('blocks/header')
+        @include('blocks.global.header')
         <div class="content">
             <div id="app" class="content">
                 <div class="container inner-page @yield('container-class')" id="pjax-container">
@@ -42,7 +42,7 @@
             </div>
         </div>
 
-        @include('blocks/footer')
+        @include('blocks.global.footer')
     </div>
 
     @guest

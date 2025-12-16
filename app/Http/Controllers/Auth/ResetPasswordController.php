@@ -37,7 +37,7 @@ class ResetPasswordController extends Controller
             ? [
                 'status' => 1,
                 'text' => 'Пароль обновлен',
-                'redirect_to' => '/index/8'
+                'redirect_to' => route('users.show-me')
             ]
             : $this->sendResetFailedResponse($request, $response);
     }
@@ -47,7 +47,7 @@ class ResetPasswordController extends Controller
         return $response->json([
             'status' => 1,
             'text' => 'Пароль обновлен',
-            'redirect_to' => '/index/8'
+            'redirect_to' => route('users.show-me')
         ]);
     }
 

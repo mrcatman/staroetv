@@ -30,8 +30,8 @@ class ChannelsController extends Controller {
     }
 
     public function getOrder() {
-        $channels = Channel::with('logo')->orderBy('order', 'ASC')->get();
-        return view("pages.admin.channels_order", [
+        $channels = Channel::selectDefault()->with('logo')->orderBy('order', 'ASC')->get();
+        return view("pages.admin.channels-order", [
             'channels' => $channels
         ]);
     }
@@ -39,8 +39,8 @@ class ChannelsController extends Controller {
     public function saveOrder() {
         foreach (request()->input('order') as $channel_id => $order) {
             Channel::where(['id' => $channel_id])->update(['order' => $order]);
-
         }
+
         return [
             'status' => 1,
             'text' => 'Сохранено',

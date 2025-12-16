@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Constants\Actions;
 use App\Constants\Permissions;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\PermissionsHelper;
 use App\Http\Controllers\ArticlesController;
 use App\Http\Controllers\Controller;
@@ -59,7 +61,8 @@ class UsersController extends Controller {
             ];
         }
         $user->group_id = request()->input('group_id', $group->id);
-        $user->save();
+        ActionsLogHelper::create($user, Actions::Update);
+
         return [
             'status' => 1,
             'text' => 'Сохранено'
@@ -97,7 +100,10 @@ class UsersController extends Controller {
                 'text' => 'Пользователь не найден'
             ];
         }
+
+        ActionsLogHelper::create($user, Actions::Delete);
         $user->delete();
+
         return [
             'status' => 1,
             'text' => 'Пользователь удален'

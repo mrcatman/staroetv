@@ -33,9 +33,9 @@
 
             </template>
         </div>
-        <div class="records-list__nothing-found" v-if="search.length && !channelsList.length">По запросу <strong>{{search}}</strong> ничего не найдено</div>
+        <div class="records-list__nothing-found" v-if="search.length && !list.length">По запросу <strong>{{search}}</strong> ничего не найдено</div>
         <div ref="channels_list" class="channels-list">
-            <a :title="channel.name" v-for="channel in channelsList" :key="channel.id" :href="channel.url"
+            <a :title="channel.name" v-for="channel in list" :key="channel.id" :href="channel.url"
                class="channel-item" :class="{'channel-item--pending': channel.pending}">
                 <div class="channel-item__logo"
                      :style="channel.logo ? {backgroundImage: `url(${channel.logo.url})`} : {}"></div>
@@ -44,101 +44,104 @@
         </div>
     </div>
 </template>
-<script>
-export default {
-    computed: {
-        channelsList() {
-            if (this.search.length) {
-                let channels = [];
-                const search = this.search.toLocaleLowerCase();
-                Object.keys(this.data).forEach(regionName => {
-                    const region = this.data[regionName];
-                    if (regionName.toLocaleLowerCase().includes(search)) {
-                        channels = [...channels, ...region.channels];
-                    }
-                    channels = [...channels, ...region.channels.filter(channel => channel.name.toLocaleLowerCase().includes(search))];
-                    const cities = Object.keys(region.cities);
-                    if (cities.length > 0) {
-                        cities.forEach(cityName => {
-                            const cityChannels  = region.cities[cityName];
-                            if (cityName.toLocaleLowerCase().includes(search)) {
-                                channels = [...channels, ...cityChannels];
-                            }
-                            channels = [...channels, ...cityChannels.filter(channel => channel.name.toLocaleLowerCase().includes(search))];
-                        })
-                    }
-                });
-                return [...new Map(channels.map(channel => [channel.id, channel])).values()];
+<script lang="ts" setup>
+import {computed, ref, nextTick, useTemplateRef} from "vue";
+
+interface RegionalChannelsData {
+    [key: string]: {
+        count: number,
+        channels: Channels.Base[],
+        cities: {
+            [key: string]: Channels.Base[]
+        }
+    }
+}
+
+const props = defineProps<{
+  data: RegionalChannelsData
+}>();
+
+const selectedRegion = ref('');
+const selectedCity = ref('');
+const search = ref('');
+const listRef = useTemplateRef<HTMLDivElement>('channels_list')
+
+const list = computed(() => {
+    if (search.value.length) {
+        let channels = [];
+        const _search = search.value.toLocaleLowerCase();
+
+        Object.keys(props.data).forEach(regionName => {
+            const region = props.data[regionName];
+            if (regionName.toLocaleLowerCase().includes(_search)) {
+                channels = [...channels, ...region.channels];
             }
+            channels = [...channels, ...region.channels.filter(channel => channel.name.toLocaleLowerCase().includes(_search))];
 
-            if (!this.selectedRegion) {
-                let channels = [];
-                Object.values(this.data).forEach(region => {
-                    channels = [...channels, ...region.channels];
-                    let cities = Object.values(region.cities);
-                    if (cities.length > 0) {
-                        cities.forEach(cityChannels => {
-                            channels = [...channels, ...cityChannels];
-                        })
+            const cities = Object.keys(region.cities);
+            if (cities.length) {
+                cities.forEach(cityName => {
+                    const cityChannels = region.cities[cityName];
+                    if (cityName.toLocaleLowerCase().includes(_search)) {
+                        channels = [...channels, ...cityChannels];
                     }
-                });
-                return channels;
-            } else {
-                const region = this.data[this.selectedRegion];
-                let channels = region.channels;
-                if (this.selectedCity) {
-                    return region.cities[this.selectedCity];
-                } else {
-                    let cities = Object.values(region.cities);
-                    if (cities.length > 0) {
-                        cities.forEach(cityChannels => {
-                            channels = [...channels, ...cityChannels];
-                        })
-                    }
-                    return channels;
-                }
+                    channels = [...channels, ...cityChannels.filter(channel => channel.name.toLocaleLowerCase().includes(search))];
+                })
             }
-        }
-    },
-    methods: {
-        scrollToChannels() {
-            const rect = this.$refs.channels_list.getBoundingClientRect();
-            window.scrollTo({
-                top: rect.y + window.scrollY - (window.innerHeight - rect.height) / 2,
-                behavior: 'smooth'
-            });
-        },
-        selectRegion(regionName) {
-            this.selectedCity = null;
-            this.selectedRegion = regionName;
-            this.$nextTick(() => {
-                this.scrollToChannels();
-            });
-        },
+        });
+        return [...new Map(channels.map(channel => [channel.id, channel])).values()];
+    }
 
-        selectCity(cityName, regionName) {
-            this.selectedCity = cityName;
-            this.selectedRegion = regionName;
-            this.$nextTick(() => {
-                this.scrollToChannels();
-            });
+    if (!selectedRegion.value.length) {
+        let channels = [];
+        Object.values(props.data).forEach(region => {
+            channels = [...channels, ...region.channels];
+            const cities = Object.values(region.cities);
+            if (cities.length > 0) {
+                cities.forEach(cityChannels => {
+                    channels = [...channels, ...cityChannels];
+                })
+            }
+        });
+        return channels;
+    } else {
+        const region = props.data[selectedRegion.value];
+        if (selectedCity.value) {
+            return region.cities[selectedCity.value];
         }
-    },
-    props: {
-        data: {
-            type: [Array, Object],
-            required: true
-        }
-    },
-    data() {
-        return {
-            selectedRegion: null,
-            selectedCity: null,
-            search: ''
-        }
-    },
-    mounted() {
 
-    },
+        let channels = region.channels;
+        let cities = Object.values(region.cities);
+        if (cities.length > 0) {
+            cities.forEach(cityChannels => {
+                channels = [...channels, ...cityChannels];
+            })
+        }
+        return channels;
+    }
+})
+
+const scrollToChannels = () => {
+    const rect = listRef.value.getBoundingClientRect();
+    window.scrollTo({
+        top: rect.y + window.scrollY - (window.innerHeight - rect.height) / 2,
+        behavior: 'smooth'
+    });
+}
+
+const selectRegion = async(region: string) => {
+    selectedCity.value = null;
+    selectedRegion.value = region;
+
+    await nextTick();
+    scrollToChannels();
+}
+
+const selectCity = async (city: string, region: string) => {
+    selectedCity.value = city;
+    selectedRegion.value = region;
+
+    await nextTick();
+    scrollToChannels();
 }
 </script>

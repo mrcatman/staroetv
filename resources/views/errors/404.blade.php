@@ -24,7 +24,7 @@
 </head>
 
 <body>
-<a href="/"></a>
+<a href="{{route('index')}}"></a>
 </body>
 
 </html>

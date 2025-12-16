@@ -31,7 +31,7 @@
         </div>
         <div class="admin-panel__main-content">
             <div class="form__preloader" v-if="table.loading">
-                <img src="../../../../public/img/ajax.gif">
+                <img src="/resources/images/ajax.gif">
             </div>
             <div class="admin-panel__table-filters">
                 <div class="pager-container pager-container--light pager-container--admin-panel">

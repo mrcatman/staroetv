@@ -1,9 +1,6 @@
 
 .bb-editor {
     margin: 0;
-    padding: 1em;
-    border-radius: .5em;
-    background: var(--bg-darker);
     position: relative;
 
     &__inner {
@@ -136,6 +133,7 @@
         margin: 0 0 1em;
         display: flex;
         align-items: center;
+        gap: .5em;
         &__list {
             display: flex;
             justify-content: flex-start;

@@ -25,7 +25,7 @@ $(body).on('click', '.button--telegram', function(e) {
 })
 
 const showTelegramRegisterForm = () => {
-    showModalAjax($.get('/profile/telegram/register', {telegram_data: telegramUserData}), '#login');
+    showModalAjax($.get(route('profile.telegram.register-form'), {telegram_data: telegramUserData}), '#login');
 
 }
 

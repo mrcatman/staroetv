@@ -48,7 +48,7 @@
         </div>
         <div class="admin-panel__main-content">
             <div class="form__preloader" v-if="table.loading">
-                <img src="../../../../public/img/ajax.gif">
+                <img src="/resources/images/ajax.gif">
             </div>
             <div class="admin-panel__table-filters">
                 <div class="pager-container pager-container--light pager-container--admin-panel">
@@ -190,7 +190,7 @@
                     channel_id: this.logoPanel.channel.id,
                     tag: 'logo'
                 };
-                $.post('/upload/pictures/by-url', data) .done((res) => {
+                $.post(route('pictures.upload'), data) .done((res) => {
                     if (res.status) {
                         let pictureData = res.data.picture;
                         $.post('/channels/' + this.logoPanel.channel.id + '/edit', {

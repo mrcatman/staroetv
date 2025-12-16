@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Actions;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
-use App\Models\Channel;
 use App\Models\Page;
 use App\Models\User;
 
@@ -19,7 +20,7 @@ class PagesController extends EntityController {
     public function show($id) {
         $page = Page::find($id);
         if (!$page) {
-            return redirect('/');
+            return redirect(route('index'));
         }
 
         if (PermissionsHelper::checkGroupAccess("can_read", $page)) {
@@ -35,7 +36,7 @@ class PagesController extends EntityController {
     public function showByURL($url) {
         $page = Page::where(['url' => $url])->first();
         if (!$page) {
-            return redirect('/');
+            return redirect(route('index'));
         }
         if (PermissionsHelper::checkGroupAccess("can_read", $page)) {
             ViewsHelper::increment($page,'pages');
@@ -50,7 +51,7 @@ class PagesController extends EntityController {
 
     public function add() {
         if (!PermissionsHelper::allows('sipadd')) {
-            return redirect('/');
+            return redirect(route('index'));
         }
         return view("pages.static.form", [
             'page' => null,
@@ -59,7 +60,7 @@ class PagesController extends EntityController {
 
     public function edit($id) {
         if (!PermissionsHelper::allows('sipedt')) {
-            return redirect('/');
+            return redirect(route('index'));
         }
         $page = Page::where(['id' => $id])->first();
         return view("pages.static.form", [
@@ -89,7 +90,9 @@ class PagesController extends EntityController {
         }
         $page->fill($data);
         $page->last_updated_by = auth()->user()->username;
-        $page->save();
+
+        ActionsLogHelper::create($page, Actions::Update);
+
         return [
             'status' => 1,
             'text' => 'Сохранено'
@@ -111,7 +114,9 @@ class PagesController extends EntityController {
         }
         $page = new Page($data);
         $page->last_updated_by = auth()->user()->username;
-        $page->save();
+
+        ActionsLogHelper::create($page, Actions::Create);
+
         return [
             'status' => 1,
             'text' => 'Сохранено',

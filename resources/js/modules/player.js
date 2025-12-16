@@ -63,12 +63,12 @@ window.initOwnPlayer = () => {
             controls: generateControls(title)
         });
         window.player = player;
-        player.on('ready', function(event){
+        player.on('ready', function (event) {
             const instance = event.detail.plyr;
             let hlsSource = null;
             const sources = instance.media.querySelectorAll('source');
             for (let i = 0; i < sources.length; i++) {
-                if(sources[i].src.indexOf('.m3u8') > -1){
+                if (sources[i].src.indexOf('.m3u8') > -1) {
                     hlsSource = sources[i].src;
                 }
             }
@@ -76,7 +76,7 @@ window.initOwnPlayer = () => {
                 const hls = new Hls();
                 hls.loadSource(hlsSource);
                 hls.attachMedia(instance.media);
-                hls.on(Hls.Events.MANIFEST_PARSED,function() {
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
                     console.log('MANIFEST_PARSED');
                 });
             }
@@ -97,12 +97,17 @@ window.initOwnPlayer = () => {
             }
         });
         playerEl.addEventListener('ended', event => {
-           if (window.onRecordEnded) {
-               window.onRecordEnded();
-           }
+            if (window.onRecordEnded) {
+                window.onRecordEnded();
+            }
+        });
+console.log(player);
+        player.on('error', (event) => {
+            console.error('Plyr error occurred:', event);
         });
     });
 };
+
 window.execOnMounted.push(function() {
     window.initOwnPlayer();
 });

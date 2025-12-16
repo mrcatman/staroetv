@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Constants\MaterialTypes;
 use App\Models\Article;
 use App\Models\ArticleCategory;
 use App\Helpers\CSVHelper;
@@ -47,19 +48,19 @@ class importArticleCategories extends Command
            'original_id', '', '', 'title', '', 'url'
         ], false);
         foreach ($articles_categories as &$category) {
-            $category['type_id'] = Article::TYPE_ARTICLES;
+            $category['type_id'] = MaterialTypes::TYPE_ARTICLES;
         }
         $blog_categories = CSVHelper::transform(public_path("data/sf_sf.csv"), [
             'original_id', '', '', '', '', 'title', '', '', '', '', 'url'
         ], false);
         foreach ($blog_categories as &$category) {
-            $category['type_id'] = Article::TYPE_BLOG;
+            $category['type_id'] = MaterialTypes::TYPE_BLOG;
         }
         $news_categories = CSVHelper::transform(public_path("data/nw_nw.csv"), [
             'original_id', '', '', 'title', '', 'url'
         ], false);
         foreach ($news_categories as &$category) {
-            $category['type_id'] = Article::TYPE_NEWS;
+            $category['type_id'] = MaterialTypes::TYPE_NEWS;
         }
         $categories = array_merge($articles_categories, $blog_categories, $news_categories);
         file_put_contents(public_path("data/categories.txt"), json_encode($categories, JSON_UNESCAPED_UNICODE));

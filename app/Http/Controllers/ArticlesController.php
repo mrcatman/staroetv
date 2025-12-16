@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Constants\MaterialTypes;
 use App\Models\Article;
 use App\Crossposting\CrossposterManager;
 use App\Helpers\PermissionsHelper;
@@ -11,28 +11,27 @@ use App\Helpers\ViewsHelper;
 use App\Models\ArticleBinding;
 use App\Models\Comment;
 use App\Models\Crosspost;
-use App\Models\Program;
 use App\Models\Tag;
 use App\Models\TagMaterial;
 use Illuminate\Support\Facades\Cache;
 
 class ArticlesController extends EntityController {
 
-    protected $entity_class = Program::class;
+    protected $entity_class = Article::class;
     protected $permissions = [
         'approve' => 'nwapprove'
     ];
     protected $redirect_after_delete = '/articles';
 
     public $types_data = [
-        Article::TYPE_NEWS => [
+        MaterialTypes::TYPE_NEWS => [
             'title' => "Новости",
             'add_title' => "Предложить новость",
             'edit_title' => "Изменить новость",
             'approve_title' => 'Одобрить новость',
             'unapprove_title' => 'Скрыть новость',
             'delete_title' => 'Удалить',
-            'base_link' => '/news',
+            'base_url' => '/news',
             'add_link' => "/news/add",
             'edit_link' => "/news/edit",
             'permission_add' => 'nwadd',
@@ -44,14 +43,14 @@ class ArticlesController extends EntityController {
             'permission_premod' => 'nwpremod',
             'permission_approve' => 'nwapprove',
         ],
-        Article::TYPE_ARTICLES => [
+        MaterialTypes::TYPE_ARTICLES => [
             'title' => "Статьи",
             'add_title' => "Предложить статью",
             'edit_title' => "Изменить статью",
             'approve_title' => 'Одобрить статью',
             'unapprove_title' => 'Скрыть статью',
             'delete_title' => 'Удалить',
-            'base_link' => '/articles',
+            'base_url' => '/articles',
             'add_link' => "/articles/add",
             'edit_link' => "/articles/edit",
             'permission_add' => 'sfadd',
@@ -63,14 +62,14 @@ class ArticlesController extends EntityController {
             'permission_premod' => 'sfpremod',
             'permission_approve' => 'sfapprove',
         ],
-        Article::TYPE_BLOG => [
+        MaterialTypes::TYPE_BLOG => [
             'title' => "Блог",
             'add_title' => "Сделать запись в блоге",
             'edit_title' => "Изменить запись в блоге",
             'approve_title' => 'Одобрить запись',
             'unapprove_title' => 'Скрыть запись',
             'delete_title' => 'Удалить',
-            'base_link' => '/blog',
+            'base_url' => '/blog',
             'add_link' => "/blog/add",
             'edit_link' => "/blog/edit",
             'permission_add' => 'bladd',
@@ -90,15 +89,15 @@ class ArticlesController extends EntityController {
             $url = "/".request()->path();
             $article = Article::where(['original_url' => $url])->first();
             if (!$article  || ($article->pending && !$article->can_edit)) {
-                return redirect("/");
+                return redirect(route('index'));
             }
             return redirect($article->url);
         }
         if (!$article  || ($article->pending && !$article->can_edit)) {
-            return redirect("/");
+            return redirect(route('index'));
         }
 
-        return redirect("/articles/".$article->slug);
+        return redirect($article->url);
     }
 
     public function show($url) {
@@ -117,7 +116,7 @@ class ArticlesController extends EntityController {
         $article = $data['article'];
 
         if ($article->id == 2006) {
-            return redirect('/tape-digitization');
+            return redirect(route('contact.digitization.index'));
         }
 
         $see_also = $data['see_also'];
@@ -142,7 +141,7 @@ class ArticlesController extends EntityController {
     public function index() {
         $category = null;
         $articles = Article::where(function($q) {
-            $q->where('type_id', '!=', Article::TYPE_BLOG);
+            $q->where('type_id', '!=', MaterialTypes::TYPE_BLOG);
             $q->orWhereNull('type_id');
         });
 
@@ -173,7 +172,7 @@ class ArticlesController extends EntityController {
         $articles = $articles->paginate(20);
 
         $tags = Cache::remember('articles_tags', 60 * 30, function() {
-            $all_ids = Article::where(['pending' => false])->where('type_id', '!=', Article::TYPE_BLOG)->pluck('id');
+            $all_ids = Article::where(['pending' => false])->where('type_id', '!=', MaterialTypes::TYPE_BLOG)->pluck('id');
             return Tag::all()->map(function($tag) use ($all_ids) {
                 $count = TagMaterial::where(['tag_id' => $tag->id, 'material_type' => 'articles'])->whereIn('material_id', $all_ids)->count();
                 $tag->count = $count;
@@ -200,10 +199,7 @@ class ArticlesController extends EntityController {
     }
 
     public function add() {
-        if (PermissionsHelper::isBanned()) {
-            return view('pages.errors.banned');
-        }
-        if (PermissionsHelper::allows('nwadd')) {
+        if (!PermissionsHelper::isBanned() && PermissionsHelper::allows('nwadd')) {
             return view("pages.articles.form", [
                 'article' => null,
             ]);
@@ -243,7 +239,7 @@ class ArticlesController extends EntityController {
     public function edit($id) {
         $article = Article::find($id);
         if (!$article || !$article->can_edit) {
-            return redirect("/");
+            return redirect(route('index'));
         }
 
         $crossposts = null;
@@ -429,7 +425,8 @@ class ArticlesController extends EntityController {
             //$article->day = date('d', time());
             //$article->year = date('Y', time());
 
-            $article->save();
+            $this->saveEntity($article);
+
             $article->original_id = $article->id;
             $article->save();
             $article_link = $article->url;
@@ -452,8 +449,8 @@ class ArticlesController extends EntityController {
                 'text' => 'Статья не найдена'
             ];
         }
-        $can_edit = $this->canEdit($article);
-        if (!$can_edit) {
+
+        if (!$article->can_edit) {
             return [
                 'status' => 0,
                 'text' => 'Ошибка доступа'
@@ -549,9 +546,8 @@ class ArticlesController extends EntityController {
                 'text' => 'Не найдено'
             ];
         }
-        $edit_link = "/articles/edit/".$article->id;
-        $can_edit = $this->canEdit($article);
-        $can_delete = $this->canDelete($article);
+
+        $can_edit = $article->can_edit;
         $can_approve = PermissionsHelper::allows('nwapprove');
         $selector = "#actions_list_".$article->id;
         return [
@@ -560,11 +556,9 @@ class ArticlesController extends EntityController {
                 'dom' => [
                     [
                         'replace' => $selector,
-                        'html' => view("blocks/article_actions", [
-                            'edit_link' => $edit_link,
+                        'html' => view("blocks/articles.actions", [
                             'article' => $article,
                             'can_edit' => $can_edit,
-                            'can_delete' => $can_delete,
                             'can_approve' => $can_approve,
                         ])->render()
                     ]
@@ -581,8 +575,8 @@ class ArticlesController extends EntityController {
                 'text' => 'Не найдено'
             ];
         }
-        $can_edit = $this->canEdit($article);
-        if ($can_edit) {
+
+        if ($article->can_edit) {
             if (!$article->original_url) {
                 $article->original_url = $article->url;
             }

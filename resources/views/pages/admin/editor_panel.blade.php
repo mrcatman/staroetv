@@ -3,7 +3,10 @@
     <div class="inner-page">
         <div class="box">
             <div class="box__heading">
-                Панель редактора
+                <div class="box__heading__inner">
+                    Панель редактора
+                </div>
+
             </div>
             <div class="box__inner">
                 <div class="editor-panel">

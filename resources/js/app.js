@@ -1,26 +1,11 @@
 import './init'
-import Vue from 'vue';
-
 import 'jquery-pjax';
 import './jquery-ui.min'
 
-window.$.post = function(url, data, success, args) {
-    args = $.extend({
-        url: url,
-        type: 'POST',
-        data: JSON.stringify(data),
-        contentType: 'application/json; charset=utf-8',
-        dataType: 'json',
-        async: true,
-        success: success
-    }, args);
-    return $.ajax(args);
-};
+import { createApp } from 'vue';
 
 import './bbcodes'
 import './uVideoPlayer'
-import './vue-components'
-
 import './modules/articles'
 import './modules/awards'
 import './modules/channels'
@@ -52,26 +37,20 @@ import './modules/playlist'
 import './modules/survey'
 import './modules/previews'
 import './modules/telegram-auth'
+import './modules/actions-logs'
 import './modules/teletext'
+
+import { initializeVue, unmountVue } from './vue-components'
 
 function onPageChange() {
     let script = $('#pjax_scripts_container').data('script');
     if (script) {
-        script = script.replace('<script>', '');
-        script = script.replace('</script>', '');
+        script = script.replace('<script>', '').replace('</script>', '');
         eval(script);
     }
 
-    const needInitializeVue = $('#pjax-content').data('vue');
-    const onMounted = () =>  window.execOnMounted.forEach(fn => fn());
-    if (needInitializeVue) {
-        window._vm = new Vue({
-            el: '#app',
-            mounted: () => onMounted()
-        });
-    } else {
-        onMounted()
-    }
+    $('#pjax-content').data('vue') && initializeVue();
+    window.execOnMounted.forEach(fn => fn());
 }
 
 const onReady = () => {
@@ -84,6 +63,8 @@ const onReady = () => {
     let paginationScrollTop;
 
     $(document).on('pjax:start', (e) => {
+        unmountVue();
+
         isPaginationRequest = lastLoadedUrl.split('?')[0] === window.location.href.split('?')[0];
         if (isPaginationRequest) {
             paginationScrollTop = $(e.relatedTarget).closest('.box')[0].offsetTop;

@@ -42,7 +42,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col col--button">
+                        <div class="col col--auto">
                             <div class="history-event-editor__delete" @click="blocks.splice($index, 1)">
                                 <a class="button">
                                     <i class="fa fa-trash"></i>

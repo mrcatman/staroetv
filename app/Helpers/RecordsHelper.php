@@ -45,11 +45,7 @@ class RecordsHelper {
             unset($conditions['interprogram_type_not_in']);
         }
         if (isset($conditions['channel_unknown']) && $conditions['channel_unknown'] === true) {
-            $records = $records->where(function($q) {
-                $channel_ids = Channel::pluck('id');
-                $q->whereNotIn('channel_id', $channel_ids);
-                $q->orWhereNull('channel_id');
-            });
+            $records = $records->doesntHave('channel');
             unset($conditions['channel_unknown']);
         }
         if (isset($conditions['is_selected']) && $conditions['is_selected'] === false) {
@@ -79,7 +75,7 @@ class RecordsHelper {
     public static function get($conditions, $ajax = false)
     {
         $query_params = request()->except(['_pjax', 'block_title']);
-        $base_link = $ajax ? parse_url(request()->headers->get('referer'), PHP_URL_PATH) : request()->url();
+        $base_url = $ajax ? parse_url(request()->headers->get('referer'), PHP_URL_PATH) : request()->url();
 
         $sort = "added";
         $sort_field = "original_added_at";
@@ -126,7 +122,7 @@ class RecordsHelper {
         $list = $records->paginate(36);
         return [
             'query_params' => $query_params,
-            'base_link' => $base_link,
+            'base_url' => $base_url,
             'search' => $search,
             'sort' => $sort,
             'count' => $count,

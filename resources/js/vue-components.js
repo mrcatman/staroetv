@@ -1,71 +1,117 @@
-import Vue from 'vue';
+import {createApp, defineAsyncComponent} from 'vue';
+import { createPinia } from 'pinia';
 
 //import { BTable } from 'bootstrap-vue'
 //import { BPagination } from 'bootstrap-vue'
-import LaravelVuePagination from 'laravel-vue-pagination'
 
-import Select2 from './components/Select2.vue'
-import NamesHistoryEditor from './components/NamesHistoryEditor.vue';
-import PictureUploader from './components/PictureUploader.vue';
-import RecordForm from './components/RecordForm.vue';
-import UserGroupsSelect from './components/UserGroupsSelect.vue';
-import Datepicker from './components/datepicker/components/Datepicker.vue';
-import RecordsSearch from './components/RecordsSearch.vue';
-import CrosspostsEditor from './components/CrosspostsEditor.vue';
-import QuestionnaireEditor from './components/QuestionnaireEditor.vue';
-import RecordsListPicker from './components/RecordsListPicker.vue';
-import VideoCutter from './components/VideoCutter.vue';
-//import HistoryEventEditor from './components/HistoryEventEditor.vue';
-import AdditionalChannelsEditor from './components/AdditionalChannelsEditor.vue';
-import MassUploader from './components/MassUploader.vue';
-import UploadFromDevice from './components/UploadFromDevice.vue';
-import RegionalChannelsList from './components/RegionalChannelsList.vue';
-import CrosspostsManager from './components/CrosspostsManager.vue';
+let app;
+const pinia = createPinia();
 
-import PermissionsManager from './components/admin/PermissionsManager.vue';
-//import ChannelsManager from './components/admin/ChannelsManager.vue';
-import ChannelsOrderManager from './components/admin/ChannelsOrderManager.vue';
-import SmilesManager from './components/admin/SmilesManager.vue';
-//import UsersManager from './components/admin/UsersManager.vue';
-import CategoriesManager from './components/admin/CategoriesManager.vue';
-import ProgramsManager from './components/admin/ProgramsManager.vue';
+const registerComponents = (app) => {
 
-import TagsEditor from './components/TagsEditor.vue';
-import ArticleBindingsEditor from './components/ArticleBindingsEditor.vue';
-import ChannelSelect from './components/ChannelSelect.vue';
-import DateSelect from './components/DateSelect.vue';
+    app.component('pagination', defineAsyncComponent(() => {
+        return import('laravel-vue-pagination')
+    }));
+    app.component('select2', defineAsyncComponent(() => {
+        return import('./components/Select2.vue')
+    }));
 
-Vue.component('pagination', LaravelVuePagination);
-// //Vue.component('b-table', BTable)
-// //Vue.component('b-pagination', BPagination)
- Vue.component('select2', Select2);
-//
-Vue.component('names-history-editor', NamesHistoryEditor);
-Vue.component('picture-uploader', PictureUploader);
-Vue.component('record-form', RecordForm);
-Vue.component('user-groups-select', UserGroupsSelect);
-Vue.component('datepicker', Datepicker);
-Vue.component('records-search', RecordsSearch);
-Vue.component('crossposts-editor', CrosspostsEditor);
-Vue.component('questionnaire-editor', QuestionnaireEditor);
-Vue.component('records-list-picker', RecordsListPicker);
-Vue.component('video-cutter', VideoCutter);
-// //Vue.component('history-event-editor', HistoryEventEditor);
-Vue.component('additional-channels-editor', AdditionalChannelsEditor);
-Vue.component('mass-uploader', MassUploader);
-Vue.component('upload-from-device', UploadFromDevice);
-Vue.component('regional-channels-list', RegionalChannelsList);
-Vue.component('crossposts-manager', CrosspostsManager);
-Vue.component('channel-select', ChannelSelect);
-Vue.component('date-select', DateSelect);
+    app.component('names-history-editor', defineAsyncComponent(() => {
+        return import('./components/NamesHistoryEditor.vue')
+    }));
+    app.component('picture-uploader', defineAsyncComponent(() => {
+        return import('./components/PictureUploader.vue')
+    }));
+    app.component('record-form', defineAsyncComponent(() => {
+        return import('./components/RecordForm.vue')
+    }));
+    app.component('user-groups-select', defineAsyncComponent(() => {
+        return import('./components/UserGroupsSelect.vue')
+    }));
+    app.component('datepicker', defineAsyncComponent(() => {
+        return import('./components/datepicker/components/Datepicker.vue')
+    }));
+    app.component('records-search', defineAsyncComponent(() => {
+        return import('./components/RecordsSearch.vue')
+    }));
+    app.component('crossposts-editor', defineAsyncComponent(() => {
+        return import('./components/CrosspostsEditor.vue')
+    }));
+    app.component('questionnaire-editor', defineAsyncComponent(() => {
+        return import('./components/QuestionnaireEditor.vue')
+    }));
+    app.component('records-list-picker', defineAsyncComponent(() => {
+        return import('./components/RecordsListPicker.vue')
+    }));
+    app.component('video-cutter', defineAsyncComponent(() => {
+        return import('./components/VideoCutter.vue')
+    }));
+    app.component('history-event-editor', defineAsyncComponent(() => {
+        return import('./components/HistoryEventEditor.vue')
+    }));
+    app.component('additional-channels-editor', defineAsyncComponent(() => {
+        return import('./components/AdditionalChannelsEditor.vue')
+    }));
+    app.component('mass-uploader', defineAsyncComponent(() => {
+        return import('./components/MassUploader.vue')
+    }));
+    app.component('upload-from-device', defineAsyncComponent(() => {
+        return import('./components/UploadFromDevice.vue')
+    }));
+    app.component('regional-channels-list', defineAsyncComponent(() => {
+        return import('./components/RegionalChannelsList.vue')
+    }));
+    app.component('crossposts-manager', defineAsyncComponent(() => {
+        return import('./components/CrosspostsManager.vue')
+    }));
+    app.component('channel-select', defineAsyncComponent(() => {
+        return import('./components/ChannelSelect.vue')
+    }));
+    app.component('date-select', defineAsyncComponent(() => {
+        return import('./components/DateSelect.vue')
+    }));
+    app.component('tags-editor', defineAsyncComponent(() => {
+        return import('./components/TagsEditor.vue')
+    }));
+    app.component('article-bindings-editor', defineAsyncComponent(() => {
+        return import('./components/ArticleBindingsEditor.vue')
+    }));
+
+    app.component('permissions-manager', defineAsyncComponent(() => {
+        return import('./components/admin/PermissionsManager.vue')
+    }));
+    app.component('channels-manager', defineAsyncComponent(() => {
+        return import('./components/admin/ChannelsManager.vue')
+    }));
+    app.component('channels-order-manager', defineAsyncComponent(() => {
+        return import('./components/admin/ChannelsOrderManager.vue')
+    }));
+    app.component('smiles-manager', defineAsyncComponent(() => {
+        return import('./components/admin/SmilesManager.vue')
+    }));
+    app.component('users-manager', defineAsyncComponent(() => {
+        return import('./components/admin/UsersManager.vue')
+    }));
+    app.component('categories-manager', defineAsyncComponent(() => {
+        return import('./components/admin/CategoriesManager.vue')
+    }));
+    app.component('programs-manager', defineAsyncComponent(() => {
+        return import('./components/admin/ProgramsManager.vue')
+    }));
+}
+
+export const initializeVue = () => {
+    app = createApp({
+        template: document.getElementById('app').innerHTML
+    });
+    app.use(pinia);
+    app.use(registerComponents);
+    app.mount('#app');
+}
+
+export const unmountVue = () => {
+    app.unmount()
+}
 
 
-Vue.component('permissions-manager', PermissionsManager);
-//Vue.component('channels-manager', ChannelsManager);
-Vue.component('channels-order-manager', ChannelsOrderManager);
-Vue.component('smiles-manager', SmilesManager);
-//Vue.component('users-manager', UsersManager);
-Vue.component('categories-manager', CategoriesManager);
-Vue.component('programs-manager', ProgramsManager);
-Vue.component('tags-editor', TagsEditor);
-Vue.component('article-bindings-editor', ArticleBindingsEditor);
+

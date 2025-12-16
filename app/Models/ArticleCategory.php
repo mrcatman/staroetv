@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Constants\MaterialTypes;
 use Illuminate\Database\Eloquent\Model;
 
 class ArticleCategory extends Model {
@@ -15,15 +16,15 @@ class ArticleCategory extends Model {
         } else {
             $url = "category/".$this->id;
         }
-        if ($this->type_id == Article::TYPE_NEWS) {
+        if ($this->type_id == MaterialTypes::TYPE_NEWS) {
             $path = "/news/".$url;
             return $path;
         }
-        if ($this->type_id == Article::TYPE_ARTICLES) {
+        if ($this->type_id == MaterialTypes::TYPE_ARTICLES) {
             $path = "/articles/".$url;
             return $path;
         }
-        if ($this->type_id == Article::TYPE_BLOG) {
+        if ($this->type_id == MaterialTypes::TYPE_BLOG) {
             $path = "/blog/".$url;
             return $path;
         }

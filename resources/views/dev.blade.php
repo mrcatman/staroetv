@@ -292,14 +292,14 @@
     <div class="remote__container">
         <div class="remote">
             <div class="remote__logo">
-                @include ('blocks/logo')
+                @include ('blocks.global.logo')
             </div>
             <div class="remote__inner">
                 <div class="remote__random">Случайный канал</div>
                 <div class="remote__channels">
                     @foreach($channels as $channel)
                         <div class="remote__channel">
-                            <div class="remote__channel__logo" @if ($channel->logo) style="background-image:url(https://staroetv.su{{$channel->logo->url}})"  @endif></div>
+                            <div class="remote__channel__logo" @if ($channel->logo) style="background-image:url({{$channel->logo->url}})"  @endif></div>
                             <span class="remote__channel__name" >{{$channel->name}}</span>
                         </div>
                     @endforeach
@@ -313,7 +313,7 @@
         <div class="tv__inner">
             <img src="/pictures/tv.png?1" class="tv__picture" />
             <video muted autoplay loop class="tv__player">
-                <source src="https://staroetv.su/splashscreen/videos/screen3.mp4" />
+                <source src="/splashscreen/videos/screen3.mp4" />
             </video>
         </div>
     </div>
@@ -328,7 +328,7 @@
             <div class="tape">
                 <div class="tape__sticker">
                     <div class="tape__sticker__content">
-                        @if ($program->cover) <div class="tape__sticker__cover" style="background-image:url(https://staroetv.su{{$program->cover}})" ></div>@endif
+                        @if ($program->cover) <div class="tape__sticker__cover" style="background-image:url({{$program->cover}})" ></div>@endif
 
                         {{$program->name}}
                     </div>

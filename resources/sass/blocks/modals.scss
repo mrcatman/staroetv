@@ -33,6 +33,8 @@
         position: relative;
         width: 100%;
         height: 100%;
+        box-shadow: var(--block-box-shadow);
+
         @include light() {
             border-radius: .5em;
         }
@@ -113,16 +115,6 @@
         &:hover {
             background: var(--primary-highlight);
         }
-    }
-
-    .input-container--with-errors .input {
-        box-shadow: none;
-        border: 1px solid #f00;
-    }
-
-    .input-container--vertical .input-container__label {
-        font-size: .875em;
-        margin: 0 0 .5em;
     }
 
     .select2 {

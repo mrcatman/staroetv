@@ -14,6 +14,8 @@ class UserGroupsController extends Controller {
         User::where(['group_id' => $group_to_move])->update(['group_id' => $group_to_move]);
         UserGroup::find($id)->delete();
         UserGroupConfig::where(['group_id' => $id])->delete();
+
+
         return ['status' => 1, 'text' => 'Удалено'];
     }
 

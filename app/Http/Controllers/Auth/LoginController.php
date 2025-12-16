@@ -11,7 +11,7 @@ class LoginController extends Controller
 {
     public function showLoginForm() {
         if (auth()->user()) {
-            return redirect('/');
+            return redirect(route('index'));
         }
         return view('pages.auth.login');
     }
@@ -73,7 +73,7 @@ class LoginController extends Controller
             return [
                 'status' => 1,
                 'text' => 'Успешный вход',
-                'redirect_to' => '/index/8-'.$user->id
+                'redirect_to' => route('users.show', $user)
             ];
         } else {
             return [
@@ -85,6 +85,6 @@ class LoginController extends Controller
 
     public function logout() {
         Auth::logout();
-        return redirect('/');
+        return redirect(route('index'));
     }
 }

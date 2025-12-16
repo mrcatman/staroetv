@@ -3,14 +3,15 @@
     {{$year}} год - Календарь
 @endsection
 @section('content')
-    <div class="inner-page calendar-page">
+
+    <div class="calendar-page">
         <div class="row row--align-start">
             <div class="col col--2-5">
                 <div class="box">
                     <div class="box__breadcrumbs">
                         <div class="breadcrumbs">
-                            <a class="breadcrumbs__item" href="/video">Архив</a>
-                            <a class="breadcrumbs__item" href="/video/calendar">Календарь</a>
+                            <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].index', $is_radio)}}">Архив</a>
+                            <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].calendar.index', $is_radio)}}">Календарь</a>
                             <a class="breadcrumbs__item breadcrumbs__item--current">{{$year}}</a>
                         </div>
                     </div>
@@ -22,7 +23,7 @@
                     <div class="box__inner">
                         <div class="calendar-page__months">
                             @foreach ($records_by_month as $month => $month_data)
-                                <a href="/video/calendar/{{$year}}/{{$month}}" class="calendar-page__month">
+                                <a href="{{typed_route('records.[RECORD].calendar.month', $is_radio, [$year, $month])}}" class="calendar-page__month">
                                     <span class="calendar-page__month__value">{{$month_data['name']}}</span>
                                     <span class="calendar-page__month__count">{{$month_data['count']}}</span>
                                 </a>
@@ -34,7 +35,7 @@
             </div>
 
             <div class="col col--sidebar">
-                @include('blocks/generic_sidebar', ['hide_articles' => true, 'is_radio' => false])
+                @include('blocks/generic_sidebar', ['hide_articles' => true, 'is_radio' => $is_radio])
             </div>
         </div>
 

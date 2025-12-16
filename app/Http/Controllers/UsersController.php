@@ -9,12 +9,8 @@ use App\Models\User;
 
 class UsersController extends Controller {
 
-    public function show($conditions) {
-        $user = User::where($conditions)->first();
-
-        if (!$user) {
-            return view("pages.errors.404");
-        }
+    private function profile($user)
+    {
         $videos_query = Record::approved()->where(['author_id' => $user->id, 'is_radio' => false])->orderBy('id', 'desc');
         $videos_count = $videos_query->count();
         $videos = $videos_query->limit(24)->get();
@@ -43,6 +39,24 @@ class UsersController extends Controller {
             'radio_recordings' => $radio_recordings,
             'radio_recordings_count' => $radio_recordings_count,
         ]);
+    }
+
+    public function showMe()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return redirect(route('index'));
+        }
+        return $this->profile($user);
+    }
+
+    public function show($conditions) {
+        $user = User::where($conditions)->first();
+
+        if (!$user) {
+            return view("pages.errors.404");
+        }
+        return $this->profile($user);
     }
 
     public function index() {
@@ -93,7 +107,7 @@ class UsersController extends Controller {
                 'users' => $users
             ]);
         } else {
-            return redirect("/");
+            return redirect(route('index'));
         }
     }
 
@@ -122,7 +136,7 @@ class UsersController extends Controller {
     public function videos($id) {
         $user = User::find($id);
         if (!$user) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         $records = Record::where(['is_radio' => false, 'author_id' => $id])->orderBy('id', 'desc')->paginate(30);
         return view("pages.users.records", [
@@ -135,7 +149,7 @@ class UsersController extends Controller {
     public function radioRecordings($id) {
         $user = User::find($id);
         if (!$user) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         $records = Record::where(['is_radio' => true, 'author_id' => $id])->orderBy('id', 'desc')->paginate(30);
         return view("pages.users.records", [

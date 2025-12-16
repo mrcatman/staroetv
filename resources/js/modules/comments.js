@@ -1,5 +1,6 @@
 import replaceDom from './replaceDom';
 import { showModal, showModalAjax } from './modals';
+import {PRELOADER_CLASS, PRELOADER_HTML} from "@/modules/preloader.js";
 let body = $('body');
 
 $(body).on('click', '.comments__pager .page-link', function(e) {
@@ -9,10 +10,10 @@ $(body).on('click', '.comments__pager .page-link', function(e) {
         return;
     }
     e.preventDefault();
-    $(this).parents('.comments').append('<div class="block-preloader"><img src="/img/ajax.gif"></div>');
-    $.post('/comments/ajax', {page, conditions})
+    $(this).parents('.comments').append(PRELOADER_HTML);
+    $.get(route('comments.ajax'), {page, conditions})
         .done((res) => {
-            $(this).parents('.comments').find('.block-preloader').remove();
+            $(this).parents('.comments').find(`.${PRELOADER_CLASS}`).remove();
             $(this).parents('.comments__main').html(res.data.html);
         })
 });
@@ -33,7 +34,7 @@ $(body).on('click', '.comment__reply', function() {
 });
 
 $(body).on('click', '.bb-editor__smiles__all', function() {
-    showModalAjax($.post('/smiles'), '#all_smiles');
+    showModalAjax($.get(route('smiles.ajax')), '#all_smiles');
 });
 
 $(body).on('click', '.comment__edit', function() {
@@ -44,7 +45,7 @@ $(body).on('click', '.comment__edit', function() {
     $(formContainer).find('input[name="parent_id"]').val(id);
     $(formContainer).find('textarea[name="message"]').attr('id', 'message_edit_modal');
     $(formContainer).find('textarea[name="message"]').val($(this).parents('.comment').eq(0).find('.comment__original-text').html().trim());
-    $(formContainer).find('form').attr('action', '/comments/edit');
+    $(formContainer).find('form').attr('action', route('comments.edit'));
     $(formContainer).find('input[name="id"]').val(id);
     $(form).append('<div class="comments__form__disable"></div>')
     showModal('#edit_form_container', 'Редактировать комментарий', () => {
@@ -57,7 +58,7 @@ $(body).on('click', '.comment__edit', function() {
 $(body).on('click', '.comment__delete', function() {
     let id = $(this).parents('.comment').eq(0).data('id');
     if (confirm("Вы уверены, что хотите удалить комментарий?")) {
-        $.post('/comments/delete', {id}).done(res => {
+        $.post(route('comments.delete'), {id}).done(res => {
             if (res.status) {
                 replaceDom(res.data.dom);
             } else {
@@ -70,7 +71,7 @@ $(body).on('click', '.comment__delete', function() {
 $(body).on('click', '.comment__rating__button', function() {
     let comment_id = $(this).parents('.comment').eq(0).data('id');
     let weight = !$(this).hasClass('comment__rating__button--minus') ? 1 : -1;
-    $.post('/comments/rating', {comment_id, weight}).done(res => {
+    $.post(route('comments.rating'), {comment_id, weight}).done(res => {
         if (res.status) {
             replaceDom(res.data.dom);
         } else {
@@ -95,7 +96,7 @@ window.execOnMounted.push(function() {
           const conditions = $(this).data('conditions');
           $(this).addClass('comments--loading');
           $(this).append('<div class="comments__preloader"><img src="/img/ajax.gif"></div>');
-          $.post('/comments/ajax', {page: 1, conditions, count: true})
+          $.get(route('comments.ajax'), {page: 1, conditions, count: true})
               .done((res) => {
                   $(this).removeClass('comments--loading');
                   $(this).parents('.box').find('.box--comments__loading').removeClass('box--comments__loading').html(res.data.count);

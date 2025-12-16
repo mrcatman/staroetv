@@ -26,18 +26,18 @@ class AwardsController extends Controller {
             'status' => 1,
             'data' => [
                 'title' => 'Награды пользователя '.$user->username.' ('.count($user->awards).')',
-                'html' => view("blocks/awards_modal_content", ['ajax' => true, 'awards' => $awards])->render()
+                'html' => view("blocks.awards.modal-content", ['ajax' => true, 'awards' => $awards])->render()
             ]
         ];
     }
 
-    public function list() {
+    public function form() {
         $awards = Award::all();
         $user_id = request()->input('user_id', '');
         return [
             'status' => 1,
             'data' => [
-                'html' => view("blocks/awards_list", ['user_id' => $user_id, 'awards' => $awards])->render()
+                'html' => view("blocks.awards.list", ['user_id' => $user_id, 'awards' => $awards])->render()
             ]
         ];
     }
@@ -66,7 +66,7 @@ class AwardsController extends Controller {
                 'award_id' => $award->id,
                 'comment' => $comment
             ]);
-            $award_obj->save();
+
             ActionsLogHelper::create($award_obj, Actions::Create);
 
             return [
@@ -96,7 +96,6 @@ class AwardsController extends Controller {
             }
 
             ActionsLogHelper::create($award, Actions::Update);
-            $award->save();
 
             return [
                 'status' => 1,
@@ -122,7 +121,7 @@ class AwardsController extends Controller {
                     'text' => 'Ошибка: награда не найдена'
                 ];
             }
-            $award->delete();
+
             ActionsLogHelper::create($award, Actions::Delete);
 
             return [

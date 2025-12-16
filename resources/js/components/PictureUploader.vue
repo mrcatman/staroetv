@@ -22,10 +22,12 @@
         </modal>
         <input type="hidden" :value="pictureData.id" :name="name"/>
         <div class="picture-uploader__inner">
-            <a class="picture-uploader__reset"  v-if="pictureData && pictureData.url" @click="pictureData = {}">x</a>
+            <a class="picture-uploader__reset"  v-if="pictureData && pictureData.url" @click="pictureData = {}">удалить</a>
             <div class="picture-uploader__image" v-if="pictureData && pictureData.url" :style="{backgroundImage: `url(${pictureData.url})`}"></div>
             <div v-else class="picture-uploader__empty">Нет картинки</div>
-            <div class="picture-uploader__preloader" v-show="status === -1"></div>
+            <div class="picture-uploader__preloader" v-show="status === -1">
+                <img src="/resources/images/ajax.gif" />
+            </div>
         </div>
         <div class="picture-uploader__buttons">
             <label class="button button--light">Загрузить <input style="display:none" @change="onFileInputChange" type="file" /></label>
@@ -56,16 +58,13 @@
             align-items: center;
             justify-content: center;
         }
-        &--light {
 
-        }
         &__reset {
             background: var(--box-color-dark);
             color: var(--box-text-color-dark);
-            padding: .25em;
+            padding: .25em .5em;
             border-radius: .25em;
-            opacity: .5;
-            width: 1em;
+            opacity: .35;
             height: 1em;
             position: absolute;
             top: .25em;
@@ -100,20 +99,18 @@
             display: flex;
             flex-direction: column;
             text-align: center;
-            .button {
-                margin: 0 0 .5em;
-            }
+            gap: .5em;
         }
         &__preloader {
-            width: 3.5em;
-            height: 3.5em;
-            border: .5em solid #c4bd97;
-            border-top-color: #0000;
-            border-radius: 50%;
+
             position: absolute;
-            top: 1.5em;
-            left: 1.5em;
-            animation: pictureUploaderPreloader 2s infinite;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         &__list {
             overflow: auto;
@@ -157,14 +154,7 @@
             left: .25em;
         }
     }
-    @keyframes pictureUploaderPreloader {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
+
 </style>
 <script>
     import Modal from './Modal.vue';

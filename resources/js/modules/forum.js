@@ -14,7 +14,7 @@ $(body).on('click', '.forum-section__move-topic', function() {
 $(body).on('click', '.forum-message__edit', function() {
     let message = $(this).parents('.forum-message');
     let message_id = $(message).data('id');
-    $.post('/forum/get-edit-form', {message_id}).done(res => {
+    $.post(route('forum.get-edit-form'), {message_id}).done(res => {
         $(message).find('.forum-message__content').hide();
         $(message).find('.forum-message__edit-form').show().html(res.data.html);
     });
@@ -24,7 +24,7 @@ $(body).on('click', '.forum-message__delete', function() {
     let message = $(this).parents('.forum-message');
     let message_id = $(message).data('id');
     if (confirm("Вы уверены, что хотите удалить это сообщение?")) {
-        $.post('/forum/delete-message', {message_id}).done(res => {
+        $.post(route('forum.messages.delete'), {message_id}).done(res => {
             if (res.status) {
                 replaceDom(res.data.dom);
             } else {
@@ -73,8 +73,8 @@ $(body).on('click', '.forum-page a.page-link', function() {
 });
 
 $(body).on('click', '.forum-message__show-profile', function() {
-    let message_id = $(this).data('message-id');
-    showModalAjax($.get('/forum/profile/' + message_id), '#message_profile_' + message_id);
+    let messageId = $(this).data('message-id');
+    showModalAjax($.get(route('forum.profile', messageId)), `#message_profile_${messageId}`);
 });
 
 window.execOnMounted.push(() => {

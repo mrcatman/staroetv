@@ -10,7 +10,7 @@
                 <div class="box">
                     <div class="box__breadcrumbs">
                         <div class="breadcrumbs">
-                            <a class="breadcrumbs__item" href="{{route('records.'.($channel->is_radio ? 'radio' : 'video'))}}">Архив</a>
+                            <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].index', $channel->is_radio)}}">Архив</a>
                             <a class="breadcrumbs__item breadcrumbs__item--current">{{$channel->name}}</a>
                         </div>
                     </div>
@@ -27,7 +27,7 @@
                                     </span>
                                     <span class="button--dropdown__list">
                                         @if ($channel->can_edit)
-                                            <a class="button--dropdown__list__item" href="{{route('channels.edit', $channel->id)}}">Редактировать</a>
+                                            <a class="button--dropdown__list__item" href="{{typed_route('[CHANNEL].edit', $channel->is_radio, $channel->id)}}">Редактировать</a>
                                         @endif
                                         @if (\App\Helpers\PermissionsHelper::allows('contentapprove'))
                                             <a class="button--dropdown__list__item" data-approve="channels"
@@ -37,7 +37,7 @@
                                             <a class="button--dropdown__list__item"
                                                data-confirm-form-input-value="{{$channel->id}}"
                                                data-confirm-form-text="Вы уверены, что хотите удалить канал?"
-                                               data-confirm-form-url="/channels/delete">Удалить</a>
+                                               data-confirm-form-url="{{typed_route('[CHANNEL].delete', $channel->is_radio)}}">Удалить</a>
                                         @endif
                                     </span>
                                 </span>
@@ -133,13 +133,13 @@
                     <div class="box__heading__right">
                         <div class="buttons-row">
                             @if ($programs_edit_own)
-                                <a href="{{route(($channel->is_radio ? 'radio-stations' : 'channels').'.programs.add', $channel->url)}}" class="button">
+                                <a href="{{route('programs.add', ['channel_id' => $channel->id])}}" class="button">
                                     <i class="fa fa-edit"></i>
                                     Добавить
                                 </a>
                             @endif
                             @if ($programs_edit)
-                                <a href="{{route(($channel->is_radio ? 'radio-stations' : 'channels').'.programs.edit-list', $channel->url)}}" class="button">
+                                <a href="{{typed_route('[CHANNEL].programs.edit-list', $channel->is_radio, $channel->url ?? $channel->id)}}" class="button">
                                     <i class="fa fa-list"></i>
                                     Редактировать список
                                 </a>
@@ -164,7 +164,7 @@
                             <div class="programs-list" data-block-id="{{$genre->id}}"
                                  @if ($index != 0) style="display: none" @endif>
                                 @foreach ($genre->programs as $program)
-                                    @include('blocks.program', ['url' => $program->full_url.'?from='.$channel->id])
+                                    @include('blocks.programs.item', ['url' => $program->full_url.'?from='.$channel->id])
                                 @endforeach
                             </div>
                         @endforeach
@@ -183,7 +183,7 @@
                         <div class="box__heading__inner">Оформление канала ({{$channel->name}})</div>
                         @if ($can_edit_interprogram)
                             <div class="box__heading__right">
-                                <a href="{{route('graphics.channels.add', $channel->url)}}" class="button button--light">Добавить</a>
+                                <a href="{{route('design.channels.add', $channel->url)}}" class="button button--light">Добавить</a>
                             </div>
                         @endif
                     </div>
@@ -192,7 +192,7 @@
                         <div class="box__inner">
                             <div class="interprogram-packages-list">
                                 @foreach($interprogram_packages as $package)
-                                    @include('blocks.interprogram.package', ['package' => $package])
+                                    @include('blocks.design.package', ['package' => $package])
                                 @endforeach
                             </div>
                         </div>
@@ -213,14 +213,14 @@
                 <div class="box__inner">
                     <div class="news-blocks-list">
                         @foreach ($channel->articles as $news_item)
-                            @include('blocks/news', ['class' => 'news-block--card news-block--for-channel', 'show_cover' => true, 'news_item' => $news_item])
+                            @include('blocks.articles.news', ['class' => 'news-block--card news-block--for-channel', 'show_cover' => true, 'news_item' => $news_item])
                         @endforeach
                     </div>
                 </div>
             </div>
         @endif
         <div class="row row--align-start">
-            @include('blocks/comments', ['class' => 'channel-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Models\Channel::TYPE_CHANNELS, 'material_id' => $channel->id]])
+            @include('blocks.comments.list', ['class' => 'channel-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_CHANNELS, 'material_id' => $channel->id]])
         </div>
     </div>
     </div>

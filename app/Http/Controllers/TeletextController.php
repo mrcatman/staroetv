@@ -131,12 +131,12 @@ class TeletextController extends EntityController {
         if (count($texts) > 0) {
             return [
                 'name' => $texts[0]['name'],
-                'url' => '/teletext/channels/'.$texts[0]['url']
+                'url' => route('teletext.channel', $texts[0]['url'])
             ];
         }
         return [
             'name' => $teletext->channel_name,
-            'url' => '/teletext/channels/'.($teletext->channel->url ? $teletext->channel->url : $teletext->channel->id)
+            'url' => route('teletext.channel', $teletext->channel->url ?? $teletext->channel->id)
         ];
     }
 
@@ -217,7 +217,7 @@ class TeletextController extends EntityController {
         } else {
             $channel = Channel::findByIdOrUrl($url);
             if (!$channel) {
-                return redirect('/teletext');
+                return redirect(route('teletext.index'));
             }
             $title = $channel->name;
             $items = $query->where(['channel_id' => $channel->id]);
@@ -249,7 +249,7 @@ class TeletextController extends EntityController {
     public function show($id) {
         $teletext = Teletext::find($id);
         if (!$teletext || !count($teletext->pages)) {
-            return redirect("/");
+            return redirect(route('index'));
         }
 
         $page = request()->input('page', $teletext->pages[0]);
@@ -297,7 +297,7 @@ class TeletextController extends EntityController {
     public function edit($id) {
         $teletext = Teletext::find($id);
         if (!$teletext) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         if (!$teletext->can_edit) {
             return view("pages.errors.403");
@@ -370,7 +370,7 @@ class TeletextController extends EntityController {
         return [
             'status' => 1,
             'text' => $is_new ? 'Телетекст добавлен' : 'Телетекст обновлён',
-            'redirect_to' => '/teletext/' . $teletext->id . (!$teletext->cover_id ? '?update_cover=1' : '')
+            'redirect_to' => route('teletext.show', $teletext) . (!$teletext->cover_id ? '?update_cover=1' : '')
         ];
     }
 
@@ -378,7 +378,7 @@ class TeletextController extends EntityController {
 
     private function getChannels()
     {
-        return Channel::select(['id', 'name', 'logo_id', 'order', 'is_federal', 'is_radio'])->with('logo', 'names')->orderBy('order')->where(['is_radio' => false])->get();
+        return Channel::selectDefault()->with('logo', 'names')->orderBy('order')->where(['is_radio' => false])->get();
     }
 
 

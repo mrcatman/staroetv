@@ -137,7 +137,7 @@
                             </div>
                             <div class="articles-list__block articles-list__block--right">
                                 @foreach ($news as $news_item)
-                                    @include('blocks/news', ['hide_tags' => true, 'show_cover' => false, 'news_item' => $news_item])
+                                    @include('blocks.articles.news', ['hide_tags' => true, 'show_cover' => false, 'news_item' => $news_item])
                                 @endforeach
                             </div>
                         </div>
@@ -188,7 +188,7 @@
                         <div class="box__inner">
                             <div class="comments">
                                 @foreach ($comments as $comment)
-                                    @include('blocks/comment', ['go_to' => true, 'show_link' => true, 'comment' => $comment])
+                                    @include('blocks.comments.item', ['go_to' => true, 'show_link' => true, 'comment' => $comment])
                                 @endforeach
                             </div>
                         </div>

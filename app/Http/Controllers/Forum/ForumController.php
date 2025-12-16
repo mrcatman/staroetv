@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Forum;
 
+use App\Constants\Actions;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\BBCodesHelper;
 use App\Helpers\DatesHelper;
 use App\Helpers\ForumPaginator;
@@ -20,7 +22,8 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
-class ForumController extends Controller {
+class ForumController extends Controller
+{
 
     protected $messages_on_page = 20;
     protected $topics_on_page = 25;
@@ -127,14 +130,15 @@ class ForumController extends Controller {
         }
     }
 
-    public function subforum($id, $page = 1) {
+    public function subforum($id, $page = 1)
+    {
         $forum = Forum::find($id);
         if (!$forum) {
-            return redirect('/forum');
+            return redirect(route('forum.index'));
         }
         $parent_forum = Forum::find($forum->parent_id);
         if (!PermissionsHelper::checkGroupAccess('can_view', $forum)) {
-          //  return redirect('/forum');
+            //  return redirect('/forum');
         }
 
         $search = request()->input('s', '');
@@ -233,15 +237,17 @@ class ForumController extends Controller {
         }
     }
 
-    private function filterSubforums($forum_ids) {
+    private function filterSubforums($forum_ids)
+    {
         $forums = Forum::whereIn('id', $forum_ids)->get();
-        $forums->filter(function($forum) {
+        $forums->filter(function ($forum) {
             return PermissionsHelper::checkGroupAccess('can_view', $forum);
         });
         return $forums->pluck('id');
     }
 
-    private function updateTracking($topic) {
+    private function updateTracking($topic)
+    {
         if ($user = auth()->user()) {
             $topic_tracking = ForumTracking::firstOrNew(['user_id' => $user->id, 'is_forum' => false, 'entity_id' => $topic->id]);
             $topic_tracking->timestamp = time();
@@ -249,14 +255,15 @@ class ForumController extends Controller {
         }
     }
 
-    public function showTopic($forum_id, $topic_id, $page = 1) {
+    public function showTopic($forum_id, $topic_id, $page = 1)
+    {
         $page = (int)$page;
         $forum = null;
         $subforum = Forum::find($forum_id);
         if ($subforum) {
             $forum = Forum::find($subforum->parent_id);
             if (!PermissionsHelper::checkGroupAccess('can_view', $subforum)) {
-             //   return redirect('/forum');
+                //   return redirect('/forum');
             }
         }
 
@@ -265,11 +272,12 @@ class ForumController extends Controller {
 
         $topic = ForumTopic::where(['id' => $topic_id])->first();
         if (!$topic) {
-            return redirect("/forum");
+            return redirect(route('forum.index'));
         }
         if ($topic->forum_id != $forum_id) {
-            return redirect("/forum/$topic->forum_id-$topic_id-1");
+            return redirect(route('forum.topics.show', [$topic->forum_id, $topic_id]));
         }
+
         $this->updateTracking($topic);
         ViewsHelper::increment($topic, 'forum_topics', 'views_count');
         $topic->save();
@@ -296,7 +304,7 @@ class ForumController extends Controller {
             }
             $messages = $messages->with('user')->orderBy('id', 'asc');
             if ($search) {
-                $messages = $messages->where('content', 'like', '%'.$search.'%');
+                $messages = $messages->where('content', 'like', '%' . $search . '%');
             }
             $total = $messages->count();
             $messages = $messages->limit($messages_on_page)->offset(($page - 1) * $messages_on_page)->get();
@@ -313,7 +321,7 @@ class ForumController extends Controller {
         }
 
         $paginator = new ForumPaginator([], $total, $messages_on_page, $page, [
-            'path'  => ForumPaginator::resolveCurrentPath(),
+            'path' => ForumPaginator::resolveCurrentPath(),
             'forum_id' => $subforum->id,
             'topic_id' => $topic->id,
         ]);
@@ -340,44 +348,46 @@ class ForumController extends Controller {
         ]);
     }
 
-    public function redirectToMessage($forum_id, $topic_id, $message_id) {
+    public function redirectToMessage($forum_id, $topic_id, $message_id)
+    {
         $message_index = ForumMessage::where(['topic_id' => $topic_id])->pluck('id')->search($message_id);
         if ($message_index === false) {
-            return redirect("/forum");
+            return redirect(route('forum.index'));
         }
         $topic = ForumTopic::find($topic_id);
         if ($topic->first_message_fixed) {
             $message_index--;
         }
-        $page = ceil( $message_index / $this->messages_on_page);
-        return redirect("/forum/$forum_id-$topic_id-$page#$message_id");
+        $page = ceil($message_index / $this->messages_on_page);
+        return redirect(route('forum.topics.show-page', [$forum_id, $topic_id, $page]).'#'.$message_id);
     }
 
-    public function redirectToMessageById($message_id) {
+    public function redirectToMessageById($message_id)
+    {
         $message = ForumMessage::find($message_id);
         if (!$message) {
-            return redirect("/forum");
+            return redirect(route('forum.index'));
         }
         $topic = ForumTopic::find($message->topic_id);
         if (!$topic) {
-            return redirect("/forum");
+            return redirect(route('forum.index'));
         }
         $message_index = ForumMessage::where(['topic_id' => $message->topic_id])->pluck('id')->search($message_id);
         if ($message_index === false) {
-            return redirect("/forum");
+            return redirect(route('forum.index'));
         }
         if ($topic->first_message_fixed) {
             $message_index--;
         }
-        $page = ceil( $message_index / $this->messages_on_page);
-
-        return redirect("/forum/".$topic->forum_id."-".$topic->id."-".$page."#".$message_id);
+        $page = ceil($message_index / $this->messages_on_page);
+        return redirect(route('forum.topics.show-page', [$topic->forum_id, $topic->id, $page]).'#'.$message_id);
     }
 
-    public function redirectToLastMessage($forum_id, $topic_id) {
+    public function redirectToLastMessage($forum_id, $topic_id)
+    {
         $messages = ForumMessage::where(['topic_id' => $topic_id])->pluck('id');
         if (count($messages) === 0) {
-            return redirect("/forum");
+            return redirect(route('forum.index'));
         }
         $topic = ForumTopic::find($topic_id);
         $message_id = $messages->last();
@@ -385,11 +395,12 @@ class ForumController extends Controller {
         if ($topic->first_message_fixed) {
             $messages_count--;
         }
-        $page = ceil( $messages_count / $this->messages_on_page);
-        return redirect("/forum/$forum_id-$topic_id-$page#$message_id");
+        $page = ceil($messages_count / $this->messages_on_page);
+        return redirect(route('forum.topics.show-page', [$forum_id, $topic_id, $page]).'#'.$message_id);
     }
 
-    public function getEditForm() {
+    public function getEditForm()
+    {
         $message_id = request()->input('message_id');
         $message = ForumMessage::find($message_id);
         if (!$message) {
@@ -399,12 +410,13 @@ class ForumController extends Controller {
         return [
             'status' => 1,
             'data' => [
-                'html' =>  view("blocks.forum.bb-editor", ['inline' => true, 'edit_id' => $message->id, 'topic_id' => $message->topic_id, 'content' => $original_bb])->render()
+                'html' => view("blocks.forum.bb-editor", ['inline' => true, 'edit_id' => $message->id, 'topic_id' => $message->topic_id, 'content' => $original_bb])->render()
             ]
         ];
     }
 
-    private function deleteCache($topic_id, $page) {
+    private function deleteCache($topic_id, $page)
+    {
         $cache_tag = 'msg_' . $topic_id . '_' . $page;
         Cache::forget($cache_tag);
         $total_tag = 'total_' . $topic_id . '_' . $page;
@@ -414,13 +426,15 @@ class ForumController extends Controller {
         $topic->save();
     }
 
-    private function getPageIndex($message) {
+    private function getPageIndex($message)
+    {
         $message_index = ForumMessage::where(['topic_id' => $message->topic_id])->pluck('id')->search($message->id);
-        $page = ceil( $message_index / $this->messages_on_page);
+        $page = ceil($message_index / $this->messages_on_page);
         return $page;
     }
 
-    public function editMessage() {
+    public function editMessage()
+    {
         $message_id = request()->input('message_id');
         $message = ForumMessage::find($message_id);
         if (!$message) {
@@ -435,11 +449,12 @@ class ForumController extends Controller {
         $message->edited_at = Carbon::now();
         $message->edited_by = auth()->user()->username;
         $message->content = BBCodesHelper::BBToHTML(request()->input('message'));
-        $message->save();
+
+        ActionsLogHelper::create($message, Actions::Update);
 
         $page = $this->getPageIndex($message);
         $this->deleteCache($message->topic_id, $page);
-        $selector = '.forum-message[data-id="'.$message->id.'"]';
+        $selector = '.forum-message[data-id="' . $message->id . '"]';
         return [
             'status' => 1,
             'text' => 'Пост сохранен',
@@ -454,7 +469,8 @@ class ForumController extends Controller {
         ];
     }
 
-    private function recalculateLastMessage($topic, $forum) {
+    private function recalculateLastMessage($topic, $forum)
+    {
         if ($topic) {
             $last_message = ForumMessage::where(['topic_id' => $topic->id])->orderBy('id', 'desc')->first();
             $topic->topic_last_username = $last_message->username;
@@ -466,11 +482,12 @@ class ForumController extends Controller {
         $forum->last_username = $last_message->username;
         $forum->last_topic_id = $last_message->topic->id;
         $forum->last_topic_name = $last_message->topic->title;
-        $forum->last_reply_at =  Carbon::createFromTimestamp($last_message->created_at_ts);
+        $forum->last_reply_at = Carbon::createFromTimestamp($last_message->created_at_ts);
         $forum->save();
     }
 
-    public function deleteMessage() {
+    public function deleteMessage()
+    {
         $message_id = request()->input('message_id');
         $message = ForumMessage::find($message_id);
         if (!$message) {
@@ -485,8 +502,11 @@ class ForumController extends Controller {
         $messages = ForumMessage::where(['topic_id' => $message->topic_id])->pluck('id');
         $last_message_id = $messages->last();
         $page = $this->getPageIndex($message);
-        $message->delete();
+
+        ActionsLogHelper::create($message, Actions::Delete);
+
         $this->deleteCache($message->topic_id, $page);
+
         if ($message_id == $last_message_id) {
             $this->recalculateLastMessage($message->topic, $message->topic->forum);
         }
@@ -496,7 +516,7 @@ class ForumController extends Controller {
             'data' => [
                 'dom' => [
                     [
-                        'replace' => "#".$message->id,
+                        'replace' => "#" . $message->id,
                         'html' => ""
                     ]
                 ]
@@ -504,7 +524,8 @@ class ForumController extends Controller {
         ];
     }
 
-    public function postMessage($topic_id = null) {
+    public function postMessage($topic_id = null)
+    {
         $user = auth()->user();
         if (!$user) {
             return ['status' => 0, 'text' => 'Вы не авторизованы'];
@@ -568,7 +589,7 @@ class ForumController extends Controller {
         $content = BBCodesHelper::BBToHTML($content);
         $contentByLines = explode("<br>", $content);
         $contentWithoutQuotes = explode(PHP_EOL, $contentWithoutQuotes);
-        $contentWithoutQuotes = array_filter($contentWithoutQuotes, function($string) {
+        $contentWithoutQuotes = array_filter($contentWithoutQuotes, function ($string) {
             return $string != "" && $string != "\r";
         });
         $contentWithoutQuotes = array_values($contentWithoutQuotes);
@@ -603,7 +624,7 @@ class ForumController extends Controller {
             $last_message = ForumMessage::where(['topic_id' => $topic->id])->orderBy('id', 'DESC')->first();
         }
         if ($last_message && $last_message->user_id == $user->id) {
-            $last_message->content = $last_message->content."<br><br><b>Добавлено</b> (".DatesHelper::formatTS(time()).")<br>---------------------------------------------<br>".$content;
+            $last_message->content = $last_message->content . "<br><br><b>Добавлено</b> (" . DatesHelper::formatTS(time()) . ")<br>---------------------------------------------<br>" . $content;
             $last_message->save();
             $messages = ForumMessage::where(['topic_id' => $topic->id])->get();
             $page = ceil(count($messages) / $this->messages_on_page);
@@ -618,8 +639,8 @@ class ForumController extends Controller {
                     'last_page' => $page,
                     '_dom' => [
                         [
-                            'replace' => "#".$last_message->id,
-                            'html' => view("blocks.forum.message",  ['inner' => true, 'fixed' => false, 'message' => $last_message])->render()
+                            'replace' => "#" . $last_message->id,
+                            'html' => view("blocks.forum.message", ['inner' => true, 'fixed' => false, 'message' => $last_message])->render()
                         ]
                     ]
                 ]
@@ -635,8 +656,10 @@ class ForumController extends Controller {
             'questionnaire' => '',
             'user_id' => $user->id,
         ]);
-        $message_obj->save();
-        Cache::forget('forum_messages_'.$user->id);
+
+        ActionsLogHelper::create($message_obj, Actions::Create);
+
+        Cache::forget('forum_messages_' . $user->id);
 
         $topic->topic_last_username = $user->username;
         $topic->last_reply_at = Carbon::now();
@@ -648,13 +671,13 @@ class ForumController extends Controller {
         $subforum->last_reply_at = Carbon::now();
         $subforum->save();
 
-       // $forum = Forum::find($subforum->parent_id);
+        // $forum = Forum::find($subforum->parent_id);
 
-       // $forum->last_username = $user->username;
-       // $forum->last_topic_id = $topic->id;
-       // $forum->last_topic_name = $topic->title;
-       // $forum->last_reply_at = Carbon::now();
-       // $forum->save();
+        // $forum->last_username = $user->username;
+        // $forum->last_topic_id = $topic->id;
+        // $forum->last_topic_name = $topic->title;
+        // $forum->last_reply_at = Carbon::now();
+        // $forum->save();
 
         $messages = ForumMessage::where(['topic_id' => $topic->id])->get();
         $messages_count = count($messages);
@@ -676,14 +699,15 @@ class ForumController extends Controller {
                 '_dom' => [
                     [
                         'append_to' => ".forum-section__messages",
-                        'html' => view("blocks.forum.message",  ['fixed' => false, 'message' => $message_obj])->render()
+                        'html' => view("blocks.forum.message", ['fixed' => false, 'message' => $message_obj])->render()
                     ]
                 ]
             ]
         ];
     }
 
-    public function newTopic($id) {
+    public function newTopic($id)
+    {
         $forum = Forum::find($id);
         $parent_forum = Forum::find($forum->parent_id);
         return view("pages.forum.topic-form", [
@@ -695,7 +719,8 @@ class ForumController extends Controller {
         ]);
     }
 
-    public function editTopic($id) {
+    public function editTopic($id)
+    {
         $topic = ForumTopic::find($id);
         $forum = Forum::find($topic->forum_id);
         $parent_forum = Forum::find($forum->parent_id);
@@ -713,7 +738,8 @@ class ForumController extends Controller {
         ]);
     }
 
-    private function getTopicValidateRules($create = false) {
+    private function getTopicValidateRules($create = false)
+    {
         $rules = [
             'title' => 'required|min:1',
             'description' => 'sometimes',
@@ -733,7 +759,8 @@ class ForumController extends Controller {
         return $rules;
     }
 
-    public function createTopic($id) {
+    public function createTopic($id)
+    {
         $forum = Forum::find($id);
         if (!$forum) {
             return [
@@ -764,10 +791,9 @@ class ForumController extends Controller {
         $topic->topic_starter_username = $user->username;
         $topic->topic_last_username = $user->username;
         $topic->last_reply_at = Carbon::now();
-
         $topic->forum_id = $forum->id;
-        $topic->save();
 
+        ActionsLogHelper::create($topic, Actions::Create);
 
         $message_obj = new ForumMessage([
             'topic_id' => $topic->id,
@@ -780,7 +806,7 @@ class ForumController extends Controller {
             'user_id' => $user->id,
         ]);
         $message_obj->save();
-        Cache::forget('forum_messages_'.$user->id);
+        Cache::forget('forum_messages_' . $user->id);
         if (request()->input('questionnaire') && PermissionsHelper::allows('frpoll')) {
             try {
                 (new QuestionnairesController())->save($topic->id);
@@ -790,14 +816,17 @@ class ForumController extends Controller {
         }
         $this->recalculateLastMessage(null, $topic->forum);
         $this->updateTracking($topic);
+
+
         return [
             'status' => 1,
             'text' => 'Тема создана',
-            'redirect_to' => '/forum/'.$forum->id.'-'.$topic->id.'-1'
+            'redirect_to' => route('forum.topics.show', [$forum->id, $topic->id])
         ];
     }
 
-    public function saveTopic($id) {
+    public function saveTopic($id)
+    {
         $topic = ForumTopic::find($id);
         if (!$topic) {
             return [
@@ -814,24 +843,28 @@ class ForumController extends Controller {
 
         $data = request()->validate($this->getTopicValidateRules(false));
         if (request()->has('questionnaire_data') && PermissionsHelper::allows('frpoll')) {
-
             try {
                 (new QuestionnairesController())->save($id);
             } catch (\Exception $e) {
                 return ['status' => 0, 'text' => $e->getMessage()];
             }
         }
+
         $topic->fill($data);
-        $topic->save();
+
+        ActionsLogHelper::create($topic, Actions::Update);
+
         $this->deleteCache($topic->id, 1);
+
         return [
             'status' => 1,
             'text' => 'Тема сохранена',
-            'redirect_to' => '/forum/'.$topic->forum_id.'-'.$topic->id.'-1'
+            'redirect_to' => route('forum.topics.show', [$topic->forum_id, $topic->id])
         ];
     }
 
-    public function deleteTopic() {
+    public function deleteTopic()
+    {
         $topic = ForumTopic::find(request()->input('topic_id'));
         if (!$topic) {
             return [
@@ -845,17 +878,20 @@ class ForumController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         }
-        $topic->delete();
+        ActionsLogHelper::create($topic, Actions::Delete);
+
         ForumMessage::where(['topic_id' => $topic->id])->delete();
+
         $this->recalculateLastMessage(null, $topic->forum);
         return [
             'status' => 1,
             'text' => 'Тема удалена',
-            'redirect_to' => '/forum/'.$topic->forum_id
+            'redirect_to' => route('forum.subforums.show', $topic->forum_id)
         ];
     }
 
-    public function moveTopic() {
+    public function moveTopic()
+    {
         $topic = ForumTopic::find(request()->input('topic_id'));
         if (!$topic) {
             return [
@@ -883,17 +919,19 @@ class ForumController extends Controller {
             ];
         }
         $topic->forum_id = $forum->id;
-        $topic->save();
+
+        ActionsLogHelper::create($topic, Actions::Update);
+
         return [
             'status' => 1,
             'text' => 'Тема перемещена',
-            'redirect_to' => '/forum/'.$topic->forum_id.'-'.$topic->id.'-1'
+            'redirect_to' =>  route('forum.topics.show', [$topic->forum_id, $topic->id])
         ];
     }
 
 
-    public function newForum($parent_id) {
-        $forum = null;
+    public function newForum($parent_id)
+    {
         $parent = Forum::find($parent_id);
         $sections = Forum::where('parent_id', '<', '1')->get();
         $forums = Forum::where('parent_id', '>', '0')->get();
@@ -907,10 +945,11 @@ class ForumController extends Controller {
         ]);
     }
 
-    public function editForum($id) {
+    public function editForum($id)
+    {
         $forum = Forum::find($id);
         $parent = Forum::find($forum->parent_id);
-        $sections = Forum::where('parent_id', '<', '1')->where('id','!=', $id)->get();
+        $sections = Forum::where('parent_id', '<', '1')->where('id', '!=', $id)->get();
         $forums = Forum::where('parent_id', '>', '0')->get();
         return view("pages.forum.form", [
             'forums' => $forums,
@@ -922,7 +961,8 @@ class ForumController extends Controller {
         ]);
     }
 
-    public function saveForum($id) {
+    public function saveForum($id)
+    {
         if (!PermissionsHelper::allows('fredit')) {
             return [
                 'status' => 0,
@@ -951,6 +991,7 @@ class ForumController extends Controller {
         unset($fill_data['move_to']);
         unset($fill_data['move_subforums_to']);
         $forum->fill($fill_data);
+
         if (isset($data['move_subforums_to']) && $data['move_subforums_to'] > 0) {
             $move_to = Forum::find($data['move_subforums_to']);
             if (!$move_to) {
@@ -960,11 +1001,13 @@ class ForumController extends Controller {
                 ];
             }
             Forum::where(['parent_id' => $forum->id])->update(['parent_id' => $move_to->id]);
-            $forum->delete();
+
+            ActionsLogHelper::create($forum, Actions::Delete);
+
             return [
                 'status' => 1,
                 'text' => 'Форум удален',
-                'redirect_to' => '/forum/'
+                'redirect_to' => route('forum.index')
             ];
         }
         if (isset($data['state']) && $data['state'] == "4") {
@@ -976,24 +1019,28 @@ class ForumController extends Controller {
                 ];
             }
             ForumTopic::where(['forum_id' => $forum->id])->update(['forum_id' => $move_to->id]);
-            $forum->delete();
+
+            ActionsLogHelper::create($forum, Actions::Delete);
+
             return [
                 'status' => 1,
                 'text' => 'Форум удален',
-                'redirect_to' => '/forum/'
+                'redirect_to' => route('forum.index')
             ];
         } else {
-            $forum->save();
+            ActionsLogHelper::create($forum, Actions::Update);
+
             return [
                 'status' => 1,
                 'text' => 'Форум сохранен',
-                'redirect_to' => '/forum/'.$forum->id
+                'redirect_to' => route('forum.subforums.show', $forum->id)
             ];
         }
 
     }
 
-    public function createForum() {
+    public function createForum()
+    {
         if (!PermissionsHelper::allows('fredit')) {
             return [
                 'status' => 0,
@@ -1015,15 +1062,18 @@ class ForumController extends Controller {
         $forum = new Forum($data);
         $forum->topics_count = 0;
         $forum->replies_count = 0;
-        $forum->save();
+
+        ActionsLogHelper::create($forum, Actions::Create);
+
         return [
             'status' => 1,
             'text' => 'Форум сохранен',
-            'redirect_to' => '/forum/'.$forum->id
+            'redirect_to' => route('forum.subforums.show', $forum->id)
         ];
     }
 
-    public function getProfile($message_id) {
+    public function getProfile($message_id)
+    {
         $message = ForumMessage::find($message_id);
         if (!$message) {
             return [
@@ -1040,13 +1090,14 @@ class ForumController extends Controller {
         return [
             'status' => 1,
             'data' => [
-                'title' => 'Профиль пользователя '.$message->user->username,
-                'html' => view("blocks.forum.profile", [ 'message' => $message])->render()
+                'title' => 'Профиль пользователя ' . $message->user->username,
+                'html' => view("blocks.forum.profile", ['message' => $message])->render()
             ]
         ];
     }
 
-    public function lastTopics() {
+    public function lastTopics()
+    {
         $forums = Forum::all()->filter(function ($forum) {
             return PermissionsHelper::checkGroupAccess('can_view', $forum);
         });
@@ -1066,10 +1117,11 @@ class ForumController extends Controller {
         ]);
     }
 
-    public function userMessages($user_id) {
+    public function userMessages($user_id)
+    {
         $user = User::find($user_id);
         if (!$user) {
-            return redirect('/forum');
+            return redirect(route('forum.index'));
         }
         $forums = Forum::all()->filter(function ($forum) {
             return PermissionsHelper::checkGroupAccess('can_view', $forum);
@@ -1080,7 +1132,7 @@ class ForumController extends Controller {
         $messages = ForumMessage::whereIn('topic_id', $topic_ids)->where(['user_id' => $user->id])->orderBy('id', 'asc')->paginate($messages_on_page);
 
         return view("pages.forum.subforum", [
-            'title' => '<div>Записи участника <strong> '.strip_tags($user->username).'</strong></div>',
+            'title' => '<div>Записи участника <strong> ' . strip_tags($user->username) . '</strong></div>',
             'messages_view' => true,
             'messages' => $messages,
             'search' => null,

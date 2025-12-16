@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Actions;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\PermissionsHelper;
 use App\Models\ForumMessage;
 use App\Models\User;
@@ -9,8 +11,8 @@ use App\Models\UserReputation;
 
 class ReputationController extends Controller {
 
-    protected $reputation_timeout = 60 * 60 * 24;
-    protected $reputation_change_level = 50;
+    private $reputation_timeout = 60 * 60 * 24;
+    private $reputation_change_level = 50;
 
     public function ajax() {
         $user_id = request()->input('user_id');
@@ -26,7 +28,7 @@ class ReputationController extends Controller {
             'status' => 1,
             'data' => [
                 'title' => 'Репутация пользователя '.$user->username.' ('.$user->reputation_number.')',
-                'html' => view("blocks/reputation_modal_content", ['ajax' => true, 'reputation' => $reputation])->render()
+                'html' => view("blocks.reputation.list", ['ajax' => true, 'reputation' => $reputation])->render()
             ]
         ];
     }
@@ -89,11 +91,13 @@ class ReputationController extends Controller {
                 $created_at = $message->created_at_ts;
                 $topic_id = $message->topic_id;
                 $forum_id = $message->topic->forum_id;
-                $link = "/forum/$forum_id-$topic_id-$message_id-$created_at";
+                $link = route('forum.topics.redirect-to-message', [$forum_id, $topic_id, $message_id, $created_at]);
                 $reputation_obj->link = $link;
             }
         }
-        $reputation_obj->save();
+
+        ActionsLogHelper::create($reputation_obj, Actions::Create);
+
         $reputation_number += $reputation_obj->weight;
         return [
             'status' => 1,
@@ -121,7 +125,9 @@ class ReputationController extends Controller {
             if (request()->has('comment')) {
                 $reputation_obj->comment = request()->input('comment');
             }
-            $reputation_obj->save();
+
+            ActionsLogHelper::create($reputation_obj, Actions::Update);
+
             return [
                 'status' => 1,
                 'text' => 'Сохранено',
@@ -146,7 +152,9 @@ class ReputationController extends Controller {
                     'text' => 'Ошибка: объект не найден'
                 ];
             }
-            $reputation_obj->delete();
+
+            ActionsLogHelper::create($reputation_obj, Actions::Delete);
+
             return [
                 'status' => 1,
                 'text' => 'Удалено',
@@ -172,7 +180,9 @@ class ReputationController extends Controller {
             if (request()->has('reply_comment')) {
                 $reputation_obj->reply_comment = request()->input('reply_comment');
             }
-            $reputation_obj->save();
+
+            ActionsLogHelper::create($reputation_obj, Actions::Update);
+
             return [
                 'status' => 1,
                 'text' => 'Сохранено',

@@ -10,7 +10,7 @@ class Periods
         [
             'name' => 'СССР',
             'url' => 'ussr',
-            'years' => [0, 1991]
+            'years' => [1920, 1991]
         ],
         [
             'name' => 'Начало 90-х',

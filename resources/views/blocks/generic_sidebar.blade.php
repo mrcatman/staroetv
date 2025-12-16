@@ -28,7 +28,7 @@
             <div class="see-also">
                 @php ($articles_count = isset($articles_count) && $articles_count ? $articles_count : 5)
                 @foreach (\App\Helpers\SidebarHelper::getArticles($articles_count) as $see_also_item)
-                    @include('blocks/article_small', ['article' => $see_also_item])
+                    @include('blocks.articles.item-small', ['article' => $see_also_item])
                 @endforeach
             </div>
         </div>

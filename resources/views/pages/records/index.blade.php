@@ -3,6 +3,9 @@
     {{$params['is_radio'] ? "Архив старых радиозаписей" : "Архив старых телезаписей"}}
 @endsection
 @section('content')
+    @php($route_prefix = route_prefix_records($params['is_radio']))
+    @php($route_prefix_channels = route_prefix_channels($params['is_radio']))
+
     <div class="box">
         <div class="box__heading">
             <div class="box__heading__inner">
@@ -12,25 +15,21 @@
                 @if (\App\Helpers\PermissionsHelper::allows('channelsown') || \App\Helpers\PermissionsHelper::allows('viadd'))
                 <div class="buttons-row">
                     @if (\App\Helpers\PermissionsHelper::allows('channelsown'))
-                        @if ($params['is_radio'])
-                            <a class="button" href="/channels/add?is_radio=1">Добавить радиостанцию</a>
-                        @else
-                            <a class="button" href="/channels/add?is_radio=0">Добавить канал</a>
-                        @endif
+                       <a class="button" href="{{typed_route('[CHANNEL].add', $params['is_radio'])}}">{{$params['is_radio'] ? 'Добавить радиостанцию' : 'Добавить канал'}}</a>
                     @endif
 
                     @if (\App\Helpers\PermissionsHelper::allows('viadd'))
                         @if ($params['is_radio'])
-                            <a class="button" href="/radio/add">
+                            <a class="button" href="{{typed_route('records.[RECORD].add', $params['is_radio'])}}">
                                 <i class="fa fa-file-audio"></i>
                                 Добавить радиозапись
                             </a>
                         @else
-                            <a class="button" href="/video/add">
+                            <a class="button" href="{{typed_route('records.[RECORD].add', $params['is_radio'])}}">
                                 <i class="fa fa-film"></i>
                                 Добавить видео
                             </a>
-                            <a class="button" href="/mass-upload">
+                            <a class="button" href="{{route('mass-upload.index')}}">
                                 <i class="fa fa-upload"></i>
                                 Массовая загрузка
                             </a>
@@ -59,7 +58,7 @@
                         <div class="tab-content" data-id="channels" data-tab="federal">
                             <div class="channels-list">
                                 @foreach($federal as $channel)
-                                    @include('blocks/channel_small', ['channel' => $channel])
+                                    @include('blocks.channels.item')
                                 @endforeach
                             </div>
                         </div>
@@ -72,7 +71,7 @@
                         <div style="display: none" class="tab-content" data-id="channels" data-tab="other">
                             <div class="channels-list">
                                 @foreach($other as $channel)
-                                    @include('blocks/channel_small', ['channel' => $channel])
+                                    @include('blocks.channels.item')
                                 @endforeach
                             </div>
                         </div>
@@ -80,7 +79,7 @@
                 </div>
                 @if (!$params['is_radio'] && count($events) > 0)
                     <div class="box">
-                        <a href="/events" class="box__heading">
+                        <a href="{{route('events.index')}}" class="box__heading">
                             <div class="box__heading__inner">
                                 Подборки записей
                             </div>
@@ -98,7 +97,7 @@
                         <div class="box__inner">
                             <div class="programs-list">
                                 @foreach ($other_categories as $other_category)
-                                    @include('blocks.program', ['program' => $other_category, 'url' => '/video/other/'.$other_category->url])
+                                    @include('blocks.programs.item', ['program' => $other_category, 'url' => typed_route('records.[RECORD].other.category', $params['is_radio'], $other_category->url)])
                                 @endforeach
                             </div>
                         </div>
@@ -136,7 +135,7 @@
             <div class="col col--sidebar">
                 <div class="box">
                     <div class="box__inner">
-                        @include ('blocks/records_material_categories', ['is_radio' => $params['is_radio']])
+                        @include ('blocks.records.material-categories', ['is_radio' => $params['is_radio']])
                     </div>
                 </div>
                 @include('blocks.banner')

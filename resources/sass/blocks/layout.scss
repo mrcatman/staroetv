@@ -4,9 +4,10 @@ body {
     font-size: 14px;
     --primary: #ff6a00;
     --primary-highlight: #ff8313;
-    --border-color: #eee;
+    --border-color: #ddd;
+    --border-color-second: #fff;
     --box-color: #fff;
-    --box-color-hover: #fafafa;
+    --box-color-hover: rgba(0,0, 0,.075);
     --inputs-color: #fdfdfd;
     --bg-darker: #efefef;
     --bg-darkest: #777;
@@ -31,7 +32,10 @@ body {
     --modal-header-color: #fafafa;
     --modal-color: #333;
     --modal-background-color: #eee;
-    --block-box-shadow: 0 0 .5em inset #deb99e14, 0 .5em 5em -1.25em #69524057;
+    --block-box-shadow: 0 1em 4em -1em inset #cd702d29, 0 .5em 5em -1.25em #69524057;
+    --input-box-shadow: 0 0 .5em inset #cd702d29, 0 .5em 2em -.25em #69524042;
+    --element-box-shadow: 0 .5em 4em -1em inset #17161529, 0 1em 1.75em -.25em #69524042;
+    --button-box-shadow: 0 .5em 1.25em -.25em #6952402b;
     --font-main: "Raleway", sans-serif;
     --font-texts: "Merriweather", serif;
     overflow-x: hidden;
@@ -146,7 +150,7 @@ a {
         flex: 4;
     }
 
-    &--button {
+    &--auto {
         flex: unset;
     }
     &--sidebar .box:first-of-type {

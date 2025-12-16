@@ -3,7 +3,7 @@
     <form class="form box" method="POST">
         <div class="box__breadcrumbs">
             <div class="breadcrumbs">
-                <a class="breadcrumbs__item" href="{{$channel->is_radio ? "/radio" : "/video"}}">Архив</a>
+                <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].index', $channel->is_radio)}}">Архив</a>
                 <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
                 <a class="breadcrumbs__item breadcrumbs__item--current">Список программ</a>
             </div>

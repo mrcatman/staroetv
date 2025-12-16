@@ -35,7 +35,7 @@
                         <div class="col">
                             <textarea maxlength="280" class="input" v-model="data.short_texts[$index]"></textarea>
                         </div>
-                        <div class="col--button">
+                        <div class="col col--auto">
                             <a @click="data.short_texts.splice($index)" class="button button--light">X</a>
                         </div>
                     </div>

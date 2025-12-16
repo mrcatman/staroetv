@@ -52,7 +52,7 @@ class CrosspostController extends Controller {
             abort(403);
         }
         $crossposter->afterRedirect(request()->all());
-        return redirect("/admin/crossposting");
+        return redirect(route('admin.crossposting'));
     }
 
     public function saveSettings($name) {

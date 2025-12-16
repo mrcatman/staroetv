@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Console\Commands;
+use App\Constants\MaterialTypes;
 use App\Models\Article;
 use App\Models\ArticleCategory;
 use App\Models\Tag;
@@ -60,11 +61,11 @@ class createTags extends Command
             $tag_resources[$tag_url] = $tag;
         }
         foreach ($articles as $article) {
-            if ($article->type_id == Article::TYPE_ARTICLES) {
+            if ($article->type_id == MaterialTypes::TYPE_ARTICLES) {
                 $tag_url = 'article';
-            } elseif ($article->type_id == Article::TYPE_BLOG) {
+            } elseif ($article->type_id == MaterialTypes::TYPE_BLOG) {
                 $tag_url = 'blog';
-            } elseif ($article->type_id == Article::TYPE_NEWS) {
+            } elseif ($article->type_id == MaterialTypes::TYPE_NEWS) {
                 $tag_url = 'news';
             }
             TagMaterial::firstOrCreate([

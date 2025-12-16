@@ -125,13 +125,13 @@ const updateCover = () => {
                 fd.append('picture', file);
                 fd.append('channel_id', $('input[name=channel_id]').val());
                 $.ajax({
-                    url: '/upload/pictures',
+                    url: route('pictures.upload'),
                     data: fd,
                     processData: false,
                     contentType: false,
                     type: 'POST',
                     success: ({ data }) => {
-                       $.post(`/teletext/${$('input[name=teletext_id]').val()}/edit`, {
+                       $.post(route('teletext.edit', $('input[name=teletext_id]').val()), {
                            cover_id: data.picture.id
                        })
                     },

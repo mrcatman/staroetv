@@ -6,7 +6,7 @@
                 Написать новое сообщение
             </div>
 
-            <div class="box__heading__right"><a class="button button--light" href="/pm">Назад</a></div>
+            <div class="box__heading__buttons"><a class="button button--light" href="{{route('pm.index')}}">Назад</a></div>
         </div>
         <div class="box__inner">
             <form method="POST" class="form">
@@ -50,7 +50,7 @@
                         <label class="input-container__label">Текст<span
                                 class="input-container__required">*</span></label>
                         <div class="input-container__inner">
-                            @include('blocks/bb_editor', ['name' => 'text'])
+                            @include('blocks.bb-editor.main', ['name' => 'text'])
                             <span class="input-container__message"></span>
                         </div>
                     </div>

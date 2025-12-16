@@ -34,7 +34,6 @@
 
 .tabs {
     border-bottom: 1px solid var(--border-color);
-    font-size: 1.25em;
     width: 100%;
     display: flex;
     @include mobile {
@@ -47,6 +46,11 @@
        text-align: center;
     }
 }
+
+.tab-content {
+    width: 100%;
+}
+
 div.tabs::-webkit-scrollbar {
     height: 2px;
 }

@@ -12,7 +12,8 @@
             <div class="box">
                 <div class="box__breadcrumbs">
                     <div class="breadcrumbs">
-                        <a class="breadcrumbs__item" href="/{{$channel->is_radio ? "radio" : "video"}}">Архив</a>
+                        <a class="breadcrumbs__item"
+                           href="{{typed_route('records.[RECORD].index', $channel->is_radio)}}">Архив</a>
                         <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
                         <a class="breadcrumbs__item" href="{{$channel->full_url}}#interprogram">Оформление</a>
                         <a class="breadcrumbs__item breadcrumbs__item--current">{{$package->full_name}}</a>
@@ -22,7 +23,7 @@
                     @if ($other)
                         <div class="box__heading__inner">Заставки канала {{$channel->all_names_with_main}}</div>
                         <div class="box__heading__right">
-                            <a href="{{$base_link}}?hide_unsorted={{$hide_unsorted ? 0 : 1}}"
+                            <a href="{{$base_url}}?hide_unsorted={{$hide_unsorted ? 0 : 1}}"
                                class="input-container input-container--checkbox">
                                 <input disabled type="checkbox" @if ($hide_unsorted) checked="checked"
                                        @endif name="hide_unsorted">
@@ -53,11 +54,13 @@
                                     </span>
                                     <div class="button--dropdown__list">
                                         <a class="button--dropdown__list__item"
-                                           href="/channels/{{$channel->id}}/graphics/edit/{{$package->id}}">Редактировать</a>
+                                           href="{{typed_route('design.[CHANNEL].edit', $channel->is_radio, [$channel->id, $package->id])}}">
+                                            Редактировать
+                                        </a>
                                             <a class="button--dropdown__list__item"
                                                data-confirm-form-input-value="{{$package->id}}"
                                                data-confirm-form-text="Вы уверены, что хотите удалить пакет?"
-                                               data-confirm-form-url="/graphics/delete">Удалить</a>
+                                               data-confirm-form-url="{{typed_route('design.[CHANNEL].delete', $channel->is_radio)}}">Удалить</a>
                                         </div>
                                     </span>
                         </div>
@@ -70,7 +73,7 @@
                     <div class="interprogram-packages-list-item__inner">
                         @if ($package->descriptiion != '')
                             <div
-                                class="interprogram-packages-list-item__description">{!! $package->description !!}
+                                    class="interprogram-packages-list-item__description">{!! $package->description !!}
                             </div>
                         @endif
                         <div class="interprogram-packages-list-item__videos">
@@ -79,9 +82,9 @@
                                     @if ($annotation['annotation'])
                                         <div class="interprogram-annotation">
                                             <div
-                                                class="interprogram-annotation__title">{{$annotation['annotation']->title}}</div>
+                                                    class="interprogram-annotation__title">{{$annotation['annotation']->title}}</div>
                                             <div
-                                                class="interprogram-annotation__text">{{$annotation['annotation']->text}}</div>
+                                                    class="interprogram-annotation__text">{{$annotation['annotation']->text}}</div>
                                         </div>
                                     @endif
                                     <div class="records-list records-list--thumbs">
@@ -98,7 +101,7 @@
                     </div>
                 </div>
         </div>
-        @include('blocks/comments', [ 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Models\InterprogramPackage::TYPE_INTERPROGRAM, 'material_id' => $package->id]])
+        @include('blocks.comments.list', [ 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_INTERPROGRAM, 'material_id' => $package->id]])
 
         @else
 
@@ -107,7 +110,7 @@
     </div>
 
     <div class="col col--sidebar">
-        @include('blocks.interprogram.related')
+        @include('blocks.design.related')
         @include('blocks/generic_sidebar', ['hide_articles' => true])
     </div>
 

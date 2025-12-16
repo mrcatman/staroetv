@@ -9,7 +9,7 @@
     )
 )
 
-@php($url = isset($url) ? $url : $record->url)
+@php($url = isset($url) ? $url : $record->url ?? $record->full_url)
 @php($hide_info = isset($hide_info) ? $hide_info : false)
 <a href="{{$url}}" class="record-item @if ($record->pending) record-item--pending @endif @if ($record->use_own_player) record-item--with-preview @endif"
     @if ($record->use_own_player) data-src="{{$record->download_url}}" @endif

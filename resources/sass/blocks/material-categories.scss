@@ -9,6 +9,9 @@
         font-size: 1.25em;
         line-height: 1.75;
         border-bottom: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--col-margin) * .5);
         @include light() {
             border-bottom: none;
         }
@@ -27,12 +30,9 @@
     &__section-heading {
         font-size: 1.125em;
         font-weight: 600;
-        @include light() {
-            border-bottom: 2px solid var(--primary);
-        }
+        @include hover();
     }
     &__item {
-        padding: .25em 0;
         &__link {
             @include hover();
         }

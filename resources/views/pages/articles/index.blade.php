@@ -44,9 +44,9 @@
     <div class="box__inner">
 
         <div class="categories-list categories-list--multiline">
-            <a class="category @if (!$tag) category--active @endif" href="/articles">Все теги</a>
+            <a class="category @if (!$tag) category--active @endif" href="{{route('articles.index')}}">Все теги</a>
             @foreach ($tags as $tag_item)
-                <a class="category @if ($tag && $tag_item->id == $tag->id) category--active @endif" href="/articles?tag={{$tag_item->url}}">
+                <a class="category @if ($tag && $tag_item->id == $tag->id) category--active @endif" href="{{route('articles.index', ['tag' => $tag_item->url])}}">
                     {{$tag_item->name}}
                     <span class="category__count">{{$tag_item->count}}</span>
                 </a>
@@ -56,7 +56,7 @@
             <div class="col">
                 <div class="news-blocks-list">
                     @foreach ($articles as $news_item)
-                        @include('blocks/news', ['class' => 'news-block--card', 'show_cover' => true, 'news_item' => $news_item])
+                        @include('blocks.articles.news', ['class' => 'news-block--card', 'show_cover' => true, 'news_item' => $news_item])
                     @endforeach
                 </div>
             </div>

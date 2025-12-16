@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\MaterialTypes;
 use App\Models\Article;
 use App\Models\Award;
 use App\Models\Comment;
@@ -109,7 +110,7 @@ class TopListController extends Controller {
     }
 
     public function news() {
-        $news = Article::where(['type_id' => Article::TYPE_NEWS])->select(DB::raw('user_id, count(user_id) as sum_count'))->groupBy('user_id')->orderBy('sum_count', 'desc')->limit(100)->get();
+        $news = Article::where(['type_id' => MaterialTypes::TYPE_NEWS])->select(DB::raw('user_id, count(user_id) as sum_count'))->groupBy('user_id')->orderBy('sum_count', 'desc')->limit(100)->get();
         $list = [];
         foreach ($news as $news_count) {
             $user = User::find($news_count['user_id']);
@@ -129,7 +130,7 @@ class TopListController extends Controller {
     }
 
     public function articles() {
-        $news = Article::where(['type_id' => Article::TYPE_ARTICLES])->select(DB::raw('user_id, count(user_id) as sum_count'))->groupBy('user_id')->orderBy('sum_count', 'desc')->limit(100)->get();
+        $news = Article::where(['type_id' => MaterialTypes::TYPE_ARTICLES])->select(DB::raw('user_id, count(user_id) as sum_count'))->groupBy('user_id')->orderBy('sum_count', 'desc')->limit(100)->get();
         $list = [];
         foreach ($news as $news_count) {
             $user = User::find($news_count['user_id']);

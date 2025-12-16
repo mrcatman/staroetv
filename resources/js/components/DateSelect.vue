@@ -16,7 +16,7 @@
 </template>
 <script>
 import { monthNames } from "@/consts.js";
-import {getDaysInMonth, getYearOptions} from "@/modules/dates.js";
+import {getDaysInMonth, getYearOptions} from "@/utils/dates.js";
 export default {
     props: {
         value: {

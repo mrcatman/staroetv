@@ -3,19 +3,19 @@
         <input type="hidden" name="additional_channels" :value="channelsJson" />
         <div class="additional-channels__inner">
             <div  v-for="(channelItem, $index) in this.additionalChannels" :key="$index">
-                <div class="row additional-channels__row">
+                <div class="row ">
                     <div class="col">
                         <div class="input-container input-container--vertical">
-                            <label class="input-container__label">Канал</label>
+                            <label class="input-container__label">{{is_radio ? 'Радио' : 'Канал'}}</label>
                             <div class="input-container__inner">
                                 <select class="select-classic" v-model="channelItem.channel_id">
                                     <option :value="channel.id" v-for="(channel, $index) in channelsList" :key="channel.id">{{channel.name}}</option>
                                 </select>
                             </div>
                         </div>
-                        <a class="button button--light" @click="deleteItem($index)">Удалить</a>
+
                     </div>
-                    <div class="col additional-channels__datepicker-container">
+                    <div class="col ">
                         <div class="input-container input-container--vertical">
                             <label class="input-container__label">Название (если оно отличалось)</label>
                             <div class="input-container__inner">
@@ -39,11 +39,12 @@
                             </div>
                         </div>
                     </div>
+                    <a class="button button--light" @click="deleteItem($index)">Удалить</a>
                 </div>
             </div>
         </div>
         <div class="additional-channels__bottom">
-            <a class="button button--light" @click="addItem()">Добавить доп.канал</a>
+            <a class="button button--light" @click="addItem()">Добавить доп.{{ is_radio ? 'радио' : 'канал' }}</a>
         </div>
 
     </div>
@@ -51,30 +52,27 @@
 <style lang="scss">
     .additional-channels {
         flex: 1;
-        margin: 1em 0;
-        background: var(--bg-darker);
-        font-size: 1.25em;
-        border: 1px solid var(--border-color);
+
+        &__inner {
+            display: flex;
+            flex-direction: column;
+            gap: 2em;
+        }
         &__bottom {
-            font-size: .75em;
-            background: var(--bg-darker-2);
-            padding: 1em;
+            margin-top: 2em;
         }
+
         &__datepicker-container {
-            margin: -2.25em .5em 0 .5em!important;
+            flex: .5;
         }
-        &__picture-uploader-container {
-            font-size: .875em;
-        }
+
         &__row {
             width: calc(100% - 2em);
             margin: 0;
             border-bottom: 1px solid var(--border-color);
             padding: 1em;
          }
-        &__inner {
-            font-size: .75em;
-        }
+
 
     }
 </style>
@@ -96,14 +94,15 @@
                 let data = JSON.parse(JSON.stringify({
                     title: "",
                     channel_id: null,
-                    date_start: new Date(),
-                    date_end: new Date(),
+                    date_start: null,
+                    date_end: null,
                 }));
                 this.additionalChannels.push(data);
             }
         },
         props: {
             program_id: {},
+            is_radio: {},
             data: {
                 type: Array,
                 required: true
@@ -116,7 +115,7 @@
             }
         },
         mounted() {
-            $.get('/channels/ajax').then(res => {
+            $.get(route(this.is_radio ? 'radio-stations.ajax' : 'channels.ajax')).then(res => {
                 this.channelsList = res.data.channels;
             })
         },

@@ -1,22 +1,25 @@
+import {PRELOADER_CLASS, PRELOADER_HTML} from "@/modules/preloader.js";
+
 const body = $('body');
 
 const loadRecords = ({container, conditions, link}) => {
 
-    $(container).append('<div class="block-preloader"><img src="/img/ajax.gif"></div>');
+    $(container).append(PRELOADER_HTML);
 
     const request = {
         sort: $(container).find('.records-list__sort__items .top-list__item--active').data('sort') ?? $('.records-list__sort__mobile option:selected').val(),
-        page: 1,
-        search: $(container).find('.records-list__sort__search input').val(),
         year: $('.records-list__years').find('.top-list__item--active').data('year'),
         month: $('.records-list__months').find('.top-list__item--active').data('month'),
-        ...Object.fromEntries(new URLSearchParams(link ? link.split('?')[1] : window.location.search))
+        ...Object.fromEntries(new URLSearchParams(link ? link.split('?')[1] : window.location.search)),
+        page: 1,
+        search: $(container).find('.records-list__sort__search input').val(),
     };
 
     const params = {
         conditions,
        ...request
     }
+
 
     if ($(container).data('block-title')) {
         params.block_title = $(container).data('block-title');
@@ -25,11 +28,11 @@ const loadRecords = ({container, conditions, link}) => {
         params.title_param = $(container).data('title-param');
     }
 
-    $.post('/records/ajax', params).done((res) => {
+    $.post(route('records.ajax'), params).done((res) => {
         $('html,body').animate({
             scrollTop:  $(container).offset().top
         }, 300);
-        $(container).find('.block-preloader').remove();
+        $(container).find(`.${PRELOADER_CLASS}`).remove();
         $(container).html(res.data.html);
 
         const url = new URL(window.location.href);

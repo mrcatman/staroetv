@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Constants\Actions;
 use App\Constants\Countries;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\BBCodesHelper;
 use App\Helpers\PermissionsHelper;
 use App\Http\Controllers\Controller;
@@ -32,7 +34,7 @@ class ProfileController extends Controller
             $user = User::find($id);
         }
         if (!$user) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         return view("pages.users.form", [
             'edit_id' => $edit_id,
@@ -136,8 +138,11 @@ class ProfileController extends Controller
                 }
             }
         }
-        $user->save();
+
+        ActionsLogHelper::create($user, Actions::Update);
+
         $meta->save();
+
         return [
             'status' => 1,
             'text' => $change_email ? 'Профиль обновлён. На новый e-mail адрес выслано письмо со ссылкой для подтверждения' : 'Профиль обновлён',

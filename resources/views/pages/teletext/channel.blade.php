@@ -6,8 +6,8 @@
     <div class="record-page teletext-page">
         <div class="box">
             <div class="box__breadcrumbs">
-                <a class="breadcrumbs__item" href="/teletext">Архив телетекста</a>
-                <a class="breadcrumbs__item" href="/teletext/channels/{{$url}}">{{$title}}</a>
+                <a class="breadcrumbs__item" href="{{route('teletext.index')}}">Архив телетекста</a>
+                <a class="breadcrumbs__item" href="{{route('teletext.channel', $url)}}">{{$title}}</a>
             </div>
             <div class="box__heading">
                 <div class="box__heading__inner">
@@ -29,8 +29,8 @@
                         </div>
                         <div class="box__inner">
                             <div class="record-page__related">
-                                @foreach ($related as $item)
-                                    @include('blocks/teletext', ['teletext' => $item])
+                                @foreach ($related as $teletext)
+                                    @include('blocks.teletext.item')
                                 @endforeach
 
                             </div>

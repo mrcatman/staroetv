@@ -1,7 +1,7 @@
 <template>
     <div class="device-uploader">
         <div class="form__preloader" v-if="loading">
-            <img src="../../../public/img/ajax.gif">
+            <img src="/resources/images/ajax.gif">
         </div>
         <snackbar ref="snackbar"></snackbar>
         <div class="device-uploader__top">
@@ -35,7 +35,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col col--button">
+                    <div class="col col--auto">
                         <a class="button" @click="section.files.splice($index2, 1)">Удалить</a>
                     </div>
                 </div>

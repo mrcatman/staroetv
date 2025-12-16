@@ -3,15 +3,16 @@
     {{$month_name}} {{$year}} - Календарь
 @endsection
 @section('content')
-    <div class="inner-page calendar-page">
+
+    <div class="calendar-page">
         <div class="row row--align-start">
             <div class="col col--2-5">
                 <div class="box">
                     <div class="box__breadcrumbs">
                         <div class="breadcrumbs">
-                            <a class="breadcrumbs__item" href="/video">Архив</a>
-                            <a class="breadcrumbs__item" href="/video/calendar">Календарь</a>
-                            <a class="breadcrumbs__item" href="/video/calendar/{{$year}}">{{$year}}</a>
+                            <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].index', $is_radio)}}">Архив</a>
+                            <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].calendar.index', $is_radio)}}">Календарь</a>
+                            <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].calendar.year', $is_radio, $year)}}">{{$year}}</a>
                             <a class="breadcrumbs__item breadcrumbs__item--current">{{$month_name}}</a>
                         </div>
                     </div>
@@ -48,9 +49,9 @@
                                                 @endif
 
                                                 <div class="calendar-page__records">
-                                                    <div class="records-list records-list--thumbs">
+                                                    <div class="records-list @if (!$is_radio) records-list--thumbs @endif">
                                                         @foreach ($records as $record)
-                                                            @include('blocks.records.item')
+                                                            @include($record->is_radio ? 'blocks.records.radio-item' : 'blocks.records.item')
                                                         @endforeach
                                                     </div>
                                                 </div>
@@ -67,7 +68,7 @@
             </div>
 
             <div class="col col--sidebar">
-                @include('blocks/generic_sidebar', ['hide_articles' => true, 'is_radio' => false])
+                @include('blocks/generic_sidebar', ['hide_articles' => true, 'is_radio' => $is_radio])
             </div>
         </div>
 

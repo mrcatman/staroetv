@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Constants\Actions;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\TelegramAuthHelper;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -90,11 +92,13 @@ class ProfileTelegramController extends Controller
             ];
         }
         $user->telegram_id = $data['id'];
-        $user->save();
+
+        ActionsLogHelper::create($user, Actions::Update);
+
         return [
             'status' => 1,
             'text' => 'Успешно привязано',
-            'redirect_to' => '/profile/edit'
+            'redirect_to' => route('profile.edit')
         ];
     }
 
@@ -106,12 +110,15 @@ class ProfileTelegramController extends Controller
                 'text' => 'Ошибка доступа'
             ];
         }
+
         $user->telegram_id = null;
-        $user->save();
+
+        ActionsLogHelper::create($user, Actions::Update);
+
         return [
             'status' => 1,
             'text' => 'Успешно отвязано',
-            'redirect_to' => '/profile/edit'
+            'redirect_to' => route('profile.edit')
         ];
 
     }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\MaterialTypes;
 use App\Helpers\DatesHelper;
+use App\Helpers\ExternalServicesHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\RecordsHelper;
 use App\Helpers\RegexHelper;
@@ -11,7 +13,7 @@ use App\Models\AdditionalChannel;
 use App\Models\Channel;
 use App\Models\ChannelName;
 use App\Models\Genre;
-use App\Models\InterprogramPackage;
+use App\Models\DesignPackage;
 use App\Models\Picture;
 use App\Models\Program;
 use App\Models\Record;
@@ -105,10 +107,20 @@ class RecordsController extends EntityController {
     public function buildOtherCategoriesList()
     {
         return Cache::remember('other_categories_list', 60 * 20, function() {
-            $other_categories = Genre::where(['type' => 'videos_other'])->get();
+            $other_categories = Genre::withCount('records')->where(['type' => 'videos_other'])->get();
             foreach ($other_categories as $other_category) {
                 $other_category->cover_url = Record::where(['other_category_id' => $other_category->id])->whereNotNull('cover_id')->inRandomOrder()->limit(1)->first()->coverPicture->url;
             }
+            $unknown = Record::where(['is_advertising' => false, 'is_radio' => false])->doesntHave('channel')->whereNull('other_category_id');
+            $random_unknown = $unknown->clone()->inRandomOrder()->limit(1)->first();
+            $other_categories->add((object)[
+                'records_count' => $unknown->count(),
+                'pending' => false,
+                'name' => 'Прочее / неопознанные передачи',
+                'url' => 'unknown',
+                'cover_url' => $random_unknown->cover,
+                'channels_history' => [],
+            ]);
             return $other_categories;
         });
     }
@@ -160,7 +172,7 @@ class RecordsController extends EntityController {
                 //    return !$playlist_record['is_annotation'] && $playlist_record['data']->id === $record->id;
                 //});
 
-                $related_interprogram_packages = InterprogramPackage::where(['channel_id' => $record->channel->id])->where('id', '!=', $package->id)->inRandomOrder()->limit(5)->get();
+                $related_interprogram_packages = DesignPackage::where(['channel_id' => $record->channel->id])->where('id', '!=', $package->id)->inRandomOrder()->limit(5)->get();
 
             }
 
@@ -207,6 +219,8 @@ class RecordsController extends EntityController {
                         'items' => $related_channel
                     ];
                 }
+
+                $related_advertising = [];
 
                 if ($record->is_advertising) {
                     $related_advertising = Record::approved()->where(['is_radio' => $record->is_radio, 'is_advertising' => true, 'advertising_brand' => $record->advertising_brand])->where('id', '!=', $record->id)->inRandomOrder()->limit(10)->get();
@@ -259,7 +273,7 @@ class RecordsController extends EntityController {
         return redirect($record->url);
     }
 
-    public function advertising($start_params, $ajax = false) {
+    public function commercials($start_params, $ajax = false) {
         $records_conditions = array_merge($start_params, ['is_advertising' => true]);
 
         $query_params = [];
@@ -268,7 +282,7 @@ class RecordsController extends EntityController {
         $total_count = Record::approved()->where($records_conditions)->count();
 
         $other_count = Record::approved()->where($records_conditions)->where('year', '<=', '0')->count();
-        $base_link = $start_params['is_radio'] ? "/radio/commercials" : "/video/commercials";
+        $base_url = typed_route('records.[RECORD].commercials', $start_params['is_radio'] ?? false);
 
         $selected_year = null;
         $selected_region = null;
@@ -361,7 +375,7 @@ class RecordsController extends EntityController {
             'years' => $years,
             'total_count' => $total_count,
             'other_count' => $other_count,
-            'base_link' => $base_link,
+            'base_url' => $base_url,
             'is_radio' => $start_params['is_radio']
         ];
         if ($ajax) {
@@ -370,8 +384,8 @@ class RecordsController extends EntityController {
         return view("pages.records.advertising", $data);
     }
 
-    public function advertisingBrands($params) {
-        $base_url = !$params['is_radio'] ? "/video/commercials-search" : "/radio/commercials-search";
+    public function commercialsBrands($params) {
+        $base_url = typed_route('records.[CHANNEL].commercials.search', $start_params['is_radio'] ?? false);
         if (request()->has('id')) {
             $record = Record::find(request()->input('id'));
             if ($record) {
@@ -403,135 +417,25 @@ class RecordsController extends EntityController {
     }
 
 
-    public function interprogram($start_params) {
-        $records_conditions = array_merge($start_params, ['is_interprogram' => true]);
-
-        $query_params = [];
-
-        $regions = Channel::where($start_params)->where(['is_abroad' => false])->whereNotNull('city')->has('interprogramRecords', '>' , 0)->pluck('city')->unique();
-        $total_count = Record::approved()->where($records_conditions)->count();
-
-        $other_count = Record::approved()->where($records_conditions)->where('year', '<=', '0')->count();
-        $base_link =  $start_params['is_radio'] ? "/radio/jingles" : "/video/graphics";
-
-        $selected_year = null;
-        $selected_region = null;
-
-        $years_ranges = [
-            'Советское' => [
-                'year_end' => 1991,
-            ],
-            '90-е' => [
-                'year_start' => 1992,
-                'year_end' => 1999
-            ],
-            '2000-е' => [
-                'year_start' => 2000,
-                'year_end' => 2011
-            ]
-        ];
-        $types_to_hide =  [11, 22];
-        $hide_commercials = request()->input('hide_commercials', true);
-        if ($hide_commercials) {
-            $records_conditions['interprogram_type_not_in'] = $types_to_hide;
-        }
-        $query_params['hide_commercials'] = $hide_commercials ? 1 : 0;
-        $selected_years_range = null;
-        foreach ($years_ranges as $name => $params) {
-            $selected = true;
-            foreach ($params as $param => $value) {
-                if (request()->input($param) != $value) {
-                    $selected = false;
-                }
-            }
-            if ($selected) {
-                $selected_years_range =  $name;
-                $query_params = $years_ranges[$name];
-            }
-        }
-        if ($selected_years_range) {
-            $records_conditions = array_merge($records_conditions, $years_ranges[$selected_years_range]);
-        }
-
-        if (request()->has('year')) {
-            $selected_year = request()->input('year');
-            if ($selected_year != "0") {
-                $records_conditions['year'] = $selected_year;
-                unset($query_params['year_start']);
-                unset($query_params['year_end']);
-                $query_params['year'] = $selected_year;
-            } else {
-                $records_conditions['year'] = null;
-            }
-        }
-
-
-        if (request()->has('regional')) {
-            $channels = Channel::where(['is_regional' => !!request()->input('regional')])->pluck('id');
-            $query_params['region'] = $selected_region;
-            $records_conditions['channel_id_in'] = $channels;
-        }
-        $types = [];
-        $type_ids = [];
-        foreach(Genre::where(['type' => 'interprogram'])->get() as $type) {
-            $type_ids[$type->url] = $type->id;
-            $types[$type->url] = $type->name;
-        }
-        $selected_type = request()->input('type');
-        $records_conditions['program_id'] = null;
-        if (isset($type_ids[$selected_type])) {
-            $query_params['type'] = $selected_type;
-            $records_conditions['interprogram_type'] = $type_ids[$selected_type];
-        } else {
-            $selected_type = null;
-        }
-        $records_conditions['normal_date'] = true;
-
-        $years = Record::where($start_params)->where(['is_interprogram' => true, 'is_advertising' => false])->where('year','>','1950');
-        if ($hide_commercials) {
-            $years = $years->whereNotIn('interprogram_type', $types_to_hide);
-        }
-        $years = $years->selectRaw('count(*) as count_year, year')->groupBy('year')->orderBy('year', 'asc')->pluck('count_year', 'year');
-
-        $page_title = $start_params['is_radio'] ? "Оформление радиостанций" : "Графическое оформление телеканалов";
-        return view("pages.records.graphics", [
-            'hide_commercials' => $hide_commercials,
-            'is_radio' => $start_params['is_radio'],
-            'page_title' => $page_title,
-            'query_params' => $query_params,
-            'types' => $types,
-            'selected_type' => $selected_type,
-            'records_conditions' => $records_conditions,
-            'years_ranges' => $years_ranges,
-            'selected_years_range' => $selected_years_range,
-            'regions' => $regions,
-            'selected_year' => $selected_year,
-            'selected_region' => $selected_region,
-            'years' => $years,
-
-            'total_count' => $total_count,
-            'other_count' => $other_count,
-            'base_link' => $base_link,
-        ]);
-    }
-
     public function other($start_params, $category_url = null) {
         $params = ['channel_unknown' => true, 'is_advertising' => false];
 
         $category = null;
         if ($category_url) {
-            $category = Genre::where(['url' => $category_url])->first();
+            if ($category_url == 'unknown') {
+                $params['other_category_id'] = null;
+            } else {
+                $category = Genre::where(['url' => $category_url])->first();
 
-            if (!$category) {
-                return redirect('/');
+                if (!$category) {
+                    return redirect(route('index'));
+                }
+                $params['other_category_id'] = $category->id;
             }
-            $params['other_category_id'] = $category->id;
         }
         $records_conditions = array_merge($start_params, $params);
-        $categories = Genre::where(['type' => 'videos_other'])->get();
-        foreach ($categories as $category_item) {
-            $category_item->records_count = Record::where(['other_category_id' => $category_item->id])->count();
-        }
+        $categories = $this->buildOtherCategoriesList();
+
         return view("pages.records.other", [
             'category' => $category,
             'categories' => $categories,
@@ -543,7 +447,7 @@ class RecordsController extends EntityController {
 
     public function add($params) {
         if (PermissionsHelper::isBanned()) {
-            return view('pages.errors.banned');
+            return view('pages.errors.403');
         }
         $can_upload = PermissionsHelper::allows('viupload');
         return view ("pages.records.form", [
@@ -552,20 +456,20 @@ class RecordsController extends EntityController {
             'upload_endpoint' => config('site.upload_endpoint'),
             'data' => $params,
             'record' => null,
-            'channels' => Channel::with('logo', 'names')->orderBy('order', 'asc')->where($params)->get()
+            'channels' => $this->getChannelsForForm($params)
         ]);
     }
 
     public function edit($id) {
         if (PermissionsHelper::isBanned()) {
-            return view('pages.errors.banned');
+            return view('pages.errors.403');
         }
         if (!auth()->user()) {
-            return redirect('/');
+            return redirect(route('index'));
         }
         $record = Record::with('channel','program', 'program.coverPicture')->find($id);
         if (!$record) {
-            return redirect('/');
+            return redirect(route('index'));
         }
 
         if (!$record->can_edit) {
@@ -575,6 +479,7 @@ class RecordsController extends EntityController {
         $can_upload = PermissionsHelper::allows('viupload');
         $can_edit_all = PermissionsHelper::allows('viedit');
         $record->original_added_at_ts = $ts;
+
         return view ("pages.records.form", [
             'data' => [
                 'is_radio' => request()->has('is_radio') ? !!request()->input('is_radio') : $record->is_radio
@@ -583,16 +488,14 @@ class RecordsController extends EntityController {
             'can_edit_all' => $can_edit_all,
             'upload_endpoint' => config('site.upload_endpoint'),
             'record' => $record,
-            'channels' => Channel::with('logo', 'names')->get()
+            'channels' => $this->getChannelsForForm([])
         ]);
     }
 
 
-    public function getInfo() { // todo refactor
+    public function getInfo() {
         if (request()->has('vk_video_id')) {
-            $vk_id = request()->input('vk_video_id');
-            $token = config('tokens.vk');
-            $data = json_decode(shell_exec(" curl 'https://api.vk.com/method/video.get?access_token=$token&v=5.130&videos=$vk_id&extended=1'"));
+            $data = ExternalServicesHelper::vkVideo(request()->input('vk_video_id'));
             return [
                 'status' => 1,
                 'data' => [
@@ -600,9 +503,7 @@ class RecordsController extends EntityController {
                 ]
             ];
         } elseif (request()->has('youtube_video_id')) {
-            $youtube_id = request()->input('youtube_video_id');
-            $token = config('tokens.youtube');
-             $data = json_decode(shell_exec("curl 'https://www.googleapis.com/youtube/v3/videos?id=$youtube_id&key=$token&part=snippet'"));
+            $data = ExternalServicesHelper::youtubeVideo(request()->input('youtube_video_id'));
             return [
                 'status' => 1,
                 'data' => [
@@ -826,8 +727,8 @@ class RecordsController extends EntityController {
             $record->use_own_player = true;
             $record->source_type = "local";
             $record->source_path = request()->input('record.source_path');
-            if (request()->has('record.original_cover')) {
-                $cover_url = request()->input('record.original_cover');
+            if (request()->has('record.thumbnail')) {
+                $cover_url = request()->input('record.thumbnail');
                 $cover = Picture::where(['url' => $cover_url])->first();
                 if ($cover) {
                     $record->cover_id = $cover->id;
@@ -877,10 +778,13 @@ class RecordsController extends EntityController {
         if ($record->channel && $record->channel->is_radio) {
             $record->is_radio = true;
         }
+        $is_new = !$record->id;
+
         $record->save();
         $record->setSupposedDate();
         Cache::forget('record_'.$record->id);
         $cover = $record->cover;
+
         return [
             'status' => 1,
             'text' => $record->is_radio ? ($is_new ? 'Радиозапись добавлена' : 'Радиозапись обновлена') : ($is_new ? 'Видео добавлено' : 'Видео обновлено'),
@@ -1127,7 +1031,7 @@ class RecordsController extends EntityController {
         return [
             'status' => 1,
             'text' => 'Запись удалена',
-            'redirect_to' => $record->is_radio ? '/radio' : '/video'
+            'redirect_to' => typed_route('records.[RECORD].index', $record->is_radio)
         ];
     }
 
@@ -1253,7 +1157,7 @@ class RecordsController extends EntityController {
             'data' => [
                 'command' => $command,
                 'url' => "/".$path,
-                'screenshot' => $screenshot_path,
+                'thumbnail' => $screenshot_path,
             ]
         ];
     }
@@ -1298,7 +1202,7 @@ class RecordsController extends EntityController {
             'data' => [
                 'command' => $command,
                 'url' => "/".$path,
-                'screenshot' => $screenshot_path,
+                'thumbnail' => $screenshot_path,
             ]
         ];
     }
@@ -1444,13 +1348,13 @@ class RecordsController extends EntityController {
         return view('pages.embed', ['record' => $record]);
     }
 
-    public function calendar() {
-        $years = Record::approved()->where(['is_radio' => false])->whereNotNull('year')->selectRaw('count(*) as count_year, year')->where('year', '>=', 1950)->groupBy('year')->orderBy('year', 'asc')->get();
-        return view('pages.records.calendar', ['years' => $years]);
+    public function calendar($is_radio = false) {
+        $years = Record::approved()->where(['is_radio' => $is_radio])->whereNotNull('year')->selectRaw('count(*) as count_year, year')->where('year', '>=', 1950)->groupBy('year')->orderBy('year', 'asc')->get();
+        return view('pages.records.calendar', ['years' => $years, 'is_radio' => $is_radio]);
     }
 
-    public function calendarYear($year) {
-        $year_records = Record::approved()->select(['month', 'day', 'year'])->where(['is_radio' => false, 'is_advertising' => false])->where(['year' => $year])->get();
+    public function calendarYear($year, $is_radio = false) {
+        $year_records = Record::approved()->select(['month', 'day', 'year'])->where(['is_radio' => $is_radio, 'is_advertising' => false])->where(['year' => $year])->get();
         $records_by_month = [];
 
         $month_names = DatesHelper::monthNames();
@@ -1469,33 +1373,31 @@ class RecordsController extends EntityController {
         }
         ksort($records_by_month);
 
-        return view('pages.records.calendar-year', ['year' => $year,'records_by_month' => $records_by_month]);
+        return view('pages.records.calendar-year', ['year' => $year,'records_by_month' => $records_by_month, 'is_radio' => $is_radio]);
     }
 
-    public function calendarMonth($year, $month) {
+    public function calendarMonth($year, $month, $is_radio = false) {
         $month_names = DatesHelper::monthNames();
         if ($year == "-") {
             $month_name = $month_names[$month - 1];
             $month_name_full = "Записи за " . mb_strtolower($month_names[$month - 1], "UTF-8");
             $month_name_parental_case = "";
-            $month_records = Record::approved()->where(['is_radio' => false, 'is_advertising' => false])->where(['month' => $month])->get();
+            $month_records = Record::approved()->where(['is_radio' => $is_radio, 'is_advertising' => false])->where(['month' => $month])->get();
         } else {
-            if ($month > 12) {
-                return redirect("/video/calendar/$year");
+            if ($month > 12 || $month < 0) {
+                return redirect(route('records.'.($is_radio ? 'radio' : 'video').'.calendar.year', $year));
             }
-            if ($month < 0) {
-                return;
-            }
+
             if ($month > 0) {
                 $month_name = $month_names[$month - 1];
                 $month_name_full = "Записи за " . mb_strtolower($month_names[$month - 1], "UTF-8") . " $year";
                 $month_name_parental_case = DatesHelper::monthNamesParentalCase()[$month - 1];
-                $month_records = Record::approved()->where(['is_radio' => false, 'is_advertising' => false])->where(['year' => $year, 'month' => $month])->get();
+                $month_records = Record::approved()->where(['is_radio' => $is_radio, 'is_advertising' => false])->where(['year' => $year, 'month' => $month])->get();
             } else {
                 $month_name = "Неизвестный месяц";
                 $month_name_full = "Записи за $year год с неизвестной датой";
                 $month_name_parental_case = "";
-                $month_records = Record::approved()->where(['is_radio' => false, 'is_advertising' => false])->where(['year' => $year, 'month' => null])->get();
+                $month_records = Record::approved()->where(['is_radio' => $is_radio, 'is_advertising' => false])->where(['year' => $year, 'month' => null])->get();
             }
         }
         if ($year == "-") {
@@ -1546,7 +1448,8 @@ class RecordsController extends EntityController {
             'month_name_parental_case' => $month_name_parental_case,
             'year' => $year,
             'month' => $month,
-            'records_by_day' => $records_by_day
+            'records_by_day' => $records_by_day,
+            'is_radio' => $is_radio
         ]);
     }
 
@@ -1559,14 +1462,16 @@ class RecordsController extends EntityController {
             ];
         }
         ViewsHelper::increment($record, 'records');
-        $player_code = trim(view('blocks/player', ['autoplay' => true, 'record' => $record])->render());
+        $player_code = trim(view('blocks.records.player', ['autoplay' => true, 'record' => $record])->render());
 
         $share_title = $record->title_without_tags;
-        $share_url = "https://staroetv.su". ($record->is_radio ? "/radio/".$record->id : "/video/".$record->id);
+        $share_url = typed_route('records.[RECORD].show', $record->is_radio, $record->id);
 
         $record_description = $record->description;
-        $record_info = trim(view('blocks/record-info', ['record' => $record])->render()).trim(view('blocks/share', ['share_title' => $share_title, 'share_url' => $share_url])->render());
-        $record_comments = view("blocks/comments", ['ajax' => false, 'page' =>  1, 'conditions' => ['material_type' => Record::TYPE_VIDEOS, 'material_id' => $record->id]])->render();
+        $record_info = trim(view('blocks.records.info', ['record' => $record])->render())
+            .trim(view('blocks.global.share', ['share_title' => $share_title, 'share_url' => $share_url])
+                ->render());
+        $record_comments = view("blocks.comments.list", ['ajax' => false, 'page' =>  1, 'conditions' => ['material_type' => MaterialTypes::TYPE_RECORDS, 'material_id' => $record->id]])->render();
 
         return [
             'status' => 1,
@@ -1601,6 +1506,11 @@ class RecordsController extends EntityController {
                 ]
             ]
         ];
+    }
+
+    private function getChannelsForForm($params)
+    {
+        return Channel::approved()->with(['logo', 'names'])->orderBy('order', 'asc')->where($params)->get();
     }
 
     public function getYoutubeVideoIds($author_id) {

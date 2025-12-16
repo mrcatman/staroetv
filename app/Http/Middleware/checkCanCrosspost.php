@@ -22,7 +22,7 @@ class checkCanCrosspost
             if ($request->ajax()){
                 return response()->json(['status' => 0, 'text' => 'Ошибка доступа']);
             }
-            return redirect("/");
+            return redirect(route('index'));
         }
     }
 }

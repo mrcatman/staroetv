@@ -10,7 +10,6 @@ class HistoryEvent extends Model {
     protected $guarded = [];
     protected $table = "events";
 
-    const TYPE_HISTORY_EVENT = 103;
 
     public function getCanEditAttribute() {
         if (PermissionsHelper::allows("history")) {
@@ -36,7 +35,7 @@ class HistoryEvent extends Model {
     }
 
     public function getFullUrlAttribute() {
-        return $this->url != "" ? "/events/".$this->url : "/events/".$this->id;
+        return route('events.show', $this->url ?? $this->id);
     }
 
     public function scopeApproved($query) {

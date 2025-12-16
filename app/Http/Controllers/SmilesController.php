@@ -12,11 +12,10 @@ class SmilesController extends Controller {
             'status' => 1,
             'data' => [
                 'title' => 'Все смайлы',
-                'html' => view('blocks/bb_editor_smiles', ['smiles' => $smiles])->render()
+                'html' => view('blocks.bb-editor.smiles', ['smiles' => $smiles])->render()
             ]
         ];
     }
-
 
 
 }

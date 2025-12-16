@@ -1,6 +1,6 @@
 <template>
     <div class="video-cutter">
-        <div class="form__preloader" v-show="isLoading"><img src="../../../public/img/ajax.gif"></div>
+        <div class="form__preloader" v-show="isLoading"><img src="/resources/images/ajax.gif"></div>
         <snackbar ref="snackbar"></snackbar>
 
         <modal title="Просмотр видео" ref="previewModal">

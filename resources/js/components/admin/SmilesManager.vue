@@ -1,9 +1,5 @@
 <template>
-    <div class="smiles-manager">
-        <div class="admin-panel__heading-container">
-            <div class="admin-panel__heading">Смайлы</div>
-        </div>
-        <div class="admin-panel__main-content">
+
             <div class="form">
                 <div class="form__preloader" v-if="loading"></div>
                 <table class="admin-panel__table">
@@ -39,14 +35,9 @@
                     <response :light="true" :data="response"/>
                 </div>
             </div>
-        </div>
-    </div>
-</template>
-<style lang="scss">
-    .smiles-manager {
 
-    }
-</style>
+</template>
+
 <script>
     import PictureUploader from '../PictureUploader.vue';
     import Response from '../Response.vue';
@@ -55,7 +46,7 @@
         methods: {
             saveSmiles() {
                 this.loading = true;
-                $.post('/admin/smiles', {smiles: this.smilesList}).done(res => {
+                $.post(route('admin.smiles.save'), {smiles: this.smilesList}).done(res => {
                     this.loading = false;
                     this.response = res;
                     if (res.status) {
@@ -86,9 +77,6 @@
                 loading: false,
                 smilesList: this.smiles,
             }
-        },
-        mounted() {
-
         },
         components: {
             PictureUploader,

@@ -4,7 +4,7 @@
 @endsection
 @section('content')
 
-    <form class="form box" action="{{ route('profile.telegram.'. !$user->telegram_id ? 'connect' : 'disconnect' )}}" method="POST">
+    <form class="form box" action="{{ route('profile.telegram.'. (!$user->telegram_id ? 'connect' : 'disconnect') )}}" method="POST">
         <div class="box__heading">
             <div class="box__heading__inner">
                 Привязанные аккаунты

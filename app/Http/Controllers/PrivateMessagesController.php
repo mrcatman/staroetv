@@ -13,7 +13,7 @@ class PrivateMessagesController extends Controller {
     public function index() {
         $user = auth()->user();
         if (!$user) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         $messages = collect();
         if (request()->input('type') != "out") {
@@ -40,7 +40,7 @@ class PrivateMessagesController extends Controller {
             if (!isset($users_cache[$id])) {
                 $user = User::find($id);
                 if ($user) {
-                    $users[$id] = $user;
+                    $users_cache[$id] = $user;
                     $message->user = $user;
                 }
             } else {
@@ -58,12 +58,12 @@ class PrivateMessagesController extends Controller {
     public function show($id) {
         $user = auth()->user();
         if (!$user) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         $message = PrivateMessage::find($id);
         $is_group = $message->is_group && str_contains($message->group_ids, $user->group_id . ",");
         if (!$message || ($message->from_id != $user->id && $message->to_id != $user->id && !$is_group)) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         if ($message->to_id == $user->id || $is_group) {
             $id = $message->from_id;
@@ -88,11 +88,7 @@ class PrivateMessagesController extends Controller {
         ]);
     }
 
-    public function create() {
-        $user = auth()->user();
-        if (!$user) {
-            return redirect("/");
-        }
+    public function add() {
         $to_user = null;
         if (request()->has('user_id')) {
             $to_user = User::find(request()->input('user_id'));
@@ -154,7 +150,7 @@ class PrivateMessagesController extends Controller {
         return [
             'status' => 1,
             'text' => 'Сообщение отправлено',
-            'redirect_to' => '/pm'
+            'redirect_to' => route('pm.index')
         ];
     }
 

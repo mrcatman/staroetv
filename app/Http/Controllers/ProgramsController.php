@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Actions;
 use App\Constants\Periods;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\HTMLHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
@@ -64,7 +66,7 @@ class ProgramsController extends EntityController {
             $records_conditions['period'] = $period;
         }
 
-        return view('pages.records.programs', [
+        return view('pages.programs.index', [
             'period' => $period,
             'params' => $params,
             'page_title' => $page_title,
@@ -91,7 +93,7 @@ class ProgramsController extends EntityController {
                 'dom' => [
                     [
                         'replace' => '.programs-list',
-                        'html' => view("blocks/programs_list", ['programs' => $programs])->render()
+                        'html' => view("blocks.programs.list", ['programs' => $programs])->render()
                     ],
                     [
                         'replace' => '.programs-list__show-all',
@@ -109,7 +111,7 @@ class ProgramsController extends EntityController {
             $program = Program::find($id);
         }
         if (!$program) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         ViewsHelper::increment($program, 'programs');
 
@@ -140,7 +142,7 @@ class ProgramsController extends EntityController {
         }
 
         $related_programs = [];
-        if ($program->genre_id) {
+        if ($program->genre_id && $channel) {
             $related_programs = Program::where(['channel_id' => $channel->id, 'genre_id' => $program->genre_id])->where('id', '!=', $program->id)->inRandomOrder()->limit(10)->get();
         }
 
@@ -153,10 +155,12 @@ class ProgramsController extends EntityController {
         ]);
     }
 
-    public function add($channel_id) {
+    public function add() {
         if (!PermissionsHelper::allows('programsown') && !PermissionsHelper::allows('programs')) {
             return view("pages.errors.403");
         }
+
+        $channel_id = request()->input('channel_id');
         $channel = Channel::findByIdOrUrl($channel_id);
         if (!$channel || !$channel->can_edit) {
             return view("pages.errors.403");
@@ -171,7 +175,7 @@ class ProgramsController extends EntityController {
         $all_channels = null;
         $program = Program::find($id);
         if (!$program) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         if (!$program->can_edit || ($program->channel && !$program->channel->can_edit)) {
             return view("pages.errors.403");
@@ -203,9 +207,16 @@ class ProgramsController extends EntityController {
         }
 
         $channel_id = request()->input('channel_id');
-
         $channel = Channel::findByIdOrUrl($channel_id);
-        if (!$channel || !$channel->can_edit) {
+
+        if (!$channel ) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка: канал не найден'
+            ];
+        }
+
+        if (!$channel->can_edit) {
             return [
                 'status' => 0,
                 'text' => 'Ошибка доступа'
@@ -252,32 +263,36 @@ class ProgramsController extends EntityController {
         if (!$program->author_id) {
             $data['author_id'] = auth()->user()->id;
         }
-        $program->fill($data);
 
+        $program->fill($data);
         parent::saveEntity($program);
 
         if (request()->has('additional_channels')) {
-              $additional_channels = request()->input('additional_channels');
-              $additional_channels = json_decode($additional_channels);
-              $old_ids = AdditionalChannel::where(['program_id' => $program->id])->pluck('id')->toArray();
-              $new_ids = [];
-              if (is_array($additional_channels)) {
-                  foreach ($additional_channels as $additional_channel) {
-                      $data = AdditionalChannel::firstOrNew([
-                          'program_id' => $program->id,
-                          'channel_id' => $additional_channel->channel_id
-                      ]);
-                      $data->title = $additional_channel->title;
-                      $data->date_start = $additional_channel->date_start;
-                      $data->date_end = $additional_channel->date_end;
-                      $data->save();
-                      $new_ids[] = $data->id;
-                  }
-                  $ids_to_delete = array_diff($old_ids, $new_ids);
-                  AdditionalChannel::whereIn('id', $ids_to_delete)->delete();
-              }
-
+            $additional_channels = request()->input('additional_channels');
+            $additional_channels = json_decode($additional_channels);
+            $old_ids = AdditionalChannel::where(['program_id' => $program->id])->pluck('id')->toArray();
+            $new_ids = [];
+            if (is_array($additional_channels)) {
+                foreach ($additional_channels as $additional_channel) {
+                    $data = AdditionalChannel::firstOrNew([
+                        'program_id' => $program->id,
+                        'channel_id' => $additional_channel->channel_id
+                    ]);
+                    $data->title = $additional_channel->title;
+                    $data->date_start = $additional_channel->date_start;
+                    $data->date_end = $additional_channel->date_end;
+                    $data->save();
+                    $new_ids[] = $data->id;
+                }
+                $ids_to_delete = array_diff($old_ids, $new_ids);
+                AdditionalChannel::whereIn('id', $ids_to_delete)->delete();
+            }
         }
+
+        if ($program->channel_id) {
+            $program->records()->doesntHave('channel')->update(['channel_id' => $program->channel_id]);
+        }
+
         Cache::delete('programs_channels_names_'.$program->id);
         return [
             'status' => 1,
@@ -312,18 +327,21 @@ class ProgramsController extends EntityController {
                 ];
             }
             Record::where(['program_id' => $original->id])->update(['program_id' => $merged->id]);
+            ActionsLogHelper::create($merged, Actions::Merge, ['name' => [$original->name]]);
         }
-        $original->delete();
+
+        ActionsLogHelper::create($original, Actions::Delete);
+
         return [
             'status' => 1,
             'text' => 'Программа объединена',
-            'redirect_to' => $merged ? '/programs/'.$merged->id.'/edit' : '/video'
+            'redirect_to' => $merged ? route('programs.edit', $original->id) : typed_route('records.[RECORD].index', $original->is_radio)
         ];
     }
 
     public function editList($channel_id) {
         if (!PermissionsHelper::allows('programs')) {
-            return redirect('/');
+            return redirect(route('index'));
         }
 
         $channel = Channel::findByIdOrUrl($channel_id);

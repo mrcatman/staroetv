@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Constants\MaterialTypes;
 use App\Models\Article;
 use App\Helpers\PermissionsHelper;
 use Illuminate\Database\Eloquent\Model;
@@ -10,31 +11,29 @@ class Channel extends Model {
     protected $guarded = [];
     protected $appends = ['full_url'];
 
-    const TYPE_CHANNELS = 100;
-
     public function comments() {
-        return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => self::TYPE_CHANNELS]);
+        return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => MaterialTypes::TYPE_CHANNELS]);
     }
 
     public function records() {
-        return $this->hasMany('App\Models\Record');
+        return $this->hasMany(Record::class);
     }
 
     public function interprogramRecords() {
-        return $this->hasMany('App\Models\Record')->where(['is_interprogram' => true]);
+        return $this->records()->where(['is_interprogram' => true]);
     }
 
 
     public function programs() {
-        return $this->hasMany('App\Models\Program')->orderBy('order');
+        return $this->hasMany(Program::class)->orderBy('order');
     }
 
     public function names() {
-        return $this->hasMany('App\Models\ChannelName')->orderBy('date_start');
+        return $this->hasMany(ChannelName::class)->orderBy('date_start');
     }
 
     public function interprogramPackages() {
-        return $this->hasMany('App\Models\InterprogramPackage')->orderBy('date_start');
+        return $this->hasMany(DesignPackage::class)->orderBy('date_start');
     }
 
 
@@ -43,7 +42,7 @@ class Channel extends Model {
     }
 
     public function logo() {
-        return $this->hasOne('App\Models\Picture', 'id', 'logo_id');
+        return $this->hasOne(Picture::class, 'id', 'logo_id');
     }
 
     public function getCanEditAttribute() {
@@ -65,15 +64,23 @@ class Channel extends Model {
         }
     }
 
+    public function getRoutePrefixAttribute()
+    {
+        return route_prefix_channels($this->is_radio);
+    }
+
     public function getFullUrlAttribute() {
         $url = $this->url;
         if (!$url) {
             $url = $this->id;
         }
-        return route(($this->is_radio ? 'radio_recordings' : 'channels') . '.show', $url);
+        return route($this->route_prefix . '.show', $url);
     }
 
     public static function findByIdOrUrl($id) {
+        if (!$id) {
+            return null;
+        }
         $channel = Channel::find($id);
         if (!$channel) {
             $channel = Channel::where(['url' => $id])->first();
@@ -87,8 +94,8 @@ class Channel extends Model {
 
     public function additionalPrograms() {
         return $this->hasManyThrough(
-            'App\Models\Program',
-            'App\Models\AdditionalChannel',
+            Program::class,
+            AdditionalChannel::class,
             'channel_id',
             'id',
             'id',
@@ -174,4 +181,8 @@ class Channel extends Model {
         );
     }
 
+    public static function selectDefault()
+    {
+        return self::select(['city', 'country', 'region', 'id', 'is_radio', 'is_abroad', 'is_federal', 'is_regional', 'logo_id', 'name', 'url']);
+    }
 }

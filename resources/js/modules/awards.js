@@ -2,13 +2,12 @@ import { showModalAjax } from './modals';
 let body = $('body');
 
 $(body).on('click', '.user-page__info-block__value--awards', function() {
-    let user_id = $('.user-page').data('user-id');
-    showModalAjax($.post('/awards/ajax', {user_id}), '#awards_history_' + user_id, 'Награды пользователя');
+    const userId = $('.user-page').data('user-id');
+    showModalAjax($.get(`${route('awards.ajax')}?user_id=${userId}`), `#awards_history_${userId}`, 'Награды пользователя');
 });
 
 $(body).on('click', '.user-page__info-block__change--awards', function() {
-    let user_id = $('.user-page').data('user-id');
-    showModalAjax($.post('/awards/list', {user_id}), '#awards_list', 'Выдать награду');
+    showModalAjax($.get(`${route('awards.form')}?user_id=${$('.user-page').data('user-id')}`), '#awards_list', 'Выдать награду');
 });
 
 $(body).on('click', '.awards-history__item__button--edit', function() {

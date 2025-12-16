@@ -30,14 +30,13 @@
     .user-groups-select {
         flex: 1;
         &__items {
-            padding: 0 1em;
+            padding: 1em;
             display: grid;
-            gap: 0 .5em;
+            gap: 1em;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            font-size: .75em;
-            background: var(--bg-darker);
+            font-size: 0.875em;
+            background: var(--inputs-color);
             border: 1px solid var(--border-color);
-
         }
         &__item {
             &--all-groups {

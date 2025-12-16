@@ -1,4 +1,4 @@
-.sidebar {
+.header {
     display: flex;
     flex-direction: column;
     width: 25em;
@@ -58,5 +58,39 @@
             }
         }
     }
+
+    &__second-menu {
+        margin-top: 4.5em;
+        background: var(--box-color-dark);
+        padding: 1em;
+        position: relative;
+        z-index: 9999;
+        box-shadow: var(--block-box-shadow);
+
+        &__link {
+            color: var(--box-text-color-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: .4em;
+            font-size: 1.125em;
+            cursor: pointer;
+            @include hover(true);
+            --box-color-hover: var(--box-color-hover-dark);
+            --links-color: var(--box-text-color-dark);
+            &--right {
+                margin-left: auto;
+            }
+        }
+
+        &__inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 1em;
+        }
+    }
+
 }
 

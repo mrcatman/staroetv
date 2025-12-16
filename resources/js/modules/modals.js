@@ -5,17 +5,18 @@ const body = $('body');
 const width = 800;
 const height = 600;
 
-const showModal = (elementName, title = null, onClose = null) => {
-    let modalName = elementName.substring(1);
+const showModal = (selector, title = null, onClose = null) => {
+    let modalName = selector.substring(1);
     openedModals.push(modalName);
     if (onClose !== undefined) {
         callbacksOnCloseModals[modalName] = onClose;
     }
-    title = title || $(elementName).data('title') || "";
+    title = title || $(selector).data('title') || "";
 
-    if (!$(`.modal-window[data-name="${modalName}"]`).length) {
+    const existingModal = $(`.modal-window[data-name="${modalName}"]`);
+    if (!$(existingModal).length) {
         $(body).append(`
-            <div class="modal-window" data-name="${modalName}" data-selector="${elementName}">
+            <div class="modal-window" data-name="${modalName}" data-selector="${selector}">
                     <div class="modal-window__inner">
                         <div class="modal-window__top">
                             <div class="modal-window__title">${title}</div>
@@ -40,16 +41,19 @@ const showModal = (elementName, title = null, onClose = null) => {
 
         const windowWidth = $(window).width();
         const windowHeight = $(window).height();
-        if (!$(elementName).length) {
+        if (!$(selector).length) {
             $(body).append('<div id="'+modalName+'" style="display:none"></div>')
         }
-        $(elementName).show().appendTo(modalContent);
+        $(selector).show().appendTo(modalContent);
         $(modal).css('width',  width + 'px');
         $(modal).css('left', ((windowWidth - width) / 2) + 'px');
         $(modal).css('top', ((windowHeight - height) / 2) + 'px');
         $(modal).draggable({ cancel: '.modal-window__content, .modal-window__content *' });
         $(modalInner).resizable();
+
+        return modal;
     }
+    return existingModal;
 }
 
 
@@ -74,23 +78,27 @@ $(body).on('dragstart', '.modal-window', function() {
     $(this).addClass('modal-window--top');
 });
 
-$(body).on('click', '.modal-window__close, .modal-window__close-button', function() {
-    const modal = $(this).parents('.modal-window');
-    if ($(modal).hasClass('modal-window--vue')) {
-        return;
-    }
-
-    const selectorName = $(modal).data('selector');
+const closeModal = (modal) => {
+    const selector = $(modal).data('selector');
     const modalName = $(modal).data('name');
     openedModals.splice(openedModals.indexOf(modalName), 1);
-    $(selectorName).hide().appendTo(body);
+    $(selector).hide().appendTo(body);
     $(modal).remove();
     if (callbacksOnCloseModals[modalName] !== undefined && callbacksOnCloseModals[modalName] !== null) {
         callbacksOnCloseModals[modalName]();
     }
+}
+
+$(body).on('click', '.modal-window__close, .modal-window__close-button', function() {
+    const modal = $(this).parents('.modal-window');
+    closeModal(modal);
 });
+
+window.showModal = showModal;
+window.closeModal = closeModal;
 
 export {
     showModal,
-    showModalAjax
+    showModalAjax,
+    closeModal
 };

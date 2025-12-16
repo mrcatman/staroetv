@@ -107,6 +107,7 @@
                 font-weight: normal;
                 padding: .5em 1em;
                 display: block;
+                color: var(--links-color)!important;
 
                 &:hover {
                     background: var(--box-color-hover);
@@ -132,6 +133,9 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1px 0;
+    &--nowrap {
+        flex-wrap: nowrap;
+    }
     .button {
         border-right: 1px solid rgba(0, 0, 0, 0.1);
         margin: 0!important;

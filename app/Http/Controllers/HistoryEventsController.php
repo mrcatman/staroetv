@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Actions;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
 use App\Models\HistoryEvent;
@@ -15,7 +17,7 @@ class HistoryEventsController extends Controller {
             return view("pages.errors.403");
         }
 
-        return view("pages.forms.history-event", [
+        return view("pages.events.form", [
             'event' => null,
         ]);
     }
@@ -44,7 +46,7 @@ class HistoryEventsController extends Controller {
         foreach ($event->blocks as $block) {
             $block->loadRecords();
         }
-        return view("pages.forms.history-event", [
+        return view("pages.events.form", [
             'event' => $event,
         ]);
     }
@@ -61,18 +63,20 @@ class HistoryEventsController extends Controller {
     }
 
     public function delete() {
-        $event = HistoryEvent::find(request()->input('event_id'));
+        $event = HistoryEvent::find(request()->input('id'));
         if (!$event || !$event->can_edit) {
             return [
                 'status' => 0,
                 'text' => 'Ошибка доступа'
             ];
         }
-        $event->delete();
+
+        ActionsLogHelper::create($event, Actions::Delete);
+
         return [
             'status' => 1,
             'text' => 'Удалено',
-            'redirect_to' => '/'
+            'redirect_to' => route('index')
         ];
     }
 
@@ -94,7 +98,9 @@ class HistoryEventsController extends Controller {
         if (isset($data['date_end'])) {
             $event->date_end = Carbon::parse($data['date_end']);
         }
-        $event->save();
+
+        ActionsLogHelper::create($event, $event->id ? Actions::Update : Actions::Create);
+
         $blocks = json_decode(request()->input('records'));
         $index = 0;
         $old_block_ids = $event->blocks->pluck('id');
@@ -116,10 +122,11 @@ class HistoryEventsController extends Controller {
         }
         $blocks_to_delete = $old_block_ids->diff($new_block_ids);
         HistoryEventBlock::whereIn('id', $blocks_to_delete)->delete();
+
         return [
             'status' => 1,
             'text' => $event->pending ? 'Добавлено. Подборка появится на сайте после премодерации' : 'Добавлено',
-            'redirect_to' => '/events/'.$event->id. '/edit'
+            'redirect_to' => route('events.show', $event)
         ];
     }
 
@@ -129,7 +136,7 @@ class HistoryEventsController extends Controller {
             $event = HistoryEvent::find($url);
         }
         if (!$event) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         ViewsHelper::increment($event, 'events');
         foreach ($event->blocks as $block) {

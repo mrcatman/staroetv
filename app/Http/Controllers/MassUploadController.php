@@ -13,7 +13,7 @@ class MassUploadController extends Controller {
 
     public function index() {
         if (!PermissionsHelper::allows('viadd')) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         $can_upload = PermissionsHelper::allows('viupload');
         return view('pages.mass-upload.index', [
@@ -129,7 +129,7 @@ class MassUploadController extends Controller {
 
     public function uploadFromDevice() {
         if (!PermissionsHelper::allows('viadd')) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         return view('pages.mass-upload.from-device');
     }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Actions;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\PermissionsHelper;
 use App\Models\User;
 use App\Models\UserWarning;
@@ -23,7 +25,7 @@ class WarningsController extends Controller {
             'status' => 1,
             'data' => [
                 'title' => 'Уровень замечаний пользователя '.$user->username. ': '.$level.' ( '.$user->ban_level.'%)',
-                'html' => view("blocks/warnings_modal_content", ['ajax' => true, 'warnings' => $warnings])->render()
+                'html' => view("blocks.warnings.list", ['ajax' => true, 'warnings' => $warnings])->render()
             ]
         ];
     }
@@ -34,7 +36,7 @@ class WarningsController extends Controller {
         return [
             'status' => 1,
             'data' => [
-                'html' => view("blocks/warnings_form", ['user_id' => $user_id])->render()
+                'html' => view("blocks.warnings.form", ['user_id' => $user_id])->render()
             ]
         ];
     }
@@ -79,7 +81,9 @@ class WarningsController extends Controller {
                 $user->group_id = 255;
                 $user->save();
             }
-            $ban->save();
+
+            ActionsLogHelper::create($ban, Actions::Create);
+
             return [
                 'status' => 1,
                 'text' => 'Замечание добавлено'

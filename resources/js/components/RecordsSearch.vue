@@ -80,7 +80,7 @@
             </div>
         </div>
         <div class="records-search__result" v-if="showResults">
-            <div class="form__preloader" v-show="isLoading"><img src="../../../public/img/ajax.gif"></div>
+            <div class="form__preloader" v-show="isLoading"><img src="/resources/images/ajax.gif"></div>
             <div class="records-search__programs" v-if="programsList && programsList.length > 0">
                 <a :href="'/programs/' + program.id" class="program" v-for="program in programsList" :key="program.id">
                     <div class="program__cover">

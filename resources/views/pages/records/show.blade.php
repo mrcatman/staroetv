@@ -9,23 +9,23 @@
     @if ($record->use_own_player)
         <meta property="og:video" content="https://staroetv.su{{ $record->source_path }}">
     @endif
-
 @endsection
 @section('content')
+
     <div class="record-page">
         <div class="box">
             <div class="box__breadcrumbs">
-                <a class="breadcrumbs__item" href="{{$record->is_radio ? "/radio" : "/video"}}">Архив</a>
+                <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].index', $record->is_radio)}}">Архив</a>
                 @if ($record->is_advertising)
                     <a class="breadcrumbs__item"
-                       href="{{$record->is_radio ? "/radio" : "/video"}}/commercials">Реклама</a>
+                       href="{{typed_route('records.[RECORD].commercials', $record->is_radio)}}">Реклама</a>
                     @if ($record->advertising_brand != '')
                         <a class="breadcrumbs__item"
-                           href="{{$record->is_radio ? "/radio" : "/video"}}/commercials-search?id={{$record->id}}">{{$record->advertising_brand}}</a>
+                           href="{{route('records.'.$record->route_prefix.'.commercials-search', ['id' => $record->id])}}">{{$record->advertising_brand}}</a>
                     @endif
                 @endif
                 @if (!$record->channel && !$record->is_advertising)
-                    <a class="breadcrumbs__item" href="{{$record->is_radio ? "/radio" : "/video"}}/other">Прочее</a>
+                    <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].other', $record->is_radio)}}">Прочее</a>
                 @endif
                 @if ($record->channel && !$record->is_advertising)
                     <a class="breadcrumbs__item" href="{{$record->channel->full_url}}">{{$record->channel_name}}</a>
@@ -33,10 +33,9 @@
                 @if ($record->channel && ($record->is_interprogram || $record->interprogram_package_id) && !$record->program)
                     <a class="breadcrumbs__item" href="{{$record->channel->full_url}}#interprogram">Оформление</a>
                     @if ($record->interprogramPackage)
-                        <a class="breadcrumbs__item"
-                           href="{{$record->interprogramPackage->full_url}}">{{$record->interprogramPackage->full_name}}</a>
-                    @elseif (!$record->is_radio)
-                        <a class="breadcrumbs__item" href="{{$record->channel->full_url}}/graphics/other">Прочее</a>
+                        <a class="breadcrumbs__item" href="{{$record->interprogramPackage->full_url}}">{{$record->interprogramPackage->full_name}}</a>
+                    @else
+                        <a class="breadcrumbs__item" href="{{typed_route('design.[CHANNEL].show', $record->is_radio, [$record->channel->url ?? $record->channel->id, 'other'])}}">Прочее</a>
                     @endif
                 @endif
                 @if ($record->program)
@@ -62,13 +61,13 @@
                             @endif
                             @if ($record->can_edit)
                                 <a class="button--dropdown__list__item"
-                                   href="{{$record->channel && $record->channel->is_radio ? "/radio" : "/video"}}/{{$record->id}}/edit">Редактировать</a>
-                                <a class="button--dropdown__list__item" href="/cut/start/{{$record->id}}">Обрезка</a>
+                                   href="{{route('records.'.$record->route_prefix.'.edit', $record->id)}}">Редактировать</a>
+                                <a class="button--dropdown__list__item" href="{{route('cut.start', $record->id)}}">Обрезка</a>
                                 @if (!$record->use_own_player)
                                     <a class="button--dropdown__list__item"
                                        data-confirm-form-input-value="{{$record->id}}"
                                        data-confirm-form-text="Вы уверены, что хотите загрузить эту запись в хранилище сайта из внешнего источника?"
-                                       data-confirm-form-url="/records/download">Загрузить на сайт</a>
+                                       data-confirm-form-url="{{route('records.download', $record->id)}}">Загрузить на сайт</a>
                                     <a class="button--dropdown__list__item" data-show-modal="#update_telegram_id">Указать Telegram ID видео</a>
                                 @endif
                                 @if (!$record->is_radio)
@@ -77,7 +76,7 @@
                                 <a class="button--dropdown__list__item"
                                    data-confirm-form-input-value="{{$record->id}}"
                                    data-confirm-form-text="Вы уверены, что хотите удалить эту запись?"
-                                   data-confirm-form-url="/records/delete">Удалить</a>
+                                   data-confirm-form-url="{{route('records.delete')}}">Удалить</a>
                             @endif
                         </div>
                     </span>
@@ -89,14 +88,14 @@
             <div class="col col--3">
                 <div class="inner-page__content">
                     <div class="record-page__player">
-                        @include('blocks/player')
+                        @include('blocks.records.player')
                     </div>
 
                     <div class="box">
                         <div class="box__inner">
                             <div class="record-page__bottom">
-                                @include('blocks.record-info')
-                                @include('blocks/share')
+                                @include('blocks.records.info')
+                                @include('blocks.global.share')
                             </div>
 
                             @if($record->description != '')
@@ -107,7 +106,7 @@
                         </div>
                     </div>
                 </div>
-                @include('blocks/comments', ['class' => 'record-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Models\Record::TYPE_VIDEOS, 'material_id' => $record->ucoz_id]])
+                @include('blocks.comments.list', ['class' => 'record-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_RECORDS, 'material_id' => $record->ucoz_id]])
             </div>
             <div class="col col--sidebar col--1-5 record-page__related-container">
                 @if ($playlist)
@@ -134,7 +133,7 @@
                     </div>
 
                     @if ($related_interprogram_packages)
-                    @include('blocks.interprogram.related', ['related' => $related_interprogram_packages])
+                    @include('blocks.design.related', ['related' => $related_interprogram_packages])
                     @endif
                 @endif
                 @foreach($related as $related_item)
@@ -142,19 +141,19 @@
                     @if (count ($related_item['items']) > 0)
                         <div class="box">
 
-                            <{{$related_item['url'] ? 'a' : 'div'}} @if ($related_item['url']) href
-                            ="{{$related_item['url']}}" @endif class="box__heading box__heading--small">
+                            <{{$related_item['url'] ? 'a' : 'div'}}
+                                @if ($related_item['url']) href="{{$related_item['url']}}" @endif
+                            class="box__heading box__heading--small">
                             <div class="box__heading__inner">
-                                        <span>{{$related_item['heading']}}
-                                            @if ($related_item['entity_name'])
-                                                <span
-                                                    class="box__heading__count">{{$related_item['entity_name']}}</span>
-                                            @endif
-                                    </span>
+                                <span>{{$related_item['heading']}}
+                                    @if ($related_item['entity_name'])
+                                        <span class="box__heading__count">{{$related_item['entity_name']}}</span>
+                                    @endif
+                                </span>
                             </div>
                         </{{$related_item['url'] ? 'a' : 'div'}}>
                         <div class="box__inner">
-                            <div class="record-page__related">
+                            <div class="records-list">
                                 @foreach ($related_item['items'] as $item)
                                     @include($record->is_radio ? 'blocks.records.radio-item' : 'blocks.records.item', ['record' => $item])
                                 @endforeach
@@ -180,8 +179,7 @@
                     </div>
                 @else
                     <br>
-                    Превью будет обновлено из источника: <a target="_blank"
-                                                            href="{{$record->original_url}}">{{$record->original_url}}</a>
+                    Превью будет обновлено из источника: <a target="_blank" href="{{$record->original_url}}">{{$record->original_url}}</a>
                     <br> <br> <br>
                 @endif
                 <div class="form__bottom">
@@ -191,7 +189,7 @@
             </form>
         </div>
         <div id="update_telegram_id" data-title="Указать Telegram ID видео" style="display:none">
-            <form action="/records/set-telegram-id" class="form modal-window__form" data-reset="1"
+            <form action="{{route('records.set-telegram-id')}}" class="form modal-window__form" data-reset="1"
                   data-auto-close-modal="1">
                 <input type="hidden" name="record_id" value="{{$record->id}}"/>
                 <div class="input-container input-container--vertical">

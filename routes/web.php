@@ -24,7 +24,7 @@ use App\Http\Controllers\Forum\ForumController;
 use App\Http\Controllers\Forum\QuestionnairesController;
 use App\Http\Controllers\HistoryEventsController;
 use App\Http\Controllers\IndexController;
-use App\Http\Controllers\InterprogramPackagesController;
+use App\Http\Controllers\DesignPackagesController;
 use App\Http\Controllers\MassUploadController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\PrivateMessagesController;
@@ -40,12 +40,15 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\VideoCutController;
 use App\Http\Controllers\WarningsController;
 
-use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\EditorController;
+use App\Http\Controllers\Admin\ActionsLogsController as AdminActionsLogsController;
 use App\Http\Controllers\Admin\ChannelsController as AdminChannelsController;
 use App\Http\Controllers\Admin\GenresController as AdminGenresController;
+use App\Http\Controllers\Admin\PagesController as AdminPagesController;
 use App\Http\Controllers\Admin\PermissionsController as AdminPermissionsController;
 use App\Http\Controllers\Admin\SmilesController as AdminSmilesController;
 use App\Http\Controllers\Admin\UsersController as AdminUsersController;
+use App\Http\Controllers\Admin\UserGroupsController as AdminUserGroupsController;
 
 if (!function_exists('defineCrudRoutes')) {
     function defineCrudRoutes($controller, $routes = [])
@@ -107,6 +110,12 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
     });
 
     // VIDEOS + RADIO
+
+    Route::any('/video/design', [DesignPackagesController::class, 'index'])->name('design.channels.index');
+    Route::any('/radio/design', function () {
+        return (new \App\Http\Controllers\DesignPackagesController())->catalog(['is_radio' => true]);
+    })->name('design.radio-stations.index');
+
     foreach (['video', 'radio'] as $prefix) {
         Route::name('records.'.$prefix.'.')->prefix($prefix)->group(function () use ($prefix) {
             $is_radio = $prefix === 'radio';
@@ -130,11 +139,11 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
             })->name('other.category');
 
             Route::any('commercials', function () use ($is_radio) {
-                return (new \App\Http\Controllers\RecordsController())->advertising(['is_radio' => $is_radio]);
+                return (new \App\Http\Controllers\RecordsController())->commercials(['is_radio' => $is_radio]);
             })->name('commercials');
 
             Route::any('commercials-search', function () use ($is_radio) {
-                return (new \App\Http\Controllers\RecordsController())->advertisingBrands(['is_radio' => $is_radio]);
+                return (new \App\Http\Controllers\RecordsController())->commercialsBrands(['is_radio' => $is_radio]);
             })->name('commercials-search');
 
             Route::get('programs', function () use ($is_radio) {
@@ -144,9 +153,15 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
                 return (new \App\Http\Controllers\ProgramsController())->loadAll(['is_radio' => $is_radio]);
             })->name('programs.ajax');
 
-            Route::get('calendar', [RecordsController::class, 'calendar'])->name('calendar.index');
-            Route::get('calendar/{year}', [RecordsController::class, 'calendarYear'])->name('calendar.year');
-            Route::get('calendar/{year}/{month}', [RecordsController::class, 'calendarMonth'])->name('calendar.month');
+            Route::get('calendar', function() use ($is_radio) {
+                return (new RecordsController())->calendar($is_radio);
+            })->name('calendar.index');
+            Route::get('calendar/{year}', function($year) use ($is_radio) {
+                return (new RecordsController())->calendarYear($year, $is_radio);
+            })->name('calendar.year');
+            Route::get('calendar/{year}/{month}', function($year, $month) use ($is_radio) {
+                return (new RecordsController())->calendarMonth($year, $month, $is_radio);
+            })->name('calendar.month');
 
             Route::get('{id}/edit', [RecordsController::class, 'edit'])->name('edit');
             Route::get('{id}', [RecordsController::class, 'show'])->name('show');
@@ -155,13 +170,6 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
     Route::get('/video/vip/{id}/{channel?}/{url}', [RecordsController::class, 'ucozRedirect']);
     Route::get('/video/vip/{id}//{url}', [RecordsController::class, 'ucozRedirect']);
-
-    Route::any('/video/graphics', [InterprogramPackagesController::class, 'index'])->name('records.video.graphics');
-    Route::any('/video/graphics/programs', [InterprogramPackagesController::class, 'program'])->name('records.video.programs-graphics');
-
-    Route::any('/video/graphics_old', function () {
-        return (new \App\Http\Controllers\RecordsController())->interprogram(['is_radio' => false]);
-    });
 
     Route::any('/video/youtube-ids/{author_id}', function ($author_id) {
         return (new \App\Http\Controllers\RecordsController())->getYoutubeVideoIds($author_id);
@@ -173,10 +181,6 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
     Route::get('/dir', function () {
         return redirect(route('records.radio'));
     });
-
-    Route::any('/radio/jingles', function () {
-        return (new \App\Http\Controllers\RecordsController())->interprogram(['is_radio' => true]);
-    })->name('records.radio.jingles');
 
 
     Route::get('/embed/{id}', [RecordsController::class, 'embed'])->name('records.embed');
@@ -193,7 +197,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         Route::post('mass-edit', [RecordsController::class, 'massEdit'])->name('mass-edit');
         Route::post('add', [RecordsController::class, 'save'])->name('save');
         Route::post('{id}/edit', [RecordsController::class, 'update'])->name('update');
-        Route::any('getinfo', [RecordsController::class, 'getInfo'])->name('get-info');
+        Route::any('get-info', [RecordsController::class, 'getInfo'])->name('get-info');
         Route::post('delete', [RecordsController::class, 'delete'])->name('delete');
         Route::get('categories', [RecordsController::class, 'categories'])->name('categories');
         Route::any('ajax', [RecordsController::class, 'ajax'])->name('ajax');
@@ -218,8 +222,6 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
     Route::name('programs.')->prefix('programs')->group(function () {
         defineCrudRoutes(ProgramsController::class, [
             'index' => false,
-            'add' => false,
-            'update' => false
         ]);
 
         Route::post('merge', [ProgramsController::class, 'merge'])->name('merge');
@@ -231,21 +233,21 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         Route::name($prefix.'.')->prefix($prefix)->group(function () use ($prefix) {
             $is_radio = $prefix === 'radio-stations';
 
+            Route::get('ajax', function () use ($is_radio) {
+                return (new \App\Http\Controllers\ChannelsController())->getAjaxList($is_radio);
+            })->name('ajax');
+
+            Route::post('merge', [ChannelsController::class, 'merge'])->name('merge');
+
             defineCrudRoutes(ChannelsController::class, [
                 'index' => false
             ]);
 
-            Route::post('merge', [ChannelsController::class, 'merge'])->name('merge');
-
-            Route::get('{id}/programs/add', [ProgramsController::class, 'add'])->name('programs.add');
-            Route::post('{id}/programs/add', [ProgramsController::class, 'save'])->name('programs.save');
 
             Route::get('{id}/programs/edit', [ProgramsController::class, 'editList'])->name('programs.edit-list');
             Route::post('{id}/programs/edit', [ProgramsController::class, 'saveList'])->name('programs.save-list');
 
-            Route::get('ajax', function () use ($is_radio) {
-                return (new \App\Http\Controllers\ChannelsController())->getAjaxList($is_radio);
-            });
+
             Route::post('autocomplete', [ChannelsController::class, 'autocomplete'])->name('autocomplete');
 
             Route::get('{id}/programs', [ChannelsController::class, 'getPrograms'])->name('programs.ajax');
@@ -255,60 +257,67 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
     // GRAPHICS
 
-    Route::prefix('channels')->group(function () {
-        Route::get('{id}/graphics/ajax', function ($id) {
-            return (new \App\Http\Controllers\InterprogramPackagesController())->ajax(['channel_id' => $id]);
-        })->name('graphics.channels.ajax');
+    foreach (['channels', 'radio-stations'] as $name) {
+        Route::name('design.'.$name.'.')->prefix($name)->group(function () use ($name) {
+            Route::get('{id}/design/ajax', function ($id) {
+                return (new \App\Http\Controllers\DesignPackagesController())->ajax(['channel_id' => $id]);
+            })->name('ajax');
 
-        Route::get('{id}/graphics', function ($id) {
-            return (new \App\Http\Controllers\InterprogramPackagesController())->showAll(['channel_id' => $id]);
-        })->name('graphics.channels.index');
+            Route::get('{id}/design', function ($id) {
+                return (new \App\Http\Controllers\DesignPackagesController())->showAll(['channel_id' => $id]);
+            })->name('all');
 
-        Route::get('{id}/graphics/add', function ($id) {
-            return (new \App\Http\Controllers\InterprogramPackagesController())->add(['channel_id' => $id]);
-        })->name('graphics.channels.add');
+            Route::get('{id}/design/add', function ($id) {
+                return (new \App\Http\Controllers\DesignPackagesController())->add(['channel_id' => $id]);
+            })->name('add');
 
-        Route::post('{id}/graphics/add', function ($id) {
-            return (new \App\Http\Controllers\InterprogramPackagesController())->save(['channel_id' => $id]);
-        })->name('graphics.channels.save');
+            Route::post('{id}/design/add', function ($id) {
+                return (new \App\Http\Controllers\DesignPackagesController())->save(['channel_id' => $id]);
+            })->name('save');
 
-        Route::get('{id}/graphics/edit/{package_id}', function ($id, $package_id) {
-            return (new \App\Http\Controllers\InterprogramPackagesController())->edit(['channel_id' => $id], $package_id);
-        })->name('graphics.channels.edit');
+            Route::get('{id}/design/edit/{package_id}', function ($id, $package_id) {
+                return (new \App\Http\Controllers\DesignPackagesController())->edit(['channel_id' => $id], $package_id);
+            })->name('edit');
 
-        Route::post('{id}/graphics/edit/{package_id}', function ($id, $package_id) {
-            return (new \App\Http\Controllers\InterprogramPackagesController())->update(['channel_id' => $id], $package_id);
-        })->name('graphics.channels.update');
+            Route::post('{id}/design/edit/{package_id}', function ($id, $package_id) {
+                return (new \App\Http\Controllers\DesignPackagesController())->update(['channel_id' => $id], $package_id);
+            })->name('update');
 
-        Route::get('/channels/{id}/graphics/{package_id}', [InterprogramPackagesController::class, 'show'])->name('graphics.channels.show');
+            Route::get('{id}/design/{package_id}', [DesignPackagesController::class, 'show'])->name('show');
+        });
+    }
+
+    Route::prefix('programs')->name('design.programs.')->group(function () {
+        Route::get('{id}/design', [DesignPackagesController::class, 'showByProgram'])->name('show');
+
+        Route::get('{id}/design/ajax', function ($id) {
+            return (new \App\Http\Controllers\DesignPackagesController())->ajax(['program_id' => $id]);
+        })->name('ajax');
+
+        Route::get('{id}/design/add', function ($id) {
+            return (new \App\Http\Controllers\DesignPackagesController())->add(['program_id' => $id]);
+        })->name('add');
+
+        Route::post('{id}/design/add', function ($id) {
+            return (new \App\Http\Controllers\DesignPackagesController())->save(['program_id' => $id]);
+        })->name('save');
+
+        Route::get('{id}/design/edit/{package_id}', function ($id, $package_id) {
+            return (new \App\Http\Controllers\DesignPackagesController())->edit(['program_id' => $id], $package_id);
+        })->name('edit');
+
+        Route::post('{id}/design/edit/{package_id}', function ($id, $package_id) {
+            return (new \App\Http\Controllers\DesignPackagesController())->update(['program_id' => $id], $package_id);
+        })->name('update');
     });
+    Route::post('design/delete', [DesignPackagesController::class, 'delete'])->name('design.delete');
 
-    Route::prefix('programs')->group(function () {
-        Route::get('{id}/graphics', [InterprogramPackagesController::class, 'showByProgram'])->name('graphics.programs.show');
-
-        Route::get('{id}/graphics/ajax', function ($id) {
-            return (new \App\Http\Controllers\InterprogramPackagesController())->ajax(['program_id' => $id]);
-        })->name('graphics.programs.ajax');
-
-        Route::get('{id}/graphics/add', function ($id) {
-            return (new \App\Http\Controllers\InterprogramPackagesController())->add(['program_id' => $id]);
-        })->name('graphics.programs.add');
-
-        Route::post('{id}/graphics/add', function ($id) {
-            return (new \App\Http\Controllers\InterprogramPackagesController())->save(['program_id' => $id]);
-        })->name('graphics.programs.save');
-
-        Route::get('{id}/graphics/edit/{package_id}', function ($id, $package_id) {
-            return (new \App\Http\Controllers\InterprogramPackagesController())->edit(['program_id' => $id], $package_id);
-        })->name('graphics.programs.edit');
-
-        Route::post('{id}/graphics/edit/{package_id}', function ($id, $package_id) {
-            return (new \App\Http\Controllers\InterprogramPackagesController())->update(['program_id' => $id], $package_id);
-        })->name('graphics.programs.update');
-    });
-
-    Route::post('/graphics/delete', [InterprogramPackagesController::class, 'delete'])->name('graphics.delete');
-
+    Route::get('/video/design/programs', function () {
+        return (new \App\Http\Controllers\DesignPackagesController())->programs(false);
+    })->name('design.programs.channels');
+    Route::get('/radio-recordings/design/programs', function () {
+        return (new \App\Http\Controllers\DesignPackagesController())->programs(true);
+    })->name('design.programs.radio-stations');
 
     // TELETEXT
 
@@ -321,7 +330,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
     // COMMENTS
 
     Route::name('comments.')->prefix('comments')->group(function () {
-        Route::post('ajax', [CommentsController::class, 'ajax'])->name('ajax');
+        Route::get('ajax', [CommentsController::class, 'ajax'])->name('ajax');
         Route::post('add', [CommentsController::class, 'add'])->name('add');
         Route::post('edit', [CommentsController::class, 'edit'])->name('edit');
         Route::post('delete', [CommentsController::class, 'delete'])->name('delete');
@@ -360,19 +369,19 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
     });
 
     Route::get('/blog', function () {
-        return redirect('/articles');
+        return redirect(route('articles.index'));
     });
     Route::get('/news', function () {
-        return redirect('/articles');
+        return redirect(route('articles.index'));
     });
 
     Route::get('/blog/{id}', function ($path) {
         $data = explode("-", $path);
         if (!isset($data[3])) {
-            return redirect("/articles");
+            return redirect(route('articles.index'));
         }
         return (new \App\Http\Controllers\ArticlesController())->redirect([
-            'type_id' => \App\Models\Article::TYPE_ARTICLES,
+            'type_id' => \App\Constants\MaterialTypes::TYPE_ARTICLES,
             'original_id' => $data[3]
         ]);
     });
@@ -380,10 +389,10 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
     Route::get('/news/{id}', function ($path) {
         $data = explode("-", $path);
         if (!isset($data[3])) {
-            return redirect("/articles");
+            return redirect(route('articles.index'));
         }
         return (new ArticlesController())->redirect([
-            'type_id' => \App\Models\Article::TYPE_NEWS,
+            'type_id' => \App\Constants\MaterialTypes::TYPE_NEWS,
             'original_id' => $data[3]
         ]);
     });
@@ -391,7 +400,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
     Route::get('/stuff/{category_id}-1-0-{id}', function ($category_id, $id) {
         return (new \App\Http\Controllers\ArticlesController())->redirect([
-            'type_id' => \App\Models\Article::TYPE_BLOG,
+            'type_id' => \App\Constants\MaterialTypes::TYPE_BLOG,
             'original_id' => $id
         ]);
     });
@@ -414,9 +423,11 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
         //Route::get('new-section', [ForumController::class, 'newSection'])->name('sections.new');
 
+        Route::get('0-{message_id}', [ForumController::class, 'redirectToMessageById'])->name('redirect-to-message-by-id');
+
         Route::get('{forum_id}-{topic_id}-0-17-1', [ForumController::class, 'redirectToLastMessage'])->name('topics.show-last-message');
-        Route::get('{forum_id}-{topic_id}-{message_id}-{time}', [ForumController::class, 'redirectToMessage']);
-        Route::get('{forum_id}-{topic_id}-{message_id}-{page_id}-{time}', [ForumController::class, 'redirectToMessage']);
+        Route::get('{forum_id}-{topic_id}-{message_id}-{time}', [ForumController::class, 'redirectToMessage'])->name('topics.redirect-to-message');
+        Route::get('{forum_id}-{topic_id}-{message_id}-{page_id}-{time}', [ForumController::class, 'redirectToMessage'])->name('topics.redirect-to-message-with-page');
 
         Route::get('{forum_id}-{topic_id}-{page_id}', [ForumController::class, 'showTopic'])->name('topics.show-page');
         Route::get('{forum_id}-{topic_id}', [ForumController::class, 'showTopic'])->name('topics.show');
@@ -436,18 +447,18 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
         Route::get('last-topics', [ForumController::class, 'lastTopics'])->name('last-topics');
         Route::get('user-messages/{user_id}', [ForumController::class, 'userMessages'])->name('user-messages');
-        Route::get('0-{message_id}', [ForumController::class, 'redirectToMessageById'])->name('redirect-to-message-by-id');
+
 
 
     });
 
     Route::get('/forum/0-0-1-34', function () {
-        return redirect("/forum/last-topics");
+        return redirect(route('forum.last-topics'));
     });
 
     Route::name('forum.questionnaire.')->prefix('questionnaire')->group(function () {
         Route::post('vote', [QuestionnairesController::class, 'vote'])->name('vote');
-        Route::post('form', [QuestionnairesController::class, 'form'])->name('form');
+        Route::get('form', [QuestionnairesController::class, 'form'])->name('form');
     });
 
 
@@ -466,7 +477,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
     Route::name('awards.')->prefix('awards')->group(function () {
         Route::get('ajax', [AwardsController::class, 'ajax'])->name('ajax');
-        Route::post('list', [AwardsController::class, 'list'])->name('list');
+        Route::get('form', [AwardsController::class, 'form'])->name('form');
         Route::post('give-out', [AwardsController::class, 'create'])->name('create');
         Route::post('edit', [AwardsController::class, 'edit'])->name('edit');
         Route::post('delete', [AwardsController::class, 'delete'])->name('delete');
@@ -477,18 +488,18 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
     Route::name('warnings.')->prefix('warnings')->group(function () {
         Route::get('ajax', [WarningsController::class, 'ajax'])->name('ajax');
-        Route::get('warnings/form', [WarningsController::class, 'form'])->name('form');
-        Route::post('warnings/add', [WarningsController::class, 'add'])->name('add');
+        Route::get('form', [WarningsController::class, 'form'])->name('form');
+        Route::post('add', [WarningsController::class, 'add'])->name('add');
     });
 
 
     // CONTACT FORM
 
     Route::name('contact.')->group(function () {
-        Route::get('/contact', [ContactFormController::class, 'index'])->name('index');
+        Route::get('contact', [ContactFormController::class, 'index'])->name('index');
         Route::post('contact', [ContactFormController::class, 'send'])->name('send');
-        Route::get('/tape-digitization', [ContactFormController::class, 'digitization'])->name('digitization.index');
-        Route::post('/tape-digitization', [ContactFormController::class, 'digitizationSend'])->name('digitization.send');
+        Route::get('tape-digitization', [ContactFormController::class, 'digitization'])->name('digitization.index');
+        Route::post('tape-digitization', [ContactFormController::class, 'digitizationSend'])->name('digitization.send');
     });
     Route::get('/index/0-3', function() {
         return redirect(route('contact.index'));
@@ -535,11 +546,12 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
     });
 
     Route::get('/index/8-0-{username}', function ($username) {
-
         return (new \App\Http\Controllers\UsersController())->show([
             'username' => $username
         ]);
     })->where('username', '.*')->name('users.show-by-username');
+
+    Route::get('/index/8', [UsersController::class, 'showMe'])->name('users.show-me');
 
     Route::get('/index/8{id?}', function ($path = null) {
         if (!$path) {
@@ -579,11 +591,10 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         })->name('show');
 
         Route::any('/index/15', [UsersController::class, 'index'])->name('index');
-        Route::any('/index/15-{page}', [UsersController::class, 'index'])->name('index');
+      //  Route::any('/index/15-{page}', [UsersController::class, 'index'])->name('index');
 
         Route::get('users/{id}/videos', [UsersController::class, 'videos'])->name('videos');
         Route::get('users/{id}/radio', [UsersController::class, 'radioRecordings'])->name('radio-recordings');
-
     });
 
     Route::name('profile.')->prefix('profile')->group(function() {
@@ -626,7 +637,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
     // PM
 
-    Route::name('pm.')->prefix('pm')->group(function() {
+    Route::name('pm.')->prefix('pm')->middleware(\App\Http\Middleware\Authenticate::class)->group(function() {
         defineCrudRoutes(PrivateMessagesController::class, [
             'approve' => false
         ]);
@@ -673,17 +684,19 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
 
     //REDACTOR
-    Route::get('/redactor-panel', [AdminController::class, 'editorPanel'])->name('redactor-panel');
+
+    Route::get('/redactor-panel', [EditorController::class, 'panel'])->name('admin.redactor-panel');
 
 
-    Route::any('/smiles', [SmilesController::class, 'ajax'])->name('smiles.ajax');
+    // OTHER
+
+    Route::get('/smiles', [SmilesController::class, 'ajax'])->name('smiles.ajax');
 
     Route::get('/go', function () {
         $path = explode("/go?", $_SERVER['REQUEST_URI'])[1];
         return view('pages.redirect', ['path' => $path]);
         //return redirect($path);
     });
-
 
     Route::post('/site-search', [SiteSearchController::class, 'search'])->name('site-search');
 
@@ -699,7 +712,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
             return redirect(route('admin.pages'));
         });
 
-        Route::resource('user-groups', 'UserGroupsController');
+        Route::resource('user-groups', AdminUserGroupsController::class);
 
         Route::name('smiles.')->prefix('smiles')->group(function() {
             Route::get('', [AdminSmilesController::class, 'index'])->name('index');
@@ -722,7 +735,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
             Route::post('change-group', [AdminUsersController::class, 'changeGroup'])->name('change-group');
             Route::post('change-password', [AdminUsersController::class, 'changePassword'])->name('change-password');
             Route::post('delete', [AdminUsersController::class, 'delete'])->name('delete');
-            Route::get('reputation', [AdminUsersController::class, 'getReputationHistory']);
+            Route::get('reputation', [AdminUsersController::class, 'getReputationHistory'])->name('reputation');
         });
 
         Route::name('genres.')->prefix('genres')->group(function() {
@@ -730,8 +743,10 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
             Route::post('', [AdminGenresController::class, 'save'])->name('save');
         });
 
-        Route::get('pages', [AdminController::class, 'getPages']);
-        Route::get('crossposting', [CrosspostController::class, 'getServices']);
+        Route::get('pages', [AdminPagesController::class, 'index'])->name('pages.index');
+        Route::get('actions-logs', [AdminActionsLogsController::class, 'index'])->name('actions-logs.index');
+
+        Route::get('crossposting', [CrosspostController::class, 'getServices'])->name('crossposting');
 
 //        Route::get('run-command', function () {
 //            if (request()->has('command')) {

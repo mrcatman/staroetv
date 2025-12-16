@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Actions;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\HTMLHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
@@ -9,7 +11,7 @@ use App\Models\AdditionalChannel;
 use App\Models\Channel;
 use App\Models\ChannelName;
 use App\Models\Genre;
-use App\Models\InterprogramPackage;
+use App\Models\DesignPackage;
 use App\Models\Picture;
 use App\Models\Program;
 use App\Models\Record;
@@ -26,16 +28,16 @@ class ChannelsController extends EntityController {
     protected $redirect_after_delete = '/video';
 
     public function show($url) {
-        $data = Cache::remember('channel_'.$url, 60 * 10, function() use ($url) {
+        $data = Cache::remember('channel_1'.$url, 60 * 10, function() use ($url) {
             $channel = Channel::where(['url' => $url])->first();
             if (!$channel) {
                 $channel = Channel::where(['id' => $url])->first();
             }
             if (!$channel) {
-                return redirect("/");
+                return redirect(route('index'));
             }
-            $programs = $channel->programs;
-            $additional = $channel->additionalPrograms;
+            $programs = $channel->programs()->withCount('records')->get();
+            $additional = $channel->additionalPrograms()->withCount('records')->get();
             foreach ($additional as $program) {
                 $additional_channel_data = AdditionalChannel::where(['program_id' => $program->id, 'channel_id' => $channel->id])->first();
                 if ($additional_channel_data->title != '') {
@@ -66,7 +68,21 @@ class ChannelsController extends EntityController {
                 ];
                 $genres->push($no_genre);
             }
-            $popular_programs = Program::where(['channel_id' => $channel->id])->orderBy('views', 'desc')->limit(25)->get();
+            $unknown_count = $channel->records->whereNull('program_id')->count();
+            $popular_programs = $channel->programs()->withCount('records')->orderBy('views', 'desc')->limit($unknown_count > 0 ? 24 : 25)->get();
+
+            if ($unknown_count > 0) {
+                $popular_programs->add((object)[
+                    'pending' => false,
+                    'name' => 'Прочее / неопознанные передачи',
+                    'full_url' => '',
+                    'cover_url' => '',
+                    'records_count' => $unknown_count,
+
+                    'channels_history' => [],
+                ]);
+            }
+
             $genres->prepend((object)[
                 'id' => -2,
                 'url' => 'popular',
@@ -85,7 +101,7 @@ class ChannelsController extends EntityController {
                 return $record->cover && $record->cover != '';
             })->first();
             if (count($channel->interprogramRecords) > 0) {
-                $interprogram_packages->push(new InterprogramPackage([
+                $interprogram_packages->push(new DesignPackage([
                     'id' => 0,
                     'name' => 'Прочее',
                     'pictures' => [],
@@ -125,7 +141,7 @@ class ChannelsController extends EntityController {
     public function edit($id) {
         $channel = Channel::find($id);
         if (!$channel) {
-            return redirect("/video");
+            return redirect(typed_route('records.[RECORD].index', false));
         }
         if (!$channel->can_edit) {
             return view("pages.errors.403");
@@ -239,17 +255,22 @@ class ChannelsController extends EntityController {
             Record::where(['channel_id' => $original->id])->update(['channel_id' => $merged->id]);
             Program::where(['channel_id' => $original->id])->update(['channel_id' => $merged->id]);
             ChannelName::where(['channel_id' => $original->id])->update(['channel_id' => $merged->id]);
+
+            ActionsLogHelper::create($merged, Actions::Merge, ['name' => [$original->name]]);
         }
-        $original->delete();
+
+        ActionsLogHelper::create($original, Actions::Delete);
+
         return [
             'status' => 1,
-            'text' => 'Канал объединен',
-            'redirect_to' => '/video'
+            'text' => $original->is_radio ? 'Радио объединено' : 'Канал объединен',
+            'redirect_to' => typed_route('records.[RECORD].index', $original->is_radio)
         ];
     }
 
     public function getAjaxList($is_radio = false) {
-        $channels = Channel::where(['is_radio' => $is_radio])->with(['names', 'logo'])->orderBy('is_federal', 'desc')->orderBy('order', 'asc')->get();
+        $channels = Channel::selectDefault()->where(['is_radio' => $is_radio])
+            ->with(['names', 'logo'])->orderBy('is_federal', 'desc')->orderBy('order', 'asc')->get();
         return [
             'status' => 1,
             'data' => [

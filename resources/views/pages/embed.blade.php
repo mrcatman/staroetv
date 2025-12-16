@@ -10,7 +10,7 @@
 </head>
 <body>
 <div class="embed-page">
-    @include('blocks/player', ['record' => $record])
+    @include('blocks.records.player', ['record' => $record])
 </div>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
 </body>

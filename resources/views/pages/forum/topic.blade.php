@@ -59,7 +59,7 @@
 
             @if ($topic->questionnaire_data)
                 <div class="questionnaire__container">
-                    @include('blocks.questionnaire', ['questionnaire' => $topic->questionnaire_data, 'show_results' => $show_results])
+                    @include('blocks.forum.questionnaire', ['questionnaire' => $topic->questionnaire_data, 'show_results' => $show_results])
                 </div>
             @endif
             <div class="forum-section__messages">
@@ -121,5 +121,5 @@
 
         </div>
     </div>
-    @include('blocks/change_reputation_modal')
+    @include('blocks.reputation.change-modal')
 @endsection

@@ -15,12 +15,12 @@ class VideoCutController extends Controller {
     public function showForm($id) {
         $video = Record::find($id);
         if (!$video || !PermissionsHelper::allows('viadd')) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         $cut = VideoCut::where(['video_id' => $id])->first();
         if ($cut) {
             if (!request()->has('reload')) {
-                return redirect("/cut/" . $cut->id);
+                return redirect(route('cut.show', $cut->id));
             }
         }
         return view ('pages.cut.index', [
@@ -32,7 +32,7 @@ class VideoCutController extends Controller {
     public function show($id) {
         $cut = VideoCut::find($id);
         if (!PermissionsHelper::allows('viadd') || !$cut) {
-            return redirect("/");
+            return redirect(route('index'));
         }
         $video = $cut->video;
         $channel = null;

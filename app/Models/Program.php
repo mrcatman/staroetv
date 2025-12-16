@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Models;
+use App\Constants\MaterialTypes;
 use App\Helpers\PermissionsHelper;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
@@ -10,7 +12,6 @@ class Program extends Model {
     protected $guarded = [];
     protected $appends = ['cover'];
 
-    const TYPE_PROGRAMS = 101;
 
     public function records() {
         return $this->hasMany(Record::class);
@@ -25,7 +26,7 @@ class Program extends Model {
     }
 
     public function comments() {
-        return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => self::TYPE_PROGRAMS]);
+        return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => MaterialTypes::TYPE_PROGRAMS]);
     }
 
     public function genre()
@@ -49,7 +50,7 @@ class Program extends Model {
         if (!$url) {
             $url = $this->id;
         }
-        return "/programs/".$url;
+        return route('programs.show', $url);
     }
 
     public function design() {
@@ -104,7 +105,7 @@ class Program extends Model {
 
     public function getChannelsHistoryAttribute()
     {
-        return Cache::remember('programs_channels_names_' . $this->id, 1800, function () {
+       return Cache::remember('programs_channels_names_' . $this->id, 1800, function () {
             $used_channel_ids = [];
             $channels = [];
             if ($this->channel) {
@@ -138,14 +139,31 @@ class Program extends Model {
             foreach ($this->additionalChannels as $additional_channel) {
                 if ($additional_channel->channel && !in_array($additional_channel->channel_id, $used_channel_ids)) {
                     $used_channel_ids[] = $additional_channel->channel_id;
+
+                    $date_start = $additional_channel->date_start && Carbon::parse($additional_channel->date_start)->lt(Carbon::createFromDate(2011, 1,1)) ? $additional_channel->date_start : null;
+                    $date_end = $additional_channel->date_start && Carbon::parse($additional_channel->date_end)->lt(Carbon::createFromDate(2011, 1,1)) ? $additional_channel->date_end : null;
+
+                    if (!$date_start) {
+                        $record_first = Record::whereNotNull('year')->where(['program_id' => $this->id, 'channel_id' => $additional_channel->channel_id])->orderBy('supposed_date', 'ASC')->first();
+                        if ($record_first) {
+                            $date_start = $record_first->supposed_date;
+                        };
+                    }
+                    if (!$date_end) {
+                        $record_last = Record::whereNotNull('year')->where(['program_id' => $this->id, 'channel_id' => $additional_channel->channel_id])->orderBy('supposed_date', 'DESC')->first();
+                        if ($record_last) {
+                            $date_end = $record_last->supposed_date;
+                        };
+                    }
                     $channels[] = [
                         'url' => $additional_channel->channel->full_url,
                         'id' => $additional_channel->channel_id,
-                        'date_start' => $additional_channel->date_start,
-                        'date_end' => $additional_channel->date_end
+                        'date_start' => $date_start,
+                        'date_end' => $date_end
                     ];
                 }
             }
+
             $data = [];
             foreach ($channels as $channel) {
                 $names = ChannelName::where(['channel_id' => $channel['id']]);
@@ -227,7 +245,7 @@ class Program extends Model {
     }
 
     public function interprogramPackages() {
-        return $this->hasMany('App\Models\InterprogramPackage')->orderBy('date_start');
+        return $this->hasMany('App\Models\DesignPackage')->orderBy('date_start');
     }
 
     public function scopeApproved($query) {

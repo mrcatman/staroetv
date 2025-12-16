@@ -18,7 +18,7 @@
         </div>
         <div class="records-list  records-list--thumbs">
             @foreach($items as $teletext)
-                @include('blocks/teletext')
+                @include('blocks.teletext.item')
             @endforeach
         </div>
     </div>

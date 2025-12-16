@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Constants\MaterialTypes;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use App\Traits\HasChannel;
@@ -16,7 +17,6 @@ class Teletext extends Model {
     public $table = 'teletext';
 
     protected $guarded = [];
-    const TYPE_TELETEXT = 11;
 
     protected $casts = [
         'date' => 'date',
@@ -32,11 +32,11 @@ class Teletext extends Model {
 
     public function getUrlAttribute()
     {
-        return "/teletext/" . $this->id.'?update_cover=1&page=100';
+        return route('teletext.show', $this->id);
     }
 
     public function comments() {
-        return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => self::TYPE_TELETEXT]);
+        return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => MaterialTypes::TYPE_TELETEXT]);
     }
 
     public function user() {

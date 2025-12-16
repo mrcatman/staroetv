@@ -27,7 +27,7 @@
     const channelsAutocompleteOptions = {
         ajax: {
             method: 'GET',
-            url: '/channels/autocomplete',
+            url: route('channels.autocomplete'),
             dataType: 'json',
             processResults: function (data) {
                 return {
@@ -47,7 +47,7 @@
     const programsAutocompleteOptions = {
         ajax: {
             method: 'GET',
-            url: '/programs/autocomplete',
+            url: route('programs.autocomplete'),
             dataType: 'json',
             processResults: function (data) {
                 return {

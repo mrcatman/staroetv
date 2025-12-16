@@ -32,7 +32,7 @@
         </modal>
 
         <modal ref="addRecordModal" title="Добавить новую запись">
-            <record-form @save="onNewRecord" class="records-list-picker__form" :inModal="true" :meta="meta" :params="params"></record-form>
+            <record-form @save="onNewRecord" class="records-list-picker__form" :inModal="true" :meta="meta" :start-params="params"></record-form>
         </modal>
 
         <div class="records-list-picker box box--dark">

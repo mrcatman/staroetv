@@ -19,7 +19,7 @@
         <div class="box__inner">
             <div class="comments">
                 @foreach ($comments as $comment)
-                    @include('blocks/comment', ['show_link' => true, 'comment' => $comment])
+                    @include('blocks.comments.item', ['show_link' => true, 'comment' => $comment])
                 @endforeach
             </div>
         </div>

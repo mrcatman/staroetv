@@ -30,7 +30,7 @@
         <div class="crossposts-editor__title">Постинг в соцсети</div>
         <div class="crossposts-editor__networks">
             <div class="crossposts-editor__network" v-for="(network, $index) in networks" :key="$index">
-                <div class="form__preloader" v-if="statusesByNetwork[network.id] === -2"><img src="../../../public/img/ajax.gif"></div>
+                <div class="form__preloader" v-if="statusesByNetwork[network.id] === -2"><img src="/resources/images/ajax.gif"></div>
                 <span class="crossposts-editor__network__name">{{network.name}}</span>
                 <span class="crossposts-editor__network__status" :class="'crossposts-editor__network__status--'+statusClasses[statusesByNetwork[network.id]]">Статус: <strong>{{statusesByNetwork[network.id] === 1 ? "Готово" : (statusesByNetwork[network.id] === -1 ? "Не готово" : errorsByNetwork[network.id] ) }}</strong></span>
                 <a class="crossposts-editor__network__link" v-if="crosspostsByNetwork[network.id] && statusesByNetwork[network.id] === 1" :href="crosspostsByNetwork[network.id].link" target="_blank">Просмотреть пост</a>
@@ -113,7 +113,7 @@
                         picture: ''
                     });
                     this.$refs.settingsModal.show();
-                    $.get('/articles/crosspost', {article_id: this.article.id, network_id: networkId}).done((res) => {
+                    $.get(route('articles.get-crosspost-parameters'), {article_id: this.article.id, network_id: networkId}).done((res) => {
                         this.settingsPanel.loading = false;
                         this.$set(this.settings, networkId, res.data);
                     })
@@ -124,7 +124,7 @@
             deletePost(networkId) {
               return new Promise((resolve, reject) => {
                   this.$set(this.statusesByNetwork, networkId, -2);
-                  $.post('/articles/crosspost', {article_id: this.article.id, network_id: networkId, delete: true}).done((res) => {
+                  $.post(route('articles.crosspost'), {article_id: this.article.id, network_id: networkId, delete: true}).done((res) => {
                       if (res.status) {
                           this.$set(this.statusesByNetwork, networkId, -1);
                           resolve();
@@ -154,7 +154,7 @@
                 if (this.settings[networkId]) {
                     data = {...data, ...this.settings[networkId]};
                 }
-                $.post('/articles/crosspost', data).done((res) => {
+                $.post(route('articles.crosspost'), data).done((res) => {
                    if (res.status) {
                        this.$set(this.statusesByNetwork, networkId, 1);
                        let crosspost = res.data.crosspost;

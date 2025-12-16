@@ -40,8 +40,8 @@
                 </button>
             </div>
             <div class="form__bottom__right">
-                <a class="form__bottom__link" href="/forgot-password">Забыли пароль?</a>
-                <a class="form__bottom__link" href="/register">Регистрация</a>
+                <a class="form__bottom__link" href="{{route('profile.forgot-password')}}">Забыли пароль?</a>
+                <a class="form__bottom__link" href="{{route('register')}}">Регистрация</a>
             </div>
         </div>
 

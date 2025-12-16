@@ -1,7 +1,7 @@
 <template>
     <div class="mass-uploader">
         <div class="form__preloader" v-if="loading">
-            <img src="../../../public/img/ajax.gif">
+            <img src="/resources/images/ajax.gif">
         </div>
         <snackbar ref="snackbar"></snackbar>
         <div class="input-container" v-if="!records || records.length === 0">
@@ -23,7 +23,7 @@
         <div class="mass-uploader__records">
             <div class="mass-uploader__record" :class="{'mass-uploader__record--collapsed': record.collapsed}" v-for="(record, $index) in visibleRecords" :key="record.player">
                 <div class="form__preloader" v-if="record.loading">
-                    <img src="../../../public/img/ajax.gif">
+                    <img src="/resources/images/ajax.gif">
                 </div>
                 <a class="mass-uploader__record__collapse" @click="record.collapsed = !record.collapsed">{{!record.collapsed ? 'Скрыть' : 'Показать'}}</a>
                 <div class="mass-uploader__record__content"  v-if="record.collapsed">
@@ -357,20 +357,18 @@ const monthNames = {
             save(record) {
                 this.$set(record, 'loading', true);
 
-                let data = JSON.parse(JSON.stringify(record));
+                const data = JSON.parse(JSON.stringify(record));
                 data.is_radio = false;
-                if (data.channel.id > 0) {
 
-                } else {
+                if (data.channel.id <= 0) {
                     data.channel.unknown = true;
                 }
-                if (data.program.id > 0) {
 
-                } else {
+                if (data.program.id <= 0) {
                     data.program.unknown = true;
                 }
 
-                $.post('/records/add', data).done(res => {
+                $.post(route('records.video.add'), data).done(res => {
                     this.$set(record, 'loading', false);
                     this.$refs.snackbar.show(res);
                     if (res.status) {
@@ -549,7 +547,7 @@ const monthNames = {
             },
             loadMore() {
                 this.loading = true;
-                $.post('/mass-upload', {source: this.source, next_page_token: this.nextPageToken}).then(res => {
+                $.post(route('mass-upload.index'), {source: this.source, next_page_token: this.nextPageToken}).then(res => {
                     this.loading = false;
                     if (res.status) {
                         if (res.data.next_page_token) {
@@ -569,7 +567,7 @@ const monthNames = {
                 if (this.nextPageToken !== '') {
                     data.next_page_token = this.nextPageToken;
                 }
-                $.post('/mass-upload', data).then(res => {
+                $.post(route('mass-upload.index'), data).then(res => {
                     this.loading = false;
                     if (res.status) {
                         if (res.data.next_page_token) {

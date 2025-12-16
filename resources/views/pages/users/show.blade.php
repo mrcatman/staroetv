@@ -38,7 +38,7 @@
                 </div>
 
             </div>
-            @include('blocks/user_page_modals', ['user' => $user])
+            @include('blocks.reputation.change-modal', ['user' => $user])
             <div class="user-page__info-container">
                 <div class="inner-page__content user-page__info-container__inner">
                     <div class="box">
@@ -50,7 +50,8 @@
                                 <div class="box__heading__buttons">
                                     <div class="buttons-row">
 
-                                        <a href="{{$user->id == auth()->user()->id ? route('profile.edit') : route('profile.edit.user', $user)}}" class="button">
+                                        <a href="{{$user->id == auth()->user()->id ? route('profile.edit') : route('profile.edit.user', $user)}}"
+                                           class="button">
                                             <i class="fa fa-edit"></i>
                                             Обновить профиль
                                         </a>
@@ -71,14 +72,12 @@
                                     E-mail адрес подтвержден
                                 </div>
                             @endif
-                            <div class="user-info">
-                                <div class="user-info__col">
+                            <div class="row row--align-start user-info">
+                                <div class="col user-info__col">
                                     <div class="user-info__group-icon-container">
                                         {!!  $user->group_icon !!}
                                     </div>
-                                    <br>
                                     @if (\App\Helpers\PermissionsHelper::allows('usrepl') && auth()->user()->id != $user->id)
-                                        <br>
                                         <select data-user-id="{{$user->id}}" name="user_group" class="select-classic">
                                             @foreach(\App\Models\UserGroup::all() as $group)
                                                 <option @if ($group->id == $user->group_id) selected
@@ -106,31 +105,19 @@
                                             сайте: </strong>{{$user->was_online ? $user->was_online : 'никогда'}}
                                     </div>
                                     <div class="user-info__buttons">
-                                        <a href="{{route('forum.user-messages', $user)}}" class="button button--light">
+                                        <a href="{{route('forum.user-messages', $user)}}" class="button">
                                             <i class="fa fa-comment"></i>
-                                            Посты на форуме</a>
+                                            Посты на форуме ({{$user->forum_messages_count}})
+                                        </a>
                                         @if (auth()->user() && auth()->user()->id != $user->id)
-                                            <a href="{{route('pm.add', ['user_id' => $user->id])}}" class="button button--light">
+                                            <a href="{{route('pm.add', ['user_id' => $user->id])}}" class="button">
                                                 <i class="fa fa-envelope"></i>
                                                 Отправить личное сообщение
                                             </a>
                                         @endif
-                                        @if (auth()->user() && auth()->user()->id == $user->id)
-                                            @if (\App\Helpers\PermissionsHelper::allows('admbar'))
-                                                <a href="/admin" class="button button--flat">Панель администратора</a>
-                                            @endif
-                                            @if (\App\Helpers\PermissionsHelper::allows('redactorbar'))
-                                                <a href="/redactor-panel" class="button button--flat">Панель
-                                                    редактора</a>
-                                            @endif
-                                            @if (\App\Helpers\PermissionsHelper::allows('crosspost'))
-                                                <a href="/crossposts" class="button button--flat">Управление постами в
-                                                    соцсетях</a>
-                                            @endif
-                                        @endif
                                     </div>
                                 </div>
-                                <div class="user-info__col">
+                                <div class="col user-info__col">
                                     @if ($user->meta->date_of_birth)
                                         <div class="user-info__item">
                                             <div class="user-info__item__icon"><i class="fa fa-birthday-cake"></i></div>
@@ -163,7 +150,27 @@
                                     @endif
                                 </div>
                             </div>
+                            @if (auth()->user() && auth()->user()->id == $user->id && (\App\Helpers\PermissionsHelper::allows('admbar') || \App\Helpers\PermissionsHelper::allows('redactorbar') || \App\Helpers\PermissionsHelper::allows('crosspost')))
+                                <div class="user-info__actions">
+                                    <div class="buttons-row">
+                                        @if (\App\Helpers\PermissionsHelper::allows('admbar'))
+                                            <a href="{{route('admin.channels.index')}}" class="button button--light">Панель
+                                                администратора</a>
+                                        @endif
+                                        @if (\App\Helpers\PermissionsHelper::allows('redactorbar'))
+                                            <a href="{{route('admin.redactor-panel')}}" class="button button--light">Панель
+                                                редактора</a>
+                                        @endif
+                                        @if (\App\Helpers\PermissionsHelper::allows('crosspost'))
+                                            <a href="{{route('admin.crossposting')}}" class="button button--light">Управление
+                                                постами в соцсетях</a>
+                                        @endif
+                                    </div>
+                                </div>
+
+                            @endif
                         </div>
+
                         @if ($user->signature != "")
                             <div class="user-page__signature">
                                 {!! $user->signature !!}
@@ -179,7 +186,7 @@
 
     @if ($videos_count > 0)
         <div class="box box--dark">
-            <a href="/users/{{$user->id}}/videos" class="box__heading">
+            <a href="{{route('users.videos', $user->id)}}" class="box__heading">
                 <div class="box__heading__inner">
                     Видео пользователя&nbsp;<span class="box__heading__count">{{$videos_count}}</span>
                 </div>
@@ -196,7 +203,7 @@
     @endif
     @if ($radio_recordings_count > 0)
         <div class="box">
-            <a href="/users/{{$user->id}}/radio" class="box__heading">
+            <a href="{{route('users.radio-recordings', $user->id)}}" class="box__heading">
                 <div class="box__heading__inner">
                     Радиозаписи пользователя&nbsp;<span class="box__heading__count">{{$radio_recordings_count}}</span>
                 </div>
@@ -215,21 +222,21 @@
         <div class="row row--align-start">
             <div class="col">
                 <div class="box">
-                    <a href="/users/{{$user->id}}/comments" class="box__heading">
+                    <a href="{{route('comments.user', $user->id)}}" class="box__heading">
                         <div class="box__heading__inner">
-                            Комментарии пользователя&nbsp;<span class="box__heading__count">{{count($user->comments)}}</span>
+                            Комментарии пользователя&nbsp;<span
+                                class="box__heading__count">{{count($user->comments)}}</span>
                         </div>
                     </a>
                     <div class="box__inner">
                         <div class="comments">
                             @foreach ($user->comments->take(10) as $comment)
-                                @include('blocks/comment', ['show_link' => true, 'comment' => $comment])
+                                @include('blocks.comments.item', ['show_link' => true, 'comment' => $comment])
                             @endforeach
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        @endif
-        </div>
-        @endsection
+    @endif
+@endsection

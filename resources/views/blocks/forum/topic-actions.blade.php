@@ -6,7 +6,7 @@
         </span>
         <div class="button--dropdown__list">
             @if ($topic->can_edit)
-                <a class="button--dropdown__list__item" href="/forum/edit-topic/{{$topic->id}}">Редактировать тему</a>
+                <a class="button--dropdown__list__item" href="{{route('forum.topics.edit', $topic->id)}}">Редактировать тему</a>
             @endif
             @if (\App\Helpers\PermissionsHelper::allows('frreplthr'))
                 <a class="button--dropdown__list__item forum-section__move-topic">Переместить</a>
@@ -20,7 +20,7 @@
 
 
 <div id="move_topic" data-title="Переместить тему" style="display:none">
-    <form action="/forum/move-topic" class="form modal-window__form" data-reset="1" data-auto-close-modal="1">
+    <form action="{{route('forum.topics.move')}}" class="form modal-window__form" data-reset="1" data-auto-close-modal="1">
         <input type="hidden" name="topic_id" value="{{$topic->id}}"/>
         <div class="input-container">
             <label class="input-container__label">Форум</label>
@@ -44,7 +44,7 @@
 </div>
 
 <div id="delete_topic" data-title="Удалить тему" style="display:none">
-    <form action="/forum/delete-topic" class="form modal-window__form" data-auto-close-modal="1">
+    <form action="{{route('forum.topics.delete')}}" class="form modal-window__form" data-auto-close-modal="1">
         <input type="hidden" name="topic_id" value="{{$topic->id}}"/>
         <div class="modal-window__small-text">
             Вы уверены, что хотите удалить тему? Это действие нельзя будет отменить. Возможно, вы хотели переместить

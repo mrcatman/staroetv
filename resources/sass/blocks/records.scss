@@ -57,10 +57,12 @@
         }
 
         &__search {
+            max-width: 20em;
             width: 25%;
             display: flex;
             margin: 0;
             @include mobile() {
+                max-width: unset;
                 width: calc(100% - 1.25em);
             }
         }
@@ -208,12 +210,15 @@
     &__tags {
         font-size: .875em;
         display: inline-block;
+        position: absolute;
+        top: .5em;
+        left: .25em;
     }
 
     &__tag {
         border-radius: .25em;
         color: var(--box-text-color-dark);
-        background: var(--bg-darkest-2);
+        background: rgba(0, 0, 0, 0.5);
         padding: .25em .5em;
         font-weight: bold;
     }
@@ -295,15 +300,6 @@
         @include mobile() {
             margin: 1em 0 0;
         }
-    }
-
-    &__related {
-        margin: -1em;
-        display: flex;
-        flex-wrap: wrap;
-    }
-    &__related .record-item__tags {
-        display: none;
     }
 
     &__description {

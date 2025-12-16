@@ -23,13 +23,13 @@
                     <div class="records-list__sort">
                         <div class="top-list records-list__sort__items">
                             <a class="top-list__item @if ($records_data['sort'] == "newer") top-list__item--active @endif"
-                               href="{{$records_data['base_link']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'sort']), ['sort' => 'newer']))}}">От
+                               href="{{$records_data['base_url']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'sort']), ['sort' => 'newer']))}}">От
                                 новых к старым</a>
                             <a class="top-list__item @if ($records_data['sort'] == "older") top-list__item--active @endif"
-                               href="{{$records_data['base_link']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'sort']), ['sort' => 'older']))}}">От
+                               href="{{$records_data['base_url']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'sort']), ['sort' => 'older']))}}">От
                                 старых к новым</a>
                             <a class="top-list__item @if ($records_data['sort'] == "added") top-list__item--active @endif"
-                               href="{{$records_data['base_link']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'sort']), ['sort' => 'added']))}}">Недавно
+                               href="{{$records_data['base_url']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'sort']), ['sort' => 'added']))}}">Недавно
                                 добавленные</a>
                         </div>
                         <select class="select-classic records-list__sort__mobile">
@@ -54,12 +54,12 @@
                     @if ($records_data['years'])
                         <div class="top-list records-list__years">
                             <a class="top-list__item top-list__item--all @if (!$records_data['selected_year']) top-list__item--active @endif"
-                               href="{{$records_data['base_link']}}?{{http_build_query(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'year', 'month', 'page']))}}">
+                               href="{{$records_data['base_url']}}?{{http_build_query(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'year', 'month', 'page']))}}">
                                 <span class="top-list__item__name">Все годы</span>
                             </a>
                             @foreach ($records_data['years'] as $year => $count)
                                 <a class="top-list__item @if ($records_data['selected_year'] == $year) top-list__item--active @endif"
-                                   href="{{$records_data['base_link']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'year', 'month', 'page']), ['year' => $year]))}}">
+                                   href="{{$records_data['base_url']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'year', 'month', 'page']), ['year' => $year]))}}">
                                     <span class="top-list__item__name">{{$year}}</span>
                                     <span class="top-list__item__count">{{$count}}</span>
                                 </a>
@@ -70,13 +70,13 @@
                         @php($month_names = \App\Helpers\DatesHelper::monthNames())
                         <div class="top-list records-list__months">
                             <a class="top-list__item top-list__item--all @if (!$records_data['selected_month']) top-list__item--active @endif"
-                               href="{{$records_data['base_link']}}?{{http_build_query(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'month']))}}">
+                               href="{{$records_data['base_url']}}?{{http_build_query(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'month']))}}">
                                 <span class="top-list__item__name">Все месяцы</span>
                             </a>
                             @foreach ($records_data['months'] as $month => $count)
                                 @if (isset($month_names[$month - 1]))
                                     <a class="top-list__item @if ($records_data['selected_month'] == $month) top-list__item--active @endif"
-                                       href="{{$records_data['base_link']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'month']), ['month' => $month]))}}">
+                                       href="{{$records_data['base_url']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'month']), ['month' => $month]))}}">
                                         <span class="top-list__item__name">{{$month_names[$month - 1]}}</span>
                                         <span class="top-list__item__count">{{$count}}</span>
                                     </a>

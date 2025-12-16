@@ -1,5 +1,5 @@
 <div>
-    <form class="form modal-window__form telegram-create-new-profile-form" method="POST" action="/profile/telegram/register">
+    <form class="form modal-window__form telegram-create-new-profile-form" method="POST" action="{{route('profile.telegram.register')}}">
         @csrf
         <input type="hidden" name="telegram_data" value="{{json_encode($telegram_data)}}"/>
         <div class="form__content">

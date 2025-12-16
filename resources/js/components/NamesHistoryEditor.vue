@@ -11,7 +11,6 @@
                                 <input v-model="name.name" class="input"/>
                             </div>
                         </div>
-                        <a class="button button--light" @click="deleteItem($index)">Удалить</a>
                     </div>
                     <div class="col channel-names__datepicker-container">
                         <div class="input-container input-container--vertical">
@@ -29,6 +28,7 @@
                             </div>
                         </div>
                     </div>
+                    <a class="button button--light" @click="deleteItem($index)">Удалить</a>
                 </div>
                 <div class="row channel-names__row">
                     <div class="col channel-names__picture-uploader-col">
@@ -64,23 +64,27 @@
         font-family: unset;
         &__bottom {
             font-size: .75em;
-            margin: 0;
+            margin-top: 1em;
             border: none;
         }
-        &__datepicker-container {
-            margin: -2.25em .5em 0 .5em!important;
-        }
+
         &__picture-uploader-col {
-            flex: .325;
-            margin: 0 1.5em 0 0!important;
+            flex: .25;
+        }
+        &__inner {
+            display: flex;
+            flex-direction: column;
+            gap: 2em;
         }
         &__item {
             border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: var(--col-margin);
+            padding-bottom: 2em;
         }
         &__row {
             box-sizing: border-box;
-            margin: 0;
-            padding: 1em 1.5em;
             border: none;
         }
 

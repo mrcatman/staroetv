@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Constants\Actions;
 use App\Constants\Permissions;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\PermissionsHelper;
 use App\Http\Controllers\ArticlesController;
 use App\Http\Controllers\Controller;
@@ -44,10 +46,12 @@ class SmilesController extends Controller {
             if (isset($smile['id'])) {
                 $smile_obj = Smile::find($smile['id']);
                 $smile_obj->fill($smile);
-                $smile_obj->save();
+
+                ActionsLogHelper::create($smile_obj, Actions::Update);
             } else {
                 $smile_obj = new Smile($smile);
-                $smile_obj->save();
+                ActionsLogHelper::create($smile_obj, Actions::Create);
+
                 $ids[] = $smile_obj->id;
             }
         }

@@ -24,12 +24,9 @@
     }
 
     &--vertical {
+        align-items: flex-start;
         flex-direction: column;
-    }
-
-    &--vertical &__label {
-        margin-left: 0;
-        margin-bottom: .5em;
+        gap: .25em;
     }
 
     &--checkbox {
@@ -155,7 +152,7 @@
     }
 
     &__message {
-        color: #f00;
+        color: #ca0000;
         font-size: .875em;
         position: absolute;
         top: 0;
@@ -285,10 +282,9 @@
     background: var(--inputs-color);
     border: 1px solid var(--border-color);
     height: 1.35em;
-    box-shadow: none;
     color: inherit;
-    border-radius: 0;
-
+    border-radius: .25em;
+    box-shadow: var( --input-box-shadow);
     &:disabled {
         opacity: .5;
     }
@@ -308,8 +304,7 @@
 
 
 .input-container--with-errors .input {
-    border-bottom-width: 2px;
-    border-bottom-color: #f00;
+    border-color: #ca0000;
 }
 
 textarea.input {
@@ -353,6 +348,7 @@ textarea.input {
     }
 
     &--light {
+        width: unset;
         background: none;
         box-shadow: none;
         padding: 0 !important;
@@ -419,6 +415,7 @@ textarea.input {
     position: relative;
 
     &__content {
+        width: 100%;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
@@ -531,12 +528,7 @@ textarea.input {
     }
 
 
-    &__text {
-        font-size: .875em;
-    }
-
-
-    &--quality {
+    &--tabs {
         margin: 0;
 
         &__variant {
@@ -565,9 +557,9 @@ textarea.input {
         }
     }
 
-    &--quality {
+    &--tabs {
         display: inline-flex;
-        background: var(--bg-darker);
+        background: var(--inputs-color);
         border: 1px solid var(--border-color);
         border-radius: .5em;
         overflow: hidden;
@@ -583,7 +575,7 @@ textarea.input {
     border-radius: 0;
     background: var(--inputs-color);
     border: 1px solid var(--border-color);
-    height: 2.65em;
+    height: 2.6em;
 
     &__option-group-title {
         background: var(--bg-darker-2);
@@ -731,40 +723,53 @@ textarea.input {
 
 
 .autocomplete {
+    display: flex;
+    flex-direction: column;
     &__items {
         display: flex;
         flex-wrap: wrap;
+        gap: 1em 2em;
+        margin: var(--col-margin) 0;
     }
 
     &__item {
         display: flex;
         align-items: center;
         cursor: pointer;
-        margin: 0 1em .5em 0;
+        gap: .5em;
+        @include hover();
+        width: auto;
 
-        &:hover {
-            opacity: .75;
+        &--selected:before {
+            opacity: 1;
         }
-
+        &__texts {
+            display: flex;
+            flex-direction: column;
+        }
         &__logo {
-            margin: 0 .5em 0 0;
-            width: 2em;
-            height: 2em;
+            min-width: 2.875em;
+            width: 2.875em;
+            height: 2.875em;
             display: inline-block;
             background-size: contain;
             background-position: center center;
             background-repeat: no-repeat;
         }
 
-        &__name {
-            border-bottom: 1px dashed;
+        &--selected &__name {
+            color: var(--primary);
         }
 
-        &--selected &__name {
-            text-shadow: none;
-            color: var(--primary);
-            border-bottom-color: 1px solid var(--primary);
-            font-weight: bold;
+        &__description {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            font-size: .875em;
+            opacity: .75;
+            max-width: 16em;
         }
     }
 }

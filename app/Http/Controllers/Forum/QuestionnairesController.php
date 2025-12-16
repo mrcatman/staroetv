@@ -67,7 +67,7 @@ class QuestionnairesController extends Controller {
                 'dom' => [
                     [
                         'replace' => ".questionnaire__container",
-                        'html' => view('blocks.questionnaire', ['questionnaire' => $questionnaire, 'show_results' => true])->render()
+                        'html' => view('blocks.forum.questionnaire', ['questionnaire' => $questionnaire, 'show_results' => true])->render()
                     ]
                 ]
             ]
@@ -89,7 +89,7 @@ class QuestionnairesController extends Controller {
                 'dom' => [
                     [
                         'replace' => ".questionnaire__container",
-                        'html' => view('blocks.questionnaire', ['questionnaire' => $questionnaire, 'show_results' => $show_results])->render()
+                        'html' => view('blocks.forum.questionnaire', ['questionnaire' => $questionnaire, 'show_results' => $show_results])->render()
                     ]
                 ]
             ]

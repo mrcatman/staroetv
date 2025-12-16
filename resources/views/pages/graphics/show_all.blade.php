@@ -21,7 +21,7 @@
                                 @if ($package->author != "")<div class="interprogram-packages-list-item__author">Автор: <strong>{{$package->author}}</strong></div>@endif
                                 <div class="interprogram-page__hide-unsorted">
                                     @if ($package->visibleRecords && count($package->visibleRecords) > 0)
-                                        <a href="{{$base_link}}?hide_unsorted={{$hide_unsorted ? 0 : 1}}" class="input-container input-container--checkbox">
+                                        <a href="{{$base_url}}?hide_unsorted={{$hide_unsorted ? 0 : 1}}" class="input-container input-container--checkbox">
                                             <input disabled type="checkbox" @if ($hide_unsorted) checked="checked" @endif name="hide_unsorted">
                                             <div class="input-container--checkbox__element"></div>
                                             <div class="input-container__label">Скрыть несортированные материалы</div>
@@ -61,7 +61,7 @@
                                                     <div class="interprogram-annotation__text">{{$record_data['data']->text}}</div>
                                                 </div>
                                                 @else
-                                                @include('blocks/video_small', ['video' => $record_data['data']])
+                                                @include('blocks.records.item', ['record' => $record_data['data']])
                                                 @endif
                                             @endforeach
 

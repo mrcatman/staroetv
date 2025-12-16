@@ -11,7 +11,7 @@
                         <div class="breadcrumbs">
                             @if ($channel)
                                 <a class="breadcrumbs__item"
-                                   href="{{$channel->is_radio ? "/radio" : "/video"}}">Архив</a>
+                                   href="{{typed_route('records.[RECORD].index', $channel->is_radio)}}">Архив</a>
                                 <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
                             @endif
                             <a class="breadcrumbs__item breadcrumbs__item--current">{{$program->name}}</a>
@@ -31,17 +31,16 @@
                                     </span>
                                     <div class="button--dropdown__list">
                                           @if ($program->can_edit)
-                                            <a class="button--dropdown__list__item" href="/programs/{{$program->id}}/edit">Редактировать</a>
+                                            <a class="button--dropdown__list__item" href="{{route('programs.edit', $program)}}">Редактировать</a>
                                         @endif
                                         @if (\App\Helpers\PermissionsHelper::allows('contentapprove'))
-                                            <a class="button--dropdown__list__item" data-approve="programs"
-                                               data-approve-id="{{$program->id}}">{{$program->pending ? "Одобрить" : "Скрыть"}}</a>
+                                            <a class="button--dropdown__list__item" data-approve="programs" data-approve-id="{{$program->id}}">{{$program->pending ? "Одобрить" : "Скрыть"}}</a>
                                         @endif
                                         @if ($program->can_edit)
                                             <a class="button--dropdown__list__item"
                                                data-confirm-form-input-value="{{$program->id}}"
                                                data-confirm-form-text="Вы уверены, что хотите удалить программу?"
-                                               data-confirm-form-url="/programs/delete">Удалить</a>
+                                               data-confirm-form-url="{{route('programs.delete')}}">Удалить</a>
                                         @endif
                                     </div>
                                 </span>
@@ -100,7 +99,7 @@
                         </div>
                         <div class="box__inner">
                             @foreach ($program->articles as $news_item)
-                                @include('blocks/news', ['class' => 'news-block--card news-block--for-program', 'show_cover' => true, 'news_item' => $news_item])
+                                @include('blocks.articles.news', ['class' => 'news-block--card news-block--for-program', 'show_cover' => true, 'news_item' => $news_item])
                             @endforeach
                         </div>
                     </div>
@@ -125,7 +124,7 @@
                                     @if (count($program->interprogramPackages) > 0)
                                         <div class="interprogram-packages-list">
                                             @foreach($program->interprogramPackages as $package)
-                                                @include('blocks.interprogram.package', ['package' => $package])
+                                                @include('blocks.design.package', ['package' => $package])
                                             @endforeach
                                         </div>
                                     @else
@@ -143,7 +142,7 @@
                 @endif
 
                 <div class="row">
-                    @include('blocks/comments', ['class' => 'program-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Models\Program::TYPE_PROGRAMS, 'material_id' => $program->id]])
+                    @include('blocks.comments.list', ['class' => 'program-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_PROGRAMS, 'material_id' => $program->id]])
                 </div>
             </div>
             <div class="col col--sidebar">

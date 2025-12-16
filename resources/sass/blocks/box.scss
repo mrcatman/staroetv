@@ -19,7 +19,7 @@
 
     &:before {
         z-index: 0;
-        background-image: url("/resources/images/fabric.jpg");
+        background-image: url("/resources/images/fabric.png");
         background-size: 200px;
         content: '';
         display: block;
@@ -29,11 +29,8 @@
         width: 100%;
         height: 100%;
         pointer-events: none;
-        opacity: .12;
-        @include light() {
-            filter: contrast(2.25);
-            opacity: .06;
-        }
+        opacity: .1;
+        filter: contrast(1.4) brightness(7);
     }
 
     &--dark {
@@ -98,8 +95,9 @@
             bottom: -2px;
             left: 1em;
             width: calc(100% - 2em);
-            height: 1px;
-            background: var(--border-color);
+            height: 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color-second);
         }
 
         &__buttons {

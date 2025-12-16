@@ -1,9 +1,9 @@
 @extends('layouts.admin')
-@section('admin_content')
-    <div class="admin-panel__heading-container">
-        <div class="admin-panel__heading">Последние изменения в репутации</div>
-    </div>
-    <div class="admin-panel__main-content">
+@section('admin-title')
+    Последние изменения в репутации
+@endsection
+@section('admin-content')
+
        <table class="admin-panel__table admin-panel__table--bigger">
            <thead>
                 <tr>
@@ -25,14 +25,14 @@
                     </td>
                     <td style="white-space: nowrap">
                         @if($reputation_item->from)
-                            <a href="/index/8-{{$reputation_item->fromid}}">{{$reputation_item->from->username}}</a>
+                            <a href="{{route('users.show', $reputation_item->from->id)}}">{{$reputation_item->from->username}}</a>
                         @endif
                     </td>
                     <td style="white-space: nowrap">
                         {{$reputation_item->weight}}
                     </td>
                     <td style="white-space: nowrap">
-                        {{$reputation_item->created_at}}
+                        {{$reputation_item->created_at->format('d.m.Y H:i')}}
                     </td>
                     <td>
                         {{$reputation_item->comment}}
@@ -49,6 +49,5 @@
         <div class="pager-container pager-container--light">
             {{$reputation->links()}}
         </div>
-    </div>
 
 @endsection

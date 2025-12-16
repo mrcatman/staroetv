@@ -11,7 +11,7 @@ $(body).on('click', '.auth-panel__button--notifications, .mobile-menu__item--not
 
     page = 1;
 
-    $.get('/profile/notifications').done(res => {
+    $.get(route('profile.notifications')).done(res => {
         if (res.status) {
             replaceDom(res.data.dom);
         } else {

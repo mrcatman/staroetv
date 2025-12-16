@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Constants\Actions;
 use App\Helpers\ActionsLogHelper;
 use App\Helpers\PermissionsHelper;
-use App\Models\Channel;
 use Illuminate\Database\Eloquent\Model;
 
 class EntityController extends Controller {
@@ -59,26 +58,25 @@ class EntityController extends Controller {
     protected function saveEntity($entity)
     {
         ActionsLogHelper::create($entity, $entity->id ? Actions::Update : Actions::Create);
-        $entity->save();
     }
 
     public function approve() {
         $entity = $this->entity_class::find(request()->input('id'));
+
         if (!$entity) {
             return [
                 'status' => 0,
                 'text' => 'Материал не найден'
             ];
         }
+
         $can_approve = PermissionsHelper::allows($this->permissions['approve']);
         if ($can_approve) {
 
             $pending = request()->input('status', !$entity->pending);
             $entity->pending = $pending;
 
-            ActionsLogHelper::create($entity, $pending ? Actions::Approve : Actions::Unapprove);
-
-            $entity->save();
+            ActionsLogHelper::create($entity, Actions::Update);
 
             return [
                 'status' => 1,
@@ -111,7 +109,8 @@ class EntityController extends Controller {
             ];
         }
 
-        $entity->delete();
+        ActionsLogHelper::create($entity, Actions::Delete);
+
         return $this->afterDelete($entity);
     }
 

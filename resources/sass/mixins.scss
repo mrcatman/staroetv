@@ -36,6 +36,7 @@
         z-index: -1;
         opacity: 0;
         transition: opacity .2s;
+        box-shadow: var( --element-box-shadow);
         @if $small == true {
             top: -.25em;
             left: -.25em;

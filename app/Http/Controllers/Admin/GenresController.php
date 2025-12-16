@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Constants\Actions;
 use App\Constants\Permissions;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\PermissionsHelper;
 use App\Http\Controllers\ArticlesController;
 use App\Http\Controllers\Controller;
@@ -38,10 +40,13 @@ class GenresController extends Controller {
             if (isset($category['id'])) {
                 $category_obj = Genre::find($category['id']);
                 $category_obj->fill($category);
-                $category_obj->save();
+
+                ActionsLogHelper::create($category_obj, Actions::Update);
             } else {
                 $category_obj = new Genre($category);
-                $category_obj->save();
+
+                ActionsLogHelper::create($category_obj, Actions::Create);
+
                 $ids[] = $category_obj->id;
             }
         }

@@ -68,7 +68,7 @@
 
                     </div>
                 </div>
-                @include('blocks/comments', ['ajax' => false, 'lazyload' => true, 'page' => 1, 'conditions' => ['material_type' => $article->type_id ? $article->type_id : 1, 'material_id' => $article->original_id]])
+                @include('blocks.comments.list', ['ajax' => false, 'lazyload' => true, 'page' => 1, 'conditions' => ['material_type' => $article->type_id ? $article->type_id : 1, 'material_id' => $article->original_id]])
 
         </div>
         <div class="col col--sidebar">
@@ -95,7 +95,7 @@
                 <div class="box__inner">
                     <div class="see-also">
                         @foreach ($see_also as $see_also_item)
-                            @include('blocks/article_small', ['article' => $see_also_item])
+                            @include('blocks.articles.item-small', ['article' => $see_also_item])
                         @endforeach
                     </div>
                 </div>

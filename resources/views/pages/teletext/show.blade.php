@@ -6,7 +6,7 @@
     <div class="record-page teletext-page">
         <div class="box">
             <div class="box__breadcrumbs">
-                <a class="breadcrumbs__item" href="/teletext">Архив телетекста</a>
+                <a class="breadcrumbs__item" href="{{route('teletext.index')}}">Архив телетекста</a>
                 @if ($breadcrumb)
                     <a class="breadcrumbs__item" href="{{$breadcrumb['url']}}">{{$breadcrumb['name']}}</a>
 
@@ -30,11 +30,11 @@
                             @endif
                             @if ($teletext->can_edit)
                                 <a class="button--dropdown__list__item"
-                                   href="/teletext/{{$teletext->id}}/edit">Редактировать</a>
+                                   href="{{route('teletext.edit', $teletext)}}">Редактировать</a>
                                 <a class="button--dropdown__list__item"
                                    data-confirm-form-input-value="{{$teletext->id}}"
                                    data-confirm-form-text="Вы уверены, что хотите удалить этот телетекст?"
-                                   data-confirm-form-url="/teletext/delete">Удалить</a>
+                                   data-confirm-form-url="{{route('teletext.delete')}}">Удалить</a>
                             @endif
                         </div>
                     </span>
@@ -45,12 +45,12 @@
         <div class="row row--stretch record-page__content">
             <div class="col col--3 teletext-page__content">
                 <div class="inner-page__content">
-                    @include('blocks.teletext-player')
+                    @include('blocks.teletext.player')
 
                     <div class="box">
                         <div class="box__inner">
                             <div class="record-page__bottom">
-                                @include('blocks.teletext-info')
+                                @include('blocks.teletext.info')
                             </div>
 
                             @if($teletext->description != '')
@@ -61,7 +61,7 @@
                         </div>
                     </div>
                 </div>
-                @include('blocks/comments', ['class' => 'record-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Models\Teletext::TYPE_TELETEXT, 'material_id' => $teletext->id]])
+                @include('blocks.comments.list', ['class' => 'record-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_TELETEXT, 'material_id' => $teletext->id]])
             </div>
             <div class="col col--sidebar col--1 record-page__related-container">
                 @if ($related && count ($related) > 0)
@@ -73,8 +73,8 @@
                         </div>
                         <div class="box__inner">
                             <div class="record-page__related">
-                                @foreach ($related as $item)
-                                    @include('blocks/teletext', ['teletext' => $item])
+                                @foreach ($related as $teletext)
+                                    @include('blocks.teletext.item', $teletext)
                                 @endforeach
 
                             </div>

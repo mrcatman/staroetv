@@ -23,7 +23,6 @@
 
     &__main-content {
         position: relative;
-        padding: 1em;
     }
 
     &__link {
@@ -185,9 +184,8 @@
             }
         }
         font-size: 1.125em;
-        &--bigger {
-            font-size: 1.25em;
 
+        &--bigger {
             td {
                 padding: 1em;
             }
@@ -259,12 +257,13 @@
 }
 
 .editor-panel {
-    padding: 0 .5em;
-
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
     &__title {
         font-size: 1.75em;
         margin: 0;
-        padding: .5em 0;
+        padding: .25em 0;
     }
 
     &__row {
@@ -272,18 +271,45 @@
         align-items: center;
         justify-content: space-between;
         border-bottom: 1px solid var(--border-color);
-        padding: .5em 0;
+        padding: .25em 0;
 
         &__title {
             font-size: 1.25em;
         }
     }
 
-    &__block {
-        margin: 0 0 3.5em;
+}
 
-        &:last-of-type {
-            margin-bottom: 0;
+
+.actions-logs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--col-margin);
+
+    &__item {
+        font-size: 1.25em;
+        line-height: 1.4;
+
+        &__link {
+            color: var(--primary);
+        }
+
+
+        &__changes {
+            font-size: .875em;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0 1em;
+        }
+
+        &__show-changes {
+            border-bottom: 1px solid;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        &__time {
+            font-size: .875em;
         }
     }
 }

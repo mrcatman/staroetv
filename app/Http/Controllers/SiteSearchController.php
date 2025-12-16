@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\MaterialTypes;
 use App\Models\Article;
 use App\Models\AdditionalChannel;
 use App\Models\Channel;
@@ -175,8 +176,8 @@ class SiteSearchController extends Controller {
             }
         }
         $articles_types = [
-            Article::TYPE_ARTICLES => ['url' => 'articles', 'title' => 'Статьи'],
-            Article::TYPE_NEWS => ['url' => 'news', 'title' => 'Новости'],
+            MaterialTypes::TYPE_ARTICLES => ['url' => 'articles', 'title' => 'Статьи'],
+            MaterialTypes::TYPE_NEWS => ['url' => 'news', 'title' => 'Новости'],
         ];
         foreach ($articles_types as $articles_type => $articles_data) {
             $articles = Article::approved()->where(['type_id' => $articles_type])->where(function($q) use ($search) {

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Constants\MaterialTypes;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use App\Traits\HasChannel;
@@ -13,7 +14,6 @@ class Record extends Model {
     use HasChannel;
 
     protected $guarded = [];
-    const TYPE_VIDEOS = 10;
     protected $appends = ['url'];
 
     public function getTitleAttribute() {
@@ -56,15 +56,15 @@ class Record extends Model {
     }
 
     public function user() {
-        return $this->belongsTo('App\Models\User', 'author_id', 'id');
+        return $this->belongsTo(User::class, 'author_id', 'id');
     }
 
     public function channel() {
-        return $this->belongsTo('App\Models\Channel', 'channel_id', 'id');
+        return $this->belongsTo(Channel::class, 'channel_id', 'id');
     }
 
     public function program() {
-        return $this->belongsTo('App\Models\Program', 'program_id', 'id');
+        return $this->belongsTo(Program::class, 'program_id', 'id');
     }
 
     public function getProgramNameAttribute() {
@@ -75,13 +75,13 @@ class Record extends Model {
         }
     }
 
+    public function getRoutePrefixAttribute()
+    {
+        return route_prefix_records($this->is_radio);
+    }
 
     public function getUrlAttribute() {
-        if ($this->is_radio) {
-            return "/radio/" . $this->id;
-        } else {
-            return "/video/" . $this->id;
-        }
+        return route('records.'.$this->route_prefix.'.show', $this->id);
     }
 
 
@@ -235,7 +235,7 @@ class Record extends Model {
 
 
     public function comments() {
-        return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => self::TYPE_VIDEOS]);
+        return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => MaterialTypes::TYPE_RECORDS]);
     }
 
     public function getCreatedAtAttribute() {
@@ -324,7 +324,7 @@ class Record extends Model {
     }
 
     public function interprogramPackage() {
-        return $this->belongsTo(InterprogramPackage::class, "interprogram_package_id", "id");
+        return $this->belongsTo(DesignPackage::class, "interprogram_package_id", "id");
     }
 
     public function interprogramTypeData() {

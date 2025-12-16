@@ -58,7 +58,7 @@
                                 @foreach($block->records as $record)
                                     <div class="event-page__player-container__outer">
                                         <div class="event-page__player-container">
-                                            @include('blocks/player', ['record' => $record])
+                                            @include('blocks.records.player', ['record' => $record])
                                         </div>
                                         @if ($record->block_description)
                                             <div class="event-page__player-container__description">{{$record->block_description}}</div>
@@ -71,11 +71,11 @@
                 @endforeach
                 <div class="box">
                     <div class="box__inner">
-                        @include('blocks/share')
+                        @include('blocks.global.share')
                     </div>
                 </div>
                 <div class="row row--align-start">
-                    @include('blocks/comments', ['class' => 'event-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Models\HistoryEvent::TYPE_HISTORY_EVENT, 'material_id' => $event->id]])
+                    @include('blocks.comments.list', ['class' => 'event-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_HISTORY_EVENTS, 'material_id' => $event->id]])
                 </div>
             </div>
 
