@@ -17,7 +17,9 @@
         "vite": "^7.2.7"
     },
     "dependencies": {
+        "@types/select2": "^4.0.63",
         "@vitejs/plugin-vue": "^6.0.3",
+        "@wslyhbb/vue3-tags-input": "^3.0.7",
         "cross-env": "^10.0.0",
         "date-fns": "^4.1.0",
         "jquery": "^3.7.1",
@@ -32,6 +34,7 @@
         "select2": "^4.1.0-rc.0",
         "stylus": "^0.64.0",
         "tus-js-client": "^4.3.1",
-        "vue": "^3.5.25"
+        "vue": "^3.5.25",
+        "vuedraggable": "^4.1.0"
     }
 }

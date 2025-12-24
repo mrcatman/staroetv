@@ -204,6 +204,11 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         Route::post('screenshot', [RecordsController::class, 'screenshot'])->name('screenshot');
         Route::post('set-telegram-id', [RecordsController::class, 'setTelegramID'])->name('set-telegram-id');
         Route::get('playlist-ajax/{id}', [RecordsController::class, 'playlistAjax'])->name('playlist-ajax');
+
+        Route::get('autocomplete/countries', [RecordsController::class, 'autocompleteCountries'])->name('autocomplete.countries');
+        Route::get('autocomplete/regions', [RecordsController::class, 'autocompleteRegions'])->name('autocomplete.regions');
+        Route::get('similar', [RecordsController::class, 'similar'])->name('similar');
+
     });
 
     // MASS UPLOAD

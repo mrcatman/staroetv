@@ -64,9 +64,9 @@ $(body).on('submit', '.form', function (e) {
 
     const url = $(this).attr('action') || window.location.pathname;
     $('#editor').each(function () {
-        let $textarea = $(this);
-        if (CKEDITOR.instances['editor']) {
-            $textarea.val(CKEDITOR.instances['editor'].getData());
+        const textarea = $(this);
+        if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances['editor']) {
+            textarea.val(CKEDITOR.instances['editor'].getData());
         }
     });
 

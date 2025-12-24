@@ -27,8 +27,10 @@ class ChannelsController extends EntityController {
     ];
     protected $redirect_after_delete = '/video';
 
-    public function show($url) {
-        $data = Cache::remember('channel_1'.$url, 60 * 10, function() use ($url) {
+    public function show($url)
+    {
+
+        $channel = Cache::remember('channel_data_' . $url, 60 * 10, function () use ($url) {
             $channel = Channel::where(['url' => $url])->first();
             if (!$channel) {
                 $channel = Channel::where(['id' => $url])->first();
@@ -36,6 +38,10 @@ class ChannelsController extends EntityController {
             if (!$channel) {
                 return redirect(route('index'));
             }
+            return $channel;
+        });
+
+        $genres = Cache::remember('channel_programs_' . $url, 60 * 10, function () use ($channel) {
             $programs = $channel->programs()->withCount('records')->get();
             $additional = $channel->additionalPrograms()->withCount('records')->get();
             foreach ($additional as $program) {
@@ -89,6 +95,12 @@ class ChannelsController extends EntityController {
                 'name' => 'Популярные',
                 'programs' => $popular_programs
             ]);
+
+            return $genres;
+        });
+
+        $interprogram_packages = Cache::remember('channel_interprogram_' . $url, 60 * 10, function () use ($channel) {
+
             $interprogram_packages = $channel->interprogramPackages;
 //        foreach ($interprogram_packages as $interprogram_package) {
 //            //$interprogram_package->records = $interprogram_package->records->shuffle();
@@ -114,17 +126,17 @@ class ChannelsController extends EntityController {
                     'records' => collect([])
                 ]));
             }
-            return [
-                'channel' => $channel,
-                'programs' => $genres,
-                'interprogram_packages' => $interprogram_packages,
-                'records_conditions' => ['show_years' => true, 'channel_id' => $channel->id, 'is_advertising' => false, 'is_radio' => $channel->is_radio],
-                'records_conditions_interprogram' => ['channel_id' => $channel->id, 'is_interprogram' => true, 'is_radio' => $channel->is_radio]
-            ];
+            return $interprogram_packages;
         });
 
-        ViewsHelper::increment($data['channel'], 'channels');
-        return view("pages.channels.show", $data);
+        ViewsHelper::increment($channel, 'channels');
+        return view("pages.channels.show", [
+            'channel' => $channel,
+            'programs' => $genres,
+            'interprogram_packages' => $interprogram_packages,
+            'records_conditions' => ['show_years' => true, 'channel_id' => $channel->id, 'is_advertising' => false, 'is_radio' => $channel->is_radio],
+            'records_conditions_interprogram' => ['channel_id' => $channel->id, 'is_interprogram' => true, 'is_radio' => $channel->is_radio]
+        ]);
     }
 
     public function add() {
@@ -199,10 +211,13 @@ class ChannelsController extends EntityController {
             foreach ($names as $name) {
                 $start = Carbon::parse($name->date_start);
                 $end = Carbon::parse($name->date_end);
-
+                $alternatives = isset($name->alternatives) ? array_values(array_map(function($alternative) {
+                    return $alternative->text;
+                }, $name->alternatives)) : [];
                 $name_data = [
                     'channel_id' => $channel->id,
                     'name' => $name->name,
+                    'alternatives' => $alternatives,
                     'logo_id' => $name->logo_id,
                     'date_start' => !$start->isToday() ? $start  : null,
                     'date_end' => !$end->isToday() ? $end : null

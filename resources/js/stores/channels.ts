@@ -10,15 +10,19 @@ export const useChannelsStore = defineStore('channels', () => {
     } = {};
 
     const load = () => {
-        if (channels.value?.length) {
-            return;
-        }
-        loading.value = true;
-        $.get(route('channels.ajax')).then(({data})=> {
-            channels.value = data.channels;
-            buildNamesMap();
-            loading.value = false;
-        });
+        return new Promise<void>(resolve => {
+            if (channels.value?.length) {
+                return resolve();
+            }
+            loading.value = true;
+            $.get(route('channels.ajax')).then(({data})=> {
+                channels.value = data.channels;
+                buildNamesMap();
+                loading.value = false;
+                return resolve();
+            });
+        })
+
     }
 
     const buildNamesMap = () => {
@@ -32,15 +36,10 @@ export const useChannelsStore = defineStore('channels', () => {
         });
     }
 
-    const findByName = (name: string): Models.Channel => {
-        return names[name];
-    }
-
     return {
         load,
         loading,
         channels,
-        findByName,
     }
 
 });

@@ -146,11 +146,12 @@ namespace Models {
         articles?: Article[];
     };
     export type ChannelName = {
-        id: number;
+        id?: number;
         channel_id: any;
         name: string;
-        date_start?: string;
-        date_end?: string;
+        alternatives?: string[];
+        date_start?: Date | string;
+        date_end?: Date | string;
         logo_id?: any;
         created_at?: string;
         updated_at?: string;

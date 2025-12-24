@@ -65,10 +65,10 @@ const registerComponents = (app) => {
         return import('./components/CrosspostsManager.vue')
     }));
     app.component('channel-select', defineAsyncComponent(() => {
-        return import('./components/ChannelSelect.vue')
+        return import('./components/record-form/ChannelSelect.vue')
     }));
     app.component('date-select', defineAsyncComponent(() => {
-        return import('./components/DateSelect.vue')
+        return import('./components/record-form/DateSelect.vue')
     }));
     app.component('tags-editor', defineAsyncComponent(() => {
         return import('./components/TagsEditor.vue')
@@ -101,6 +101,7 @@ const registerComponents = (app) => {
 }
 
 export const initializeVue = () => {
+    //app?.unmount()
     app = createApp({
         template: document.getElementById('app').innerHTML
     });
@@ -109,9 +110,6 @@ export const initializeVue = () => {
     app.mount('#app');
 }
 
-export const unmountVue = () => {
-    app.unmount()
-}
 
 
 

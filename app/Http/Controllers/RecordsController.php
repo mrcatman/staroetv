@@ -19,6 +19,7 @@ use App\Models\Program;
 use App\Models\Record;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -559,21 +560,49 @@ class RecordsController extends EntityController {
         return $this->fillData($record);
     }
 
+    /** @var Record $record */
     protected function fillData($record) {
-
         $user = auth()->user();
         $is_radio = !!request()->input('is_radio', false);
 
         $errors = [];
+        $type = request()->input('type');
 
-        $is_other = request()->input('is_other');
-        if ($is_other && request()->has('other_category_id')) {
-            $record->other_category_id = request()->input('other_category_id');
-        } else {
-            $record->other_category_id = null;
+        $record->is_interprogram = false;
+        $record->is_other = false;
+        $record->is_advertising = false;
+        $record->is_clip = false;
+
+        switch ($type) {
+            case 'programs':
+                break;
+            case 'interprogram':
+            case 'program-design':
+                $record->interprogram_package_id = request()->input('interprogram_package_id') > 0 ? request()->input('interprogram_package_id') : null;
+                $record->interprogram_type = request()->input('interprogram_type') > 0 ? request()->input('interprogram_type') : null;
+                // $errors['interprogram_type'] = "Выберите тип материала";
+
+                $record->is_interprogram = true;
+                break;
+            case 'other':
+                $record->is_other = true;
+                $record->other_category_id = request()->input('other.category_id', null);
+                break;
+            case 'advertising':
+                $record->is_advertising = true;
+                $record->advertising_brand = request()->input('advertising.brand', '');
+                $record->advertising_type = request()->input('advertising.type') > 0 ? request()->input('advertising.type') : null;
+                $record->region = request()->input('advertising.region', '');
+                $record->country = request()->input('advertising.country', '');
+
+                break;
+            case 'clips':
+                $record->is_clip = true;
+                break;
         }
-        $record->is_advertising = request()->input('is_advertising', false);
-        if (!$is_other && !$record->is_advertising) {
+
+
+        if (!$record->is_other && !$record->is_advertising) {
             if (!request()->input('channel.name') && !request()->input('channel_id') && !request()->input('channel.id') && request()->input('channel.unknown') !== true) {
                 if ($is_radio) {
                     $errors['channel'] = "Выберите радиостанцию";
@@ -585,8 +614,6 @@ class RecordsController extends EntityController {
             } elseif (request()->input('channel.unknown') !== true) {
                 if (request()->input('channel.id') > 0) {
                     $record->channel_id = request()->input('channel.id');
-                } elseif (request()->input('channel_id') > 0) {
-                    $record->channel_id = request()->input('channel_id');
                 } elseif (request()->input('channel.name') != "") {
                     $channel = Channel::firstOrNew(['name' => request()->input('channel.name')]);
                     if (!$channel->exists) {
@@ -599,22 +626,12 @@ class RecordsController extends EntityController {
         } else {
             $record->channel_id = null;
         }
-        $record->is_interprogram =  request()->input('is_interprogram', false);
-        $record->is_clip =  request()->input('is_clip', false);
 
-        if ($record->is_advertising) {
-            $record->advertising_brand = request()->input('advertising_brand', '');
-            if (request()->input('advertising_type') > 0) {
-                $record->advertising_type = request()->input('advertising_type');
-            }
-        }
-        $is_program_design = request()->input('is_program_design');
-
-        if (!$is_other) {
+        if (!$record->is_other) {
             if (!request()->input('program.name') && !request()->input('program.id') && request()->input('program.unknown') !== true && (!$record->is_interprogram && !$record->is_clip  && !$record->is_advertising)) {
                 $errors['program'] = "Выберите программу";
             } else {
-                if ($is_program_design || (!$record->is_interprogram && !$record->is_advertising && !$record->is_clip)) {
+                if ($type == 'program-design' || (!$record->is_interprogram && !$record->is_advertising && !$record->is_clip)) {
                     if (request()->input('program.id') > 0) {
                         $record->program_id = request()->input('program.id');
                     } elseif(request()->input('program.name') != "") {
@@ -635,73 +652,41 @@ class RecordsController extends EntityController {
         if ( request()->input('program.unknown') === true) {
             $record->program_id = null;
         }
-        if ($is_program_design) {
-            $record->is_interprogram = true;
-        }
-        $has_uploaded_video = request()->input('record.use_own_player', false) && request()->has('record.source_path');
+
+        $has_uploaded_video = request()->input('record.upload', false) && request()->has('record.uploaded_file_id');
         if (request()->input('record.code') == "" && !$has_uploaded_video && !$record->use_own_player) {
-            $errors['url'] = "Укажите ссылку";
+            $errors['url'] = "Укажите корректную ссылку";
         } else {
             $record->embed_code = request()->input('record.code');
             $record->external_id = RegexHelper::getExternalIdFromEmbedCode($record->embed_code);
         }
-        if (request()->input('date.year') > 0) {
-            $record->year = request()->input('date.year');
+
+        $record->year = request()->input('date.year') > 0 ? request()->input('date.year') : null;
+        $record->month = request()->input('date.month') > 0 ? request()->input('date.month') : null;
+        $record->day = request()->input('date.day') > 0 ? request()->input('date.day') : null;
+
+        if ($record->year && $record->month && $record->day) {
+            $record->date = Carbon::createFromDate($record->year, $record->month, $record->day);
         }
-        if (request()->input('date.month') > 0) {
-            $record->month = request()->input('date.month');
-        }
-        if (request()->input('date.day') > 0) {
-            $record->day = request()->input('date.day');
-        }
-        if (request()->input('date.year') > 0 && request()->input('date.month') > 0 && request()->input('date.day') > 0) {
-            $record->date = Carbon::createFromDate(request()->input('date.year'), request()->input('date.month'), request()->input('date.day'));
-        }
-        if (request()->input('date.year_start') > 0) {
-            $record->year_start = request()->input('date.year_start');
-        }
-        if (request()->input('date.year_end') > 0) {
-            $record->year_end = request()->input('date.year_end');
-        }
-        if (request()->input('short_description') != "") {
-            $record->short_description = request()->input('short_description');
-        } else {
-            $record->short_description = "";
-        }
-        if (request()->input('description') != "") {
-            $record->description = strip_tags(request()->input('description'));
-        } else {
-            $record->description = "";
-        }
-        if (request()->input('region') != "") {
-            $record->region = request()->input('region');
-        }
-        if (request()->input('country') != "") {
-            $record->country = request()->input('country');
-        }
+        $record->year_start = request()->input('date.year_start') > 0 ? request()->input('date.year_start') : null;
+        $record->year_end = request()->input('date.year_end') > 0 ? request()->input('date.year_end') : null;
+
+        $record->short_description = request()->input('short_description', '');
+        $record->description = strip_tags(request()->input('description', ''));
+        $record->source = request()->input('source', '');
+
         if (request()->input('is_selected')) {
             $record->is_selected = !!request()->input('is_selected');
         }
-        if ($record->is_interprogram) {
-            if (request()->input('interprogram_package_id') > 0) {
-                $record->interprogram_package_id = request()->input('interprogram_package_id');
-            }
-            if (request()->input('interprogram_type') > 0) {
-                $record->interprogram_type = request()->input('interprogram_type');
-            } else {
-               // $errors['interprogram_type'] = "Выберите тип материала";
-            }
-        }
+
         $cover_url = null;
-        if (request()->input('cover_id', 0) > 0) {
-            $record->cover_id = request()->input('cover_id');
+        if (request()->input('record.thumbnail_id') > 0) {
+            $record->cover_id = request()->input('record.thumbnail_id');
         } else {
-            if (request()->input('cover') != "") {
-                $cover_url = request()->input('cover');
-            } elseif (request()->input('record.cover') != "") {
-                $cover_url = request()->input('record.cover');
-            } elseif (request()->has('record.covers') && is_array(request()->input('record.covers')) && count(request()->input('record.covers')) > 0) {
-                $covers = request()->input('record.covers');
+            if (request()->input('record.thumbnail_url') != "") {
+                $cover_url = request()->input('record.thumbnail_url');
+            }  elseif (request()->has('record.thumbnails') && is_array(request()->input('record.thumbnails')) && count(request()->input('record.thumbnails')) > 0) {
+                $covers = request()->input('record.thumbnails');
                 $cover_url = $covers[count($covers) - 1];
             }
             if ($cover_url) {
@@ -716,31 +701,13 @@ class RecordsController extends EntityController {
                 }
             }
         }
-        if (request()->input("record.title", "") != "") {
-            $record->title = request()->input('record.title');
+        if (request()->input("title", "") != "") {
+            $record->title = request()->input('title');
         } else {
             $record->title = $record->generateTitle();
         }
         $record->title = strip_tags($record->title);
 
-        if ($has_uploaded_video) {
-            $record->use_own_player = true;
-            $record->source_type = "local";
-            $record->source_path = request()->input('record.source_path');
-            if (request()->has('record.thumbnail')) {
-                $cover_url = request()->input('record.thumbnail');
-                $cover = Picture::where(['url' => $cover_url])->first();
-                if ($cover) {
-                    $record->cover_id = $cover->id;
-                } else {
-                    $cover = new Picture([
-                        'url' => $cover_url
-                    ]);
-                    $cover->save();
-                    $record->cover_id = $cover->id;
-                }
-            }
-        }
         if ($record->exists && PermissionsHelper::allows('viedit')) {
             if (request()->has('original_added_at')) {
                 $record->original_added_at = Carbon::parse(request()->input('original_added_at'));
@@ -749,6 +716,17 @@ class RecordsController extends EntityController {
                 $record->author_id = request()->input('author_id');
             }
         }
+
+        $uploaded_file_id = null;
+        $original_path = null;
+        if ($has_uploaded_video) {
+            $uploaded_file_id = request()->input('record.uploaded_file_id');
+            $original_path = '/storage/temp-upload/' . $uploaded_file_id;
+            if (!file_exists($original_path)) {
+                $errors['uploaded_file_id'] = 'Ошибка загрузки: файл не найден. Повторите загрузку ещё раз';
+            }
+        }
+
         if (count($errors) > 0) {
             return [
                 'status' => 0,
@@ -756,30 +734,27 @@ class RecordsController extends EntityController {
                 'errors' => $errors
             ];
         }
-        if (request()->has('storage_file')) {
-            $filename = request()->input('storage_file');
-            $original_path = '/storage/temp-upload/'.$filename;
-            if (file_exists($original_path)) {
-                $new_path = "/storage/videos/$filename";
-                rename($original_path, $new_path);
-                $record->use_own_player = true;
-                $record->source_type = "local";
-                $record->source_path = "/videos/$filename";
+        if ($uploaded_file_id != null) {
+            $new_path = "/storage/videos/" . $uploaded_file_id;
+            rename($original_path, $new_path);
+            $record->use_own_player = true;
+            $record->source_type = "local";
+            $record->source_path = "/videos/" . $uploaded_file_id;
 
-                $screenshot_path = $this->makeScreenshot($new_path);
-                $cover = Picture::firstOrNew([
-                    'url' => $screenshot_path
-                ]);
-                $cover->save();
-                $record->cover_id = $cover->id;
-            }
+            $screenshot_path = $this->makeScreenshot($new_path);
+            $cover = Picture::firstOrNew([
+                'url' => $screenshot_path
+            ]);
+            $cover->save();
+            $record->cover_id = $cover->id;
         }
+
         $record->is_radio = $is_radio;
         if ($record->channel && $record->channel->is_radio) {
             $record->is_radio = true;
         }
         $is_new = !$record->id;
-
+dd($record);
         $record->save();
         $record->setSupposedDate();
         Cache::forget('record_'.$record->id);
@@ -1507,6 +1482,74 @@ class RecordsController extends EntityController {
             ]
         ];
     }
+
+    public function similar()
+    {
+        $type = request()->input('type');
+        $similar = Record::where(['title', 'LIKE', '%'.request()->input('title').'%']);
+        switch ($type) {
+            case 'programs':
+                $similar = $similar->orWhere([
+                    'program_id' => request()->input('program.id'),
+                    'channel_id' => request()->input('channel.id'),
+                    'year' => request()->input('date.year'),
+                    'month' => request()->input('date.month'),
+                    'day' => request()->input('date.day'),
+                ]);
+                break;
+            case 'advertising':
+                $similar = $similar->orWhere([
+                    'advertising_brand' => request()->input('advertising.brand'),
+                    'year_start' => request()->input('date.year_start'),
+                ]);
+                break;
+            default:
+                break;
+        }
+        $similar = $similar->get();
+        return [
+            'status' => 1,
+            'data' => $similar
+        ];
+    }
+
+    public function autocompleteCountries() {
+        $count = 30;
+        $countries = Channel::whereNotNull('country')->select('country')->distinct()->orderBy('country');
+        if (request()->has('term')) {
+            $countries = $countries->where('country', 'LIKE', '%'.request()->input('term').'%');
+        }
+        $page = request()->input('page', 1);
+        $countries = $countries->limit($count)->offset($count * ($page - 1))->get()->map(function($item) {
+            return $item->country;
+        });
+        return [
+            'status' => 1,
+            'data' => $countries
+        ];
+    }
+
+    public function autocompleteRegions() {
+        $count = 30;
+        $regions = DB::table('channels')->whereNotNull('city')->select(DB::raw('city as region'), 'country')->distinct()->orderBy('region')
+            ->union(DB::table('records')->whereNotNull('region')->select('region', 'country')->distinct()->orderBy('region'));
+        if (request()->has('term')) {
+            $regions = $regions->where('region', 'LIKE', '%'.request()->input('term').'%');
+        }
+        if (request()->has('country')) {
+            $regions = $regions->where('country', 'LIKE', '%'.request()->input('country').'%');
+        }
+        $page = request()->input('page', 1);
+        $regions = $regions->limit($count)->offset($count * ($page - 1))->get()->map(function($item) {
+            return $item->region;
+        });
+        return [
+            'status' => 1,
+            'data' => $regions
+        ];
+    }
+
+
 
     private function getChannelsForForm($params)
     {

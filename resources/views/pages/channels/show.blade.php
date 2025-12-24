@@ -183,7 +183,7 @@
                         <div class="box__heading__inner">Оформление канала ({{$channel->name}})</div>
                         @if ($can_edit_interprogram)
                             <div class="box__heading__right">
-                                <a href="{{route('design.channels.add', $channel->url)}}" class="button button--light">Добавить</a>
+                                <a href="{{route('design.channels.add', $channel->url ?? $channel->id)}}" class="button button--light">Добавить</a>
                             </div>
                         @endif
                     </div>

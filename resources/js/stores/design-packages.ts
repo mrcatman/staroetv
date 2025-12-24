@@ -13,7 +13,7 @@ export const useDesignPackagesStore = defineStore('DesignPackages', () => {
         }
 
         // @ts-ignore
-        $.get(route('channels.design-packages.ajax', channelId)).done(res => {
+        $.get(route('channels.design.ajax', channelId)).done(res => {
             designPackages[channelId] = res.data.design_packages;
         })
     }

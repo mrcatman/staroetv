@@ -2,8 +2,6 @@ import './init'
 import 'jquery-pjax';
 import './jquery-ui.min'
 
-import { createApp } from 'vue';
-
 import './bbcodes'
 import './uVideoPlayer'
 import './modules/articles'
@@ -40,7 +38,7 @@ import './modules/telegram-auth'
 import './modules/actions-logs'
 import './modules/teletext'
 
-import { initializeVue, unmountVue } from './vue-components'
+import { initializeVue } from './vue-components.js'
 
 function onPageChange() {
     let script = $('#pjax_scripts_container').data('script');
@@ -55,6 +53,7 @@ function onPageChange() {
 
 const onReady = () => {
     $(document).pjax('a[target!="_blank"]', '#pjax-container', {timeout: 10000});
+    console.log('pjax');
     onPageChange();
 
     let lastLoadedUrl = window.location.href;
@@ -63,7 +62,6 @@ const onReady = () => {
     let paginationScrollTop;
 
     $(document).on('pjax:start', (e) => {
-        unmountVue();
 
         isPaginationRequest = lastLoadedUrl.split('?')[0] === window.location.href.split('?')[0];
         if (isPaginationRequest) {

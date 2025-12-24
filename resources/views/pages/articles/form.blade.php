@@ -69,8 +69,12 @@
                 <div class="input-container">
                     <label class="input-container__label">Теги</label>
                     <div class="input-container__inner">
-                        <tags-editor :tags="{{$article ? $article->tags : '[]'}}"
-                                     :all-tags="{{\App\Models\Tag::all()}}"/>
+                        <tags-editor
+                            name="tags"
+                            :tags="{{$article ? $article->tags : '[]'}}"
+                            :all-tags="{{\App\Models\Tag::all()}}"
+
+                        />
                         <span class="input-container__message"></span>
                     </div>
                 </div>

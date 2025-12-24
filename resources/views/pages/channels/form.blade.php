@@ -115,7 +115,7 @@
                 </div>
                 <div style="display: none" class="tab-content" data-id="channels-form" data-tab="names-history">
                     <div class="input-container__inner">
-                        <names-history-editor :channelid="{{$channel ? $channel->id : "null"}}"
+                        <names-history-editor :channel-id="{{$channel ? $channel->id : "null"}}"
                                               :data="{{$channel ? $channel->names : "[]"}}"/>
                         <span class="input-container__message"></span>
                     </div>

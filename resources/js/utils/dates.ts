@@ -44,7 +44,7 @@ export const parseDate = (dateString: string): { day: number, month: number, yea
 }
 
 export const getYearOptions = () => {
-    const years = [{id: null, text: 'Неизвестно'}];
+    const years = [{id: -1, text: 'Неизвестно'}];
     for (let i = 1950; i <= 2010; i++) {
         years.push({id: i, text: i.toString()});
     }

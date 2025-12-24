@@ -1,22 +1,21 @@
 <template>
-    <div class="programs-manager" @mousedown="mousedown = true"  @drop="mousedown = false" @dragend="mousedown = false"  @mouseup="mousedown = false">
+    <div class="programs-manager">
 
-
-        <modal ref="mergeModal" title="Объединение программ" :loading="mergePanel.loading">
-            <div class="input-container" v-if="!mergePanel.data.is_interprogram">
+        <modal ref="mergeModal" title="Объединение программ" :loading="mergeLoading">
+            <div class="input-container" v-if="!mergeToInterprogram">
                 <label class="input-container__label">Программа</label>
                 <div class="input-container__inner">
-                    <select2 theme="default" :options="mergeOptions" v-model="mergePanel.data.merged_id"/>
+                    <select2 theme="default" :options="mergeOptions" v-model="mergeSecondProgramId"/>
                 </div>
             </div>
             <label class="input-container input-container--checkbox">
-                <input type="checkbox" v-model="mergePanel.data.is_interprogram">
+                <input type="checkbox" v-model="mergeToInterprogram">
                 <div class="input-container--checkbox__element"></div>
                 <div class="input-container__label">Переместить видео в раздел с межпрограммным оформлением</div>
             </label>
             <div class="form__bottom form__bottom--with-margin">
-                <a @click="mergePrograms()" class="button button--light">Выбрать</a>
-                <Response :light="true" :data="mergePanel.response"/>
+                <a @click="merge()" class="button button--light">Выбрать</a>
+                <Response :light="true" :data="mergeResponse"/>
             </div>
         </modal>
 
@@ -25,34 +24,36 @@
                 <div class="form__preloader" v-if="loading"></div>
                 <div class="programs-manager__cols">
                     <div class="programs-manager__col">
-                        <draggable group="programs" key="without_genre" v-model="withoutGenreList" class="programs-manager__items">
-                            <div class="programs-manager__item"  v-for="program in withoutGenreList" :key="program.name">
-                                <span class="programs-manager__item__name">{{program.name}}</span>
-                                <div class="programs-manager__item__actions">
-                                    <a :href="'/programs/'+(program.url ? program.url : program.id)" target="_blank" class="programs-manager__item__action">На страницу</a>
-                                    <a @click="merge(program)" class="programs-manager__item__action">Объединить...</a>
-                                </div>
-                            </div>
+                        <draggable
+                            group="programs"
+                            key="without_genre"
+                            itemKey="id"
+                            v-model="programsWithoutGenre"
+                            class="programs-manager__items"
+                            #item="{element}">
+                            <programs-manager-item
+                                :program="element"
+                                :key="element.name"
+                                @merge="showMergeModal(element)"
+                            />
                         </draggable>
                     </div>
                     <div class="programs-manager__col">
-                        <!--
-                        <div class="programs-manager__tabs">
-                            <div class="tabs tabs--full-size">
-                                <a @mouseover="onMouseEnterGenreTab(genre)" class="tab" v-for="(genre, $index) in genres" :key="$index" :class="{'tab--active': genre.id === selectedGenreId}" @click="selectedGenreId = genre.id">{{genre.name}}</a>
-                            </div>
-                        </div>
-                        -->
-                        <div v-for="(genre, $index) in genres" :key="genre.id">
-                            <h3 class="programs-manager__heading">{{genre.name}}</h3>
-                            <draggable group="programs" :key="'genre_'+genre.id" v-model="programsByGenre[genre.id]" class="programs-manager__items">
-                                <div class="programs-manager__item"  v-for="program in programsByGenre[genre.id]" :key="program.name">
-                                    <span class="programs-manager__item__name">{{program.name}}</span>
-                                    <div class="programs-manager__item__actions">
-                                        <a :href="'/programs/'+(program.url ? program.url : program.id)" target="_blank" class="programs-manager__item__action">На страницу</a>
-                                        <a @click="merge(program)" class="programs-manager__item__action">Объединить...</a>
-                                    </div>
-                                </div>
+                        <div v-for="genre in genres" :key="genre.id">
+                            <h3 class="programs-manager__heading">{{ genre.name }}</h3>
+                            <draggable
+                                group="programs"
+                                :key="'genre_'+genre.id"
+                                itemKey="id"
+                                v-model="programsByGenre[genre.id]"
+                                class="programs-manager__items"
+                                #item="{element}"
+                            >
+                                <programs-manager-item
+                                    :program="element"
+                                    :key="element.name"
+                                    @merge="showMergeModal(element)"
+                                />
                             </draggable>
                         </div>
 
@@ -68,161 +69,150 @@
     </div>
 </template>
 <style lang="scss">
-    .programs-manager {
-        &__cols {
-            display: flex;
-            gap: var(--col-margin);
+.programs-manager {
+    &__cols {
+        display: flex;
+        gap: var(--col-margin);
+    }
+
+    &__col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        max-height: 75vh;
+        overflow: auto;
+    }
+
+    &__heading {
+        margin: .5em 0;
+        font-size: 1.25em;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: .5em;
+        margin: 0 0 .25em;
+        background: var(--bg-darker-2);
+        border: 1px solid var(--border-color);
+        font-weight: 400;
+
+        &__actions {
+            white-space: nowrap;
         }
 
-        &__col {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            max-height: 75vh;
-            overflow: auto;
-        }
-
-        &__heading {
-            margin: .5em 0;
-            font-size: 1.25em;
-        }
-        &__item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: .5em;
-            margin: 0 0 .25em;
-            background: var(--bg-darker-2);
-            border: 1px solid var(--border-color);
-            font-weight: 400;
-            &__actions {
-                white-space: nowrap;
-            }
-            &__action {
-                margin: 0 0 0 .5em;
-                font-size: .875em;
-                text-decoration: underline;
-                cursor: pointer;
-            }
-        }
-        &__tabs {
-            margin: 0 0 .5em;
-        }
-        &__items {
-            flex: 1;
+        &__action {
+            margin: 0 0 0 .5em;
+            font-size: .875em;
+            text-decoration: underline;
+            cursor: pointer;
         }
     }
+
+    &__tabs {
+        margin: 0 0 .5em;
+    }
+
+    &__items {
+        flex: 1;
+    }
+}
 </style>
-<script>
-    import draggable from 'vuedraggable'
-    import Response from '../Response.vue'
-    import Modal from '../Modal.vue'
+<script lang="ts" setup>
+import {computed, ref, useTemplateRef} from "vue";
 
-    export default {
-        computed: {
-            mergeOptions() {
-                let programs = this.mergePanel.program ? this.programsList.filter(program => program.id !== this.mergePanel.program.id) : this.programsList;
-                return programs.map(program => {
-                    return {id: program.id, text: program.name};
-                })
+import draggable from 'vuedraggable'
+import Response from '../Response.vue'
+import Modal from '../Modal.vue'
+import ProgramsManagerItem from "@/components/programs-manager/ProgramsManagerItem.vue";
+
+const props = defineProps<{
+    channel: Models.Channel,
+    genres: Models.Genre[],
+    programs: Models.Program[]
+}>();
+
+const programs = ref<Models.Program>(props.programs);
+const programsWithoutGenre = ref<Models.Program[]>(props.programs.filter(program => !program.genre_id));
+const programsByGenre = ref<{
+    [key: string]: Models.Program[]
+}>({});
+
+props.genres.forEach(genre => {
+    programsByGenre.value[genre.id] = props.programs.filter(program => program.genre_id === genre.id);
+});
+
+const mergeSelectedProgram = ref<Models.Program>();
+const mergeLoading = ref<boolean>(false);
+const mergeSecondProgramId = ref<number>();
+const mergeToInterprogram = ref<boolean>(false);
+const mergeResponse = ref<Forms.Response>();
+const mergeModalRef = useTemplateRef('mergeModal');
+
+const mergeOptions = computed(() => {
+    const programs = mergeSelectedProgram.value ? props.programs.filter(
+        program => program.id !== mergeSelectedProgram.value.id
+    ) : props.programs;
+    return programs.map(program => {
+        return {id: program.id, text: program.name};
+    })
+})
+
+const merge = () => {
+    mergeLoading.value = true;
+    $.post('/programs/merge', {
+        original_id: mergeSelectedProgram.value.id,
+        merged_id: mergeSecondProgramId.value,
+        is_interprogram: mergeToInterprogram.value
+    }).done(res => {
+        mergeLoading.value = false;
+        mergeResponse.value = res;
+        if (res.status) {
+            mergeModalRef.value.hide();
+            programs.value = programs.value.filter(program => program.id !== this.mergeSelectedProgram.value.id);
+            let genreId = this.mergeSelectedProgram.value.genre_id;
+            if (genreId && genreId > 0) {
+                programsByGenre.value[genreId] = programsByGenre[genreId].value.filter(
+                    program => program.id !== mergeSelectedProgram.value.id
+                );
+            } else {
+                programsWithoutGenre.value = programsWithoutGenre.value.filter(
+                    program => program.id !== mergeSelectedProgram.value.id
+                );
             }
-        },
-        methods: {
-            mergePrograms() {
-                this.mergePanel.loading = true;
-                $.post('/programs/merge', {
-                    original_id: this.mergePanel.program.id,
-                    merged_id: this.mergePanel.data.merged_id,
-                    is_interprogram: this.mergePanel.data.is_interprogram
-                }).done(res => {
-                    this.mergePanel.loading = false;
-                    this.mergePanel.response = res;
-                    if (res.status) {
-                        this.$refs.mergeModal.hide();
-                        this.programsList = this.programsList.filter(program => program.id !== this.mergePanel.program.id);
-                        let genreId = this.mergePanel.program.genre_id;
-                        if (genreId && genreId > 0) {
-                            this.programsByGenre[genreId] = this.programsByGenre[genreId].filter(program => program.id !== this.mergePanel.program.id);
-                        } else {
-                            this.withoutGenreList = this.withoutGenreList.filter(program => program.id !== this.mergePanel.program.id);
-                        }
-                    }
-                }).fail((xhr) => {
-                    this.mergePanel.loading = false;
-                    let error = xhr.responseJSON;
-                    this.mergePanel.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
-                })
-            },
-            merge(program) {
-                this.mergePanel.program = program;
-                this.$refs.mergeModal.show();
-            },
-            onMouseEnterGenreTab(genre) {
-                if (this.mousedown) {
-                    this.selectedGenreId = genre.id;
-                }
-            },
-            saveOrder() {
-                this.loading = true;
-                let order = {};
-                Object.keys(this.programsByGenre).forEach(genreId => {
-                    order[genreId] = this.programsByGenre[genreId].map(program => program.id);
-                })
-                order[-1] = this.withoutGenreList.map(program => program.id);
-                $.post(`/channels/${this.channel.url}/programs/edit`, {order}).done(res => {
-                    this.loading = false;
-                    this.response = res;
-                }).fail((xhr) => {
-                    this.loading = false;
-                    let error = xhr.responseJSON;
-                    this.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
-                })
-            },
-        },
-        props: {
-            channel: {
-                type: Object,
-                required: true
-            },
-            genres: {
-                type: Array,
-                required: true,
-            },
-            programs: {
-                type: Array,
-                required: true,
-            },
-        },
-        data() {
-            return {
-                mousedown: false,
-                selectedGenreId: this.genres[0].id,
-                programsList: this.programs,
-                response: null,
-                loading: false,
-                withoutGenreList: [],
-                programsByGenre: {},
-                mergePanel: {
-                    data: {
-                        merged_id: -1,
-                        is_interprogram: false,
-                    },
-                    program: null,
-                    loading: false,
-                    response: null,
-                }
-            }
-        },
-        mounted() {
-            this.withoutGenreList = this.programsList.filter(program => !program.genre_id);
-            this.genres.forEach(genre => {
-                this.$set(this.programsByGenre, genre.id, this.programsList.filter(program => program.genre_id === genre.id));
-            })
-        },
-        components: {
-            Modal,
-            Response,
-            draggable
         }
-    }
+    }).fail((xhr) => {
+        mergeLoading.value = false;
+        const error = xhr.responseJSON;
+        mergeResponse.value = {
+            status: 0,
+            text: error.message === "" ? "Неизвестная ошибка" : error.message
+        };
+    })
+}
+
+const showMergeModal = (program: Models.Program) => {
+    mergeSelectedProgram.value = program;
+    mergeModalRef.value.show();
+}
+
+const loading = ref<boolean>(false);
+const response = ref<Forms.Response>();
+const saveOrder = () => {
+    loading.value = true;
+    const order = {};
+    Object.keys(programsByGenre.value).forEach(genreId => {
+        order[genreId] = programsByGenre.value[genreId].map(program => program.id);
+    })
+    order[-1] = programsWithoutGenre.value.map(program => program.id);
+    $.post(route('programs.edit-list', props.channel.id), {order}).done(res => {
+        loading.value = false;
+        response.value = res;
+    }).fail((xhr) => {
+        loading.value = false;
+        const error = xhr.responseJSON;
+        response.value = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+    })
+}
 </script>

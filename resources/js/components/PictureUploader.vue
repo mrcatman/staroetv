@@ -4,7 +4,7 @@
             <div class="picture-uploader__list">
                 <div @click="setPicture(picture)" class="picture-uploader__item" v-for="(picture, $index) in picturesList" :key="$index">
                     <div class="picture-uploader__item__image" :style="{backgroundImage: `url(${picture.url})`}"></div>
-                    <div class="picture-uploader__item__date">Дата загрузки: {{picture.created_at}}</div>
+                    <div class="picture-uploader__item__date">Дата загрузки: {{new Date(picture.created_at).toLocaleDateString()}}</div>
                 </div>
             </div>
         </modal>

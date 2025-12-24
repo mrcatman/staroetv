@@ -4,8 +4,10 @@ import {ref} from "vue";
 export const useTusUpload = (isRadio?: boolean) => {
 
     const file = ref<File>();
+    const needUpload = ref<boolean>(false);
     const setFile = (_file: File) => {
         file.value = _file;
+        needUpload.value = !!_file;
     }
 
     const endpoint = ref<string>();
@@ -23,9 +25,7 @@ export const useTusUpload = (isRadio?: boolean) => {
     const upload = () => {
         isUploading.value = true;
         return new Promise((resolve, reject) => {
-
-
-            const tusUpload = new tus.Upload(file, {
+            const tusUpload = new tus.Upload(file.value, {
                 endpoint: endpoint.value,
                 retryDelays: [0, 1000, 3000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000],
                 chunkSize: 10 * 1048576,
@@ -45,6 +45,7 @@ export const useTusUpload = (isRadio?: boolean) => {
                         server_upload_id: uploadId[uploadId.length - 1],
                         is_radio: isRadio
                     }).done(res => {
+                        needUpload.value = false;
                         isUploading.value = false;
                         resolve(res.data);
 
@@ -58,6 +59,7 @@ export const useTusUpload = (isRadio?: boolean) => {
                     });
                 }
             })
+            tusUpload.start();
         })
     }
 
@@ -66,6 +68,7 @@ export const useTusUpload = (isRadio?: boolean) => {
         setFile,
         setEndpoint,
 
+        needUpload,
         isUploading,
         percent,
 

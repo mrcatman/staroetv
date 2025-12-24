@@ -20,3 +20,88 @@ export const filterChannel = (channel: Models.Channel, type: string) => {
     }
     return false;
 }
+
+export const getDisplayName = (_channel: Models.Channel) => {
+    if (_channel.city && _channel.city !== '') {
+        return `${_channel.name} (${_channel.city})`;
+    } else {
+        if (_channel.country && _channel.country !== '') {
+            return `${_channel.name}  (${_channel.country})`;
+        }
+    }
+    return _channel.name;
+}
+
+export const getAdditionalNames = (channel: Models.Channel) => {
+    const additionalNames = [...new Set(channel.names.filter(name => name.name && name.name !== '' && name.name !== channel.name).map(name => name.name))];
+    return additionalNames.join(', ');
+}
+
+const normalizeName = (name: string) => {
+    return name.toLowerCase().replace('-', '');
+}
+
+export const findByName = (name: string, list: Models.Channel[]): {
+    channel: Models.Channel | null,
+    name: string | null
+} => {
+    const normalizedName = normalizeName(name);
+
+    for (const channel of list) {
+        if (normalizeName(channel.name) === normalizedName) {
+            return {
+                channel,
+                name: channel.name
+            };
+        }
+        for (const name of channel.names) {
+            if (normalizeName(name.name) === normalizedName) {
+                return {
+                    channel,
+                    name: name.name
+                };
+            }
+            if (name.alternatives?.length) {
+                for (const alternative of name.alternatives) {
+                    if (normalizeName(alternative) === normalizedName) {
+                        return {
+                            channel,
+                            name: name.name
+                        };
+                    }
+                }
+            }
+        }
+    }
+
+    for (const channel of list) {
+        if (normalizeName(channel.name).includes(normalizedName)) {
+            return {
+                channel,
+                name: channel.name
+            };
+        }
+        for (const name of channel.names) {
+            if (normalizeName(name.name).includes(normalizedName)) {
+                return {
+                    channel,
+                    name: name.name
+                };
+            }
+            if (name.alternatives?.length) {
+                for (const alternative of name.alternatives) {
+                    if (normalizeName(alternative).includes(normalizedName)) {
+                        return {
+                            channel,
+                            name: name.name
+                        };
+                    }
+                }
+            }
+        }
+    }
+    return {
+        channel: null,
+        name: null
+    };
+}

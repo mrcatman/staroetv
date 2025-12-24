@@ -1,55 +1,55 @@
 <template>
-    <select :name="name">
+    <select :name="name" ref="el">
         <slot></slot>
     </select>
 </template>
-<script>
-   export default {
-       props: ['options', 'value', 'theme', 'name', 'customOptions'],
-       data() {
-           return {
-               ready: false,
-               select2: null,
-           }
-       },
-       methods: {
-           setData(data) {
-               $(this.$el).data().select2.updateSelection(data);
-           }
-       },
-       mounted() {
-           let vm = this;
-           this.select2 = $(this.$el).select2({
-               data: this.options,
-               theme: this.theme, ...(this.customOptions || {})
-           }).val(this.value).trigger('change').on('change', function (e) {
-               console.log(e);
-               vm.$emit('change', $(this).val())
-               vm.$emit('input', $(this).val())
-           })[0];
-           setTimeout(() => {
-               this.ready = true;
-           }, 500)
-       },
-       watch: {
-           value(value) {
-               if (value === this.value) {
-                   return;
-               }
-               if (this.ready) {
-                   this.$emit('change', this.value)
-               }
-               $(this.$el).val(value).trigger('change')
-           },
-           options(options) {
-               $(this.$el).empty().select2({data: options});
-               setTimeout(() => {
-                   $(this.$el).val(this.value).trigger('change')
-               }, 1);
-           }
-       },
-       destroyed() {
-           $(this.$el).off().select2('destroy')
-       }
-   }
+<script lang="ts" setup>
+import {nextTick, onBeforeUnmount, onMounted, useTemplateRef, ref, watch} from "vue";
+
+const props = defineProps<{
+    options?: any,
+    name?: string,
+    theme?: 'default',
+    customOptions?: any
+}>();
+
+const select2 = ref();
+const model = defineModel<string | number | string[] | number[]>();
+const el = useTemplateRef('el');
+const emit = defineEmits<{ (e: 'change'): void }>();
+
+const language = {
+    searching: () => 'Загрузка...'
+}
+
+onMounted(() => {
+    select2.value = $(el.value).select2({
+        data: props.options || [],
+        theme: props.theme,
+        language,
+        ...(props.customOptions || {})
+    }).val(model.value).trigger('change').on('change', function (e, params) {
+        model.value = $(this).val();
+
+        if (!params?.manual) {
+            emit('change');
+        }
+    })[0];
+})
+
+watch(() => model.value, () => {
+    $(el.value).val(model.value).trigger('change', {manual: true})
+})
+
+watch(() => props.options, async() => {
+    $(el.value).empty().select2({data: props.options});
+    await nextTick();
+    $(el.value).val(model.value).trigger('change', {manual: true})
+})
+
+onBeforeUnmount(() => {
+    $(el.value).off().select2('destroy')
+})
+
+defineExpose({select2});
 </script>
