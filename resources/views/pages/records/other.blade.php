@@ -16,7 +16,7 @@
                     <div class="breadcrumbs">
                         <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].index', $is_radio)}}">Архив</a>
                         <a class="breadcrumbs__item @if (!$category) breadcrumbs__item--current @endif"
-                           @if ($category) href="{{typed_route('records.[RECORD].other', $is_radio)}}" @endif>Прочее
+                           @if ($category) href="{{$category->full_url}}" @endif>Прочее
                         </a>
                         @if ($category)
                             <a class="breadcrumbs__item breadcrumbs__item--current">{{$category->name}}</a>
@@ -38,7 +38,7 @@
                         @foreach ($categories as $category_item)
                             <div class="record-categories__item-container">
                                 <a class="record-categories__item @if ($category && $category->id == $category_item->id) record-categories__item--active @endif"
-                                   href="{{typed_route('records.[RECORD].other.category', $is_radio, $category_item->url)}}">
+                                   href="{{ $category_item->full_url}}">
                                     {{$category_item->name}}
                                     <span class="record-categories__item__count">{{$category_item->records_count}}</span>
                                 </a>
@@ -54,7 +54,7 @@
 
 
         <div class="col col--sidebar">
-            @include('blocks/generic_sidebar', ['hide_articles' => true, 'is_radio' => $is_radio])
+            @include('blocks.global.generic-sidebar', ['hide_articles' => true, 'is_radio' => $is_radio])
         </div>
     </div>
 @endsection

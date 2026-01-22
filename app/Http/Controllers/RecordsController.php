@@ -2,13 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\CacheTimes;
 use App\Constants\MaterialTypes;
+use App\Constants\Periods;
+use App\Constants\RecordComplaintTypes;
+use App\Constants\Records;
 use App\Helpers\DatesHelper;
 use App\Helpers\ExternalServicesHelper;
+use App\Helpers\MediaHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\RecordsHelper;
 use App\Helpers\RegexHelper;
 use App\Helpers\ViewsHelper;
+use App\Http\Requests\RecordsSearchRequest;
+use App\Jobs\makeThumbnail;
+use App\Jobs\DownloadExternalVideo;
 use App\Models\AdditionalChannel;
 use App\Models\Channel;
 use App\Models\ChannelName;
@@ -17,23 +25,25 @@ use App\Models\DesignPackage;
 use App\Models\Picture;
 use App\Models\Program;
 use App\Models\Record;
+use App\Models\RecordComplaint;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use Mews\Purifier\Facades\Purifier;
 
 
-class RecordsController extends EntityController {
-
-    protected $entity_class = Program::class;
+class RecordsController extends EntityController
+{
+    protected $entity_class = Record::class;
     protected $permissions = [
         'approve' => 'viapprove'
     ];
 
-
-    public function buildChannelsList($params) {
+    public function buildChannelsList($params)
+    {
         $hash = md5(json_encode($params));
-        return Cache::remember('channels_list_'.$hash, 60 * 20, function() use ($params) {
+        return Cache::remember('channels_list_' . $hash, CacheTimes::PAGE, function () use ($params) {
             $federal = Channel::where(['is_federal' => true])->where($params)->orderBy('order', 'ASC')->get();
 
             $regions = json_decode(file_get_contents(storage_path("cities.json")), 1);
@@ -107,18 +117,21 @@ class RecordsController extends EntityController {
 
     public function buildOtherCategoriesList()
     {
-        return Cache::remember('other_categories_list', 60 * 20, function() {
+        return Cache::remember('other_categories', CacheTimes::PAGE, function () {
+            $global_programs = Program::withCount('records')->whereNull('channel_id')->get();
             $other_categories = Genre::withCount('records')->where(['type' => 'videos_other'])->get();
             foreach ($other_categories as $other_category) {
+                $other_category->full_url = typed_route('records.[RECORD].other.category', false, $other_category->url);
                 $other_category->cover_url = Record::where(['other_category_id' => $other_category->id])->whereNotNull('cover_id')->inRandomOrder()->limit(1)->first()->coverPicture->url;
             }
-            $unknown = Record::where(['is_advertising' => false, 'is_radio' => false])->doesntHave('channel')->whereNull('other_category_id');
+            $other_categories = $global_programs->merge($other_categories);
+            $unknown = Record::where(['is_interprogram' => false, 'is_advertising' => false, 'is_radio' => false])->doesntHave('program')->whereNull('other_category_id');
             $random_unknown = $unknown->clone()->inRandomOrder()->limit(1)->first();
             $other_categories->add((object)[
                 'records_count' => $unknown->count(),
                 'pending' => false,
                 'name' => 'Прочее / неопознанные передачи',
-                'url' => 'unknown',
+                'full_url' => typed_route('records.[RECORD].other.category', false, 'unknown'),
                 'cover_url' => $random_unknown->cover,
                 'channels_history' => [],
             ]);
@@ -126,7 +139,8 @@ class RecordsController extends EntityController {
         });
     }
 
-    public function index($params) {
+    public function index($params)
+    {
         if (!PermissionsHelper::allows('contentapprove')) {
             $params['pending'] = false;
         }
@@ -138,13 +152,14 @@ class RecordsController extends EntityController {
 
         $other_categories = !$params['is_radio'] ? $this->buildOtherCategoriesList() : [];
         $data['other_categories'] = $other_categories;
-       // $data['events'] = HistoryEvent::approved()->orderBy('id', 'desc')->limit(3)->get();
+        // $data['events'] = HistoryEvent::approved()->orderBy('id', 'desc')->limit(3)->get();
         return view("pages.records.index", $data);
     }
 
 
-    public function show($id) {
-        $data = Cache::remember('record_data'.$id, 60 * 30,  function() use ($id) {
+    public function show($id)
+    {
+        $data = Cache::remember('record_' . $id, CacheTimes::PAGE, function () use ($id) {
             $record = Record::approved()->where(['id' => $id])->firstOrFail();
             $playlist = null;
             $related_interprogram_packages = null;
@@ -173,8 +188,9 @@ class RecordsController extends EntityController {
                 //    return !$playlist_record['is_annotation'] && $playlist_record['data']->id === $record->id;
                 //});
 
-                $related_interprogram_packages = DesignPackage::where(['channel_id' => $record->channel->id])->where('id', '!=', $package->id)->inRandomOrder()->limit(5)->get();
-
+                if ($record->channel) {
+                    $related_interprogram_packages = DesignPackage::where(['channel_id' => $record->channel->id])->where('id', '!=', $package->id)->inRandomOrder()->limit(5)->get();
+                }
             }
 
             $related = [];
@@ -269,162 +285,23 @@ class RecordsController extends EntityController {
         return view("pages.records.show", $data);
     }
 
-    public function ucozRedirect($ucoz_id) {
+    public function ucozRedirect($ucoz_id)
+    {
         $record = Record::where(['ucoz_id' => $ucoz_id])->firstOrFail();
         return redirect($record->url);
     }
 
-    public function commercials($start_params, $ajax = false) {
-        $records_conditions = array_merge($start_params, ['is_advertising' => true]);
-
-        $query_params = [];
-
-        $regions = Record::approved()->where($start_params)->select('region')->whereNotNull('region')->where(['is_advertising' => true])->groupBy('region')->get()->pluck('region');
-        $total_count = Record::approved()->where($records_conditions)->count();
-
-        $other_count = Record::approved()->where($records_conditions)->where('year', '<=', '0')->count();
-        $base_url = typed_route('records.[RECORD].commercials', $start_params['is_radio'] ?? false);
-
-        $selected_year = null;
-        $selected_region = null;
-
-        $years_ranges = [
-            'Советская' => [
-                'year_end' => 1991,
-            ],
-            '90-е' => [
-                'year_start' => 1992,
-                'year_end' => 1999
-            ],
-            '2000-е' => [
-                'year_start' => 2000,
-                'year_end' => 2011
-            ]
-        ];
-        $selected_years_range = null;
-        foreach ($years_ranges as $name => $params) {
-            $selected = true;
-            foreach ($params as $param => $value) {
-                if (request()->input($param) != $value) {
-                    $selected = false;
-                }
-            }
-            if ($selected) {
-                $selected_years_range =  $name;
-                $query_params = $years_ranges[$name];
-            }
-        }
-        if ($selected_years_range) {
-            $records_conditions = array_merge($records_conditions, $years_ranges[$selected_years_range]);
-        }
-
-        if (request()->has('year')) {
-            $selected_year = request()->input('year');
-            if ($selected_year != "0") {
-                $records_conditions['year'] = $selected_year;
-                unset($query_params['year_start']);
-                unset($query_params['year_end']);
-                $query_params['year'] = $selected_year;
-            } else {
-                $records_conditions['year'] = null;
-            }
-        }
-
-
-        if (request()->has('region')) {
-            $selected_region = request()->input('region');
-            if ($selected_region != "0") {
-                $query_params['region'] = $selected_region;
-                $records_conditions['region'] = $selected_region;
-            } else {
-                $records_conditions['region'] = null;
-            }
-        }
-        $types = [];
-        $type_ids = [];
-        foreach(Genre::where(['type' => 'advertising'])->get() as $type) {
-            $type_ids[$type->url] = $type->id;
-            $types[$type->url] = $type->name;
-        }
-        $selected_type = request()->input('type');
-        if (isset($type_ids[$selected_type])) {
-            $query_params['type'] = $selected_type;
-            $records_conditions['advertising_type'] = $type_ids[$selected_type];
-        } else {
-            $selected_type = null;
-        }
-
-        $selected_brand = null;
-        if (request()->has('brand')) {
-            $selected_brand =  request()->input('brand');;
-            $query_params['brand'] = $selected_brand;
-            $records_conditions['advertising_brand'] =  $selected_brand;
-        }
-
-        $years = Record::where($start_params)->where(['is_advertising' => true])->where('year','>','0')->selectRaw('count(*) as count_year, year')->groupBy('year')->orderBy('year', 'asc')->pluck('count_year', 'year');
-        $data = [
-            'selected_brand' => $selected_brand,
-            'query_params' => $query_params,
-            'types' => $types,
-            'selected_type' => $selected_type,
-            'records_conditions' => $records_conditions,
-            'years_ranges' => $years_ranges,
-            'selected_years_range' => $selected_years_range,
-            'regions' => $regions,
-            'selected_year' => $selected_year,
-            'selected_region' => $selected_region,
-            'years' => $years,
-            'total_count' => $total_count,
-            'other_count' => $other_count,
-            'base_url' => $base_url,
-            'is_radio' => $start_params['is_radio']
-        ];
-        if ($ajax) {
-            return $data;
-        }
-        return view("pages.records.advertising", $data);
-    }
-
-    public function commercialsBrands($params) {
-        $base_url = typed_route('records.[CHANNEL].commercials.search', $start_params['is_radio'] ?? false);
-        if (request()->has('id')) {
-            $record = Record::find(request()->input('id'));
-            if ($record) {
-                $records_conditions = [
-                    'is_advertising' => true,
-                    'advertising_brand' => $record->advertising_brand
-                ];
-                return view("pages.records.advertising_brand", [
-                    'brand' => $record->advertising_brand,
-                    'is_radio' => $params['is_radio'],
-                    'records_conditions' => $records_conditions,
-                    'base_url' => $base_url,
-                ]);
-            }
-        }
-        $brands = Record::approved()->where($params)->where(['is_advertising' => true, 'advertising_type' => null, 'region' => null, 'country' => null])->groupBy('advertising_brand')->orderBy('advertising_brand', 'asc');
-        $search = request()->input('search', '');
-        if ($search != '') {
-            $brands = $brands->where('advertising_brand', 'LIKE', '%'.$search.'%');
-        }
-        $brands = $brands->paginate(48);
-
-        return view("pages.records.advertising_brands", [
-            'is_radio' => $params['is_radio'],
-            'search' => $search,
-            'base_url' => $base_url,
-            'brands' => $brands
-        ]);
-    }
-
-
-    public function other($start_params, $category_url = null) {
-        $params = ['channel_unknown' => true, 'is_advertising' => false];
+    public function other($start_params, $category_url = null)
+    {
+        $params = ['program_unknown' => true, 'is_advertising' => false];
 
         $category = null;
         if ($category_url) {
             if ($category_url == 'unknown') {
                 $params['other_category_id'] = null;
+                $params['is_interprogram'] = false;
+                $params['is_radio'] = false;
+
             } else {
                 $category = Genre::where(['url' => $category_url])->first();
 
@@ -446,29 +323,28 @@ class RecordsController extends EntityController {
     }
 
 
-    public function add($params) {
+    public function add($params)
+    {
         if (PermissionsHelper::isBanned()) {
             return view('pages.errors.403');
         }
-        $can_upload = PermissionsHelper::allows('viupload');
-        return view ("pages.records.form", [
+        return view("pages.records.form", [
             'can_edit_all' => false,
-            'can_upload' => $can_upload,
-            'upload_endpoint' => config('site.upload_endpoint'),
             'data' => $params,
             'record' => null,
             'channels' => $this->getChannelsForForm($params)
         ]);
     }
 
-    public function edit($id) {
+    public function edit($id)
+    {
         if (PermissionsHelper::isBanned()) {
             return view('pages.errors.403');
         }
         if (!auth()->user()) {
             return redirect(route('index'));
         }
-        $record = Record::with('channel','program', 'program.coverPicture')->find($id);
+        $record = Record::with('channel', 'program', 'program.coverPicture')->find($id);
         if (!$record) {
             return redirect(route('index'));
         }
@@ -481,45 +357,74 @@ class RecordsController extends EntityController {
         $can_edit_all = PermissionsHelper::allows('viedit');
         $record->original_added_at_ts = $ts;
 
-        return view ("pages.records.form", [
+        return view("pages.records.form", [
             'data' => [
                 'is_radio' => request()->has('is_radio') ? !!request()->input('is_radio') : $record->is_radio
             ],
-            'can_upload' => $can_upload,
             'can_edit_all' => $can_edit_all,
-            'upload_endpoint' => config('site.upload_endpoint'),
             'record' => $record,
             'channels' => $this->getChannelsForForm([])
         ]);
     }
 
 
-    public function getInfo() {
-        if (request()->has('vk_video_id')) {
-            $data = ExternalServicesHelper::vkVideo(request()->input('vk_video_id'));
-            return [
-                'status' => 1,
-                'data' => [
-                    'vk_response' => $data
-                ]
-            ];
-        } elseif (request()->has('youtube_video_id')) {
-            $data = ExternalServicesHelper::youtubeVideo(request()->input('youtube_video_id'));
-            return [
-                'status' => 1,
-                'data' => [
-                    'youtube_response' => $data
-                ]
-            ];
-        } else {
+    public function getInfo()
+    {
+        $data = request()->validate([
+            'record_id' => 'sometimes|numeric',
+            'video_id' => 'string',
+            'video_type' => 'in:youtube,vk'
+        ]);
+
+        $existing_records = Record::where('embed_code', 'LIKE', '%' . $data['video_id'] . '%');
+        if (isset($data['record_id'])) {
+            $existing_records = $existing_records->where('id', '!=', $data['record_id']);
+        }
+        $existing_records = $existing_records->get();
+
+        if (count($existing_records)) {
             return [
                 'status' => 0,
-                'text' => 'Не передан ID видео'
+                'text' => 'Эта запись уже загружена на сайт',
+                'list' => $existing_records
             ];
         }
+
+
+        if ($data['video_type'] == 'youtube') {
+            $video = (ExternalServicesHelper::youtubeVideo($data['video_id']))->items[0];
+            $info = [
+                'id' => $video->id,
+                'title' => $video->snippet->title,
+                'description' => $video->snippet->description,
+                'player' => 'https://youtube.com/embed/' . $video->id,
+                'code' => str_replace('URL', 'https://youtube.com/embed/' . $video->id, Records::IFRAME_CODE),
+                'thumbnails' => array_map(function ($thumb) use ($video) {
+                    return "https://img.youtube.com/vi/" . $video->id . "/" . $thumb . ".jpg";
+                }, ['0', '1', '2', '3', 'hqdefault'])
+            ];
+        } else {
+            $video = (ExternalServicesHelper::vkVideo($data['video_id']))->response->items[0];
+            $info = [
+                'id' => $video->owner_id . ' ' . $video->id,
+                'title' => $video->title,
+                'description' => $video->description,
+                'player' => $video->player,
+                'code' => str_replace('URL', $video->player, Records::IFRAME_CODE),
+                'thumbnails' => [
+                    $video->image[count($video->image) - 1]->url
+                ]
+            ];
+        }
+
+        return [
+            'status' => 1,
+            'data' => $info
+        ];
     }
 
-    public function save() {
+    public function save()
+    {
         if (!PermissionsHelper::allows('viadd') || PermissionsHelper::isBanned()) {
             return [
                 'status' => 0,
@@ -543,7 +448,8 @@ class RecordsController extends EntityController {
         return $this->fillData($record, true);
     }
 
-    public function update($id) {
+    public function update($id)
+    {
         $record = Record::find($id);
         if (!$record) {
             return [
@@ -552,16 +458,17 @@ class RecordsController extends EntityController {
             ];
         }
         if (!$record->can_edit || PermissionsHelper::isBanned()) {
-           return [
-               'status' => 0,
-               'text' => 'Ошибка доступа'
-           ];
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
         };
         return $this->fillData($record);
     }
 
     /** @var Record $record */
-    protected function fillData($record) {
+    protected function fillData($record)
+    {
         $user = auth()->user();
         $is_radio = !!request()->input('is_radio', false);
 
@@ -569,7 +476,6 @@ class RecordsController extends EntityController {
         $type = request()->input('type');
 
         $record->is_interprogram = false;
-        $record->is_other = false;
         $record->is_advertising = false;
         $record->is_clip = false;
 
@@ -585,11 +491,14 @@ class RecordsController extends EntityController {
                 $record->is_interprogram = true;
                 break;
             case 'other':
-                $record->is_other = true;
                 $record->other_category_id = request()->input('other.category_id', null);
                 break;
             case 'advertising':
                 $record->is_advertising = true;
+                if (request()->input('advertising.brand') == '') {
+                    $errors['advertising_brand'] = "Укажите рекламируемый бренд/товар";
+                }
+                $record->advertising_category = request()->input('advertising.category', '');
                 $record->advertising_brand = request()->input('advertising.brand', '');
                 $record->advertising_type = request()->input('advertising.type') > 0 ? request()->input('advertising.type') : null;
                 $record->region = request()->input('advertising.region', '');
@@ -602,7 +511,7 @@ class RecordsController extends EntityController {
         }
 
 
-        if (!$record->is_other && !$record->is_advertising) {
+        if ($type != 'other' && !$record->is_advertising) {
             if (!request()->input('channel.name') && !request()->input('channel_id') && !request()->input('channel.id') && request()->input('channel.unknown') !== true) {
                 if ($is_radio) {
                     $errors['channel'] = "Выберите радиостанцию";
@@ -627,14 +536,14 @@ class RecordsController extends EntityController {
             $record->channel_id = null;
         }
 
-        if (!$record->is_other) {
-            if (!request()->input('program.name') && !request()->input('program.id') && request()->input('program.unknown') !== true && (!$record->is_interprogram && !$record->is_clip  && !$record->is_advertising)) {
+        if ($type != 'other') {
+            if (!request()->input('program.name') && !request()->input('program.id') && request()->input('program.unknown') !== true && (!$record->is_interprogram && !$record->is_clip && !$record->is_advertising)) {
                 $errors['program'] = "Выберите программу";
             } else {
                 if ($type == 'program-design' || (!$record->is_interprogram && !$record->is_advertising && !$record->is_clip)) {
                     if (request()->input('program.id') > 0) {
                         $record->program_id = request()->input('program.id');
-                    } elseif(request()->input('program.name') != "") {
+                    } elseif (request()->input('program.name') != "") {
                         $program = Program::firstOrNew(['name' => request()->input('program.name'), 'channel_id' => $record->channel_id]);
                         if (!$program->exists) {
                             $program->fill(['author_id' => $user->id, 'cover' => '', 'channel_id' => $record->channel_id, 'pending' => !PermissionsHelper::allows('contentapprove')]);
@@ -649,7 +558,7 @@ class RecordsController extends EntityController {
         } else {
             $record->program_id = null;
         }
-        if ( request()->input('program.unknown') === true) {
+        if (request()->input('program.unknown') === true) {
             $record->program_id = null;
         }
 
@@ -657,19 +566,41 @@ class RecordsController extends EntityController {
         if (request()->input('record.code') == "" && !$has_uploaded_video && !$record->use_own_player) {
             $errors['url'] = "Укажите корректную ссылку";
         } else {
-            $record->embed_code = request()->input('record.code');
+            $code = Purifier::clean(request()->input('record.code'), 'embed');
+            if (empty($code)) {
+                $errors['code'] = "Некорректный код для вставки видео";
+            }
+            $record->embed_code = $code;
             $record->external_id = RegexHelper::getExternalIdFromEmbedCode($record->embed_code);
         }
 
-        $record->year = request()->input('date.year') > 0 ? request()->input('date.year') : null;
-        $record->month = request()->input('date.month') > 0 ? request()->input('date.month') : null;
-        $record->day = request()->input('date.day') > 0 ? request()->input('date.day') : null;
+        $record->year = null;
+        $record->month = null;
+        $record->day = null;
 
-        if ($record->year && $record->month && $record->day) {
-            $record->date = Carbon::createFromDate($record->year, $record->month, $record->day);
+        $record->year_start = null;
+        $record->month_start = null;
+        $record->day_start = null;
+        $record->year_end = null;
+        $record->month_end = null;
+        $record->day_end = null;
+
+        if (request()->input('date.range')) {
+            $record->year_start = request()->input('date.year_start') > 0 ? request()->input('date.year_start') : null;
+            $record->month_start = request()->input('date.month_start') > 0 ? request()->input('date.month_start') : ($record->year_start ? 1 : null);
+            $record->day_start = request()->input('date.day_start') > 0 ? request()->input('date.day_start') : ($record->year_start ? 1 : null);
+            $record->year_end = request()->input('date.year_end') > 0 ? request()->input('date.year_end') : null;
+            $record->month_end = request()->input('date.month_end') > 0 ? request()->input('date.month_end') : ($record->year_end ? 12 : null);
+            $record->day_end = request()->input('date.day_end') > 0 ? request()->input('date.day_end') : ($record->year_end ? 31 : null);
+
+        } else {
+            $record->year = request()->input('date.year') > 0 ? request()->input('date.year') : null;
+            $record->month = request()->input('date.month') > 0 ? request()->input('date.month') : null;
+            $record->day = request()->input('date.day') > 0 ? request()->input('date.day') : null;
+            if ($record->year && $record->month && $record->day) {
+                $record->date = Carbon::createFromDate($record->year, $record->month, $record->day);
+            }
         }
-        $record->year_start = request()->input('date.year_start') > 0 ? request()->input('date.year_start') : null;
-        $record->year_end = request()->input('date.year_end') > 0 ? request()->input('date.year_end') : null;
 
         $record->short_description = request()->input('short_description', '');
         $record->description = strip_tags(request()->input('description', ''));
@@ -685,7 +616,7 @@ class RecordsController extends EntityController {
         } else {
             if (request()->input('record.thumbnail_url') != "") {
                 $cover_url = request()->input('record.thumbnail_url');
-            }  elseif (request()->has('record.thumbnails') && is_array(request()->input('record.thumbnails')) && count(request()->input('record.thumbnails')) > 0) {
+            } elseif (request()->has('record.thumbnails') && is_array(request()->input('record.thumbnails')) && count(request()->input('record.thumbnails')) > 0) {
                 $covers = request()->input('record.thumbnails');
                 $cover_url = $covers[count($covers) - 1];
             }
@@ -719,10 +650,12 @@ class RecordsController extends EntityController {
 
         $uploaded_file_id = null;
         $original_path = null;
+        $storage = Storage::disk('media-storage');
+
         if ($has_uploaded_video) {
             $uploaded_file_id = request()->input('record.uploaded_file_id');
-            $original_path = '/storage/temp-upload/' . $uploaded_file_id;
-            if (!file_exists($original_path)) {
+            $original_path = 'temp-upload/' . $uploaded_file_id;
+            if (!$storage->exists($original_path)) {
                 $errors['uploaded_file_id'] = 'Ошибка загрузки: файл не найден. Повторите загрузку ещё раз';
             }
         }
@@ -734,16 +667,18 @@ class RecordsController extends EntityController {
                 'errors' => $errors
             ];
         }
+
         if ($uploaded_file_id != null) {
-            $new_path = "/storage/videos/" . $uploaded_file_id;
-            rename($original_path, $new_path);
+            $new_path = "videos/" . $uploaded_file_id;
+            $storage->move($original_path, $new_path);
+
             $record->use_own_player = true;
             $record->source_type = "local";
             $record->source_path = "/videos/" . $uploaded_file_id;
 
-            $screenshot_path = $this->makeScreenshot($new_path);
+            $thumbnail = MediaHelper::makeThumbnail($new_path);
             $cover = Picture::firstOrNew([
-                'url' => $screenshot_path
+                'url' => $thumbnail
             ]);
             $cover->save();
             $record->cover_id = $cover->id;
@@ -754,228 +689,276 @@ class RecordsController extends EntityController {
             $record->is_radio = true;
         }
         $is_new = !$record->id;
-dd($record);
+
         $record->save();
         $record->setSupposedDate();
-        Cache::forget('record_'.$record->id);
-        $cover = $record->cover;
+
+        if (!$record->use_own_player && request()->input('record.move_to_storage')) {
+            DownloadExternalVideo::dispatch($record);
+        }
+
+        Cache::forget('record_' . $record->id);
+        Cache::forget('record_cover_' . $record->id);
+
+        $text = $record->is_radio ? ($is_new ? 'Радиозапись добавлена' : 'Радиозапись обновлена') : ($is_new ? 'Видео добавлено' : 'Видео обновлено');
+        $text .= '<a target=_blank href="' . $record->url . '">Перейти</a>';
 
         return [
             'status' => 1,
-            'text' => $record->is_radio ? ($is_new ? 'Радиозапись добавлена' : 'Радиозапись обновлена') : ($is_new ? 'Видео добавлено' : 'Видео обновлено'),
+            'text' => $text,
             'data' => [
                 'record' => $record
             ]
         ];
     }
 
-    public function search($initial_params) {
-        if (isset($initial_params['is_radio'])) {
-            $records = Record::approved()->where(['is_radio' => $initial_params['is_radio']]);
-        } else {
-            $records = Record::approved();
+    public function search(RecordsSearchRequest $request)
+    {
+        $data = $request->validated();
+        $is_commercials_search = $request->isCommercialsSearch();
+
+        $records = Record::approved();
+        if (isset($data['is_radio'])) {
+            $records = $records->where(['is_radio' => $data['is_radio']]);
         }
-        $show_programs = true;
-        $search = null;
-        if (request()->has('search')) {
-            $search = request()->input('search');
-            $show_programs = false;
-            $records->where(function($q) use ($search) {
-                $q->where('title', 'LIKE', '%'. $search .'%');
-                $q->orWhere('short_description', 'LIKE', '%'. $search.'%');
-                $q->orWhere('description', 'LIKE', '%'. $search.'%');
-                $q->orWhere('advertising_brand', 'LIKE', '%'. $search.'%');
-            });
+
+        $show_programs = false;
+
+        if ($is_commercials_search) {
+            $data['type'] = 'advertising';
         }
-        $params = request()->all();
-        if (request()->has('channels')) {
-            $channels = request()->input('channels');
-            if ($channels) {
-                if (!is_array($channels)) {
-                    $channels = explode(",", $channels);
-                }
-                $records = $records->whereIn('channel_id', $channels);
+
+        if (isset($data['type'])) {
+            switch ($data['type']) {
+                case 'programs':
+                    $records->where(function ($q) {
+                        $q->where(['is_interprogram' => false]);
+                        $q->where(['is_advertising' => false]);
+                        $q->where(['is_clip' => false]);
+                    });
+                    break;
+                case 'interprogram':
+                    $records->where(function ($q) {
+                        $q->where(['is_interprogram' => true]);
+                        $q->whereNull('program_id');
+                    });
+                    break;
+                case 'program-design':
+                    $records->where(function ($q) {
+                        $q->where(['is_interprogram' => true]);
+                        $q->whereNotNull('program_id');
+                    });
+                    break;
+                case 'advertising':
+                    $records->where(['is_advertising' => true]);
+                    break;
+                case 'clips':
+                    $records->where(['is_clip' => true]);
+                    break;
+                case 'other':
+                    $records->where(function ($q) {
+                        $q->whereNull('channel_id');
+                        $q->where(['is_advertising' => false]);
+                        $q->where(['is_clip' => false]);
+                    });
+                    break;
+                default:
+                    break;
             }
         }
-        if (request()->has('channel_id')) {
-            $records = $records->where('channel_id', request()->input('channel_id'));
+
+        if (isset($data['search'])) {
+            $show_programs = !isset($data['type']) || $data['type'] == 'programs';
+
+            $records->search($data['search']);
+            // $records->where(function ($q) use ($data) {
+            //    $q->whereFullText(['title', 'short_description', 'description'], $data['search']);
+//                $q->where('title', 'LIKE', '%' . $data['search'] . '%');
+//                $q->orWhere('short_description', 'LIKE', '%' . $data['search'] . '%');
+//                $q->orWhere('description', 'LIKE', '%' . $data['search'] . '%');
+            //  $q->orWhere('advertising_brand', 'LIKE', '%' . $data['search'] . '%');
+            // });
         }
-        iF (request()->has('exclude_ids')) {
-            $ids = request()->input('exclude_ids');
-            if (!is_array($ids)) {
-                $ids = explode(",",$ids);
-            }
-            $records = $records->whereNotin('id', $ids);
+
+        if (isset($data['exclude_ids']) && count($data['exclude_ids']) > 0) {
+            $records = $records->whereNotin('id', $data['exclude_ids']);
         }
-        if (request()->has('programs')) {
-            $show_programs = false;
-            $programs = request()->input('programs');
-            if (!is_array($programs)) {
-                $programs = explode(",", $programs);
-            }
-            $records = $records->whereIn('program_id', $programs);
-        }
-        if (request()->has('program_id')) {
-            $show_programs = false;
-            $program_id = request()->input('program_id');
-            $records = $records->where('program_id', $program_id);
-        }
-        if (request()->has('is_interprogram')) {
-            if (request()->input('is_interprogram')) {
+        if (isset($data['is_interprogram'])) {
+            if ($data['is_interprogram']) {
                 $show_programs = false;
             }
-            $records = $records->where(['is_interprogram' => request()->input('is_interprogram')]);
+            $records = $records->where(['is_interprogram' => $data['is_interprogram']]);
         }
-        if (request()->has('interprogram_type')) {
-            $records = $records->where('interprogram_type', request()->input('interprogram_type'));
-        }
-        if (request()->has('interprogram_package_id')) {
-            $records = $records->where('interprogram_package_id', request()->input('interprogram_package_id'));
-        }
-        if (request()->has('year')) {
-            $records = $records->where('year', request()->input('year'));
-        }
-        if (request()->has('is_advertising')) {
-            $records = $records->where(['is_advertising' => request()->input('is_advertising')]);
-        }
-        $has_dates = request()->has('date') || request()->has('date_day') || request()->has('date_month') || request()->has('date_year');
-        if ($has_dates) {
-            $records = $records->where(function($q) {
+
+//        if (request()->has('interprogram_type')) {
+//            $records = $records->where('interprogram_type', request()->input('interprogram_type'));
+//        }
+//        if (request()->has('interprogram_package_id')) {
+//            $records = $records->where('interprogram_package_id', request()->input('interprogram_package_id'));
+//        }
+
+        $has_dates = false;
+
+        if (
+            (isset($data['date']['year']) && $data['date']['year'] > -1) ||
+            (isset($data['date']['year_start']) && $data['date']['year_start'] > -1) ||
+            (isset($data['date']['year_end']) && $data['date']['year_end'] > -1)
+        ) {
+            $has_dates = true;
+            $records = $records->where(function ($query) use ($data) {
                 $date_start = null;
                 $date_end = null;
-                $year = request()->has('date.year') ?  request()->input('date.year') : request()->input('date_year');
-                $month = request()->has('date.year') ?  request()->input('date.month') : request()->input('date_month');
-                $day = request()->has('date.year') ?  request()->input('date.day') : request()->input('date_day');
-                if ($year) {
-                    $q->where(["year" => $year]);
-                    $date = Carbon::createFromDate($year, 1, 1);
-                    $date_start = $date->copy()->startOfYear();
-                    $date_end = $date->copy()->endOfYear();
-                    if ($month) {
-                        $date = Carbon::createFromDate($year, $month, 1);
-                        $date_start = $date->copy()->startOfMonth();
-                        $date_end = $date->copy()->endOfMonth();
-                        if ($day) {
-                            $date = Carbon::createFromDate($year, $month, $day);
+                if (isset($data['date']['range']) && $data['date']['range']) {
+                    $date_start = Carbon::createFromDate(
+                        isset($data['date']['year_start']) && $data['date']['year_start'] > -1 ? $data['date']['year_start'] : 1950,
+                        isset($data['date']['month_start']) && $data['date']['month_start'] > -1 ? $data['date']['month_start'] : 1,
+                        isset($data['date']['day_start']) && $data['date']['day_start'] > -1 ? $data['date']['day_start'] : 1,
+                    )->startOfDay();
+                    $date_end = Carbon::createFromDate(
+                        isset($data['date']['year_end']) && $data['date']['year_end'] > -1 ? $data['date']['year_end'] : 2010,
+                        isset($data['date']['month_end']) && $data['date']['month_end'] > -1 ? $data['date']['month_end'] : 12,
+                        isset($data['date']['day_end']) && $data['date']['day_end'] > -1 ? $data['date']['day_end'] : 31,
+                    )->endOfDay();
+                } else {
+                    //  $q->where(["year" => $data['date']['year']]);
+                    if (isset($data['date']['month']) && $data['date']['month'] > -1) {
+                        // $q->where(["month" => $data['date']['month']]);
+                        if (isset($data['date']['day']) && $data['date']['day'] > -1) {
+                            //     $q->where(["day" => $data['date']['day']]);
+                            $date = Carbon::createFromDate($data['date']['year'], $data['date']['month'], $data['date']['day']);
                             $date_start = $date->copy()->startOfDay();
                             $date_end = $date->copy()->endOfDay();
+                        } else {
+                            $date = Carbon::createFromDate($data['date']['year'], $data['date']['month'], 1);
+                            $date_start = $date->copy()->startOfMonth();
+                            $date_end = $date->copy()->endOfMonth();
                         }
+                    } else {
+                        $date = Carbon::createFromDate($data['date']['year'], 1, 1);
+                        $date_start = $date->copy()->startOfYear();
+                        $date_end = $date->copy()->endOfYear();
                     }
                 }
-                if ($month) {
-                    $q->where(["month" => $month]);
-                }
-                if ($day) {
-                    $q->where(["day" => $day]);
-                }
-                if ($date_start && $date_end) {
-                    $q->orWhere(function($sub) use ($date_start, $date_end) {
-                        $sub->whereBetween('date', [$date_start, $date_end]);
+                $query->whereBetween('supposed_date', [$date_start, $date_end]);
+                if (isset($data['type']) && in_array($data['type'], ['interprogram', 'advertising'])) {
+                    $query->orWhere(function ($q) use ($date_start, $date_end) {
+                        $q->whereDate('supposed_date', '<=', $date_start);
+                        $q->whereDate('supposed_date_end', '>=', $date_end);
                     });
                 }
             });
         }
-        $range_start = request()->has('dates_range.start') ? request()->input('dates_range.start')  : request()->input('dates_range_start');
-        $range_end = request()->has('dates_range.end') ? request()->input('dates_range.end')  : request()->input('dates_range_end');
 
-        if ($range_start || $range_end) {
-            $records = $records->where(function ($q) use ($range_start, $range_end) {
-                if ($range_start) {
-                    $start = Carbon::createFromTimestamp($range_start);
-                } else {
-                    $start = Carbon::createFromDate(1950, 1, 1);
-                }
-                if ($range_end) {
-                    $end = Carbon::createFromTimestamp($range_end);
-                } else {
-                    $end = Carbon::createFromDate(2015, 1, 1);
-                }
-
-                $q->whereBetween('date', [$start, $end]);
-                $start_year = $start->year;
-                $end_year = $end->year;
-                if ($start_year != $end_year) {
-                    $full_years = [];
-                    for ($i = $start_year + 1; $i < $end_year; $i++) {
-                        $full_years[] = $i;
-                    }
-                    $q->orWhereIn('year', $full_years);
-                }
-                $start_month = $start->month;
-                $end_month = $end->month;
-                $start_year_months = [];
-                $end_year_months = [];
-                for ($i = $start_month + 1; $i <= 12; $i++) {
-                    $start_year_months[] = $i;
-                }
-                for ($i = 1; $i < $end_month; $i++) {
-                    $end_year_months[] = $i;
-                }
-                $q->orWhere(function ($sub) use ($start_year, $start_year_months) {
-                    $sub->where(['year' => $start_year]);
-                    $sub->whereIn('month', $start_year_months);
-                });
-                $q->orWhere(function ($sub) use ($end_year, $end_year_months) {
-                    $sub->where(['year' => $end_year]);
-                    $sub->whereIn('month', $end_year_months);
-                });
-                $start_day = $start->day;
-                $end_day = $end->day;
-                $start_month_days = [];
-                $end_month_days = [];
-                for ($i = $start_day + 1; $i <= date('t', $start_month); $i++) {
-                    $start_month_days[] = $i;
-                }
-                for ($i = 1; $i < $end_day; $i++) {
-                    $end_month_days[] = $i;
-                }
-                $q->orWhere(function ($sub) use ($start_year, $start_month, $start_month_days) {
-                    $sub->where(['year' => $start_year]);
-                    $sub->where(['month' => $start_month]);
-                    $sub->whereIn('day', $start_month_days);
-                });
-                $q->orWhere(function ($sub) use ($end_year, $end_month, $end_month_days) {
-                    $sub->where(['year' => $end_year]);
-                    $sub->where(['month' => $end_month]);
-                    $sub->whereIn('day', $end_month_days);
-                });
-            });
-        }
-
-        if (request()->has('sort')) {
-            $sort = request()->input('sort');
-            $order = request()->input('sort_order', 'desc');
-            $records = $records->orderBy($sort, $order);
-            $params['sort'] = $sort;
+        if (isset($data['sort'])) {
+            $records = $records->orderBy($data['sort'], isset($data['sort_order']) ? $data['sort_order'] : 'desc');
+            $params['sort'] = $data['sort'];
         } else {
             $records = $records->orderBy('id', 'desc');
         }
+
+        $counts = [
+            'channels' => null,
+            'programs' => null,
+            'advertising_brands' => null,
+            'advertising_categories' => null,
+            'advertising_regions' => null,
+            'advertising_countries' => null,
+        ];
+
+        if (isset($data['search']) || $has_dates) {
+            $counts['channels'] = $records->clone()->select('channel_id', \DB::raw('COUNT(*) as count'))->groupBy('channel_id')->get()->pluck('count', 'channel_id');
+            if (isset($data['channels'])) {
+                $counts['programs'] = $records->clone()->whereIn('channel_id', $data['channels'])->select('program_id', \DB::raw('COUNT(*) as count'))->groupBy('program_id')->get()->pluck('count', 'program_id');
+            }
+            if (isset($data['type']) && $data['type'] == 'advertising') {
+                $counts['advertising_brands'] = $records->clone()->whereNotNull('advertising_brand')->select('advertising_brand', \DB::raw('COUNT(*) as count'))->groupBy('advertising_brand')->get()->pluck('count', 'advertising_brand');
+                $counts['advertising_categories'] = $records->clone()->whereNotNull('advertising_category')->select('advertising_category', \DB::raw('COUNT(*) as count'))->groupBy('advertising_category')->get()->pluck('count', 'advertising_category');
+                $counts['advertising_regions'] = $records->clone()->whereNotNull('region')->select('region', \DB::raw('COUNT(*) as count'))->groupBy('region')->get()->pluck('count', 'region');
+                $counts['advertising_countries'] = $records->clone()->whereNotNull('country')->select('country', \DB::raw('COUNT(*) as count'))->groupBy('country')->get()->pluck('count', 'country');
+            }
+        }
+
+        if (isset($data['type']) && $data['type'] == 'advertising') {
+            if (isset($data['advertising_type'])) {
+                if ($data['advertising_type'] == -1) {
+                    $records->whereNull('advertising_type');
+                } else {
+                    $records->where(['advertising_type' => $data['advertising_type']]);
+                }
+
+            }
+            if (isset($data['advertising_brands']) && count($data['advertising_brands']) > 0) {
+                $records->whereIn('advertising_brand', $data['advertising_brands']);
+            }
+            if (isset($data['advertising_categories']) && count($data['advertising_categories']) > 0) {
+                $records->whereIn('advertising_category', $data['advertising_categories']);
+            }
+
+            if (isset($data['advertising_countries']) && count($data['advertising_countries']) > 0) {
+                $records->where(function ($q) use ($data) {
+                    $countries = array_filter($data['advertising_countries']);
+                    $q->whereIn('country', $countries);
+                    if (count($countries) != count($data['advertising_countries'])) {
+                        $q->orWhereNull('country');
+                    }
+                });
+            }
+            if (isset($data['advertising_regions']) && count($data['advertising_regions']) > 0) {
+                $records->where(function ($q) use ($data) {
+                    $regions = array_filter($data['advertising_regions']);
+                    $q->whereIn('region', $regions);
+                    if (count($regions) != count($data['advertising_regions'])) {
+                        $q->orWhereNull('region');
+                    }
+                });
+            }
+        }
+
+        if (isset($data['channels']) && count($data['channels']) > 0) {
+            $records = $records->whereIn('channel_id', $data['channels']);
+        }
+        if (isset($data['programs']) && count($data['programs']) > 0) {
+            $show_programs = false;
+            $records = $records->whereIn('program_id', $data['programs']);
+        }
+
         $programs = null;
-        $records_count = $records->count();
 
         if ($show_programs) {
-            $recommended_program_ids = $records->whereNotNull('program_id')->get()->groupBy('program_id')->map(function($values) {
-                return $values->count();
-            })->sort()->reverse()->slice(0, 10)->keys();
-            $programs = Program::whereIn('id', $recommended_program_ids)->get();
+            $programs = $records->clone()->whereNotNull('program_id')->select('program_id', \DB::raw('COUNT(*) as count'))->groupBy('program_id')->orderByDesc('count')->get()->sortByDesc('count')->take(6)->map(function ($record) {
+                return $record->program;
+            })->values();
+            $programs->each->append('cover_url', 'full_url', 'channels_history');
         }
 
         $records = $records->paginate(30);
-        $data = [
+        $records->getCollection()->each->append('cover');
+        if (isset($data['type']) && $data['type'] == 'advertising') {
+            $records->getCollection()->each(function ($q) {
+                //  dd($q->title); //todo advertising titles
+            });
+        }
+
+        $params = array_filter($data);
+
+        $periods = Periods::LIST;
+
+        $response = [
             'programs' => $programs,
-            'search' => $search,
             'params' => $params,
-            'records' => $records->appends(request()->except('page')),
-            'records_count' => $records_count,
-            'is_radio' => isset($initial_params['is_radio']) ? $initial_params['is_radio'] : null
+            'results' => $records->appends(request()->except('page')),
+            'counts' => $counts,
+            'periods' => $periods,
+            'is_commercials_search' => $is_commercials_search
         ];
         if (request()->isMethod('post')) {
-            return ['status' => 1, 'data' => $data];
+            return ['status' => 1, 'data' => $response];
         }
-        return view("pages.records.search", $data);
+        return view("pages.records.search", $response);
     }
 
-    public function massEdit() {
+    public function massEdit()
+    {
         if (PermissionsHelper::allows('viedit')) {
             $ids = request()->input('ids', []);
             $params = request()->input('params', []);
@@ -988,6 +971,8 @@ dd($record);
 
     protected function afterDelete($record)
     {
+        Cache::forget('record_' . $record->id);
+        Cache::forget('record_cover_' . $record->id);
         if ($record->use_own_player && str_contains($record->source_path, "videos/")) {
             $source_path = public_path($record->source_path);
             $do_not_delete = Record::where(['source_path' => $source_path])->where('id', '!=', $record->id)->count() > 0;
@@ -1011,7 +996,8 @@ dd($record);
     }
 
 
-    public function categories() {
+    public function categories()
+    {
         $categories = Genre::all();
         return [
             'status' => 1,
@@ -1021,61 +1007,13 @@ dd($record);
         ];
     }
 
-    public function download($id = null) {
-        $record = Record::find($id ? $id : request()->input('record_id'));
-        if (!$record) {
-           return ['status' => 0, 'text' => 'Запись не найдена'];
-        }
-        //if (!$record->can_edit) {
-           // return ['status' => 0, 'text' => 'Ошибка доступа'];
-        //}
-        preg_match('/iframe(.*?)src="(.*?)"/', $record->embed_code, $matches);
-        if (!isset($matches[2]) || $matches[2] == "") {
-            preg_match('/iframe(.*?)src=(.*?) (.*?)/', $record->embed_code, $matches);
-        }
-        if (!isset($matches[2]) || $matches[2] == "") {
-            return ['status' => 0, 'text' => 'Не найден исходный URL видео для скачивания'];
-        }
-        $url = $matches[2];
-        $path = "videos/" .$record->id.".mp4";
-        $temp_path = public_path($path);
-        $output_path = "/storage/".$path;
-        if (isset($record->telegram_id)) {
-            $url = $record->all_telegram_sources[0];
-        }
 
-        $command = "yt-dlp -f 'mp4' -i '$url' --output $temp_path && mv $temp_path $output_path";
-        shell_exec($command);
-        if (file_exists($output_path)) {
-            $record->use_own_player = true;
-            $record->source_type = "local";
-            $record->source_path = "/" . $path;
-            $record->save();
-            $screenshot_path = $this->makeScreenshot(public_path($record->source_path), null);
-            $cover = Picture::firstOrNew([
-                'url' => $screenshot_path
-            ]);
-            $cover->save();
-            $record->cover_id = $cover->id;
-            $record->save();
-            Cache::forget('record_'.$record->id);
-            return [
-                'status' => 1,
-                'text' => 'Видео загружено',
-                'redirect_to' => $record->url
-            ];
-        } else {
-            if (strpos($record->embed_code, "dailymotion") !== false) {
-                $record->delete();
-            }
-            return ['status' => 0, 'text' => 'Не удалось скачать видео, возможно оно удалено', 'command' => $command];
-        }
-    }
 
-    public function ajax() {
+    public function ajax()
+    {
         $conditions = request()->input('conditions');
         $records_data = RecordsHelper::get($conditions, true);
-        $data =  [
+        $data = [
             'ajax' => true,
             'records_data' => $records_data,
             'conditions' => $conditions
@@ -1097,113 +1035,9 @@ dd($record);
         ];
     }
 
-    public function upload() {
-        if (!PermissionsHelper::allows('viupload') || PermissionsHelper::isBanned()) {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-        $record = request()->file('record');
-        if (!$record) {
-            return [
-                'status' => 0,
-                'text' => 'Файл не найден'
-            ];
-        }
-        $extension = $record->extension();
-        $command = null;
-        //$name = "record_".md5(time()).".".$extension;
-        $is_radio = request()->input('is_radio', "0") == "1";
-        $path = Storage::disk('public_data')->put($is_radio ? "radio-recordings" : "videos", $record);
-        if ($extension !== "mp4" && !$is_radio) {
-            $old_path = $path;
-            $path = str_replace(".".$extension, ".mp4", $path);
-            $command = "ffmpeg -y -i ".public_path($old_path)." -strict -2 ".public_path($path)." && rm ".public_path($old_path);
-            exec('bash -c "exec nohup setsid '.$command.' > /dev/null 2>&1 &"');
-        }
-        $screenshot_path = null;
-        if (!$is_radio) {
-            $screenshot_path = $this->makeScreenshot(public_path($path));
-        }
-        return [
-            'status' => 1,
-            'text' => 'Запись загружена',
-            'data' => [
-                'command' => $command,
-                'url' => "/".$path,
-                'thumbnail' => $screenshot_path,
-            ]
-        ];
-    }
 
-    public function afterUpload() {
-        if (!PermissionsHelper::allows('viupload') || PermissionsHelper::isBanned()) {
-            return [
-                'status' => 0,
-                'text' => 'Ошибка доступа'
-            ];
-        }
-        $file_path = "/storage/uploads/".request()->input('server_upload_id');
-        if (!file_exists($file_path)) {
-            return [
-                'status' => 0,
-                'text' => 'Файл не найден'
-            ];
-        }
-        $meta = json_decode(file_get_contents($file_path.".info"));
-        $original_filename = $meta->MetaData->filename;
-        $extension = last(explode(".", $original_filename));
-        $command = null;
-        $filename =  uniqid().".".$extension;
-        $is_radio = request()->input('is_radio', false);
-        $folder = $is_radio ? "radio-recordings" : "videos";
-        $path = $folder."/".$filename;
-        $full_path = "/storage/$path";
-        shell_exec("mv $file_path $full_path");
-        if ($extension !== "mp4" && !$is_radio) {
-            $path = str_replace(".".$extension, ".mp4", $path);
-            $mp4_path = str_replace(".".$extension, ".mp4", $full_path);
-            $command = "ffmpeg -y -i ".$full_path." -strict -2 ".$mp4_path." && rm ".public_path($full_path);
-            exec('bash -c "exec nohup setsid '.$command.' > /dev/null 2>&1 &"');
-        }
-        $screenshot_path = null;
-        if (!$is_radio) {
-            $screenshot_path = $this->makeScreenshot($full_path);
-        }
-        return [
-            'status' => 1,
-            'text' => 'Запись загружена',
-            'data' => [
-                'command' => $command,
-                'url' => "/".$path,
-                'thumbnail' => $screenshot_path,
-            ]
-        ];
-    }
-
-    protected function makeScreenshot($path, $seconds = null) {
-        $filename = pathinfo($path, PATHINFO_FILENAME);
-        if ($seconds) {
-            $screenshot_time = $seconds;
-        } else {
-            $frames = (int)shell_exec("ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -of default=nokey=1:noprint_wrappers=1 $path");
-            $middle = floor($frames / 2);
-            $fps = (int)shell_exec("ffprobe -v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate $path");
-            $fps = (int)explode("/", $fps)[0];
-            if ($fps > 100 || $fps === 0) {
-                $fps = 30;
-            }
-          //  $screenshot_time = $middle / $fps;
-            $screenshot_time = ($frames / $fps) - 3;
-        }
-        $screenshot_path = "/pictures/video_covers/$filename.jpg";
-        $screenshot_command = "ffmpeg -y -ss $screenshot_time -i '$path' -vframes 1 '".public_path($screenshot_path)."'";
-         shell_exec($screenshot_command);
-        return $screenshot_path;
-    }
-
-    public function setTelegramID() {
+    public function setTelegramID()
+    {
         $record = Record::find(request()->input('record_id'));
         if (!$record) {
             return [
@@ -1218,7 +1052,8 @@ dd($record);
             ];
         };
 
-        Cache::forget('record_'.$record->id);
+        Cache::forget('record_' . $record->id);
+
         $record->use_own_player = true;
         $record->telegram_id = request()->input('telegram_id');
         $record->save();
@@ -1229,7 +1064,8 @@ dd($record);
         ];
     }
 
-    public function screenshot() {
+    public function thumbnail()
+    {
         $record = Record::find(request()->input('record_id'));
         if (!$record) {
             return [
@@ -1244,20 +1080,22 @@ dd($record);
             ];
         };
         if ($record->original_url && (strpos($record->original_url, 'vk.com') !== false || strpos($record->original_url, 'vkvideo.ru') !== false) && !$record->source_path) {
-            $token = config('tokens.vk');
+
             preg_match('/(.*?)video_ext.php\?oid=(.*?)&id=(.*?)&hash=(.*?)[&"](.*?)/', $record->embed_code, $matches);
             $user_id = $matches[2];
             $video_id = $matches[3];
             $hash = $matches[4];
-            $full_id = $user_id."_".$video_id."_".$hash;
-            $data = json_decode(file_get_contents("https://api.vk.com/method/video.get?access_token=$token&v=5.101&videos=$full_id&extended=1"));
+            $data = ExternalServicesHelper::vkVideo($user_id . "_" . $video_id . "_" . $hash);
+
             if (isset($data->response) && count($data->response->items) > 0) {
                 $video = $data->response->items[0];
-                $screenshot = $video->image[count($video->image) - 2]->url;
+                $thumbnail = $video->image[count($video->image) - 2]->url;
+
                 $cover = Picture::firstOrNew([
-                    'url' => $screenshot
+                    'url' => $thumbnail
                 ]);
                 $cover->save();
+
                 $record->cover_id = $cover->id;
                 $record->save();
                 return [
@@ -1268,18 +1106,18 @@ dd($record);
             }
             return [
                 'status' => 0,
-                'text' => 'Видео не загружено на сайт'
+                'text' => 'Не удалось обновить превью'
             ];
         }
         if ($record->original_url && strpos($record->original_url, 'youtu') !== false && !$record->source_path) {
-            $token = config('tokens.vk');
             preg_match('/youtube.com\/embed\/(.*?)"/', $record->embed_code, $output);
             if ($output && count($output) == 2) {
-                $screenshot = 'https://i.ytimg.com/vi/'.$output[1].'/hqdefault.jpg';
+                $thumbnail = 'https://i.ytimg.com/vi/' . $output[1] . '/hqdefault.jpg';
                 $cover = Picture::firstOrNew([
-                    'url' => $screenshot
+                    'url' => $thumbnail
                 ]);
                 $cover->save();
+
                 $record->cover_id = $cover->id;
                 $record->save();
                 return [
@@ -1290,25 +1128,26 @@ dd($record);
             }
             return [
                 'status' => 0,
-                'text' => 'Видео не загружено на сайт'
+                'text' => 'Не удалось обновить превью'
             ];
         }
         if (!$record->source_path) {
             return [
                 'status' => 0,
-                'text' => 'Видео не загружено на сайт',
+                'text' => 'Не удалось обновить превью',
             ];
         }
         $seconds = request()->input('seconds');
         if (!$seconds || $seconds == "") {
             $seconds = null;
         }
-        $screenshot_path = $this->makeScreenshot("/storage".$record->source_path, $seconds);
 
+        $thumbnail_path = MediaHelper::makeThumbnail($record->source_path, $seconds);
         $cover = Picture::firstOrNew([
-            'url' => $screenshot_path
+            'url' => $thumbnail_path
         ]);
         $cover->save();
+
         $record->cover_id = $cover->id;
         $record->save();
         return [
@@ -1318,40 +1157,44 @@ dd($record);
         ];
     }
 
-    public function embed($id) {
+    public function embed($id)
+    {
         $record = Record::findOrFail($id);
         return view('pages.embed', ['record' => $record]);
     }
 
-    public function calendar($is_radio = false) {
+    public function calendar($is_radio = false)
+    {
         $years = Record::approved()->where(['is_radio' => $is_radio])->whereNotNull('year')->selectRaw('count(*) as count_year, year')->where('year', '>=', 1950)->groupBy('year')->orderBy('year', 'asc')->get();
         return view('pages.records.calendar', ['years' => $years, 'is_radio' => $is_radio]);
     }
 
-    public function calendarYear($year, $is_radio = false) {
+    public function calendarYear($year, $is_radio = false)
+    {
         $year_records = Record::approved()->select(['month', 'day', 'year'])->where(['is_radio' => $is_radio, 'is_advertising' => false])->where(['year' => $year])->get();
         $records_by_month = [];
 
         $month_names = DatesHelper::monthNames();
         foreach ($year_records as $year_record) {
-            $month = $year_record->month  && $year_record->month > 0 ? $year_record->month : 0;
+            $month = $year_record->month && $year_record->month > 0 ? $year_record->month : 0;
             if ($month > 12 || $month < 0) {
                 continue;
             }
 
             if (!isset($records_by_month[$month])) {
                 $month_name = isset($month_names[$year_record->month - 1]) ? $month_names[$year_record->month - 1] : "-";
-                $records_by_month[$month] = ['name' => $month > 0 ? $month_name . " ".$year : "Неизвестно", 'count' => 0];
+                $records_by_month[$month] = ['name' => $month > 0 ? $month_name . " " . $year : "Неизвестно", 'count' => 0];
             }
 
             $records_by_month[$month]['count']++;
         }
         ksort($records_by_month);
 
-        return view('pages.records.calendar-year', ['year' => $year,'records_by_month' => $records_by_month, 'is_radio' => $is_radio]);
+        return view('pages.records.calendar-year', ['year' => $year, 'records_by_month' => $records_by_month, 'is_radio' => $is_radio]);
     }
 
-    public function calendarMonth($year, $month, $is_radio = false) {
+    public function calendarMonth($year, $month, $is_radio = false)
+    {
         $month_names = DatesHelper::monthNames();
         if ($year == "-") {
             $month_name = $month_names[$month - 1];
@@ -1360,7 +1203,7 @@ dd($record);
             $month_records = Record::approved()->where(['is_radio' => $is_radio, 'is_advertising' => false])->where(['month' => $month])->get();
         } else {
             if ($month > 12 || $month < 0) {
-                return redirect(route('records.'.($is_radio ? 'radio' : 'video').'.calendar.year', $year));
+                return redirect(route('records.' . ($is_radio ? 'radio' : 'video') . '.calendar.year', $year));
             }
 
             if ($month > 0) {
@@ -1399,7 +1242,7 @@ dd($record);
             $channels_by_id[$channel->id] = $channel;
         }
         foreach ($month_records as $month_record) {
-            $day = $month_record->day  && $month_record->day > 0 ? $month_record->day : 0;
+            $day = $month_record->day && $month_record->day > 0 ? $month_record->day : 0;
             if (!isset($records_by_day[$day])) {
                 $records_by_day[$day] = [];
             }
@@ -1409,8 +1252,8 @@ dd($record);
             $records_by_day[$day][$month_record->channel_id][] = $month_record;
         }
         ksort($records_by_day);
-        if (isset( $records_by_day[0])) {
-            $unknown =  $records_by_day[0];
+        if (isset($records_by_day[0])) {
+            $unknown = $records_by_day[0];
             unset($records_by_day[0]);
             $records_by_day = $records_by_day + [0 => $unknown];
         }
@@ -1428,7 +1271,8 @@ dd($record);
         ]);
     }
 
-    public function playlistAjax($id) {
+    public function playlistAjax($id)
+    {
         $record = Record::find($id);
         if (!$record || $record->pending) {
             return [
@@ -1444,9 +1288,9 @@ dd($record);
 
         $record_description = $record->description;
         $record_info = trim(view('blocks.records.info', ['record' => $record])->render())
-            .trim(view('blocks.global.share', ['share_title' => $share_title, 'share_url' => $share_url])
+            . trim(view('blocks.global.share', ['share_title' => $share_title, 'share_url' => $share_url])
                 ->render());
-        $record_comments = view("blocks.comments.list", ['ajax' => false, 'page' =>  1, 'conditions' => ['material_type' => MaterialTypes::TYPE_RECORDS, 'material_id' => $record->id]])->render();
+        $record_comments = view("blocks.comments.list", ['ajax' => false, 'page' => 1, 'conditions' => ['material_type' => MaterialTypes::TYPE_RECORDS, 'material_id' => $record->id]])->render();
 
         return [
             'status' => 1,
@@ -1486,26 +1330,37 @@ dd($record);
     public function similar()
     {
         $type = request()->input('type');
-        $similar = Record::where(['title', 'LIKE', '%'.request()->input('title').'%']);
-        switch ($type) {
-            case 'programs':
-                $similar = $similar->orWhere([
-                    'program_id' => request()->input('program.id'),
-                    'channel_id' => request()->input('channel.id'),
-                    'year' => request()->input('date.year'),
-                    'month' => request()->input('date.month'),
-                    'day' => request()->input('date.day'),
-                ]);
-                break;
-            case 'advertising':
-                $similar = $similar->orWhere([
-                    'advertising_brand' => request()->input('advertising.brand'),
-                    'year_start' => request()->input('date.year_start'),
-                ]);
-                break;
-            default:
-                break;
+        $similar = Record::query();
+        if (request()->input('id') > 0) {
+            $similar = $similar->where('id', '!=', request()->input('id'));
         }
+        $similar = $similar->where(function ($q) use ($type) {
+            $q->where('title', 'LIKE', '%' . request()->input('title') . '%');
+            switch ($type) {
+                case 'programs':
+                    $q->orWhere(function ($q) {
+                        $q->where(['program_id' => request()->input('program.id')]);
+                        $q->where(['channel_id' => request()->input('channel.id')]);
+                        $q->where(['year' => request()->input('date.year')]);
+                        $q->where(['month' => request()->input('date.month')]);
+                        $q->where(['day' => request()->input('date.day')]);
+
+                        $q->where(['is_interprogram' => false]);
+                        $q->where(['is_advertising' => false]);
+                        $q->where(['is_clip' => false]);
+                    });
+                    break;
+                case 'advertising':
+                    $q->where(function ($q) {
+                        $q->where(['is_advertising' => true]);
+                        $q->where(['advertising_brand' => request()->input('advertising.brand')]);
+                        $q->where(['year_start' => request()->input('date.year_start')]);
+                    });
+                    break;
+                default:
+                    break;
+            }
+        });
         $similar = $similar->get();
         return [
             'status' => 1,
@@ -1513,42 +1368,30 @@ dd($record);
         ];
     }
 
-    public function autocompleteCountries() {
-        $count = 30;
-        $countries = Channel::whereNotNull('country')->select('country')->distinct()->orderBy('country');
-        if (request()->has('term')) {
-            $countries = $countries->where('country', 'LIKE', '%'.request()->input('term').'%');
+    public function complaint()
+    {
+        $rules = [
+            'description' => 'sometimes',
+            'record_id' => 'required|exists:records,id',
+            'type' => Rule::enum(RecordComplaintTypes::class),
+        ];
+        if (!auth()->user() && request()->input('type') != RecordComplaintTypes::PlayerNotWorking->value) {
+            $rules['contact'] = 'required';
         }
-        $page = request()->input('page', 1);
-        $countries = $countries->limit($count)->offset($count * ($page - 1))->get()->map(function($item) {
-            return $item->country;
-        });
+
+        $data = request()->validate($rules);
+
+        $complaint = new RecordComplaint($data);
+        if (auth()->user()) {
+            $complaint->user_id = auth()->user()->id;
+        }
+        $complaint->save();
+
         return [
             'status' => 1,
-            'data' => $countries
+            'text' => 'Ваша жалоба отправлена, спасибо!'
         ];
     }
-
-    public function autocompleteRegions() {
-        $count = 30;
-        $regions = DB::table('channels')->whereNotNull('city')->select(DB::raw('city as region'), 'country')->distinct()->orderBy('region')
-            ->union(DB::table('records')->whereNotNull('region')->select('region', 'country')->distinct()->orderBy('region'));
-        if (request()->has('term')) {
-            $regions = $regions->where('region', 'LIKE', '%'.request()->input('term').'%');
-        }
-        if (request()->has('country')) {
-            $regions = $regions->where('country', 'LIKE', '%'.request()->input('country').'%');
-        }
-        $page = request()->input('page', 1);
-        $regions = $regions->limit($count)->offset($count * ($page - 1))->get()->map(function($item) {
-            return $item->region;
-        });
-        return [
-            'status' => 1,
-            'data' => $regions
-        ];
-    }
-
 
 
     private function getChannelsForForm($params)
@@ -1556,8 +1399,9 @@ dd($record);
         return Channel::approved()->with(['logo', 'names'])->orderBy('order', 'asc')->where($params)->get();
     }
 
-    public function getYoutubeVideoIds($author_id) {
-        $video_ids = Record::where(['author_id' => $author_id])->where('embed_code', 'LIKE', '%youtu%')->pluck('embed_code')->map(function($video_id) {
+    public function getYoutubeVideoIds($author_id)
+    {
+        $video_ids = Record::where(['author_id' => $author_id])->where('embed_code', 'LIKE', '%youtu%')->pluck('embed_code')->map(function ($video_id) {
             $video_id = explode('embed/', $video_id)[1];
             $video_id = explode('"', $video_id)[0];
             return $video_id;
@@ -1570,7 +1414,8 @@ dd($record);
         ];
     }
 
-    public function getVideosForAuthor($author_id) {
+    public function getVideosForAuthor($author_id)
+    {
         $videos = Record::where(['author_id' => $author_id])->select('title', 'id')->get();
         return [
             'status' => 1,
@@ -1582,8 +1427,8 @@ dd($record);
 
     public function apiSearch()
     {
-        $search = request()->input('q') ? explode(';',request()->input('q')) : [];
-        $exclude = request()->input('e') ? explode(';',request()->input('e')) : [];
+        $search = request()->input('q') ? explode(';', request()->input('q')) : [];
+        $exclude = request()->input('e') ? explode(';', request()->input('e')) : [];
 
         $category = request()->input('c');
         $genre = null;
@@ -1603,16 +1448,16 @@ dd($record);
             }
         });
         if (count($exclude) > 0) {
-            $programs->where(function($q) use ($exclude) {
+            $programs->where(function ($q) use ($exclude) {
                 foreach ($exclude as $value) {
-                    $q = $q->where('name', 'NOT LIKE', '%'.$value.'%');
+                    $q = $q->where('name', 'NOT LIKE', '%' . $value . '%');
                 }
             });
         }
 
-        $records = Record::query()->where(function($q) use ($programs, $search) {
+        $records = Record::query()->where(function ($q) use ($programs, $search) {
             if (count($search) > 0) {
-                $q->where('title', 'LIKE', '%'.$search[0].'%');
+                $q->where('title', 'LIKE', '%' . $search[0] . '%');
                 for ($i = 1; $i < count($search); $i++) {
                     $q = $q->orWhere('title', 'LIKE', '%' . $search[$i] . '%');
                 }
@@ -1644,7 +1489,7 @@ dd($record);
                     $download_url = $matches[2];
                 }
                 if ($download_url != '' && strpos($download_url, 'youtu') === false && strpos($download_url, 'dailymotion') === false) {
-                    echo $record->id . PHP_EOL . $record->title . PHP_EOL . $download_url. PHP_EOL.PHP_EOL;
+                    echo $record->id . PHP_EOL . $record->title . PHP_EOL . $download_url . PHP_EOL . PHP_EOL;
                 }
             }
             return;

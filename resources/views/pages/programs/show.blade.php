@@ -23,7 +23,7 @@
                         </div>
 
                         <div class="box__heading__right">
-                            @if ($program->can_edit || \App\Helpers\PermissionsHelper::allows('contentapprove'))
+                            @if (!$unknown && ($program->can_edit || \App\Helpers\PermissionsHelper::allows('contentapprove')))
                                 <span class="button button--light button--dropdown">
                                     <span class="button--dropdown__text">Действия</span>
                                     <span class="button--dropdown__icon">
@@ -50,17 +50,17 @@
                     <div class="box__inner">
                         <div class="row">
 
-                            @if($program->cover_without_empty)
+                            @if(!$unknown && $program->cover_without_empty)
                                 <img class="program-page__logo" src="{{$program->cover_without_empty}}">
                             @endif
                             <div class="program-page__texts">
-                                @if (count($program->unique_names) > 0)
+                                @if (!$unknown && count($program->unique_names) > 0)
                                     <div class="program-page__names">
                                         <strong>Также известна как:</strong>
                                         {{implode(", ", $program->unique_names)}}
                                     </div>
                                 @endif
-                                @if (!$unknown)
+                                @if (!$unknown && $program->channel_id)
                                     <div class="program__channels program-page__channels">
                                         @foreach ($program->channels_history as $program_channel)
                                             <a href="{{$program_channel['url']}}" class="program__channel__name">
@@ -98,14 +98,16 @@
                             </div>
                         </div>
                         <div class="box__inner">
+                            <div class="articles-list__block">
                             @foreach ($program->articles as $news_item)
                                 @include('blocks.articles.news', ['class' => 'news-block--card news-block--for-program', 'show_cover' => true, 'news_item' => $news_item])
                             @endforeach
+                            </div>
                         </div>
                     </div>
                 @endif
                 @php($can_edit_interprogram = \App\Helpers\PermissionsHelper::allows('additionalown'))
-                @if (count($program->design) > 0 || $can_edit_interprogram)
+                @if (!$unknown && (count($program->design) > 0 || $can_edit_interprogram))
                     <div class="box interprogram-packages-list-item">
                         <div class="box__heading">
                             <div class="box__heading__inner">
@@ -113,7 +115,7 @@
                             </div>
                             @if ($can_edit_interprogram)
                                 <div class="box__heading__right">
-                                    <a href="{{$program->full_url}}/graphics/add"
+                                    <a href="{{route('design.programs.add', $program)}}"
                                        class="button button--light">Добавить</a>
                                 </div>
                             @endif
@@ -162,7 +164,7 @@
                         </div>
                     </div>
                 @endif
-                @include('blocks/generic_sidebar', ['hide_articles' => true, 'is_radio' => $channel ? $channel->is_radio : false])
+                @include('blocks.global.generic-sidebar', ['hide_articles' => true, 'is_radio' => $channel ? $channel->is_radio : false])
             </div>
         </div>
     </div>

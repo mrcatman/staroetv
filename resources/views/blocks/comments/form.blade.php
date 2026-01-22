@@ -97,20 +97,7 @@
         <div class="bb-editor__text-container">
             <textarea class="bb-editor__text" rows="1" placeholder="Введите ваш комментарий..." name="message"
                       id="message"></textarea>
-            <!--
-            <div class="bb-editor__smiles">
-                <div class="bb-editor__smiles__list">
-                    @foreach (\App\Models\Smile::where(['show_in_panel' => true])->get() as $smile)
-                <a class="bb-editor__smile" onclick="bb.emoticon('{{$smile->text}}','message');return false;">
-                            <img class="bb-editor__smile__picture" src="{{$smile->picture->url}}"/>
-                        </a>
 
-
-            @endforeach
-            </div>
-            <a class="bb-editor__smiles__all">Все смайлы</a>
-        </div>
--->
         </div>
         <div class="bb-editor__submit">
             <input class="button button--light bb-editor__submit__button" type="submit" name="submit" value="Отправить">
@@ -118,12 +105,3 @@
         </div>
     </div>
 </form>
-<div class="bb-editor__all-smiles" id="all_smiles" style="display:none" data-title="Все смайлы">
-    @foreach (\App\Models\Smile::all() as $smile)
-        <a class="bb-editor__smile bb-editor__smile--with-text"
-           onclick="bb.emoticon('{{$smile->text}}','message');return false;">
-            <img class="bb-editor__smile__picture" src="{{$smile->picture->url}}"/>
-            <div class="bb-editor__smile__text">{{$smile->text}}</div>
-        </a>
-    @endforeach
-</div>

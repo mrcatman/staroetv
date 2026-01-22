@@ -27,8 +27,15 @@
                     <div class="comments__form">
                         @if (!auth()->user())
                             <div class="comments__form__register">
-                                <a class="button--login" href="{{route('login')}}">Войдите</a> или <a href="{{route('register')}}">зарегистрируйтесь</a>, чтобы
+                                <span>
+                                      <a class="button--login" href="{{route('login')}}">Войдите</a> или <a href="{{route('register')}}">зарегистрируйтесь</a>, чтобы
                                 добавить комментарий
+                                </span>
+
+                                <button class="button button--telegram" data-action="register">
+                                    <i class="fab fa-telegram"></i>
+                                    Вход через Телеграм
+                                </button>
                             </div>
                         @else
                             @if (\App\Helpers\PermissionsHelper::allows("comadd"))
@@ -43,11 +50,7 @@
 
                     <div class="comments__main">
                         @endif
-                        <div class="comments__list @if (count($comments) == 0) comments__list--empty @endif">
-                            @foreach ($comments as $comment)
-                                @include('blocks.comments.item', ['comment' => $comment])
-                            @endforeach
-                        </div>
+                        <div class="comments__list">@foreach ($comments as $comment)@include('blocks.comments.item', ['comment' => $comment])@endforeach</div>
                         @if (!$lazyload)
                             @if($comments->lastPage() > 1)
                                 <div class="comments__pager">

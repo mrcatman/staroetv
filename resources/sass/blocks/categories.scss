@@ -5,24 +5,27 @@
     display: inline-block;
     cursor: pointer;
     user-select: none;
+    box-shadow: var(--input-box-shadow);
     &:hover {
         background: var(--bg-darker-3);
     }
 
     @include light() {
-        background: none;
+        background: var(--bg-darker);
         transition: all .2s;
-        border-radius: .5em;
+        border-radius: var(--border-radius-standard);
         &:hover {
-            background: var(--bg-darker);
+            background: var(--bg-darker-3);
         }
     }
 
     &--active {
         background: var(--primary);
         color: var(--button-active-text);
+        box-shadow: var(--element-box-shadow);
+
         @include light() {
-            background: var(--bg-darker);
+            background: var(--bg-darker-2);
             color: var(--primary);
         }
     }
@@ -35,23 +38,19 @@
 
 
 .categories-list {
-    padding: 1em;
-    margin: -1.125em -1.125em 1em;
-    background: var(--bg-darker);
+    padding: 2em 0;
+    margin: -2em 0 -1em;
     white-space: nowrap;
-    overflow: auto;
+    display: flex;
+    gap: .25em;
     &--multiline {
         display: flex;
         flex-wrap: wrap;
-        gap: .5em;
     }
-    @include light() {
-        padding: 0;
-        margin: 0 0 1em;
-        background: none;
-    }
+
     @include mobile() {
         font-size: .875em;
+        flex-wrap: wrap;
     }
 }
 

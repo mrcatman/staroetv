@@ -32,6 +32,7 @@
                         <div class="input-container__element-outer">
                         <textarea class="input"
                                   name="short_content">{{$article ? $article->short_content : ""}}</textarea>
+                            <div class="input-container__description">Будет отображаться в общем списке статей</div>
                             <span class="input-container__message"></span>
                         </div>
                     </div>
@@ -39,8 +40,7 @@
                 <div class="input-container">
                     <label class="input-container__label">Текст<span class="input-container__required">*</span></label>
                     <div class="input-container__inner">
-                    <textarea id="editor" class="input input--textarea"
-                              name="content">{{$article ? $article->content : ""}}</textarea>
+                        <tiptap-editor name="content" :content='@json($article ? $article->content : '')'></tiptap-editor>
                         <span class="input-container__message"></span>
                     </div>
                 </div>

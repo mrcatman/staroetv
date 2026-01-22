@@ -1,13 +1,14 @@
-import {showModal} from "@/modules/modals.js";
+import {showModal} from "@/modules/modals";
 const body = $('body');
 
 window.execOnMounted.push(function() {
-    if ($('#editor').length && typeof CKEDITOR !== 'undefined') {
-        CKEDITOR.config.allowedContent = true;
-        CKEDITOR.replace('editor');
-    }
+    // if ($('#editor').length && typeof CKEDITOR !== 'undefined') {
+    //     CKEDITOR.config.allowedContent = true;
+    //     CKEDITOR.replace('editor');
+    // }
     $('a').removeClass('link--active');
     $(`a[href="${window.location.pathname}"]`).addClass('link--active');
+    $('.select').select2();
 })
 
 $(body).on('click', '.button--login', function(e) {

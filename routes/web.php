@@ -30,6 +30,8 @@ use App\Http\Controllers\PagesController;
 use App\Http\Controllers\PrivateMessagesController;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\RecordsController;
+use App\Http\Controllers\RecordsAutocompleteController;
+use App\Http\Controllers\RecordsUploadController;
 use App\Http\Controllers\ReputationController;
 use App\Http\Controllers\SiteSearchController;
 use App\Http\Controllers\TeletextController;
@@ -46,6 +48,7 @@ use App\Http\Controllers\Admin\ChannelsController as AdminChannelsController;
 use App\Http\Controllers\Admin\GenresController as AdminGenresController;
 use App\Http\Controllers\Admin\PagesController as AdminPagesController;
 use App\Http\Controllers\Admin\PermissionsController as AdminPermissionsController;
+use App\Http\Controllers\Admin\RecordComplaintsController as AdminRecordComplaintsController;
 use App\Http\Controllers\Admin\SmilesController as AdminSmilesController;
 use App\Http\Controllers\Admin\UsersController as AdminUsersController;
 use App\Http\Controllers\Admin\UserGroupsController as AdminUserGroupsController;
@@ -127,9 +130,6 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
                 return (new \App\Http\Controllers\RecordsController())->add(['is_radio' => $is_radio]);
             })->name('add');
 
-            Route::any('search', function () use ($is_radio) {
-                return (new \App\Http\Controllers\RecordsController())->search(['is_radio' => $is_radio]);
-            })->name('search');
 
             Route::any('other', function () use ($is_radio) {
                 return (new \App\Http\Controllers\RecordsController())->other(['is_radio' => $is_radio]);
@@ -139,19 +139,19 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
             })->name('other.category');
 
             Route::any('commercials', function () use ($is_radio) {
-                return (new \App\Http\Controllers\RecordsController())->commercials(['is_radio' => $is_radio]);
+                return redirect(route('records.commercials', ['is_radio' => $is_radio]));
             })->name('commercials');
 
             Route::any('commercials-search', function () use ($is_radio) {
-                return (new \App\Http\Controllers\RecordsController())->commercialsBrands(['is_radio' => $is_radio]);
-            })->name('commercials-search');
+                return redirect(route('records.commercials', ['is_radio' => $is_radio]));
+            })->name('commercials.search');
 
             Route::get('programs', function () use ($is_radio) {
                 return (new \App\Http\Controllers\ProgramsController())->index(['is_radio' => $is_radio]);
             })->name('programs');
-            Route::get('programs/ajax', function () use ($is_radio) {
-                return (new \App\Http\Controllers\ProgramsController())->loadAll(['is_radio' => $is_radio]);
-            })->name('programs.ajax');
+            Route::get('programs/show-all', function () use ($is_radio) {
+                return (new \App\Http\Controllers\ProgramsController())->showAll(['is_radio' => $is_radio]);
+            })->name('programs.show-all');
 
             Route::get('calendar', function() use ($is_radio) {
                 return (new RecordsController())->calendar($is_radio);
@@ -187,13 +187,13 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
     Route::name('records.')->prefix('records')->group(function () {
         Route::post('approve', [RecordsController::class, 'approve'])->name('approve');
-        Route::any('search', function () {
-            return (new \App\Http\Controllers\RecordsController())->search([]);
-        })->name('search');
-        Route::post('upload', [RecordsController::class, 'upload'])->name('upload');
-        Route::any('after-upload', [RecordsController::class, 'afterUpload'])->name('after-upload');
+        Route::any('search', [RecordsController::class, 'search'])->name('search');
+        Route::get('commercials', [RecordsController::class, 'search'])->name('commercials');
 
-        Route::post('download', [RecordsController::class, 'download'])->name('download');
+        Route::get('upload/config', [RecordsUploadController::class, 'config'])->name('upload.config');
+        Route::post('upload/process', [RecordsUploadController::class, 'process'])->name('upload.process');
+
+        Route::post('download', [RecordsUploadController::class, 'download'])->name('download');
         Route::post('mass-edit', [RecordsController::class, 'massEdit'])->name('mass-edit');
         Route::post('add', [RecordsController::class, 'save'])->name('save');
         Route::post('{id}/edit', [RecordsController::class, 'update'])->name('update');
@@ -205,16 +205,25 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         Route::post('set-telegram-id', [RecordsController::class, 'setTelegramID'])->name('set-telegram-id');
         Route::get('playlist-ajax/{id}', [RecordsController::class, 'playlistAjax'])->name('playlist-ajax');
 
-        Route::get('autocomplete/countries', [RecordsController::class, 'autocompleteCountries'])->name('autocomplete.countries');
-        Route::get('autocomplete/regions', [RecordsController::class, 'autocompleteRegions'])->name('autocomplete.regions');
+        Route::get('autocomplete/countries', [RecordsAutocompleteController::class, 'countries'])->name('autocomplete.countries');
+        Route::get('autocomplete/regions', [RecordsAutocompleteController::class, 'regions'])->name('autocomplete.regions');
+        Route::get('autocomplete/brands', [RecordsAutocompleteController::class, 'commercialsBrands'])->name('autocomplete.commercials-brands');
+        Route::get('autocomplete/categories', [RecordsAutocompleteController::class, 'commercialsCategories'])->name('autocomplete.commercials-categories');
+
         Route::get('similar', [RecordsController::class, 'similar'])->name('similar');
+        Route::post('complaint', [RecordsController::class, 'complaint'])->name('complaint');
 
     });
 
     // MASS UPLOAD
 
     Route::name('mass-upload.')->prefix('mass-upload')->group(function () {
-        Route::get('', [MassUploadController::class, 'index'])->name('index');
+        Route::get('video', function() {
+            return (new MassUploadController())->index(false);
+        })->name('video');
+        Route::get('radio', function() {
+            return (new MassUploadController())->index(true);
+        })->name('radio');
         Route::post('', [MassUploadController::class, 'fetchList'])->name('list');
         Route::get('from-device', [MassUploadController::class, 'uploadFromDevice'])->name('from-device');
     });
@@ -228,7 +237,6 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         defineCrudRoutes(ProgramsController::class, [
             'index' => false,
         ]);
-
         Route::post('merge', [ProgramsController::class, 'merge'])->name('merge');
         Route::get('autocomplete', [ProgramsController::class, 'autocomplete'])->name('autocomplete');
     });
@@ -236,11 +244,8 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
     foreach (['channels', 'radio-stations'] as $prefix) {
         Route::name($prefix.'.')->prefix($prefix)->group(function () use ($prefix) {
-            $is_radio = $prefix === 'radio-stations';
-
-            Route::get('ajax', function () use ($is_radio) {
-                return (new \App\Http\Controllers\ChannelsController())->getAjaxList($is_radio);
-            })->name('ajax');
+            Route::get('ajax', [ChannelsController::class, 'ajaxList'])->name('ajax');
+            Route::get('autocomplete', [ChannelsController::class, 'autocomplete'])->name('autocomplete');
 
             Route::post('merge', [ChannelsController::class, 'merge'])->name('merge');
 
@@ -248,14 +253,11 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
                 'index' => false
             ]);
 
-
             Route::get('{id}/programs/edit', [ProgramsController::class, 'editList'])->name('programs.edit-list');
             Route::post('{id}/programs/edit', [ProgramsController::class, 'saveList'])->name('programs.save-list');
 
-
-            Route::post('autocomplete', [ChannelsController::class, 'autocomplete'])->name('autocomplete');
-
-            Route::get('{id}/programs', [ChannelsController::class, 'getPrograms'])->name('programs.ajax');
+            Route::get('{id}/unknown-programs', [ChannelsController::class, 'unknownPrograms'])->name('programs.unknown');
+            Route::get('{id}/programs', [ChannelsController::class, 'programs'])->name('programs.ajax');
         });
     }
 
@@ -703,8 +705,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         //return redirect($path);
     });
 
-    Route::post('/site-search', [SiteSearchController::class, 'search'])->name('site-search');
-
+    Route::get('/site-search', [SiteSearchController::class, 'search'])->name('site-search');
 
     // ADMIN
 
@@ -750,6 +751,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
         Route::get('pages', [AdminPagesController::class, 'index'])->name('pages.index');
         Route::get('actions-logs', [AdminActionsLogsController::class, 'index'])->name('actions-logs.index');
+        Route::get('records-complaints', [AdminRecordComplaintsController::class, 'index'])->name('records-complaints.index');
 
         Route::get('crossposting', [CrosspostController::class, 'getServices'])->name('crossposting');
 
@@ -780,7 +782,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
 
     Route::get('garland', function () {
-        return view('blocks.garland');
+        return view('blocks.global.garland');
     });
 
 });

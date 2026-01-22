@@ -38,7 +38,11 @@ class SiteSearchController extends Controller {
             $channels = $channels->limit($other_limit)->get();
 
             if (count($channels) < $limit) {
-                $additional = ChannelName::whereNotIn('channel_id', $channels->pluck('id'))->where('name', 'LIKE', '%'.$search.'%');
+                $additional = ChannelName::whereNotIn('channel_id', $channels->pluck('id'))->where(function($q) use ($search) {
+                    $q->where('name', 'LIKE', '%'.$search.'%');
+                    $q->orWhere('alternatives', 'LIKE', '%'.$search.'%');
+                });
+
                 if ($channels_type_data['is_radio']) {
                     $additional = $additional->whereIn('channel_id', $radio_ids);
                 } else {
@@ -53,7 +57,7 @@ class SiteSearchController extends Controller {
                         if ($additional_item->logo) {
                             $channel->logo = $additional_item->logo;
                         }
-                        $channel->name = $additional_item->name;
+                        $channel->name = $additional_item->name != '' ? $additional_item->name : $channel->name;
                         $channels->push($channel);
                     }
                 }
@@ -123,7 +127,6 @@ class SiteSearchController extends Controller {
         $sections = [
             'video' => [
                 'model' => Record::approved()->where(['is_radio' => false]),
-                'fields' => ['title', 'short_description', 'description', 'advertising_brand'],
                 'description_default' => 'description',
                 'description_fields' => ['short_description'],
                 'title_field' => 'title',
@@ -132,7 +135,6 @@ class SiteSearchController extends Controller {
             ],
             'radio' => [
                 'model' => Record::approved()->where(['is_radio' => true]),
-                'fields' => ['title', 'short_description', 'description', 'advertising_brand'],
                 'description_default' => 'description',
                 'description_fields' => ['short_description'],
                 'title_field' => 'title',
@@ -141,19 +143,13 @@ class SiteSearchController extends Controller {
             ],
         ];
         foreach ($sections as $section_name => $section_data) {
-            $list = $section_data['model']->where(function($q) use ($search, $section_data) {
-                $first_property = array_shift( $section_data['fields']);
-                $q->where($first_property, 'LIKE', '%'. $search .'%');
-                foreach ($section_data['fields'] as $field) {
-                    $q->orWhere($field, 'LIKE', '%'. $search .'%');
-                }
-            })->orderBy('id', 'desc');
+            $list = $section_data['model']->search($search)->orderBy('id', 'desc');
             $list_count = $list->count();
             if ($list_count > 0) {
                 $list = $list->limit($limit)->get();
                 $data = [
                     'count' => $list_count,
-                    'url' => '/'.$section_name."/search?search=".$search,
+                    'url' => route('records.search', ['search' => $search, 'is_radio' => $section_name == 'radio']),
                     'name' => $section_name,
                     'title' => $section_data['title'],
                     'list' => []
@@ -175,12 +171,12 @@ class SiteSearchController extends Controller {
                 $results[] = $data;
             }
         }
-        $articles_types = [
-            MaterialTypes::TYPE_ARTICLES => ['url' => 'articles', 'title' => 'Статьи'],
-            MaterialTypes::TYPE_NEWS => ['url' => 'news', 'title' => 'Новости'],
-        ];
-        foreach ($articles_types as $articles_type => $articles_data) {
-            $articles = Article::approved()->where(['type_id' => $articles_type])->where(function($q) use ($search) {
+      //  $articles_types = [
+      //      MaterialTypes::TYPE_ARTICLES => ['url' => 'articles', 'title' => 'Статьи'],
+      //      MaterialTypes::TYPE_NEWS => ['url' => 'news', 'title' => 'Новости'],
+      //  ];
+      //  foreach ($articles_types as $articles_type => $articles_data) {
+            $articles = Article::approved()->where(function($q) use ($search) { // ->where(['type_id' => $articles_type])
                 $q->where('title', 'LIKE', '%'.$search.'%');
                 $q->orWhere('content', 'LIKE', '%'.$search.'%');
             })->orderBy('id', 'desc');
@@ -188,10 +184,10 @@ class SiteSearchController extends Controller {
             $articles = $articles->limit($limit)->get();
             if (count($articles) > 0) {
                 $data = [
-                    'name' => $articles_data['url'],
+                    'name' => 'articles',
                     'count' => $articles_count,
-                    'url' => '/'.$articles_data['url']."?search=".$search,
-                    'title' => $articles_data['title'],
+                    'url' => route('articles.index', ['search' => $search]),
+                    'title' => 'Новости и статьи',
                     'list' => []
                 ];
                 foreach ($articles as $item) {
@@ -205,14 +201,14 @@ class SiteSearchController extends Controller {
                 }
                 $results[] = $data;
             }
-        }
+     //   }
         return [
             'status' => 1,
              'data' => [
                 'dom' => [
                     [
                         'replace' => '.site-search__results',
-                        'html' => view("blocks/search_results", ['search' => $search, 'ajax' => true, 'results' => $results])->render()
+                        'html' => view("blocks.site-search.results", ['search' => $search, 'ajax' => true, 'results' => $results])->render()
                     ]
                 ]
             ]

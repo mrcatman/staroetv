@@ -133,7 +133,7 @@ class PagesController extends EntityController {
                 function ($matches) {
                     $group_id = explode("|", $matches[0])[1];
                     $users = User::where(['group_id' => $group_id])->get();
-                    return view('blocks.group_users_list', ['users' => $users]);
+                    return view('blocks.global.group-users-list', ['users' => $users]);
                 },
                 $page->content
             );

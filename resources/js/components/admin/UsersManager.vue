@@ -7,7 +7,7 @@
             <div class="modal-window__text">Вы уверены, что хотите удалить пользователя?</div>
             <div class="form__bottom">
                 <button class="button button--light" @click="deleteUser()">ОК</button>
-                <button class="button button--light" @click="$refs.deleteModal.hide()">Отмена</button>
+                <button class="button button--light" @click="deleteModalRef?.hide()">Отмена</button>
                 <response :light="true" :data="deletePanel.response"/>
             </div>
         </modal>
@@ -21,7 +21,7 @@
             </div>
             <div class="form__bottom">
                 <button class="button button--light" @click="changePassword()">ОК</button>
-                <button class="button button--light" @click="$refs.changePasswordModal.hide()">Отмена</button>
+                <button class="button button--light" @click="changePasswordModalRef?.hide()">Отмена</button>
                 <response :light="true" :data="changePasswordPanel.response"/>
             </div>
         </modal>
@@ -44,7 +44,7 @@
             <b-table class="admin-panel__table" show-empty stacked="md" :filter="table.filter" :items="usersList" :fields="table.fields" :current-page="table.currentPage" :per-page="table.perPage">
                 <template v-slot:cell(group_id)="data">
                     <div class="users-manager__group-select">
-                        <select2 :key="usersList[data.item._index].id" theme="default" @change="(e) => onUserGroupChange(e, usersList[data.item._index])" :options="groupsOptions" v-model="usersList[data.item._index].group_id"></select2>
+                        <select2 :key="usersList[data.item._index].id" theme="default" @change="() => onUserGroupChange(usersList[data.item._index])" :options="groupsOptions" v-model="usersList[data.item._index].group_id"></select2>
                     </div>
                 </template>
                 <template v-slot:cell(_options)="data">
@@ -67,152 +67,152 @@
         }
     }
 </style>
-<script>
-    import PictureUploader from '../PictureUploader.vue';
-    import Modal from '../Modal.vue';
-    import Response from '../Response.vue';
-    import Snackbar from '../Snackbar.vue';
+<script setup lang="ts">
+import { ref, computed, onMounted, useTemplateRef } from 'vue';
+import PictureUploader from '../PictureUploader.vue';
+import Modal from '../Modal.vue';
+import Response from '../Response.vue';
+import Snackbar from '../Snackbar.vue';
 
-    export default {
-        computed: {
-            groupsOptions() {
-                return this.groups.map(group => {
-                    return {
-                        id: group.id,
-                        text: group.name
-                    }
-                })
-            }
+interface UserWithIndex extends Models.User {
+    _index?: number;
+}
+
+interface GroupOption {
+    id: number;
+    text: string;
+}
+
+const props = defineProps<{
+    groups: Models.UserGroup[];
+    users: Models.User[];
+}>();
+
+const snackbarRef = useTemplateRef<typeof Snackbar>('snackbar');
+const deleteModalRef = useTemplateRef<typeof Modal>('deleteModal');
+const changePasswordModalRef = useTemplateRef<typeof Modal>('changePasswordModal');
+
+const groupsOptions = computed<GroupOption[]>(() => {
+    return props.groups.map(group => {
+        return {
+            id: group.id,
+            text: group.name
+        };
+    });
+});
+
+const table = ref({
+    response: null as Forms.Response | null,
+    loading: false,
+    filter: '',
+    currentPage: 1,
+    perPage: 50,
+    fields: [
+        {
+            key: 'username',
+            label: 'Ник',
+            sortable: true
         },
-        methods: {
-            changePassword() {
-                this.changePasswordPanel.loading = true;
-                $.post('/admin/users/change-password', {
-                    new_password: this.changePasswordPanel.data.new_password,
-                    user_id: this.changePasswordPanel.user.id,
-                }).done(res => {
-                    this.changePasswordPanel.loading = false;
-                    this.changePasswordPanel.response = res;
-                    if (res.status) {
-                        this.$refs.changePasswordModal.hide();
-                    }
-                }).fail((xhr) => {
-                    this.changePasswordPanel.loading = false;
-                    let error = xhr.responseJSON;
-                    this.changePasswordPanel.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
-                })
-            },
-            showChangePasswordModal(user) {
-                this.changePasswordPanel.data.new_password = '';
-                this.changePasswordPanel.response = null;
-                this.changePasswordPanel.user = user;
-                this.$refs.changePasswordModal.show();
-            },
-            onUserGroupChange(id, user) {
-                $.post('/admin/users/change-group', {group_id: id, user_id: user.id}).done(res => {
-                    this.$refs.snackbar.show(res);
-                })
-            },
-            deleteUser() {
-                this.deletePanel.loading = true;
-                $.post('/admin/users/delete', {
-                    user_id: this.deletePanel.user.id
-                }).done(res => {
-                    this.deletePanel.loading = false;
-                    if (res.status) {
-                        this.usersList = this.usersList.filter(user => user.id !== this.deletePanel.user.id);
-                        this.$refs.deleteModal.hide();
-                    }
-                }).fail((xhr) => {
-                    this.deletePanel.loading = false;
-                    let error = xhr.responseJSON;
-                    this.deletePanel.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
-                })
-            },
-            showDeleteModal(user) {
-                this.deletePanel.response = null;
-                this.deletePanel.user = user;
-                this.$refs.deleteModal.show();
-            },
-            showMergeModal(channel) {
-                this.mergePanel.response = null;
-                this.mergePanel.channel = channel;
-                this.$refs.mergeModal.show();
-            },
+        {
+            key: 'ip_address_reg',
+            label: 'IP',
+            sortable: true
         },
-        props: {
-            groups: {
-                type: Array,
-                required: true,
-            },
-            users: {
-                type: Array,
-                required: true,
-            },
+        {
+            key: 'group_id',
+            label: 'Группа',
+            sortable: true
         },
-        data() {
-            return {
-                table: {
-                    response: null,
-                    loading: false,
-                    filter: '',
-                    currentPage: 1,
-                    perPage: 50,
-                    fields: [
-                        {
-                            key: 'username',
-                            label: 'Ник',
-                            sortable: true
-                        },
-                        {
-                            key: 'ip_address_reg',
-                            label: 'IP',
-                            sortable: true
-                        },
-                        {
-                            key: 'group_id',
-                            label: 'Группа',
-                            sortable: true
-                        },
-                        {
-                            key: 'email',
-                            label: 'E-mail',
-                            sortable: true
-                        },
-                        {
-                            key: '_options',
-                            label: '',
-                            sortable: false
-                        },
-                    ],
-                },
-                changePasswordPanel: {
-                    data: {
-                        new_password: ''
-                    },
-                    loading: false,
-                    user: null,
-                    response: null
-                },
-                usersList: [],
-                deletePanel: {
-                    loading: false,
-                    user: null,
-                    response: null
-                }
-            }
+        {
+            key: 'email',
+            label: 'E-mail',
+            sortable: true
         },
-        mounted() {
-            this.usersList = this.users.map((user, index) => {
-                user._index = index;
-                return user;
-            })
+        {
+            key: '_options',
+            label: '',
+            sortable: false
         },
-        components: {
-            Snackbar,
-            Response,
-            Modal,
-            PictureUploader,
+    ],
+});
+
+const changePasswordPanel = ref({
+    data: {
+        new_password: ''
+    },
+    loading: false,
+    user: null as Models.User | null,
+    response: null as Forms.Response | null
+});
+
+const usersList = ref<UserWithIndex[]>([]);
+
+const deletePanel = ref({
+    loading: false,
+    user: null as Models.User | null,
+    response: null as Forms.Response | null
+});
+
+const changePassword = () => {
+    if (!changePasswordPanel.value.user) return;
+    changePasswordPanel.value.loading = true;
+    $.post(route('admin.users.change-password'), {
+        new_password: changePasswordPanel.value.data.new_password,
+        user_id: changePasswordPanel.value.user.id,
+    }).done(res => {
+        changePasswordPanel.value.loading = false;
+        changePasswordPanel.value.response = res;
+        if (res.status) {
+            changePasswordModalRef.value?.hide();
         }
-    }
+    }).fail((xhr) => {
+        changePasswordPanel.value.loading = false;
+        const error = xhr.responseJSON;
+        changePasswordPanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+    })
+};
+
+const showChangePasswordModal = (user: Models.User) => {
+    changePasswordPanel.value.data.new_password = '';
+    changePasswordPanel.value.response = null;
+    changePasswordPanel.value.user = user;
+    changePasswordModalRef.value?.show();
+};
+
+const onUserGroupChange = (user: UserWithIndex) => {
+    $.post(route('admin.users.change-group'), {group_id: user.group_id, user_id: user.id}).done(res => {
+        snackbarRef.value?.show(res);
+    })
+};
+
+const deleteUser = () => {
+    if (!deletePanel.value.user) return;
+    deletePanel.value.loading = true;
+    $.post(route('admin.users.delete'), {
+        user_id: deletePanel.value.user.id
+    }).done(res => {
+        deletePanel.value.loading = false;
+        if (res.status) {
+            usersList.value = usersList.value.filter(user => user.id !== deletePanel.value.user?.id);
+            deleteModalRef.value?.hide();
+        }
+    }).fail((xhr) => {
+        deletePanel.value.loading = false;
+        const error = xhr.responseJSON;
+        deletePanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+    })
+};
+
+const showDeleteModal = (user: Models.User) => {
+    deletePanel.value.response = null;
+    deletePanel.value.user = user;
+    deleteModalRef.value?.show();
+};
+
+onMounted(() => {
+    usersList.value = props.users.map((user, index) => {
+        (user as UserWithIndex)._index = index;
+        return user as UserWithIndex;
+    });
+});
 </script>

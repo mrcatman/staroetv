@@ -24,7 +24,6 @@ use Illuminate\Support\Str;
 
 class ForumController extends Controller
 {
-
     protected $messages_on_page = 20;
     protected $topics_on_page = 25;
     protected $cache_time = 3600;

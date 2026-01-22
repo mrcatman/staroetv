@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Models;
+use App\Constants\CacheTimes;
 use App\Constants\MaterialTypes;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use App\Traits\HasChannel;
 use Carbon\Carbon;
+use cijic\phpMorphy\Facade\Morphy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
@@ -14,7 +16,7 @@ class Record extends Model {
     use HasChannel;
 
     protected $guarded = [];
-    protected $appends = ['url'];
+    protected $appends = ['cover', 'url', 'formatted_duration'];
 
     public function getTitleAttribute() {
         if (!isset($this->attributes['title'])) {
@@ -90,20 +92,19 @@ class Record extends Model {
     }
 
     public function getCoverAttribute() {
-        //if (request()->has('test')) {
-          //  dd($this->coverPicture, $this);
-      //  }
-        if ($this->coverPicture) {
-            return $this->coverPicture->url;
-        }
-        if (isset($this->attributes['original_cover']) && $this->attributes['original_cover'] != "") {
-            return $this->attributes['original_cover'];
-        }
-        if (isset($this->attributes['cover']) && $this->attributes['cover'] != "") {
-            return $this->attributes['cover'];
-        }
+        return Cache::remember('record_cover_'.$this->id, CacheTimes::RELATION, function () {
+            if ($this->coverPicture) {
+                return $this->coverPicture->url;
+            }
+            if (isset($this->attributes['original_cover']) && $this->attributes['original_cover'] != "") {
+                return $this->attributes['original_cover'];
+            }
+            if (isset($this->attributes['cover']) && $this->attributes['cover'] != "") {
+                return $this->attributes['cover'];
+            }
 
-        return "/pictures/unknown.png";
+            return "/pictures/unknown.png";
+        });
     }
 
     public function generateTitle() {
@@ -198,6 +199,9 @@ class Record extends Model {
 
     public function getOriginalUrlAttribute() {
         $url = $this->attributes['original_url'];
+        if (isset($record->telegram_id)) {
+            $url = $record->all_telegram_sources[0];
+        }
         if (!$url || $url == "") {
             preg_match('/<iframe(.*?)src="(.*?)"(.*?)/', $this->embed_code, $matches);
             if (isset($matches[2])) {
@@ -348,32 +352,44 @@ class Record extends Model {
 
     public function setSupposedDate() {
         if (!$this->year && !$this->year_start && !$this->year_end && $this->interprogramPackage) {
-            $this->year_start = Carbon::parse($this->interprogramPackage->date_start)->year;
-            $this->year_end = Carbon::parse($this->interprogramPackage->date_end)->year;
+            $date_start = Carbon::parse($this->interprogramPackage->date_start);
+            $date_end = Carbon::parse($this->interprogramPackage->date_end);
+
+            $this->day_start = $date_start->day;
+            $this->month_start = $date_start->month;
+            $this->year_start = $date_start->year;
+
+            $this->day_end = $date_end->day;
+            $this->month_end = $date_end->month;
+            $this->year_end = $date_end->year;
             $this->save();
         }
-        $year = 1950;
-        $month = 1;
-        $day = 1;
+
         if ($this->date) {
             $date = $this->date;
         } else {
-            if ($this->year) {
-                $year = $this->year;
-            } else {
-                if ($this->year_start) {
-                    $year = $this->year_start;
-                }
+            $year = $this->year ?? $this->year_start ?? 1950;
+            $month = $this->month ??$this->month_start ?? 1;
+            if ($month > 12) {
+                $month = 1;
             }
-            if ($this->month) {
-                $month = $this->month;
-            }
-            if ($this->day) {
-                $day = $this->day;
+
+            $day = $this->day ?? $this->day_start ?? 1;
+            if ($day > 31) {
+                $day = 1;
             }
             $date = Carbon::createFromDate($year, $month, $day);
         }
         $this->supposed_date = $date;
+
+        if ($this->year_end || $this->month_end || $this->day_end) {
+            $year = $this->year_end ?? 1950;
+            $month = $this->month_end ?? 1;
+            $day = $this->day_end ?? 1;
+            $date = Carbon::createFromDate($year, $month, $day);
+            $this->supposed_date_end = $date;
+        }
+
         $this->save();
     }
 
@@ -399,7 +415,7 @@ class Record extends Model {
     }
 
     public function getInterprogramNameAttribute() {
-        return Cache::remember('interprogram_name_'.$this->interprogram_type, 3600, function () {
+        return Cache::remember('interprogram_name_'.$this->interprogram_type, CacheTimes::RELATION, function () {
             return $this->interprogramTypeData ? $this->interprogramTypeData->name : "";
         });
     }
@@ -441,4 +457,31 @@ class Record extends Model {
             return $thumb;
         }, $this->all_telegram_sources);
     }
+
+    public function scopeSearch($query, $search)
+    {
+        $initial_search = $search;
+        $search = preg_replace('/[,;(){}\[\]]/', '', $search);
+        $words = collect(explode(' ', $search))
+            ->map(function ($term) {
+                $normalized = Morphy::getPseudoRoot(mb_strtoupper($term));
+                if (!$normalized) {
+                    $normalized = [$term];
+                }
+                return implode(' ', array_map(function ($term) {
+                    return "+{$term}*";
+                }, array_filter($normalized, function ($term) {return mb_strlen($term) > 2;})));
+            })
+            ->implode(' ');
+
+
+        $query->where(function($q) use ($words, $initial_search) {
+            $q->whereRaw("MATCH(title, short_description, description) AGAINST(? IN BOOLEAN MODE)", [$words]);
+            $q->orWhere('title', 'like', "%{$initial_search}%");
+            $q->orWhere('short_description', 'like', "%{$initial_search}%");
+            $q->orWhere('description', 'like', "%{$initial_search}%");
+        });
+        return $query;
+    }
+
 }

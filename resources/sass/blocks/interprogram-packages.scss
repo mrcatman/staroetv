@@ -10,8 +10,12 @@
         min-height: 16em;
         background: url('/img/noise.jpg') no-repeat center center;
         background-size: cover;
+        @include mobile() {
+            min-height: 10em;
+        }
         &__picture {
             /* flex: 1; */
+            border-radius: var(--border-radius-standard);
             padding-top: 8em;
             max-width: 50%;
             width: 100%;
@@ -24,6 +28,9 @@
             &--big {
                 max-width: 100%;
                 padding-top: 16em;
+                @include mobile() {
+                    padding-top: 10em;
+                }
             }
         }
         &[data-pictures-count='3'] &__picture:nth-of-type(3n) {
@@ -46,6 +53,9 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: var(--col-margin);
+    @include mobile() {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
 }
 
 .interprogram-packages-list-item {

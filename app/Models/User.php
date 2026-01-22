@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\CacheTimes;
 use App\Helpers\BBCodesHelper;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
@@ -153,7 +154,7 @@ class User extends Authenticatable
     }
 
     public function getForumMessagesCountAttribute() {
-        return Cache::remember('forum_messages'.$this->id, 60 * 60 * 24, function () {
+        return Cache::remember('forum_messages'.$this->id, CacheTimes::RELATION, function () {
             return ForumMessage::where(['user_id' => $this->id])->count();
         });
     }

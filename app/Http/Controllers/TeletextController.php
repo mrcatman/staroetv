@@ -8,6 +8,7 @@ use App\Helpers\ViewsHelper;
 use App\Models\Channel;
 use App\Models\Teletext;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -366,6 +367,8 @@ class TeletextController extends EntityController {
         if ($file) {
             TeletextHelper::process($teletext, $file);
         }
+
+        Cache::forget('teletext_cover_'.$teletext->id);
 
         return [
             'status' => 1,

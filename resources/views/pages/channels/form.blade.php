@@ -50,15 +50,14 @@
                         <div class="input-container">
                             <label class="input-container__label">Описание</label>
                             <div class="input-container__inner">
-                            <textarea id="editor" class="input input--textarea"
-                                      name="description">{{$channel ? $channel->description : ""}}</textarea>
+                                <tiptap-editor name="description" :content='@json($channel ? $channel->description : '')'></tiptap-editor>
                                 <span class="input-container__message"></span>
                             </div>
                         </div>
                         <div class="input-container">
                             <label class="input-container__label">Логотип</label>
                             <div class="input-container__inner">
-                                <picture-uploader type="logo" :channelid="{{$channel ? $channel->id : "null"}}"
+                                <picture-uploader type="logo" :channel-id="{{$channel ? $channel->id : "null"}}"
                                                   name="logo_id"
                                                   :data="{{$channel && $channel->logo ? $channel->logo : "null"}}"/>
                                 <span class="input-container__message"></span>

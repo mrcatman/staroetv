@@ -1,9 +1,14 @@
 @if ($record->telegram_id && count($record->all_telegram_sources) > 1)
-<div class="tabs" data-id="parts">
-    @for ($i = 0; $i < count($record->all_telegram_sources); $i++)
-    <a class="tab @if ($i == 0) tab--active @endif" data-content="part_{{$i}}">Часть {{$i + 1}}</a>
-    @endfor
-</div>
+    <div class="box">
+        <div class="box__inner">
+            <div class="tabs" data-id="parts">
+                @for ($i = 0; $i < count($record->all_telegram_sources); $i++)
+                    <a class="tab @if ($i == 0) tab--active @endif" data-content="part_{{$i}}">Часть {{$i + 1}}</a>
+                @endfor
+            </div>
+        </div>
+    </div>
+
 @endif
 @if ($record->is_radio)
     @if ($record->use_own_player)

@@ -1,8 +1,8 @@
 <template>
     <div class="regions__container">
         <div class="regions__search">
-            <div class="input-container">
-                <div class="input-container__inner input-container__inner--with-icon">
+            <div class="input-container input-container__inner--with-icon">
+                <div class="input-container__inner ">
                     <i class="fa fa-search input-container__icon"></i>
                     <input class="input" v-model="search" placeholder="Поиск каналов">
                 </div>
@@ -85,14 +85,14 @@ const list = computed(() => {
                     if (cityName.toLocaleLowerCase().includes(_search)) {
                         channels = [...channels, ...cityChannels];
                     }
-                    channels = [...channels, ...cityChannels.filter(channel => channel.name.toLocaleLowerCase().includes(search))];
+                    channels = [...channels, ...cityChannels.filter(channel => channel.name.toLocaleLowerCase().includes(_search))];
                 })
             }
         });
         return [...new Map(channels.map(channel => [channel.id, channel])).values()];
     }
 
-    if (!selectedRegion.value.length) {
+    if (!selectedRegion.value?.length) {
         let channels = [];
         Object.values(props.data).forEach(region => {
             channels = [...channels, ...region.channels];

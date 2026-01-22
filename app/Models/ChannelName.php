@@ -13,7 +13,7 @@ class ChannelName extends Model {
     protected $casts = [
         'date_start' => 'date',
         'date_end' => 'date',
-        'alternatives' => 'array'
+        'alternatives' => 'json:unicode'
     ];
 
     public function channel() {

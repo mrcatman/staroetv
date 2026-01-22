@@ -1,11 +1,12 @@
 @extends('layouts.default', ['vue' => true])
 @section('content')
-    <div class="inner-page">
-        <div class="inner-page__header">
-            <div class="inner-page__header__title">Поиск записей</div>
-        </div>
-        <div class="inner-page__content inner-page__content--no-padding">
-            @include('blocks/records_search', ['is_radio' => $is_radio, 'params' => $params, 'show_results' => true, 'results' => $records, 'programs' => $programs])
-        </div>
-    </div>
+    <records-search
+        :results='@json($results)'
+        :counts='@json($counts)'
+        :params='@json($params)'
+        :periods='@json($periods)'
+        :recommended-programs='@json($programs)'
+        :commercials="@json($is_commercials_search)"
+    >
+    </records-search>
 @endsection

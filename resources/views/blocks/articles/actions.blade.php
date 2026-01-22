@@ -1,34 +1,5 @@
 @if ($can_edit)
     <a class="button--dropdown__list__item" href="{{route('articles.edit', $article->id)}}">Редактировать</a>
-    <!--
-@if ($article->type_id != \App\Constants\MaterialTypes::TYPE_ARTICLES)
-        <a class="button--dropdown__list__item" data-change-article-type="{{\App\Models\Article::TYPE_ARTICLES}}" data-change-article-type-id="{{$article->id}}">Переместить в "Статьи"</a>
-
-
-
-
-
-
-    @endif
-    @if ($article->type_id != \App\Constants\MaterialTypes::TYPE_NEWS)
-        <a class="button--dropdown__list__item" data-change-article-type="{{\App\Models\Article::TYPE_NEWS}}" data-change-article-type-id="{{$article->id}}">Переместить в "Новости"</a>
-
-
-
-
-
-
-    @endif
-    @if ($article->type_id != \App\Constants\MaterialTypes::TYPE_BLOG)
-        <a class="button--dropdown__list__item" data-change-article-type="{{\App\Models\Article::TYPE_BLOG}}" data-change-article-type-id="{{$article->id}}">Переместить в "Блог"</a>
-
-
-
-
-
-
-    @endif
--->
     <a class="button--dropdown__list__item button--delete-article">Удалить</a>
 @endif
 @if ($can_approve)
@@ -37,10 +8,10 @@
 
 
 @if ($can_edit)
-    <div id="delete_article" data-title="Удалить запись" style="display:none">
+    <div id="delete_article" data-title="Удалить статью" style="display:none">
         <form action="{{route('articles.delete')}}" class="form modal-window__form" data-auto-close-modal="1">
-            <input type="hidden" name="article_id" value="{{$article->id}}"/>
-            <div class="modal-window__small-text">
+            <input type="hidden" name="id" value="{{$article->id}}"/>
+            <div class="modal-window__text">
                 Вы уверены, что хотите удалить статью?
             </div>
             <div class="form__bottom">

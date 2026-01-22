@@ -64,7 +64,7 @@
 
 .faq {
     border: 1px solid var(--border-color);
-    border-radius: .5em;
+    border-radius: var(--border-radius-standard);
 
     &__question {
         background: var(--bg-darker);

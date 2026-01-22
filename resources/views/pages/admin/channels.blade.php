@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin', ['vue' => true])
 @section('admin-title')
     Каналы и радио
 @endsection

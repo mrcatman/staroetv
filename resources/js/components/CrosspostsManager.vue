@@ -79,7 +79,7 @@
                     <div class="input-container crossposts-manager__media__left" v-if="item.type === 'picture'">
                         <label class="input-container__label">Картинка</label>
                         <div class="input-container__inner">
-                            <PictureUploader tag="crosspost" :data="item.value" v-model="item.value" :returnPath="true" />
+                            <picture-uploader tag="crosspost" v-model:url="item.value" />
                         </div>
                     </div>
                     <div v-show="$index > 0" class="input-container crossposts-manager__media__right">

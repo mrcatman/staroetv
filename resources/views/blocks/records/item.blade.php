@@ -1,6 +1,7 @@
 @php($full_title =
     isset($highlight) && $highlight ?
     \App\Helpers\HighlightHelper::highlight($record->title, $highlight) :
+
     (isset($title) && $title ?
         $title :
         ((isset($new_titles) && $new_titles) ?
@@ -11,10 +12,10 @@
 
 @php($url = isset($url) ? $url : $record->url ?? $record->full_url)
 @php($hide_info = isset($hide_info) ? $hide_info : false)
-<a href="{{$url}}" class="record-item @if ($record->pending) record-item--pending @endif @if ($record->use_own_player) record-item--with-preview @endif"
+<a data-id={{$record->id}} href="{{$url}}" class="record-item @if ($record->pending) record-item--pending @endif @if ($record->use_own_player) record-item--with-preview @endif"
     @if ($record->use_own_player) data-src="{{$record->download_url}}" @endif
 >
-    <div class="record-item__cover" style="background-image: url('{{$record->cover}}')">
+    <div class="record-item__cover" style="background-image: url('{{$record->cover ?? $record->cover_url}}')">
         @if ($record->length)
             <div class="record-item__duration">{{$record->formatted_duration}}</div>
         @endif
@@ -26,7 +27,7 @@
             @if ($record->broadcast_date != '')
                 <span class="record-item__broadcast-date">
                 <i class="fa fa-clock"></i>
-                {!! $record->broadcast_date !!}
+                {{ $record->broadcast_date }}
             </span>
             @endif
         @endif

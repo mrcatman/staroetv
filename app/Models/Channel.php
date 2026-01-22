@@ -1,15 +1,19 @@
 <?php
 
 namespace App\Models;
+use App\Constants\CacheTimes;
 use App\Constants\MaterialTypes;
 use App\Models\Article;
 use App\Helpers\PermissionsHelper;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class Channel extends Model {
 
     protected $guarded = [];
     protected $appends = ['full_url'];
+
+
 
     public function comments() {
         return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => MaterialTypes::TYPE_CHANNELS]);
@@ -43,6 +47,12 @@ class Channel extends Model {
 
     public function logo() {
         return $this->hasOne(Picture::class, 'id', 'logo_id');
+    }
+
+    public function getLogoUrlAttribute() {
+        return Cache::remember('channel_logo_'.$this->id, CacheTimes::RELATION, function () {
+            return $this->logo ? $this->logo->url : null;
+        });
     }
 
     public function getCanEditAttribute() {

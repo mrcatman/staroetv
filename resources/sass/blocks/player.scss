@@ -15,12 +15,10 @@
     }
 
     &__time--duration {
-        margin: 0 .5em 0 0;
     }
 
     &__progress {
         flex: 1;
-        margin: 0 .5em 0;
     }
 
     &__site-logo {
@@ -66,6 +64,7 @@
         display: flex!important;
         align-items: center;
         justify-content: center;
+        color: #fff;
     }
 
     &__control--fullscreen .plyr__tooltip {
@@ -76,8 +75,16 @@
     }
 
     &--audio &__controls {
-        background: var(--box-color)!important;
-        color: var(--text-color)!important;
+        --plyr-audio-control-color: var(--text-color);
+        --plyr-audio-controls-background: var(--box-color);
+        border: 1px solid var(--border-color);
+        gap: var(--col-margin);
+        border-radius: .75em!important;
+        box-shadow: var(--block-box-shadow);
+        @include mobile() {
+            justify-content: space-between;
+            padding-bottom: 2.5em!important;
+        }
     }
 
     &--audio &__control--play-button {
@@ -89,10 +96,21 @@
         display: flex;
         align-items: center;
         justify-content: center;
-
         svg {
             width: 1.75em;
             height: 1.75em;
+        }
+        @include mobile() {
+            width: 3.5em;
+            height: 3.5em;
+        }
+    }
+
+    &--audio &__control--mute {
+        @include mobile() {
+            position: absolute;
+            bottom: .25em;
+            left: .5em;
         }
     }
 
@@ -106,38 +124,49 @@
         flex: 1;
         text-align: left;
         max-width: calc(100% - 6em);
-        padding: 0 0 0 .5em;
+        @include mobile() {
+            max-width: calc(100% - 4.5em);
+        }
     }
 
     &--audio &__title {
         display: flex;
         font-size: 1.125em;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin: 0 .5em;
-
+        line-height: 1.2;
+        @include mobile() {
+            font-size: 1em;
+        }
         &__inner {
-            max-width: calc(100% - 5em);
             overflow: hidden;
             text-overflow: ellipsis;
+            @include mobile() {
+                max-width: unset;
+            }
         }
     }
 
-    &--audio &__controls {
-        background: var(--box-color);
-        border: 1px solid var(--border-color);
+    &--audio &__volume {
+        @include mobile() {
+            position: absolute;
+            bottom: .75em;
+            left: 2.5em;
+        }
     }
 
     &--audio &__site-logo {
         position: unset;
         fill: var(--text-color);
         width: auto;
-        padding: 0 0 0 .5em;
         opacity: .5;
         margin-left: auto;
         z-index: 0;
-
+        @include mobile() {
+            position: absolute;
+            top: unset;
+            left: unset;
+            right: 1em;
+            bottom: .5em;
+        }
         &:hover {
             fill: var(--text-color);
             opacity: .75;
@@ -150,19 +179,16 @@
 
     @include mobile() {
 
-        &__control {
-            color: #fff;
+        &--video &__control {
             z-index: 10;
 
             &--embed {
-                color: #fff;
                 position: absolute!important;
                 top: .5em;
                 right: 3.5em;
             }
 
             &--fullscreen {
-                color: #fff;
                 position: absolute!important;
                 top: .5em;
                 right: .5em;
@@ -206,8 +232,6 @@
     &__copy {
         font-size: 1.5em;
         margin: 1em 0;
-
-
         &__text {
             font-weight: bold;
             cursor: pointer;
@@ -245,17 +269,24 @@
             max-width: unset;
             width: 100%;
             text-align: left;
-            padding: .25em 1.5em;
+            padding: .25em 1em;
         }
 
         &__copy {
             display: flex;
             align-items: center;
             margin: .25em 0;
-
+            gap: .5em;
+            @include mobile() {
+                margin: .4em 0;
+            }
             &__title {
                 white-space: nowrap;
-                margin: 0 1em 0 0;
+                @include mobile() {
+                    max-width: 8em;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
             }
 
             &__text {
@@ -266,7 +297,7 @@
                 background: rgba(17, 17, 17, 0.07);
                 padding: .25em .5em;
                 flex: 1;
-                border-radius: .25em;
+                border-radius: var(--border-radius-small);
                 font-weight: 600;
             }
         }

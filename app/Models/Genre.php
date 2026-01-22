@@ -14,4 +14,9 @@ class Genre extends Model {
     }
 
 
+    public function programs()
+    {
+        return $this->hasMany(Program::class, 'genre_id', 'id');
+    }
+
 }

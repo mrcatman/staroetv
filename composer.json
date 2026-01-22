@@ -11,6 +11,8 @@
         "ext-dom": "*",
         "ext-libxml": "*",
         "abraham/twitteroauth": "^7.0",
+        "cijic/phpmorphy": "^0.3.6",
+        "ezyang/htmlpurifier": "^4.19",
         "intervention/image": "^3.11",
         "intervention/image-laravel": "^1.5",
         "laravel/framework": "^12.0",
@@ -18,9 +20,13 @@
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6",
         "mews/captcha": "^3.4",
-        "tightenco/ziggy": "^2.6"
+        "mews/purifier": "^3.4",
+        "predis/predis": "^3.3",
+        "tightenco/ziggy": "^2.6",
+        "ueberdosis/tiptap-php": "^2.0"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.16",
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.13",

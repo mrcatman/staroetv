@@ -473,8 +473,12 @@ namespace Models {
         views: any;
         original_url?: string;
         year?: any;
-        year_start?: any;
-        year_end?: any;
+        day_start?: number;
+        day_end?: number;
+        month_start?: number;
+        month_end?: number;
+        year_start?: number;
+        year_end?: number;
         month?: any;
         day?: any;
         date?: string;
@@ -503,6 +507,7 @@ namespace Models {
         interprogram_type?: string;
         cut_from_id?: any;
         advertising_brand?: string;
+        advertising_category?: string;
         region?: string;
         country?: string;
         advertising_type?: any;

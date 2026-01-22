@@ -9,7 +9,9 @@
     </div>
     <div class=" forum-message__user-texts--modal__right">
         <div class="forum-message__user-comment">{{$message->user->user_comment}}</div>
-        <img class="forum-message__group-icon" src="{{$message->user->group_icon}}"/>
+        <div class="forum-message__group-icon">
+            {!! $message->user->group_icon !!}
+        </div>
         <span class="forum-message__reputation">
             Репутация:
             <a data-user-id="{{$message->user->id}}" class="forum-message__reputation__number">{{$message->user->reputation_number}}</a>

@@ -24,8 +24,7 @@
             gap: var(--col-margin);
             align-items: center;
             @include mobile() {
-                flex-direction: column;
-                align-items: flex-start;
+                flex-wrap: wrap;
             }
         }
         &__link {
@@ -40,7 +39,7 @@
             }
             @include mobile() {
                 font-size: 1em;
-                padding: .5em 0;
+                width: calc(50% - var(--col-margin));
             }
         }
     }

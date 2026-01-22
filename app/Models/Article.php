@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\CacheTimes;
 use App\Constants\MaterialTypes;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
@@ -28,31 +29,33 @@ class Article extends Model {
     }
 
     public function getShortContentAttribute() {
-        if ($this->attributes['short_content'] != "") {
-            return html_entity_decode($this->attributes['short_content']);
-        }
+        return Cache::remember('article_short_content_'.$this->id, CacheTimes::RELATION, function () {
+            if ($this->attributes['short_content'] != "") {
+                return html_entity_decode($this->attributes['short_content']);
+            }
 
-        $limit = 300;
-        $content = $this->attributes['content'];
-        $content = strip_tags($content);
-        $content = html_entity_decode($content);
-        if (mb_strpos($content, '$CUT$', 0, 'UTF-8')  !== false) {
-            return mb_substr($content, 0, mb_strpos($content, '$CUT$', 0, 'UTF-8'));
-        }
-        if (mb_strlen($content, "UTF-8") < $limit) {
-            return $content;
-        }
-        $sentences = explode(". ", $content);
-        $text = "";
-        $i = 0;
-        $total_length = 0;
+            $limit = 300;
+            $content = $this->attributes['content'];
+            $content = strip_tags($content);
+            $content = html_entity_decode($content);
+            if (mb_strpos($content, '$CUT$', 0, 'UTF-8') !== false) {
+                return mb_substr($content, 0, mb_strpos($content, '$CUT$', 0, 'UTF-8'));
+            }
+            if (mb_strlen($content, "UTF-8") < $limit) {
+                return $content;
+            }
+            $sentences = explode(". ", $content);
+            $text = "";
+            $i = 0;
+            $total_length = 0;
 
-        while ($total_length < $limit && isset($sentences[$i])) {
-            $text.= $sentences[$i].". ";
-            $total_length += mb_strlen($sentences[$i].". ", "UTF-8");
-            $i++;
-        }
-        return $text;
+            while ($total_length < $limit && isset($sentences[$i])) {
+                $text .= $sentences[$i] . ". ";
+                $total_length += mb_strlen($sentences[$i] . ". ", "UTF-8");
+                $i++;
+            }
+            return $text;
+        });
     }
 
     public function searchContent($search) {
@@ -101,89 +104,69 @@ class Article extends Model {
         return $content;
     }
 
-    public function getFixedContentAttribute() {
-        libxml_use_internal_errors(true);
-        $content = $this->attributes['content'];
-        $content = str_replace("&nbsp;", " ", $content);
-        $content = preg_replace("/\s+/", " ", $content);
-        $content = str_replace("<br><br>", "<br>", $content);
-        $content = str_replace("<br><br>", "<br>", $content);
-        $content = str_replace("<br /><br><br /><br>", "<br>", $content);
-        $content = trim($content);
-        $dom = new \DOMDocument;
-        $dom->loadHTML('<?xml encoding="utf-8" ?>' . $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    public function getFixedContentAttribute()
+    {
+        return Cache::remember('article_fixed_content_' . $this->id, CacheTimes::RELATION, function () {
+            libxml_use_internal_errors(true);
+            $content = $this->attributes['content'];
+            $content = str_replace("&nbsp;", " ", $content);
+            $content = preg_replace("/\s+/", " ", $content);
+            $content = str_replace("<br><br>", "<br>", $content);
+            $content = str_replace("<br><br>", "<br>", $content);
+            $content = str_replace("<br /><br><br /><br>", "<br>", $content);
+            $content = trim($content);
+            $dom = new \DOMDocument;
+            $dom->loadHTML('<?xml encoding="utf-8" ?>' . $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
-        $wrapper = $dom->createElement('div');
-        $wrapper->setAttribute('class','certain-ratio-wrapper');
+            $wrapper = $dom->createElement('div');
+            $wrapper->setAttribute('class', 'certain-ratio-wrapper');
 
-        $iframes = $dom->getElementsByTagName('iframe');
-        foreach ($iframes as $iframe) {
-            $width = $iframe->getAttribute('width');
-            $height = $iframe->getAttribute('height');
-            if (!$width || !$height) {
-                $attrs = explode(";", $iframe->getAttribute('style'));
-                $style = "";
-                foreach ($attrs as $attr) {
-                    if (strlen(trim($attr)) > 0) {
-                        $kv = explode(":", trim($attr));
-                        if (trim($kv[0]) == "width") {
-                            $width = (int)($kv[1]);
-                        } elseif (trim($kv[0]) == "height") {
-                            $height = (int)($kv[1]);
-                        } else {
-                            $style.= trim($kv[0]).":".trim($kv[1]).";";
+            $xpath = new \DOMXPath($dom);
+
+            $elements = $xpath->query('//iframe | //img');
+
+            foreach ($elements as $element) {
+                $width = $element->getAttribute('width');
+                $height = $element->getAttribute('height');
+                if (!$width || !$height) {
+                    $attrs = explode(";", $element->getAttribute('style'));
+                    $style = "";
+                    foreach ($attrs as $attr) {
+                        if (strlen(trim($attr)) > 0) {
+                            $kv = explode(":", trim($attr));
+                            if (trim($kv[0]) == "width") {
+                                $width = (int)($kv[1]);
+                            } elseif (trim($kv[0]) == "height") {
+                                $height = (int)($kv[1]);
+                            } else {
+                                $style .= trim($kv[0]) . ":" . trim($kv[1]) . ";";
+                            }
                         }
                     }
+                    $element->setAttribute('style', $style);
                 }
-                $iframe->setAttribute('style', $style);
+
+                if ($width && $height) {
+                    $width = (int)$width;
+                    $height = (int)$height;
+                    $ratio = $height / $width * 100;
+                    $element->removeAttribute('width');
+                    $element->removeAttribute('height');
+                    $wrapper_clone = $wrapper->cloneNode();
+                    $wrapper_clone->setAttribute('style', "padding-top: $ratio%");
+                    $element->parentNode->replaceChild($wrapper_clone, $element);
+                    $wrapper_clone->appendChild($element);
+                } elseif ($element->tagName == 'iframe') {
+                    $ratio = 75;
+                    $wrapper_clone = $wrapper->cloneNode();
+                    $wrapper_clone->setAttribute('style', "padding-top: $ratio%");
+                    $element->parentNode->replaceChild($wrapper_clone, $element);
+                    $wrapper_clone->appendChild($element);
+                }
             }
 
-            if ($width && $height) {
-                $width = (int)$width;
-                $height = (int)$height;
-                $ratio = $height / $width * 100;
-                $iframe->removeAttribute('width');
-                $iframe->removeAttribute('height');
-                $wrapper_clone = $wrapper->cloneNode();
-                $wrapper_clone->setAttribute('style', "padding-top: $ratio%");
-                $iframe->parentNode->replaceChild($wrapper_clone, $iframe);
-                $wrapper_clone->appendChild($iframe);
-            }
-        }
-        $imgs = $dom->getElementsByTagName('img');
-        foreach ($imgs as $img) {
-            $width = $img->getAttribute('width');
-            $height = $img->getAttribute('height');
-            if (!$width && !$height) {
-                $attrs = explode(";", $img->getAttribute('style'));
-                $style = "";
-                foreach ($attrs as $attr) {
-                    if (strlen(trim($attr)) > 0) {
-                        $kv = explode(":", trim($attr));
-                        if (trim($kv[0]) == "width") {
-                            $width = (int)($kv[1]);
-                        } elseif (trim($kv[0]) == "height") {
-                            $height = (int)($kv[1]);
-                        } else {
-                            $style.= trim($kv[0]).":".trim($kv[1]).";";
-                        }
-                    }
-                }
-                $img->setAttribute('style', $style);
-            }
-            if ($width && $height) {
-                $width = (int)$width;
-                $height = (int)$height;
-                $ratio = $height / $width * 100;
-                $img->removeAttribute('width');
-                $img->removeAttribute('height');
-                $wrapper_clone = $wrapper->cloneNode();
-                $wrapper_clone->setAttribute('style', "padding-top: $ratio%");
-                $img->parentNode->replaceChild($wrapper_clone, $img);
-                $wrapper_clone->appendChild($img);
-            }
-        }
-        return html_entity_decode($dom->saveHTML());
+            return html_entity_decode($dom->saveHTML());
+        });
     }
 
     public function comments() {
@@ -280,20 +263,20 @@ class Article extends Model {
     }
 
     public function getCoverUrlAttribute() {
-        $url = null;
-        if ($this->cover) {
-            $url = $this->cover;
-        }
-        if ($this->coverPicture) {
-            $url = $this->coverPicture->url;
-        }
-        if ($url == "http://staroetv.su/img/noobl2.jpg" || $url == "/img/noobl2.jpg") {
+        return Cache::remember('article_cover_'.$this->id, CacheTimes::RELATION, function () {
             $url = null;
-        }
+            if ($this->cover) {
+                $url = $this->cover;
+            }
+            if ($this->coverPicture) {
+                $url = $this->coverPicture->url;
+            }
+            if ($url == "http://staroetv.su/img/noobl2.jpg" || $url == "/img/noobl2.jpg") {
+                $url = null;
+            }
 
-        $url = str_replace('vk.me', 'userapi.com', $url);
-
-        return $url;
+            return str_replace('vk.me', 'userapi.com', $url);
+        });
     }
 
     public function crossposts() {
@@ -301,7 +284,7 @@ class Article extends Model {
     }
 
     public function getCommentsCountAttribute() {
-       return Cache::remember("comments_count_articles_".$this->id, 3600, function () {
+       return Cache::remember("comments_count_articles_".$this->id, CacheTimes::RELATION, function () {
            return count($this->comments);
        });
     }
@@ -322,6 +305,12 @@ class Article extends Model {
 
     public function tags() {
         return $this->hasManyThrough(Tag::class, TagMaterial::class, 'material_id', 'id', 'id', 'tag_id');
+    }
+
+    public function getTagsListAttribute() {
+        return Cache::remember("articles_tags_list_".$this->id, CacheTimes::RELATION, function () {
+            return $this->tags;
+        });
     }
 
     public function bindings() {

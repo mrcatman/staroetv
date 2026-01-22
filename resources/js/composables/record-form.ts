@@ -1,7 +1,7 @@
 import { computed, ref, watch } from 'vue';
 
 import { interprogramNames } from "@/consts";
-import { parseDate } from "@/utils/dates";
+import {defaultDate, parseDate} from "@/utils/dates";
 
 import { getInfo } from "@/utils/records/get-info";
 import { guessType } from "@/utils/records/guess-type";
@@ -19,14 +19,7 @@ export type RecordsUploadRelationData = {
     id: number,
     unknown: boolean,
 }
-export type RecordsUploadDate = {
-    year: number,
-    month: number,
-    day: number,
-    year_start?: number,
-    year_end?: number,
-    range?: boolean
-}
+
 
 export type RecordsUploadData = {
     id?: number,
@@ -51,8 +44,10 @@ export type RecordsUploadData = {
 
         upload: boolean,
         uploaded_file_id?: string,
+        storage_file?: string,
+        move_to_storage?: boolean,
     }
-    date: RecordsUploadDate,
+    date: Common.Date,
     channel: RecordsUploadRelationData,
     program: RecordsUploadRelationData,
     interprogram: {
@@ -64,6 +59,7 @@ export type RecordsUploadData = {
     },
     advertising: {
         type?: number,
+        category?: string,
         brand?: string,
         region?: string,
         country?: string,
@@ -90,6 +86,7 @@ const defaultData: RecordsUploadData = {
         thumbnails: [],
         upload: false,
         uploaded_file_id: null,
+        move_to_storage: false,
     },
     channel: {
         name: '',
@@ -103,6 +100,7 @@ const defaultData: RecordsUploadData = {
     },
     advertising: {
         type: -1,
+        category: '',
         brand: '',
         region: '',
         country: '',
@@ -115,30 +113,27 @@ const defaultData: RecordsUploadData = {
         category_id: -1,
     },
 
-    date: {
-        year: -1,
-        month: -1,
-        day: -1,
-        year_start: -1,
-        year_end: -1,
-        range: false,
-    },
+    date: defaultDate()
 };
 
-export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?: Models.Record) => {
+export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?: Models.Record, _titleLocked: boolean = false) => {
 
     const categoriesStore = useCategoriesStore();
     const channelsStore = useChannelsStore();
     const programsStore = useProgramsStore();
-    const designPackagesStore = useDesignPackagesStore();
+    //const designPackagesStore = useDesignPackagesStore();
     const tusUpload = useTusUpload(startParams?.is_radio);
 
-    const urlValid = ref<boolean>(true);
+    const externalVideoError = ref<string>(null);
     const loading = ref<boolean>(false);
     const saving = ref<boolean>(false);
     const loadingInfo = ref<boolean>(false);
     const response = ref<Forms.Response>();
     const errors = ref<Forms.Errors>({});
+
+    const similar = ref<Models.Record[]>([]);
+    const duplicates = ref<Models.Record[]>([]);
+    const similarChecked = ref<boolean>(false);
 
     const setDefaultData = () => {
         data.value = {
@@ -164,23 +159,27 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
 
                 source: record.source,
                 record: {
-                    url: record.original_url,
+                    url: record.original_url ?? '',
                     code: record.embed_code,
                     thumbnail_url: record.cover_picture?.url,
                     thumbnail_id: record.cover_id,
                     thumbnails: [],
-                    own_code: false,
+                    own_code: false, // todo check youtube/vk
                     upload: record.use_own_player,
                 },
                 short_description: record.short_description,
                 description: record.description,
                 date: {
-                    year: record.year,
-                    month: record.month,
-                    day: record.day,
-                    year_start: record.year_start,
-                    year_end: record.year_end,
-                    range: !!record.year_end
+                    year: record.year ?? -1,
+                    month: record.month ?? -1,
+                    day: record.day ?? -1,
+                    day_start: record.day_start ?? -1,
+                    day_end: record.day_end ?? -1,
+                    month_start: record.month_start ?? -1,
+                    month_end: record.month_end ?? -1,
+                    year_start: record.year_start ?? -1,
+                    year_end: record.year_end ?? -1,
+                    range: !!record.year_start
                 },
                 program: {
                     name: record.program ? record.program.name : '',
@@ -201,13 +200,14 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
                 },
                 advertising: {
                     type: record.advertising_type || -1,
+                    category: record.advertising_category,
                     brand: record.advertising_brand,
                     region: record.region,
                     country: record.country,
                 }
             }
 
-            if (record.channel?.id) {
+            if (record.channel?.id > 0) {
                 promises.push(programsStore.load(record.channel.id));
                 //designPackagesStore.load(record.channel.id);
             }
@@ -242,23 +242,37 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
     })
 
     const loadRecordInfo = async () => {
+        similar.value = [];
+        duplicates.value = [];
+
+        externalVideoError.value = null;
+
+        if (!data.value.record.url?.trim().length) {
+            return;
+        }
+
         loadingInfo.value = true;
-        urlValid.value = true;
         try {
-            const {id, title, code, thumbnails} = await getInfo(data.value.record.url);
+            const {
+                id, title, description, code, thumbnails
+            } = await getInfo(data.value.record.url, data.value.id);
             if (id) {
                 data.value.title = title;
+                data.value.description = description;
                 data.value.record.original_id = id;
                 data.value.record.code = code;
                 data.value.record.thumbnails = thumbnails;
-                if (thumbnails.length) {
+                if (thumbnails?.length) {
                     data.value.record.thumbnail_url = thumbnails[0];
                 }
                 tusUpload.setFile(null);
                 await parseTitle();
             }
         } catch (e) {
-            urlValid.value = false;
+            externalVideoError.value = e.text;
+            if (e?.list) {
+                duplicates.value = e.list;
+            }
         }
 
         loadingInfo.value = false;
@@ -271,14 +285,15 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
         return !data.value.record.code?.length || /<iframe.*?\<\/iframe>/gi.test(data.value.record.code);
     })
 
+    const titleLoading = ref<boolean>(false);
     const parseTitle = async () => {
         const title = data.value.title;
         if (!title.trim().length) {
             return;
         }
+        titleLoading.value = true;
 
         let parsed: string[] = title.match(/((.*?){0,1}staroetv.su(.*?){0,1})?[\])\\/ ]{0,2}(.*?)\((.*?), (.*?)\)(.*)/);
-
         if (!parsed) {
             let newParsed = title.match(/(.*?){0,1}staroetv.su(.*?){0,1} (.*?) - (.*?) \((.*?)\)(.*?)/);
             if (newParsed && newParsed.length === 7) {
@@ -294,6 +309,8 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
             if (program.includes("реклам")) {
                 data.value.type = 'interprogram';
                 data.value.interprogram.type = 22; // рекламный блок
+            } else if (program.includes("заставка пр")) {
+                data.value.type = 'program-design';
             } else if (!!interprogramNames.find(name => program.includes(name))) {
                 data.value.type = 'interprogram';
             } else {
@@ -301,7 +318,8 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
             }
             data.value.channel.name = parsed[5];
 
-            const { channel, name} = findChannelByName(parsed[5], channelsStore.channels);
+            const channels = data.value.is_radio ? channelsStore.radioStations : channelsStore.channels;
+            const { channel, name} = findChannelByName(parsed[5], channels);
             if (channel) {
                 data.value.channel.name = name;
                 data.value.channel.id = channel.id;
@@ -310,7 +328,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
             if (data.value.type !== 'interprogram') {
                 data.value.program.name = parsed[4];
 
-                if (data.value.channel.id) {
+                if (data.value.channel.id > 0) {
                     await programsStore.load(data.value.channel.id);
                     const foundProgram = programsStore.findByNameAndChannelId(data.value.program.name, data.value.channel.id);
                     data.value.program.id = foundProgram?.id;
@@ -319,9 +337,9 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
 
             data.value.short_description = data.value.type == 'interprogram' ? parsed[4] : parsed[7];
 
-            if (data.value.type == 'interprogram' && data.value.channel.id) {
-                designPackagesStore.load(data.value.channel.id);
-            }
+            // if (data.value.type == 'interprogram' && data.value.channel.id) {
+            //     designPackagesStore.load(data.value.channel.id);
+            // }
             const {month, year, day} = parseDate(parsed[6]);
 
             if (month) {
@@ -334,15 +352,17 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
                 data.value.date.day = parseInt(day);
             }
         }
+        updateChannelName();
+        titleLoading.value = false;
     }
 
-    watch(() => data.value.channel.id, () => {
-        programsStore.load(data.value.channel.id);
+    watch(() => data.value.channel.id, (channelId) => {
+        channelId ? (channelId > 0 && programsStore.load(channelId)) : (data.value.program.id = null);
     })
 
-    const titleLocked = ref<boolean>(true);
-    const regenerateTitle = () => {
-        if (!titleLocked.value) {
+    const titleLocked = ref<boolean>(_titleLocked);
+    const updateTitle = () => {
+        if (!titleLocked.value || titleLoading.value) {
             return;
         }
         if (data.value.type === 'interprogram') {
@@ -353,17 +373,97 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
         }
     }
 
+    const updateChannelName = () => {
+        if (!titleLocked.value || titleLoading.value || !data.value.channel.id || data.value.channel.unknown) {
+            return;
+        }
+        const channels = data.value.is_radio ? channelsStore.radioStations : channelsStore.channels;
+        const channel = channels.find(channel => channel.id === data.value.channel.id);
+        if (!channel?.names.length) {
+            return;
+        }
+        const date = data.value.date;
+        if (date.year <= 0 && date.year_start <= 0) {
+            return;
+        }
+        const recordDate = new Date(date.year > 0 ? date.year : date.year_start, date.month >= 0 ? date.month - 1 : 0, date.day >= 0 ? date.day - 1 : 0);
+        const name = channel.names.filter(name => !!name.date_start).reverse().find(name => {
+            if (!name.name) {
+                return false;
+            }
+            const nameDate = new Date(name.date_start);
+            return nameDate <= recordDate;
+        })
+        if (!name) {
+            return;
+        }
+        data.value.channel.name = name.name;
+    }
+
     watch(() => [
-        data.value.channel.name, data.value.program.name, data.value.short_description, data.value.interprogram.type,
-        data.value.date.range, data.value.date.year_start, data.value.date.year_end, data.value.date.year, data.value.date.month, data.value.date.day
-    ], regenerateTitle)
+        titleLocked.value,
+        data.value.type,
+        data.value.channel.name, data.value.channel.unknown,
+        data.value.program.name, data.value.program.unknown,
+        data.value.short_description, data.value.interprogram.type,
+        data.value.advertising.category, data.value.advertising.brand, data.value.advertising.type,
+        data.value.date.year_start, data.value.date.year_end,
+        data.value.date.month_start, data.value.date.month_end,
+        data.value.date.day_start, data.value.date.day_end,
+        data.value.date.range,  data.value.date.year, data.value.date.month, data.value.date.day
+    ], updateTitle)
+
+    watch(() => [
+        data.value.date.range,
+        data.value.date.year_start, data.value.date.year_end,
+        data.value.date.month_start, data.value.date.month_end,
+        data.value.date.day_start, data.value.date.day_end,
+        data.value.date.year, data.value.date.month, data.value.date.day
+    ], updateChannelName)
+
+    watch(() => data.value.type, (type) => {
+       if (type === 'other') {
+           titleLocked.value = false;
+       }
+    });
+
 
     let saveCallback: (record: Models.Record, errors: Forms.Errors) => void;
     const setSaveCallback = (callback: (record: Models.Record, errors: Forms.Errors) => void) => {
         saveCallback = callback;
     }
 
+
+    const getSimilar = (): Promise<Models.Record[]> => {
+        return new Promise((resolve, reject) => {
+            $.get(route('records.similar'), data.value).done(({data}) => {
+                resolve(data);
+            }).catch(() => resolve([]));
+        })
+    }
+
     const save = async () => {
+        if (similarChecked.value) {
+            return update();
+        }
+        try {
+            similar.value = await getSimilar();
+            if (!similar.value.length) {
+                return update();
+            }
+        } catch (e) {
+            similar.value = [];
+        }
+    }
+
+
+    const markSimilarAsChecked = () => {
+        similarChecked.value = true;
+        return update();
+    }
+
+    const update = async () => {
+        saving.value = true;
         if (tusUpload.needUpload.value) {
             try {
                 await tusUpload.upload();
@@ -372,7 +472,6 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
             }
         }
 
-        saving.value = true;
 
         if (tusUpload.url.value) {
             data.value.record.uploaded_file_id = tusUpload.url.value;
@@ -380,30 +479,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
                 data.value.record.thumbnail_url = tusUpload.thumbnail.value;
             }
         }
-
-        getSimilar().then((similar) => {
-            if (!similar.length) {
-                update();
-            } else {
-                console.log(similar);
-            }
-        }).catch(() => {
-            update();
-        })
-    }
-
-    const getSimilar = (): Promise<Models.Record[]> => {
-        return new Promise((resolve, reject) => {
-            $.get(route('records.similar'), data.value).done(({data}) => {
-                console.log(data);
-                resolve(data);
-            }).catch(() => reject());
-        })
-    }
-
-    const update = () => {
         $.post(record ? route('records.update', record.id) : route('records.save'), data.value).done(res => {
-            // todo: проверка записи на уникальность
             saving.value = false;
             response.value = res;
             errors.value = res.errors || {};
@@ -425,7 +501,9 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
         tusUpload.setFile(file);
         if (file) {
             data.value.record.upload = true;
-            data.value.title = file.name.split(/[\\/]/g).pop().split('.')[0];
+            data.value.title = file.name.split('.').filter((s, index, arr) => {
+                return index < arr.length - 1
+            }).join('.');
             parseTitle();
         } else {
             data.value.record.upload = false;
@@ -442,15 +520,21 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
         saving,
         loadingInfo,
         save,
+        update,
 
-        urlValid,
+        externalVideoError,
         codeValid,
         titleLocked,
+        parseTitle,
 
         data,
         response,
         errors,
         setSaveCallback,
+
+        similar,
+        duplicates,
+        markSimilarAsChecked,
 
         setUploadFile,
         uploadFile: tusUpload.file,

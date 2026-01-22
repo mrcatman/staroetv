@@ -13,7 +13,7 @@
                         </div>
                     @endif
                 @if (isset($search) && $search)
-                   {!! \App\Helpers\HighlightHelper::highlight($topic->title, $search, true) !!}
+                   {!! \App\Helpers\HighlightHelper::highlight($topic->title, $search) !!}
                 @else
                    {{ $topic->title }}
                 @endif
@@ -21,7 +21,7 @@
             @if ($topic->description != "")
             <a href="{{route('forum.topics.show', [$topic->forum_id, $topic->id])}}" class="forum__description">
                 @if (isset($search) && $search)
-                    {!! \App\Helpers\HighlightHelper::highlight($topic->description, $search, true) !!}
+                    {!! \App\Helpers\HighlightHelper::highlight($topic->description, $search) !!}
                 @else
                     {{ $topic->description }}
                 @endif

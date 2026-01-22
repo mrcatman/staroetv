@@ -97,7 +97,7 @@
         .remote__inner {
             box-shadow: 0 0 1em;
             padding: 1em;
-            border-radius: .5em;
+            border-radius: var(--border-radius-standard);
             background: linear-gradient(90deg, #222 30%, #1d1d1d 50%, #222 70%);
             background-size: .4em;
         }
@@ -206,7 +206,7 @@
             height: 100%;
             background: linear-gradient(45deg, #111, #222);
             position: relative;
-            border-radius: .25em;
+            border-radius: var(--border-radius-small);
             border-top: 1px solid #333;
             border-left: 1px solid #222;
             display: flex;
@@ -216,7 +216,7 @@
         .tape__sticker__content {
             width: 90%;
             background: #fff;
-            border-radius: .25em;
+            border-radius: var(--border-radius-small);
             padding: .5em;
         }
         .tape__sticker__content {
@@ -267,7 +267,7 @@
         .remote__random {
             background: linear-gradient(45deg, #b71818, #b61111);
             padding: .5em;
-            border-radius: .5em;
+            border-radius: var(--border-radius-standard);
             box-shadow: .25em .25em .25em inset #7f1d1d, .125em .125em 2px .25em #000;
             text-align: center;
             font-family: "Arial Narrow";

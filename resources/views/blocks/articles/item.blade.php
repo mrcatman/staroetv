@@ -13,7 +13,7 @@
         @endif
         <div class="news__top">
             @if (isset($search))
-                <a href="{{$article->url}}" class="news__title">{!! \App\Helpers\HighlightHelper::highlight($article->title, $search, true) !!}</a>
+                <a href="{{$article->url}}" class="news__title">{!! \App\Helpers\HighlightHelper::highlight($article->title, $search) !!}</a>
             @else
             <a href="{{$article->url}}" class="news__title">{{$article->title}}</a>
             @endif

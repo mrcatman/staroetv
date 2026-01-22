@@ -7,15 +7,13 @@
     border: none;
     background: var(--primary);
     line-height: 1;
-    border-radius: .25em;
+    border-radius: var(--border-radius-small);
     padding: .75em 1.75em;
     color: var(--button-active-text) !important;
     white-space: nowrap;
-    box-shadow: var(--block-box-shadow);
-    @include light() {
-        text-shadow: 0 .125em .75em #261d1770;
-        box-shadow: 0 .25em 1em -.75em #ff6b02;
-    }
+    box-shadow: var(--button-box-shadow);
+    text-shadow: var(--button-text-shadow);
+
     &:hover {
         background: var(--primary-highlight);
     }
@@ -23,6 +21,8 @@
         background: #555;
         cursor: not-allowed;
         opacity: .25;
+        box-shadow: none;
+        text-shadow: none;
         &:hover {
             background: #555;
         }
@@ -37,7 +37,10 @@
         height: 100%;
         background: url('/resources/images/bg.png');
         background-size: 10em;
-        opacity: .5;
+        opacity: .25;
+        @include light() {
+            opacity: .5;
+        }
     }
     &--big {
         font-size: 1.125em;
@@ -45,6 +48,11 @@
     }
     &--small {
         font-size: .875em;
+    }
+    &--block {
+        box-sizing: border-box;
+        width: 100%;
+        text-align: center;
     }
     &--flat {
         background: var(--primary);
@@ -62,12 +70,16 @@
         transition: all .25s;
         border: 1px solid var(--bg-darker-2);
         color: var(--text-color)!important;
-        box-shadow: none;
+        box-shadow: var(--element-box-shadow);
         background: var(--box-color);
         font-weight: 500;
+
         &:hover {
             background: var(--box-color-hover);
             color: var(--text-color);
+        }
+        &:before {
+            opacity: .5;
         }
     }
 
@@ -99,7 +111,7 @@
             flex-direction: column;
             background: var(--box-color);
             top: 100%;
-            border-radius: .25em;
+            border-radius: var(--border-radius-small);
             overflow: hidden;
             z-index: 100000;
             display: none;
@@ -148,9 +160,10 @@
         border-right: 1px solid rgba(0, 0, 0, 0.1);
         margin: 0!important;
         border-radius: 0;
+
         @include mobile() {
-            padding-left: 0;
-            padding-right: 0;
+            padding-left: .75em;
+            padding-right: .75em;
             flex: 1;
             text-align: center;
         }

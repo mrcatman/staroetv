@@ -4,7 +4,7 @@
     gap: var(--col-margin);
     &__section {
         margin: 0;
-        padding: 0;
+        padding: 0 0 .5em;
         list-style-type: none;
         font-size: 1.25em;
         line-height: 1.75;
@@ -12,8 +12,11 @@
         display: flex;
         flex-direction: column;
         gap: calc(var(--col-margin) * .5);
-        @include light() {
-            border-bottom: none;
+
+        @include mobile() {
+            font-size: 1em;
+            flex-direction: row;
+            flex-wrap: wrap;
         }
         &:last-of-type {
             border: none;
@@ -31,6 +34,14 @@
         font-size: 1.125em;
         font-weight: 600;
         @include hover();
+        @include mobile() {
+            width: 100%;
+        }
+    }
+    &__button-container {
+        @include mobile() {
+            width: 100%;
+        }
     }
     &__item {
         &__link {

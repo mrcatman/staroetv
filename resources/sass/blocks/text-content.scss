@@ -1,6 +1,8 @@
 .text-content {
     font-size: 1.125em;
     font-family: var(--font-texts);
+    width: 100%;
+
     @include mobile() {
         font-size: 1em;
     }

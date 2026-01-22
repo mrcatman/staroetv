@@ -16,18 +16,20 @@
                 <div class="input-container">
                     <label class="input-container__label">Telegram</label>
                     <div class="input-container__inner">
-                        @if (!$user->telegram_id)
-                            <input type="hidden" name="telegram_data" value="" />
-                            <button class="button button--telegram">
-                                <i class="fab fa-telegram"></i>
-                                Привязать
-                            </button>
-                        @else
+                        <div>
+                            @if (!$user->telegram_id)
+                                <input type="hidden" name="telegram_data" value="" />
+                                <button class="button button--telegram">
+                                    <i class="fab fa-telegram"></i>
+                                    Привязать
+                                </button>
+                            @else
+                                <button class="button">
+                                    Отвязать
+                                </button>
+                            @endif
+                        </div>
 
-                            <button class="button">
-                                Отвязать
-                            </button>
-                        @endif
                     </div>
                 </div>
             </div>

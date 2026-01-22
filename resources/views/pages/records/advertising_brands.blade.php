@@ -29,7 +29,7 @@
                                <div class="commercials-brands__item__cover" style="background-image:url({{$brand->cover}})"></div>
                                <div class="commercials-brands__item__name">
                                    @if ($search != '')
-                                       {!! \App\Helpers\HighlightHelper::highlight($brand->advertising_brand, $search, true) !!}
+                                       {!! \App\Helpers\HighlightHelper::highlight($brand->advertising_brand, $search) !!}
                                    @else
                                        {{$brand->advertising_brand}}
                                    @endif

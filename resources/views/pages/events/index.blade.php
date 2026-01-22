@@ -27,13 +27,13 @@
                                 </a>
                                 <div class="events-list-page__top__first-events">
                                     @foreach($first_events as $event)
-                                        @include('blocks/event', ['big' => true, 'event' => $event])
+                                        @include('blocks.events.item', ['big' => true, 'event' => $event])
                                     @endforeach
                                 </div>
                             </div>
                         @endif
                         @foreach($events as $event)
-                            @include('blocks/event', ['big' => true, 'event' => $event])
+                            @include('blocks.events.item', ['big' => true, 'event' => $event])
                         @endforeach
                     </div>
                 </div>

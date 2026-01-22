@@ -1,16 +1,21 @@
 let body = $('body');
 import replaceDom from './replaceDom';
+import { FORM_PRELOADER_CLASS, FORM_PRELOADER_HTML } from "./preloader";
 
 $(body).on('click', '.programs-list__show-all .button', function() {
-    const programsList = $(this).parents('.programs-list');
-    $(programsList).append(' <div class="form__preloader"><img src="/img/ajax.gif"></div>');
-    let url = route(`${$(this).data('is-radio')  ? 'radio' : 'video'}.programs.ajax`);
+    const programsList = $(this).parents('.programs-list__container').find('.programs-list');
+    $(programsList).append(FORM_PRELOADER_HTML);
+    const params = {};
     if ($(this).data('category')) {
-        url= `${url}?category=${$(this).data('category')}`;
+        params.category = $(this).data('category');
     }
-    $.get(url).then(res => {
+    if ($(this).data('period')) {
+        params.period = $(this).data('period');
+    }
+
+    $.get(route(`records.${$(this).data('is-radio')  ? 'radio' : 'video'}.programs.show-all`, params)).then(res => {
         $(programsList).removeClass('programs-list--with-show-all');
-        $(programsList).find('.form__preloader').remove();
+        $(programsList).find(`.${FORM_PRELOADER_CLASS}`).remove();
         if (res.status) {
             replaceDom(res.data.dom);
         }

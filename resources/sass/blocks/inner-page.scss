@@ -1,3 +1,6 @@
 .inner-page {
     padding: 1em 0;
+    @include mobile() {
+        padding: .25em 0;
+    }
 }

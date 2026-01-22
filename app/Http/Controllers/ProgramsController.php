@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Constants\Actions;
 use App\Constants\Periods;
 use App\Helpers\ActionsLogHelper;
-use App\Helpers\HTMLHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
 use App\Models\AdditionalChannel;
@@ -15,6 +14,7 @@ use App\Models\Program;
 use App\Models\Record;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Mews\Purifier\Facades\Purifier;
 
 class ProgramsController extends EntityController {
 
@@ -32,7 +32,6 @@ class ProgramsController extends EntityController {
 
         $channel_ids  = Channel::where(['is_radio' => $is_radio])->where(['is_regional' => false])->where(['is_abroad' => false])->pluck('id');
         $programs = Program::where(['pending' => false])->withCount('records')->whereIn('channel_id', $channel_ids);
-        $programs->where('url', '!=', 'unknown-program');
 
         $page_title = "Передачи";
         if ($category) {
@@ -42,16 +41,18 @@ class ProgramsController extends EntityController {
 
         $programs = $programs->orderBy('views', 'desc');
 
-        $period = Periods::find(request()->input('period'), '');
+        $period = Periods::find(request()->input('period'));
         if ($period) {
             $programs = $programs->whereHas('records', function ($query) use ($period) {
-                $query->whereBetween('supposed_date', Periods::getDatesInterval($period));
+                $query->whereBetween('date', Periods::getDatesInterval($period));
             });
         }
 
         $program_ids = $programs->pluck('id');
 
-        if (!$period) {
+        $show_load_more_button = false;
+        if (!$period || !$category) {
+            $show_load_more_button = true;
             $programs = $programs->limit(20);
         }
 
@@ -66,23 +67,46 @@ class ProgramsController extends EntityController {
             $records_conditions['period'] = $period;
         }
 
+        $categories = Cache::remember('program_categories_'.($is_radio ? 'radio' : 'video'), 3600, function() use ($is_radio) {
+            return Genre::where(['type' => 'programs'])->whereHas('programs', function ($query) use ($is_radio) {
+                $query->whereHas('channel', function ($query) use ($is_radio) {
+                    $query->where(['is_radio' => $is_radio]);
+                });
+            })->get();
+        });
+
         return view('pages.programs.index', [
+            'is_radio' => $is_radio,
             'period' => $period,
             'params' => $params,
+            'show_load_more_button' => $show_load_more_button,
             'page_title' => $page_title,
             'records_conditions' => $records_conditions,
             'programs' => $programs,
             'category' => $category,
+            'categories' => $categories,
         ]);
     }
 
-    public function loadAll($params) {
+    public function showAll($params) {
         $is_radio = $params['is_radio'];
         $channel_ids  = Channel::where(['is_radio' => $is_radio])->where(['is_regional' => false])->where(['is_abroad' => false])->pluck('id');
         $programs = Program::where(['pending' => false])->withCount('records')->whereIn('channel_id', $channel_ids);
-        $category = Genre::where(['url' => request()->input('category')])->first();
-        if ($category) {
-            $programs = $programs->where(['genre_id' => $category->id]);
+
+        if (request()->has('period')) {
+            $period = Periods::find(request()->input('period'));
+            if ($period) {
+                $programs = $programs->whereHas('records', function ($query) use ($period) {
+                    $query->whereBetween('date', Periods::getDatesInterval($period));
+                });
+            }
+        }
+
+        if (request()->has('category')) {
+            $category = Genre::where(['url' => request()->input('category')])->first();
+            if ($category) {
+                $programs = $programs->where(['genre_id' => $category->id]);
+            }
         }
 
         $programs = $programs->orderBy('views', 'desc')->get();
@@ -106,6 +130,10 @@ class ProgramsController extends EntityController {
 
 
     public function show($id) {
+        if ($id == 'unknown-program') {
+            return redirect(route('records.video.other.category', 'unknown'));
+        }
+
         $program = Program::where(['url' => $id])->first();
         if (!$program) {
             $program = Program::find($id);
@@ -119,25 +147,22 @@ class ProgramsController extends EntityController {
         if ($program->channel) {
             $conditions['is_radio'] = $program->channel->is_radio;
         }
-        $unknown = $program->url == 'unknown-program';
-        if ($unknown) {
-            $conditions['is_interprogram'] = false;
-            $conditions['is_advertising'] = false;
-            $conditions['is_clip'] = false;
-            unset($conditions['program_id']);
-            $conditions['program_id_in'] = [$program->id, null];
-        }
 
         $program->original_name = $program->name;
         $channel = $program->channel;
         if (request()->has('from')) {
             $from_channel_id = request()->input('from');
+            $channel = Channel::findOrFail($from_channel_id);
             $additional_channel_data = AdditionalChannel::where(['program_id' => $program->id, 'channel_id' => $from_channel_id])->first();
             if ($additional_channel_data && $additional_channel_data->channel) {
                 $channel = $additional_channel_data->channel;
                 if ($additional_channel_data->title != "") {
                     $program->name = $additional_channel_data->title;
                 }
+            }
+            if (!$program->channel_id) {
+                $program->channel = $channel;
+                $conditions['channel_id'] = $channel->id;
             }
         }
 
@@ -149,9 +174,9 @@ class ProgramsController extends EntityController {
         return view("pages.programs.show", [
             'program' => $program,
             'related_programs' => $related_programs,
-            'unknown' => $unknown,
             'channel' => $channel,
             'records_conditions' => $conditions,
+            'unknown' => false
         ]);
     }
 
@@ -256,7 +281,7 @@ class ProgramsController extends EntityController {
         $data['date_of_closedown'] = isset($data['date_of_closedown']) ? Carbon::parse($data['date_of_closedown']) : null;
 
         if (isset($data['description'])) {
-            $data['description'] = HTMLHelper::sanitize($data['description']);
+            $data['description'] = Purifier::clean($data['description']);
         }
 
         $data['show_full_titles'] = !!request()->input('show_full_titles', false);
@@ -293,7 +318,9 @@ class ProgramsController extends EntityController {
             $program->records()->doesntHave('channel')->update(['channel_id' => $program->channel_id]);
         }
 
-        Cache::delete('programs_channels_names_'.$program->id);
+        Cache::forget('program_random_pictures_'.$program->id);
+        Cache::forget('program_cover_'.$program->id);
+        Cache::forget('programs_channels_names_'.$program->id);
         return [
             'status' => 1,
             'text' => 'Информация о программе обновлена',

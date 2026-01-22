@@ -22,18 +22,18 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr v-for="(category, $index) in categoriesList" v-show="category.type === type" :key="$index">
+                    <tr v-for="(category, index) in categoriesList" v-show="category.type === type" :key="index">
                         <td>
-                            <input class="input" v-model="categoriesList[$index].name"/>
+                            <input class="input" v-model="categoriesList[index].name"/>
                         </td>
                         <td>
-                            <input class="input" v-model="categoriesList[$index].url"/>
+                            <input class="input" v-model="categoriesList[index].url"/>
                         </td>
                         <td v-show="type === 'interprogram'">
-                            <input class="input" v-model="categoriesList[$index].name_pattern"/>
+                            <input class="input" v-model="categoriesList[index].name_pattern"/>
                         </td>
                         <td>
-                            <a @click="categoriesList.splice($index, 1)" class="button button--light">Удалить</a>
+                            <a @click="categoriesList.splice(index, 1)" class="button button--light">Удалить</a>
                         </td>
                     </tr>
                     </tbody>
@@ -55,53 +55,39 @@
     }
 }
 </style>
-<script>
+<script setup lang="ts">
+import { ref } from 'vue';
 import Response from '../Response.vue';
 
-export default {
-    computed: {},
-    methods: {
-        saveCategories() {
-            this.loading = true;
-            $.post(route('admin.genres.save'), {categories: this.categoriesList}).done(res => {
-                this.loading = false;
-                this.response = res;
-                if (res.status) {
-                    this.categoriesList = res.data.categories;
-                }
-            }).fail((xhr) => {
-                this.loading = false;
-                let error = xhr.responseJSON;
-                this.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
-            })
-        },
-        addCategory() {
-            this.categoriesList.push({
-                name: '',
-                url: '',
-                type: this.type
-            });
-        }
-    },
-    props: {
-        categories: {
-            type: Array,
-            required: true,
-        },
-    },
-    data() {
-        return {
-            type: 'programs',
-            response: null,
-            loading: false,
-            categoriesList: this.categories,
-        }
-    },
-    mounted() {
+const props = defineProps<{
+    categories: Models.Genre[];
+}>();
 
-    },
-    components: {
-        Response,
-    }
-}
+const type = ref<string>('programs');
+const response = ref<Forms.Response | null>(null);
+const loading = ref<boolean>(false);
+const categoriesList = ref<Models.Genre[]>([...props.categories]);
+
+const saveCategories = () => {
+    loading.value = true;
+    $.post(route('admin.genres.save'), {categories: categoriesList.value}).done(res => {
+        loading.value = false;
+        response.value = res;
+        if (res.status) {
+            categoriesList.value = res.data.categories;
+        }
+    }).fail((xhr) => {
+        loading.value = false;
+        const error = xhr.responseJSON;
+        response.value = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+    })
+};
+
+const addCategory = () => {
+    categoriesList.value.push({
+        name: '',
+        url: '',
+        type: type.value
+    });
+};
 </script>

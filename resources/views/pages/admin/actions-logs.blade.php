@@ -21,10 +21,9 @@
             <div class="actions-logs__item">
                 <div class="actions-logs__item__top">
                     <span class="actions-logs__item__time">{{$log->created_at->format('d.m.Y H:i:s')}}</span>
+                    &nbsp;
                     @if ($log->user)
-                    <a href="{{route('users.show', $log->user)}}" class="actions-logs__item__link">
-                        {{$log->user->username}}
-                    </a>
+                    <a href="{{route('users.show', $log->user)}}" class="actions-logs__item__link">{{$log->user->username}}</a>
                     @else
                         <span class="actions-logs__item__user">
                             Неизвестный юзер с ID {{$log->user_id}}

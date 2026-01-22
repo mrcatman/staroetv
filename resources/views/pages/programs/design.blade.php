@@ -113,7 +113,7 @@
                         </div>
                     </div>
                     @endif
-                    @include('blocks/generic_sidebar', ['hide_articles' => true])
+                    @include('blocks.global.generic-sidebar', ['hide_articles' => true])
                 </div>
         </div>
 @endsection

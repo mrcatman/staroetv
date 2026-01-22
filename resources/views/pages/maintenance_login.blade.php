@@ -9,7 +9,7 @@
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
 </head>
 <body>
-@include('blocks/login_form_maintenance')
+@include('blocks.unused.login-form-maintenance')
 
 <script type="text/javascript" rel="script" src="{{asset('js/app.js')}}?{{time()}}"></script>
 <script>

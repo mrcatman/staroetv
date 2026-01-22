@@ -1,5 +1,5 @@
 @if (!isset($inner) || !$inner)
-<div id="{{$message->id}}" class="forum-message @if ($fixed) forum-message--fixed @endif" data-id="{{$message->id}}">
+<div id="{{$message->id}}" class="box forum-message @if ($fixed) forum-message--fixed @endif" data-id="{{$message->id}}">
 @endif
     <div class="forum-message__top">
         <div class="forum-message__user-info">

@@ -8,6 +8,7 @@ use App\Models\Comment;
 use App\Models\Forum;
 use App\Models\ForumMessage;
 use App\Models\ForumTopic;
+use App\Models\Genre;
 use App\Models\HistoryEvent;
 use App\Models\DesignPackage;
 use App\Models\Page;
@@ -49,6 +50,7 @@ class MaterialTypes
     const TYPE_INTERPROGRAM = 102;
     const TYPE_HISTORY_EVENTS = 103;
 
+    const TYPE_GENRES = 104;
 
     const LIST = [
         self::TYPE_CHANNELS => Channel::class,
@@ -69,7 +71,8 @@ class MaterialTypes
         self::TYPE_PAGES => Page::class,
         self::TYPE_FORUM_TOPICS => ForumTopic::class,
         self::TYPE_FORUMS => Forum::class,
-        self::TYPE_FORUM_MESSAGES => ForumMessage::class
+        self::TYPE_FORUM_MESSAGES => ForumMessage::class,
+        self::TYPE_GENRES => Genre::class,
     ];
 
 

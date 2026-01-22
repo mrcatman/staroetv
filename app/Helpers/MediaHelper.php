@@ -28,4 +28,25 @@ class MediaHelper {
             $record->save();
         }
     }
+
+    public function makeThumbnail($path, $seconds = null): string
+    {
+        $filename = pathinfo($path, PATHINFO_FILENAME);
+
+        $frames = (int)shell_exec("ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -of default=nokey=1:noprint_wrappers=1 $path");
+        //$middle = floor($frames / 2);
+        $fps = (int)shell_exec("ffprobe -v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate $path");
+        $fps = (int)explode("/", $fps)[0];
+        if ($fps > 100 || $fps === 0) {
+            $fps = 30;
+        }
+        $thumbnail_time = ($frames / $fps) - 3;
+        $thumbnail_path = public_path("video_covers/$filename.jpg");
+
+        $thumbnail_command = "ffmpeg -y -ss $thumbnail_time -i '$path' -vframes 1 '" . $thumbnail_path . "'";
+        shell_exec($thumbnail_command);
+
+        return $thumbnail_path;
+    }
+
 }

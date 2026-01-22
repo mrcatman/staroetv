@@ -22,7 +22,7 @@
         </div>
         <div class="input-container input-container--vertical">
             <label class="input-container__label">Блокировать активность</label>
-            <div class="row">
+            <div class="row row--mobile">
                 <div class="col warnings-form__count">
                     <div class="input-container__inner">
                         <input type="number" value="0" min="0" class="input warnings-form__count__input" name="count"/>

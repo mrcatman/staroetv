@@ -60,7 +60,7 @@
                                             <a class="button--dropdown__list__item"
                                                data-confirm-form-input-value="{{$package->id}}"
                                                data-confirm-form-text="Вы уверены, что хотите удалить пакет?"
-                                               data-confirm-form-url="{{typed_route('design.[CHANNEL].delete', $channel->is_radio)}}">Удалить</a>
+                                               data-confirm-form-url="{{route('design.delete')}}">Удалить</a>
                                         </div>
                                     </span>
                         </div>
@@ -111,7 +111,7 @@
 
     <div class="col col--sidebar">
         @include('blocks.design.related')
-        @include('blocks/generic_sidebar', ['hide_articles' => true])
+        @include('blocks.global.generic-sidebar', ['hide_articles' => true])
     </div>
 
 @endsection

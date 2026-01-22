@@ -57,7 +57,7 @@
             @include('blocks.teletext.list')
         </div>
         <div class="col col--sidebar">
-            @include('blocks.banner')
+            @include('blocks.global.digitization')
         </div>
     </div>
 

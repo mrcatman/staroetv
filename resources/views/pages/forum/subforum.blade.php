@@ -26,21 +26,7 @@
                                 <a class="forum-section__breadcrumb"
                                    href="{{route('forum.subforums.show', $forum)}}">{{$forum->title}}</a>
                             @endif
-                            <form @if (!$forum) action="{{route('forum.index')}}"
-                                  @else action="{{route('forum.subforums.show', $forum)}}" @endif method="GET"
-                                  class="forum-section__search forum-section__search--subforum">
-                                <input @if ($forum) placeholder="Поиск по подфоруму" @else placeholder="Поиск по форуму"
-                                       @endif class="input" name="s" value="{{$search}}">
-                                <select class="select-classic" name="type">
-                                    <option value="topics"
-                                            @if (!isset($messages_view) || !$messages_view) selected @endif>Темы
-                                    </option>
-                                    <option value="messages"
-                                            @if (isset($messages_view) && $messages_view) selected @endif>Сообщения
-                                    </option>
-                                </select>
-                                <button type="submit" class="button button--light">ОК</button>
-                            </form>
+                            @include('blocks.forum.search')
                         </div>
                     </div>
                 </div>

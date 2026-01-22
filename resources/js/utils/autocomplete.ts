@@ -25,10 +25,10 @@ export const autocompleteOptions = (
             dataType: 'json',
             processResults: ({data}) => {
                 return {
-                    results: data.filter(value => value?.length).map((value: string) => {
+                    results: data.filter(item => item?.name.length).map((item: string) => {
                         return {
-                            id: value,
-                            text: value,
+                            id: item.name,
+                            text: item.name,
                         }
                     }),
                     pagination: {

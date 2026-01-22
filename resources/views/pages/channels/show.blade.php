@@ -10,7 +10,8 @@
                 <div class="box">
                     <div class="box__breadcrumbs">
                         <div class="breadcrumbs">
-                            <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].index', $channel->is_radio)}}">Архив</a>
+                            <a class="breadcrumbs__item"
+                               href="{{typed_route('records.[RECORD].index', $channel->is_radio)}}">Архив</a>
                             <a class="breadcrumbs__item breadcrumbs__item--current">{{$channel->name}}</a>
                         </div>
                     </div>
@@ -27,7 +28,8 @@
                                     </span>
                                     <span class="button--dropdown__list">
                                         @if ($channel->can_edit)
-                                            <a class="button--dropdown__list__item" href="{{typed_route('[CHANNEL].edit', $channel->is_radio, $channel->id)}}">Редактировать</a>
+                                            <a class="button--dropdown__list__item"
+                                               href="{{typed_route('[CHANNEL].edit', $channel->is_radio, $channel->id)}}">Редактировать</a>
                                         @endif
                                         @if (\App\Helpers\PermissionsHelper::allows('contentapprove'))
                                             <a class="button--dropdown__list__item" data-approve="channels"
@@ -60,8 +62,10 @@
                                             <!--
                                 <div class="channel-page__selected-logo__name">{{$channel->names[0]->name}} </div>
                                 -->
-                                            <div class="channel-page__selected-logo__years">{{$channel->names[0]->years_range}} </div>
-                                            <div class="channel-page__selected-logo__description">{{$channel->names[0]->comment}}</div>
+                                            <div
+                                                class="channel-page__selected-logo__years">{{$channel->names[0]->years_range}} </div>
+                                            <div
+                                                class="channel-page__selected-logo__description">{{$channel->names[0]->comment}}</div>
                                         </div>
                                         <div class="channel-page__logos__list">
                                             <div class="channel-page__logos__list__inner">
@@ -95,22 +99,23 @@
                                 @endif
 
                                 @if ($channel->is_regional || $channel->is_abroad)
-                                <div class="channel-page__description__params">
-                                    <!--
+                                    <div class="channel-page__description__params">
+                                        <!--
                                     @if (count($channel->unique_names) > 0)
-                                        <div class="page__description__param">Также известен как:
-                                            <strong>{{$channel->unique_names_list}}</strong></div>
-                                    @endif
-                                    -->
-                                    @if ($channel->is_regional)
-                                        <div class="page__description__param">Город/регион:
-                                            <strong>{{$channel->city}}</strong></div>
-                                    @endif
-                                    @if ($channel->is_abroad)
-                                        <div class="page__description__param">Страна:
-                                            <strong>{{$channel->country}}</strong></div>
-                                    @endif
-                                </div>
+                                            <div class="page__description__param">Также известен как:
+                                                <strong>{{$channel->unique_names_list}}</strong></div>
+
+                                        @endif
+                                        -->
+                                        @if ($channel->is_regional)
+                                            <div class="page__description__param">Город/регион:
+                                                <strong>{{$channel->city}}</strong></div>
+                                        @endif
+                                        @if ($channel->is_abroad)
+                                            <div class="page__description__param">Страна:
+                                                <strong>{{$channel->country}}</strong></div>
+                                        @endif
+                                    </div>
                                 @endif
                             </div>
                         </div>
@@ -120,7 +125,7 @@
             </div>
             <!--
             <div class="col col--sidebar">
-                @include('blocks/generic_sidebar', ['is_radio' => $channel->is_radio, 'hide_articles' => true, 'count' => 12, 'articles_count' => $channel->page_random_videos_count])
+                @include('blocks.global.generic-sidebar', ['is_radio' => $channel->is_radio, 'hide_articles' => true, 'count' => 12, 'articles_count' => $channel->page_random_videos_count])
             </div>
             -->
         </div>
@@ -139,7 +144,8 @@
                                 </a>
                             @endif
                             @if ($programs_edit)
-                                <a href="{{typed_route('[CHANNEL].programs.edit-list', $channel->is_radio, $channel->url ?? $channel->id)}}" class="button">
+                                <a href="{{typed_route('[CHANNEL].programs.edit-list', $channel->is_radio, $channel->url ?? $channel->id)}}"
+                                   class="button">
                                     <i class="fa fa-list"></i>
                                     Редактировать список
                                 </a>
@@ -153,7 +159,7 @@
                         <div class="categories-list">
                             @foreach($programs as $index => $genre)
                                 <a data-selector=".category" data-toggle-class="category--active"
-                                   data-show-block-selector=".programs-list" data-show-block-id="{{$genre->id}}"
+                                   data-show-block-selector=".programs-list__container" data-show-block-id="{{$genre->id}}"
                                    class="category @if ($index == 0) category--active @endif">{{$genre->name}}</a>
                             @endforeach
                         </div>
@@ -161,67 +167,81 @@
                     <div class="channel-page__programs">
 
                         @foreach($programs as $index => $genre)
-                            <div class="programs-list" data-block-id="{{$genre->id}}"
-                                 @if ($index != 0) style="display: none" @endif>
-                                @foreach ($genre->programs as $program)
-                                    @include('blocks.programs.item', ['url' => $program->full_url.'?from='.$channel->id])
-                                @endforeach
+                            <div class="programs-list__container" data-block-id="{{$genre->id}}" @if ($index != 0) style="display: none" @endif>
+                                <div class="programs-list">
+                                    @foreach ($genre->programs as $program)
+                                        @include('blocks.programs.item', ['url' => $program->full_url.'?from='.$channel->id])
+                                    @endforeach
+                                </div>
                             </div>
+
                         @endforeach
                     </div>
                 </div>
             </div>
-        @endif
-
-        @php($can_edit_interprogram = \App\Helpers\PermissionsHelper::allows('additionalown'))
-        @if ($channel->is_radio)
-            @include('blocks.records.list', ['hide_if_zero' => true, 'conditions' => $records_conditions_interprogram, 'block_title' => 'Заставки, отбивки, джинглы ('.$channel->name.')'])
-        @else
-            @if (count($interprogram_packages) > 0 || $can_edit_interprogram)
-                <div class="box" id="interprogram">
-                    <div class="box__heading">
-                        <div class="box__heading__inner">Оформление канала ({{$channel->name}})</div>
-                        @if ($can_edit_interprogram)
-                            <div class="box__heading__right">
-                                <a href="{{route('design.channels.add', $channel->url ?? $channel->id)}}" class="button button--light">Добавить</a>
-                            </div>
-                        @endif
-                    </div>
-
-                    @if (count($interprogram_packages) > 0)
-                        <div class="box__inner">
-                            <div class="interprogram-packages-list">
-                                @foreach($interprogram_packages as $package)
-                                    @include('blocks.design.package', ['package' => $package])
-                                @endforeach
-                            </div>
+            @if (count($global_programs) > 0)
+                <div class="box">
+                    <div class="box__inner">
+                        <div class="programs-list">
+                            @foreach ($global_programs as $program)
+                                @include('blocks.programs.item', ['url' => $program->full_url.'?from='.$channel->id])
+                            @endforeach
                         </div>
+                    </div>
                     @endif
                 </div>
             @endif
-        @endif
-        <div class="row">
-            @include('blocks.records.list', ['conditions' => $records_conditions])
-        </div>
-        @if (count($channel->articles) > 0)
-            <div class="box">
-                <div class="box__heading">
-                    <div class="box__heading__inner">
-                        Статьи
+
+            @php($can_edit_interprogram = \App\Helpers\PermissionsHelper::allows('additionalown'))
+            @if ($channel->is_radio)
+                @include('blocks.records.list', ['hide_if_zero' => true, 'conditions' => $records_conditions_interprogram, 'block_title' => 'Заставки, отбивки, джинглы ('.$channel->name.')'])
+            @else
+                @if (count($interprogram_packages) > 0 || $can_edit_interprogram)
+                    <div class="box" id="interprogram">
+                        <div class="box__heading">
+                            <div class="box__heading__inner">Оформление канала ({{$channel->name}})</div>
+                            @if ($can_edit_interprogram)
+                                <div class="box__heading__right">
+                                    <a href="{{route('design.channels.add', $channel->url ?? $channel->id)}}"
+                                       class="button button--light">Добавить</a>
+                                </div>
+                            @endif
+                        </div>
+
+                        @if (count($interprogram_packages) > 0)
+                            <div class="box__inner">
+                                <div class="interprogram-packages-list">
+                                    @foreach($interprogram_packages as $package)
+                                        @include('blocks.design.package', ['package' => $package])
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
-                </div>
-                <div class="box__inner">
-                    <div class="news-blocks-list">
-                        @foreach ($channel->articles as $news_item)
-                            @include('blocks.articles.news', ['class' => 'news-block--card news-block--for-channel', 'show_cover' => true, 'news_item' => $news_item])
-                        @endforeach
-                    </div>
-                </div>
+                @endif
+            @endif
+            <div class="row">
+                @include('blocks.records.list', ['conditions' => $records_conditions])
             </div>
-        @endif
-        <div class="row row--align-start">
-            @include('blocks.comments.list', ['class' => 'channel-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_CHANNELS, 'material_id' => $channel->id]])
-        </div>
+            @if (count($channel->articles) > 0)
+                <div class="box">
+                    <div class="box__heading">
+                        <div class="box__heading__inner">
+                            Статьи
+                        </div>
+                    </div>
+                    <div class="box__inner">
+                        <div class="news-blocks-list">
+                            @foreach ($channel->articles as $news_item)
+                                @include('blocks.articles.news', ['class' => 'news-block--card news-block--for-channel', 'show_cover' => true, 'news_item' => $news_item])
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
+            <div class="row row--align-start">
+                @include('blocks.comments.list', ['class' => 'channel-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_CHANNELS, 'material_id' => $channel->id]])
+            </div>
     </div>
     </div>
 @endsection

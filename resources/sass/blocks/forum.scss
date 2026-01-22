@@ -8,20 +8,17 @@
     &__title {
         text-align: left;
         z-index: 10000000;
-        font-size: 1.5em;
+        height: 100%;
         display: flex;
         align-items: center;
         justify-content: space-between;
         background: var(--box-color-dark);
         color: var(--box-text-color-dark);
-        padding: .25em .25em .25em .875em;
         box-shadow: var(--block-box-shadow);
         @include light() {
-            padding: 1em 0;
             background: none;
             color: unset;
             font-weight: 600;
-            border-bottom: 2px solid var(--primary);
             box-shadow: none;
         }
 
@@ -33,14 +30,25 @@
         &__inner {
             display: flex;
             align-items: center;
+            gap: var(--col-margin);
+        }
+
+        &__texts {
+            font-size: 1.3125em;
             @include mobile() {
-                font-size: .75em;
+                font-size: 1em;
             }
         }
 
         &__actions {
-            font-size: .75em;
-            margin: 0 0 0 1em;
+            @include mobile() {
+                font-size: .75em;
+            }
+            .button {
+                &:hover {
+                    background: var(--bg-darker-2);
+                }
+            }
         }
 
         &--main-page {
@@ -50,30 +58,11 @@
         }
 
         &__buttons {
-            font-size: .75em;
             position: relative;
             z-index: 10;
-            margin: 0 0 0 .5em;
             @include mobile() {
                 text-align: center;
-                margin: 0 0 .25em;
             }
-        }
-    }
-
-    & &__title {
-        padding: 1em;
-        border-bottom: 1px solid var(--border-color-dark);
-        @include light() {
-            padding: 1em 0;
-            border-bottom: 2px solid var(--primary);
-        }
-    }
-
-    &__children {
-        background: none;
-        @include mobile() {
-            margin: -1em 0 0;
         }
     }
 
@@ -81,6 +70,13 @@
         display: flex;
         justify-content: space-between;
         gap: var(--col-margin);
+        background: var(--overlay-darken-2);
+        margin: var(--overlay-margin);
+        padding: var(--overlay-padding);
+
+        @include mobile() {
+            flex-direction: column;
+        }
         .pagination {
             margin: 0;
             padding: 0;
@@ -123,12 +119,6 @@
     }
 
     &__messages {
-        @include light() {
-            @include mobile() {
-                margin: 0 -1em;
-            }
-        }
-
         &__nothing-found {
             font-size: 1.3125em;
         }
@@ -137,9 +127,9 @@
         text-align: right;
         margin: 0;
         margin-left: auto;
-        min-width: 16em;
         display: flex;
         justify-content: flex-end;
+        gap: .5em;
 
         @include mobile() {
             font-size: .75em;
@@ -149,65 +139,52 @@
             padding: 0 0 1em;
             text-align: left;
             justify-content: flex-start;
-            .button {
-                margin: 0 0 0 .5em;
-                white-space: nowrap;
-            }
-        }
-
-        .input {
-            min-width: 16em;
-            @include mobile() {
-                min-width: unset;
-                flex: 1;
-            }
-        }
-
-        .button {
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
         }
 
         &--subforum {
-            .select-classic {
+            font-size: .875em;
+            margin-left: auto;
+            &__input {
+                min-width: 16em;
+                @include mobile() {
+                    min-width: unset;
+                    flex: unset;
+                    width: 100%;
+                }
+            }
+            @include mobile() {
+                flex-wrap: wrap;
+            }
+            &__type {
                 border: none;
                 background: var(--box-color-hover-dark);
                 flex: unset;
                 margin: 0 1px;
                 height: 2.785em;
-            }
-
-            .button {
-                background: var(--bg-darkest-2);
-                border: none;
-                color: var(--box-text-color-dark) !important;
-                font-size: unset;
-                top: 0;
-                padding: .5em 1em;
-                margin: 0;
-                border-radius: 0;
-                border-top-right-radius: .25em;
-                border-bottom-right-radius: .25em;
-
-                &:hover {
-                    filter: brightness(1.1);
+                @include mobile() {
+                    flex: 1;
                 }
             }
-
+        }
+        &--topic {
+            flex: unset;
+            width: 24em;
+            @include mobile() {
+                width: auto;
+                flex-direction: row;
+            }
         }
     }
 
     &__breadcrumbs {
         font-size: 1.125em;
         box-shadow: var(--block-box-shadow);
-        background: var(--box-color-dark);
+        background: var(--overlay-darken);
         border-bottom: 1px solid var(--border-color-dark);
-        padding: 1em 1.25em;
+        width: 100%;
+        padding: .75em 0;
         @include light() {
-            color: unset;
             box-shadow: none;
-            background: none;
-            padding: .75em 0;
             border: none;
         }
         @include mobile() {
@@ -216,19 +193,17 @@
         }
 
         &--bottom {
-            @include light() {
-                padding: 0;
-            }
+            background: var(--overlay-darken);
+            padding: var(--overlay-padding);
+            margin: var(--overlay-margin);
         }
 
         &--with-search {
             display: flex;
             align-items: center;
-            padding: .25em .25em .25em 1.25em;
+            height: 100%;
             @include light() {
                 padding: 0;
-                border: none;
-                margin: .125em 0;
             }
             @include mobile() {
                 flex-wrap: wrap;
@@ -259,9 +234,8 @@
         @include mobile {
             padding: .5em 0;
         }
-
-        &:hover {
-            text-decoration: underline;
+        &:not(.link--active) {
+            @include hover(true);
         }
 
         &:after {
@@ -285,6 +259,8 @@
     }
 
     &__form {
+        margin-top: var(--col-margin);
+        padding-top: 1.25em;
 
         @include mobile() {
             font-size: 0.875em;
@@ -305,10 +281,6 @@
 
     @include mobile() {
         flex-direction: column;
-        margin: 1em 0;
-        @include light() {
-            margin: 0 0 1.25em;
-        }
     }
 
     a {
@@ -395,7 +367,9 @@
         z-index: 1;
         @include mobile() {
             padding: .5em 1em;
+            gap: .5em;
             font-size: .875em;
+            border-bottom: none;
             border-right: none;
             @include light() {
                 padding: 0;
@@ -422,6 +396,9 @@
 
         &__container {
             margin: .5em 1em;
+            @include mobile() {
+                margin: .25em;
+            }
         }
 
         &__description {
@@ -447,7 +424,7 @@
             flex-direction: column;
             align-items: flex-start;
             @include light() {
-                padding: .75em 0;
+                padding: .875em 0;
             }
         }
 
@@ -465,17 +442,27 @@
         &__date {
             font-weight: normal;
             font-size: .875em;
+            @include mobile() {
+                order: 0;
+                font-size: .9375em;
+            }
         }
 
         &__info {
             display: flex;
             flex-direction: column;
+            gap: .25em;
             flex: 1;
             text-align: left;
             padding: 0;
             font-size: 1.125em;
-            @include mobile {
-                align-items: flex-start;
+            @include mobile() {
+                flex-wrap: wrap;
+                width: 100%;
+                font-size: 1em;
+                align-items: center;
+                flex-direction: row;
+                gap: .25em .5em;
             }
         }
 
@@ -493,14 +480,19 @@
             max-width: 22em;
             font-weight: 500;
             @include mobile() {
-                max-width: calc(100vw - 2em);
+                width: 100%;
+                order: 2;
+                font-size: 1.25em;
             }
         }
 
         &__username {
             font-weight: 300;
             font-size: .875em;
-
+            @include mobile() {
+                order: 1;
+                font-size: 1em;
+            }
             &__text {
                 font-weight: bold;
                 color: var(--primary);
@@ -527,7 +519,7 @@
         margin-right: .25em;
         text-align: center;
         line-height: 1.5;
-        border-radius: .25em;
+        border-radius: var(--border-radius-small);
         &--dark {
             background: var(--bg-darkest);
         }
@@ -537,10 +529,13 @@
         box-shadow: var(--block-box-shadow);
         background: var(--box-color);
         padding: 1em;
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5em;
         @include light() {
             box-shadow: none;
             background: none;
-            padding: 1em 0;
+            padding: .75em 0;
             margin: 0 -1em;
         }
         @include mobile() {
@@ -549,8 +544,8 @@
             border-bottom: 1px solid var(--border-color-dark);
             margin: 0;
             @include light() {
-                padding: 1em 0 0;
-                margin: 0 -1em .5em;
+                padding: 1em .5em;
+                margin: 0 -1em;
             }
         }
 
@@ -581,7 +576,6 @@
             @include mobile() {
 
                 @include light() {
-                    margin: .5em 0;
                     display: inline-block;
                 }
             }
@@ -620,37 +614,21 @@
             height: 6em;
             @include mobile() {
                 height: unset;
-                margin: 0 -1em;
+                margin: -2em -1em 0;
             }
         }
 
         &__inner {
             max-width: 1400px;
             margin: 0 auto;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
             @media screen and (max-width: 1367px) {
                 max-width: 1280px;
             }
         }
 
-        .forum-section__title {
-            @include light() {
-                padding: .75em 0 0;
-                font-weight: 400;
-                color: var(--box-text-color-dark);
-                font-size: 1.25em;
-                border: none;
-            }
-            @include mobile() {
-                padding: .75em .75em 0;
-                font-weight: 400;
-                color: var(--box-text-color-dark);
-                font-size: 1.25em;
-                border: none;
-                @include light() {
-                    padding: .625em 0 0;
-                }
-            }
-        }
 
 
     }
@@ -659,12 +637,11 @@
 
 .forum-message {
     display: flex;
-    background: var(--box-color);
     margin: .5em 0;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color)!important;
     font-size: 1.125em;
-    border-radius: .5em;
-    padding: 1em;
+    flex-direction: row;
+    padding: 1em!important;
 
     &:empty {
         display: none;
@@ -673,14 +650,8 @@
     @include mobile() {
         font-size: 1em;
         flex-direction: column;
-        margin: .5em;
         position: relative;
-        width: calc(100% - 1em);
     }
-    @include light() {
-        box-shadow: none;
-    }
-
     iframe {
         max-width: 100%;
     }
@@ -692,13 +663,13 @@
         white-space: nowrap;
         width: 12em;
 
-        @include mobile {
+        @include mobile() {
             z-index: 10;
             width: 100%;
             padding: 0;
             flex-direction: row;
             position: relative;
-            border: none;
+            border-bottom: 1px solid var(--border-color);
         }
     }
 
@@ -707,8 +678,15 @@
         position: relative;
         flex: 2;
         @include mobile {
-            padding: .5em !important;
+            padding: .5em 0 !important;
             border: none !important;
+        }
+
+        .bbQuoteBlock {
+            margin-bottom: var(--col-margin);
+        }
+        .bbQuoteBlock + br {
+            display: none;
         }
 
         .bbQuoteName {
@@ -908,6 +886,8 @@
         margin-left: 1em;
 
         @include mobile {
+            padding-left: 0;
+            margin-left: 0;
             border: none;
             flex: unset;
             width: 100%;
@@ -954,7 +934,6 @@
         padding-top: 1em;
         border-top: 1px solid var(--border-color);
         @include mobile {
-            padding: .5em;
             img {
                 max-height: 3em;
             }
@@ -991,11 +970,11 @@
         }
     }
 
-    @include mobile {
+    @include mobile() {
         &__mobile-left &__avatar {
             display: block;
             width: 2.5em;
-            margin: .5em 0 .5em .5em;
+            margin: 0;
         }
         &__mobile-left &__username {
             display: block;
@@ -1040,6 +1019,11 @@
     position: relative;
     top: -1em;
     margin: 0 1em;
+    @include mobile() {
+        display: block;
+        top: 0;
+        margin: 0 0 .5em;
+    }
 }
 
 
@@ -1062,10 +1046,16 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            @include mobile() {
+                font-size: 1em;
+            }
         }
 
         &__bottom {
             font-size: .9375em;
+            @include mobile() {
+                font-size: .875em;
+            }
         }
     }
 }

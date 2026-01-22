@@ -20,7 +20,7 @@
             <div class="modal-window__text">Вы уверены, что хотите удалить канал?</div>
             <div class="form__bottom">
                 <button class="button button--light" @click="deleteChannel()">ОК</button>
-                <button class="button button--light" @click="$refs.deleteModal.hide()">Отмена</button>
+                <button class="button button--light" @click="deleteModalRef?.hide()">Отмена</button>
                 <response :light="true" :data="deletePanel.response"/>
             </div>
         </modal>
@@ -39,7 +39,7 @@
             </label>
             <div class="form__bottom">
                 <button class="button button--light" @click="mergeChannels()">ОК</button>
-                <button class="button button--light" @click="$refs.mergeModal.hide()">Отмена</button>
+                <button class="button button--light" @click="mergeModalRef?.hide()">Отмена</button>
                 <response :light="true" :data="mergePanel.response"/>
             </div>
         </modal>
@@ -131,249 +131,252 @@
         }
     }
 </style>
-<script>
-    import PictureUploader from '../PictureUploader.vue';
-    import Modal from '../Modal.vue';
-    import Response from '../Response.vue';
-    import Snackbar from '../Snackbar.vue';
+<script setup lang="ts">
+import { ref, computed, onMounted, useTemplateRef } from 'vue';
+import PictureUploader from '../PictureUploader.vue';
+import Modal from '../Modal.vue';
+import Response from '../Response.vue';
+import Snackbar from '../Snackbar.vue';
+import { BTable, BPagination } from 'bootstrap-vue-next'
 
-    export default {
-        computed: {
-            mergeOptions() {
-                let channels = this.mergePanel.channel ? this.channelsList.filter(channel => channel.id !== this.mergePanel.channel.id) : this.channelsList;
-                return channels.map(channel => {
-                    return {id: channel.id, text: channel.name};
-                })
-            }
-        },
-        methods: {
-            setNeedSave(channel) {
-                this.$set(channel, '_need_save', true);
-            },
-            async saveChannelPromise(data) {
-                return new Promise((resolve) => {
-                    $.post('/channels/' + data.id + '/edit', data).done(res => {
-                        resolve(res);
-                    }).fail((xhr) => {
-                        let error = xhr.responseJSON;
-                        resolve({status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message});
-                    })
-                })
-            },
-            async saveChannels() {
-                let channels = this.channelsList.filter(channel => channel._need_save);
-                this.table.loading = true;
-                let hasErrors = false;
-                let lastResponse = null;
-                for (let index in channels) {
-                    if (!hasErrors) {
-                        let channel = channels[index];
-                        let response = await this.saveChannelPromise(channel);
-                        if (response.status) {
-                            channel._need_save = false;
-                            lastResponse = response;
-                        } else {
-                            this.table.response = response;
-                            hasErrors = true;
-                        }
-                    }
-                }
-                if (lastResponse && !hasErrors) {
-                    this.table.response = lastResponse;
-                }
-                this.table.loading = false;
-            },
-            loadLogo() {
-                this.logoPanel.loading = true;
-                let data = {
-                    url: this.logoPanel.data.address,
-                    channel_id: this.logoPanel.channel.id,
-                    tag: 'logo'
-                };
-                $.post(route('pictures.upload'), data) .done((res) => {
-                    if (res.status) {
-                        let pictureData = res.data.picture;
-                        $.post('/channels/' + this.logoPanel.channel.id + '/edit', {
-                            logo_id: pictureData.id
-                        }).done(res => {
-                            this.logoPanel.loading = false;
-                            this.logoPanel.response = res;
-                            if (res.status) {
-                               this.$refs.logoModal.hide();
-                               this.logoPanel.channel.logo = pictureData;
-                            }
-                        }).fail((xhr) => {
-                            this.logoPanel.loading = false;
-                            let error = xhr.responseJSON;
-                            this.logoPanel.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
-                        })
-                    }
-                }).fail((xhr) => {
-                    this.logoPanel.loading = false;
-                    let error = xhr.responseJSON;
-                    this.logoPanel.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
-                })
-            },
-            showLogoModal(channel) {
-                this.logoPanel.response = null;
-                this.logoPanel.channel = channel;
-                this.$refs.logoModal.show();
-            },
-            saveChannel(channel) {
-                let data = JSON.parse(JSON.stringify(channel));
-                this.$set(channel, '_loading', true);
-                $.post('/channels/' + data.id + '/edit', data).done(res => {
-                    this.$set(channel, '_loading', false);
-                    if (res.status) {
+interface ChannelWithIndex extends Models.Channel {
+    _index?: number;
+    _need_save?: boolean;
+    _loading?: boolean;
+}
 
-                    } else {
-                        this.$refs.snackbar.show(res);
-                    }
-                }).fail((xhr) => {
-                    this.$set(channel, '_loading', false);
-                    let error = xhr.responseJSON;
-                    this.$refs.snackbar.show({status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message});
-                })
-            },
-            deleteChannel() {
-                this.deletePanel.loading = true;
-                $.post('/channels/delete', {
-                    channel_id: this.deletePanel.channel.id
-                }).done(res => {
-                    this.deletePanel.loading = false;
-                    if (res.status) {
-                        this.channelsList = this.channelsList.filter(channel => channel.id !== this.deletePanel.channel.id);
-                        this.$refs.deleteModal.hide();
-                    }
-                }).fail((xhr) => {
-                    this.deletePanel.loading = false;
-                    let error = xhr.responseJSON;
-                    this.deletePanel.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
-                })
-            },
-            mergeChannels() {
-                this.mergePanel.loading = true;
-                $.post('/channels/merge', {
-                    original_id: this.mergePanel.channel.id,
-                    merged_id: this.mergePanel.data.merged_id,
-                    is_advertising: this.mergePanel.data.is_advertising
-                }).done(res => {
-                    this.mergePanel.loading = false;
-                    this.mergePanel.response = res;
-                    if (res.status) {
-                        this.$refs.mergeModal.hide();
-                        this.channelsList = this.channelsList.filter(channel => channel.id !== this.mergePanel.channel.id);
-                    }
-                }).fail((xhr) => {
-                    this.mergePanel.loading = false;
-                    let error = xhr.responseJSON;
-                    this.mergePanel.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
-                })
-            },
-            showDeleteModal(channel) {
-                this.deletePanel.response = null;
-                this.deletePanel.channel = channel;
-                this.$refs.deleteModal.show();
-            },
-            showMergeModal(channel) {
-                this.mergePanel.response = null;
-                this.mergePanel.channel = channel;
-                this.$refs.mergeModal.show();
-            },
+interface MergeOption {
+    id: number;
+    text: string;
+}
+
+const props = defineProps<{
+    channels: Models.Channel[];
+}>();
+
+const snackbarRef = useTemplateRef<typeof Snackbar>('snackbar');
+const logoModalRef = useTemplateRef<typeof Modal>('logoModal');
+const deleteModalRef = useTemplateRef<typeof Modal>('deleteModal');
+const mergeModalRef = useTemplateRef<typeof Modal>('mergeModal');
+
+const mergeOptions = computed<MergeOption[]>(() => {
+    const channels = mergePanel.value.channel ? channelsList.value.filter(channel => channel.id !== mergePanel.value.channel?.id) : channelsList.value;
+    return channels.map(channel => {
+        return {id: channel.id, text: channel.name};
+    });
+});
+
+const table = ref({
+    response: null as Forms.Response | null,
+    loading: false,
+    filter: '',
+    currentPage: 1,
+    perPage: 20,
+    fields: [
+        {
+            key: 'name',
+            label: 'Название',
+            sortable: true
         },
-        props: {
-            channels: {
-                type: Array,
-                required: true,
-            },
+        {
+            key: 'is_federal',
+            label: 'Федеральный?',
+            sortable: true
         },
-        data() {
-            return {
-                table: {
-                    response: null,
-                    loading: false,
-                    filter: '',
-                    currentPage: 1,
-                    perPage: 20,
-                    fields: [
-                        {
-                            key: 'name',
-                            label: 'Название',
-                            sortable: true
-                        },
-                        {
-                            key: 'is_federal',
-                            label: 'Федеральный?',
-                            sortable: true
-                        },
-                        {
-                            key: 'is_regional',
-                            label: 'Региональный?',
-                            sortable: true
-                        },
-                        {
-                            key: 'city',
-                            label: 'Город',
-                            sortable: true
-                        },
-                        {
-                            key: 'is_abroad',
-                            label: 'Зарубежный?',
-                            sortable: true
-                        },
-                        {
-                            key: 'country',
-                            label: 'Страна',
-                            sortable: true
-                        },
-                        {
-                            key: 'is_radio',
-                            label: 'Радио?',
-                            sortable: true
-                        },
-                        {
-                            key: '_options',
-                            label: '',
-                            sortable: false
-                        },
-                    ],
-                },
-                logoPanel: {
-                    data: {
-                        address: ''
-                    },
-                    loading: false,
-                    channel: null,
-                    response: null
-                },
-                channelsList: [],
-                mergePanel: {
-                    data: {
-                        merged_id: null,
-                        is_advertising: false
-                    },
-                    loading: false,
-                    channel: null,
-                    response: null
-                },
-                deletePanel: {
-                    loading: false,
-                    channel: null,
-                    response: null
-                }
+        {
+            key: 'is_regional',
+            label: 'Региональный?',
+            sortable: true
+        },
+        {
+            key: 'city',
+            label: 'Город',
+            sortable: true
+        },
+        {
+            key: 'is_abroad',
+            label: 'Зарубежный?',
+            sortable: true
+        },
+        {
+            key: 'country',
+            label: 'Страна',
+            sortable: true
+        },
+        {
+            key: 'is_radio',
+            label: 'Радио?',
+            sortable: true
+        },
+        {
+            key: '_options',
+            label: '',
+            sortable: false
+        },
+    ],
+});
+
+const logoPanel = ref({
+    data: {
+        address: ''
+    },
+    loading: false,
+    channel: null as Models.Channel | null,
+    response: null as Forms.Response | null
+});
+
+const channelsList = ref<ChannelWithIndex[]>([]);
+
+const mergePanel = ref({
+    data: {
+        merged_id: null as number | null,
+        is_advertising: false
+    },
+    loading: false,
+    channel: null as Models.Channel | null,
+    response: null as Forms.Response | null
+});
+
+const deletePanel = ref({
+    loading: false,
+    channel: null as Models.Channel | null,
+    response: null as Forms.Response | null
+});
+
+const setNeedSave = (channel: ChannelWithIndex) => {
+    channel._need_save = true;
+};
+
+const saveChannelPromise = async (data: ChannelWithIndex): Promise<Forms.Response> => {
+    return new Promise((resolve) => {
+        $.post(route('channels.update', data.id), data).done(res => {
+            resolve(res);
+        }).fail((xhr) => {
+            const error = xhr.responseJSON;
+            resolve({status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message});
+        })
+    })
+};
+
+const saveChannels = async () => {
+    const channels = channelsList.value.filter(channel => channel._need_save);
+    table.value.loading = true;
+    let hasErrors = false;
+    let lastResponse: Forms.Response | null = null;
+    for (const channel of channels) {
+        if (!hasErrors) {
+            const response = await saveChannelPromise(channel);
+            if (response.status) {
+                channel._need_save = false;
+                lastResponse = response;
+            } else {
+                table.value.response = response;
+                hasErrors = true;
             }
-        },
-        mounted() {
-            this.channelsList = this.channels.map((channel, index) => {
-                channel._index = index;
-                return channel;
-            })
-        },
-        components: {
-            Snackbar,
-            Response,
-            Modal,
-            PictureUploader,
         }
     }
+    if (lastResponse && !hasErrors) {
+        table.value.response = lastResponse;
+    }
+    table.value.loading = false;
+};
+
+const loadLogo = () => {
+    if (!logoPanel.value.channel) return;
+    logoPanel.value.loading = true;
+    const data = {
+        url: logoPanel.value.data.address,
+        channel_id: logoPanel.value.channel.id,
+        tag: 'logo'
+    };
+    $.post(route('pictures.upload'), data).done((res) => {
+        if (res.status) {
+            const pictureData = res.data.picture;
+            $.post(route('channels.update', logoPanel.value.channel!.id), {
+                logo_id: pictureData.id
+            }).done(res => {
+                logoPanel.value.loading = false;
+                logoPanel.value.response = res;
+                if (res.status) {
+                    logoModalRef.value?.hide();
+                    if (logoPanel.value.channel) {
+                        logoPanel.value.channel.logo = pictureData;
+                    }
+                }
+            }).fail((xhr) => {
+                logoPanel.value.loading = false;
+                const error = xhr.responseJSON;
+                logoPanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+            })
+        }
+    }).fail((xhr) => {
+        logoPanel.value.loading = false;
+        const error = xhr.responseJSON;
+        logoPanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+    })
+};
+
+const showLogoModal = (channel: Models.Channel) => {
+    logoPanel.value.response = null;
+    logoPanel.value.channel = channel;
+    logoModalRef.value?.show();
+};
+
+const deleteChannel = () => {
+    if (!deletePanel.value.channel) return;
+    deletePanel.value.loading = true;
+    $.post(route('channels.delete'), {
+        channel_id: deletePanel.value.channel.id
+    }).done(res => {
+        deletePanel.value.loading = false;
+        if (res.status) {
+            channelsList.value = channelsList.value.filter(channel => channel.id !== deletePanel.value.channel?.id);
+            deleteModalRef.value?.hide();
+        }
+    }).fail((xhr) => {
+        deletePanel.value.loading = false;
+        const error = xhr.responseJSON;
+        deletePanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+    })
+};
+
+const mergeChannels = () => {
+    if (!mergePanel.value.channel) return;
+    mergePanel.value.loading = true;
+    $.post(route('channels.merge'), {
+        original_id: mergePanel.value.channel.id,
+        merged_id: mergePanel.value.data.merged_id,
+        is_advertising: mergePanel.value.data.is_advertising
+    }).done(res => {
+        mergePanel.value.loading = false;
+        mergePanel.value.response = res;
+        if (res.status) {
+            mergeModalRef.value?.hide();
+            channelsList.value = channelsList.value.filter(channel => channel.id !== mergePanel.value.channel?.id);
+        }
+    }).fail((xhr) => {
+        mergePanel.value.loading = false;
+        const error = xhr.responseJSON;
+        mergePanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+    })
+};
+
+const showDeleteModal = (channel: Models.Channel) => {
+    deletePanel.value.response = null;
+    deletePanel.value.channel = channel;
+    deleteModalRef.value?.show();
+};
+
+const showMergeModal = (channel: Models.Channel) => {
+    mergePanel.value.response = null;
+    mergePanel.value.channel = channel;
+    mergeModalRef.value?.show();
+};
+
+onMounted(() => {
+    channelsList.value = props.channels.map((channel, index) => {
+        (channel as ChannelWithIndex)._index = index;
+        return channel as ChannelWithIndex;
+    });
+});
 </script>

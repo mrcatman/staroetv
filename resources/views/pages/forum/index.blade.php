@@ -17,19 +17,7 @@
                                     <a class="button" href="{{route('forum.subforums.new', 0)}}">Новый форум</a>
                                 @endif
                             </div>
-                            <form action="{{route('forum.index')}}" method="GET"
-                                  class="forum-section__search forum-section__search--subforum">
-                                <input placeholder="Поиск по форуму" class="input" name="s" value="{{$search}}">
-                                <select class="select-classic" name="type">
-                                    <option value="topics"
-                                            @if (!isset($messages_view) || !$messages_view) selected @endif>Темы
-                                    </option>
-                                    <option value="messages"
-                                            @if (isset($messages_view) && $messages_view) selected @endif>Сообщения
-                                    </option>
-                                </select>
-                                <button type="submit" class="button"><i class="fa fa-search"></i>Искать</button>
-                            </form>
+                            @include('blocks.forum.search')
                         </div>
                     </div>
                 </div>

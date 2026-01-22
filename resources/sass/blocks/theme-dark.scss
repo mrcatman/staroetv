@@ -6,19 +6,27 @@
     --border-color: #444444;
     --box-color-hover: #1b1b1b;
     --bg-darker: #292929;
-    --inputs-color: --bg-darker;
+    --inputs-color: #121212;
     --bg-darkest: #777;
-    --box-color-dark: #282828;
+    --box-color-dark: #222;
     --box-text-color-dark: #fff;
-    --box-color-hover-dark: #333;
+    --box-color-hover-dark: #222;
     --clickable-block-color-dark: #444;
     --border-color-dark: #454545;
-    --preloader-bg-color: rgba(255, 255, 255, .25);
+    --preloader-bg-color: rgba(0, 0, 0, .25);
     --text-lighter: #dfdfdf;
     --text-lightest: #777;
     --links-color: #eee;
     --box-color: linear-gradient(#191714, #0e0d0d);
     --block-box-shadow: 0 .25em 2.5em 0.25em #e1af701f;
+    --input-box-shadow: 0 0 .25em inset rgba(63, 57, 54, 0.71), 0 .5em 1.75em -.5em rgba(17, 15, 14, 0.66);
+    --element-box-shadow: 0 .5em 1em -1em inset rgba(23, 22, 21, 0.58), 0 1em 1.75em -.25em rgba(26, 18, 11, 0.63);
+    --button-box-shadow: 0 .5em 1.75em -.75em #ff6b02;
+    --button-text-shadow: 0 .125em .75em rgba(38, 29, 23, 0.78);
+    --overlay-darken: rgba(0, 0, 0, .25);
+    --overlay-darken-2: rgba(0, 0, 0, .4);
+    --overlay-margin: -1.125em -1.125em 0;
+    --overlay-padding: 1em 1.25em;
     --text-color: #d8d8d8;
     --button-active-text: #fff;
     --site-background-color: #120f0d;
@@ -32,6 +40,10 @@
     --col-margin: .75em;
     --font-main: "Literata", sans-serif;
     --font-texts: "Literata", serif;
+    --big-texts-shadow: 0 .25em .5em #000;
+    --border-color-second: #222;
+
+    line-height: 1.45;
 
     .input-container__message {
         color: #fff;
@@ -91,20 +103,7 @@
         }
     }
 
-    .modal-window {
-        &__title {
-            font-size: 1.25em;
-            font-weight: bold;
-        }
-        &__close {
-            top: 0;
-            right: 0;
-            width: 2em;
-            height: 2em;
-            font-size: 1.25em;
-            line-height: 1.75;
-        }
-    }
+
 
     .footer {
         &__copyright {
@@ -135,20 +134,6 @@
         }
 
     }
-    .channel-item:after  {
-        position: absolute;
-        top: 1.5em;
-        left: 1em;
-        width: calc(100% - 2em);
-        height: calc(100% - 5em);
-        background: #fff;
-        content: "";
-        display: block;
-        z-index: 0;
-        opacity: 0.25;
-        transition: all 0.25s;
-        filter: blur(2em);
-    }
 
     .forum-message {
         &__content {
@@ -170,12 +155,6 @@
             background: none;
             &:before {
                 display: none;
-            }
-            &__outer {
-                height: 10.5em;
-                @include mobile() {
-                    height: unset;
-                }
             }
         }
 
@@ -217,14 +196,6 @@
     }
     .articles-list__block--right .news-block {
         overflow: hidden;
-    }
-
-    .news-block__short-content {
-        line-height: 1.25;
-    }
-
-    .articles-list__block--right {
-        height: 49em;
     }
 
 }

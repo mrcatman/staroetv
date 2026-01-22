@@ -4,7 +4,7 @@
     flex-wrap: wrap;
     align-items: center;
     width: 100%;
-    gap: calc(var(--col-margin) * 1.25);
+    gap: var(--col-margin);
     @include mobile() {
         font-size: 1em;
     }
@@ -17,8 +17,13 @@
     display: inline-flex;
     align-items: center;
     gap: .5em;
+    &--complaint {
+        color: #f00;
+    }
     &__text {
         line-height: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     &__picture {
@@ -28,6 +33,9 @@
         background-position: center;
         background-repeat: no-repeat;
     }
+}
+a.icon-block {
+    cursor: pointer;
 }
 a.icon-block:hover {
     @include hover;

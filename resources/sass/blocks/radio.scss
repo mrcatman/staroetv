@@ -3,6 +3,7 @@
     color: inherit;
     display: flex;
     align-items: center;
+    gap: var(--col-margin);
     transition: all .25s;
     width: 100%;
     &--pending {
@@ -14,6 +15,8 @@
     }
 
     &__button {
+        text-decoration: none;
+        border-radius: var(--border-radius-small);
         color: #fff;
         width: 4em;
         height: 4em;
@@ -24,17 +27,18 @@
     }
 
     &__title {
+        text-decoration: none;
         font-size: 1.25em;
         font-weight: 600;
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 3;
         overflow: hidden;
+        color: inherit;
     }
 
     &__texts {
-        max-width: calc(100% - 5em);
-        margin: 0 0 0 1em;
+        flex: 1;
     }
 
     &__info {

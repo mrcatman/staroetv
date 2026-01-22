@@ -33,15 +33,14 @@
                 <div class="input-container">
                     <label class="input-container__label">Текст<span class="input-container__required">*</span></label>
                     <div class="input-container__inner">
-                        <textarea id="editor" class="input input--textarea"
-                                  name="content">{{$page ? $page->content : ""}}</textarea>
+                        <tiptap-editor name="content" :content='@json($page ? $page->content : '')'></tiptap-editor>
                         <span class="input-container__message"></span>
                     </div>
                 </div>
                 <div class="input-container">
                     <label class="input-container__label">Смотреть страницу могут:</label>
                     <div class="input-container__inner">
-                        @include('blocks/user_groups_select', ['name' => 'can_read', 'data' => $page ? $page->can_read : "0"])
+                        @include('blocks.forms.user-groups-select', ['name' => 'can_read', 'data' => $page ? $page->can_read : "0"])
                         <span class="input-container__message"></span>
                     </div>
                 </div>

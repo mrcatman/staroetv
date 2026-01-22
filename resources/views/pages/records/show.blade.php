@@ -21,7 +21,7 @@
                        href="{{typed_route('records.[RECORD].commercials', $record->is_radio)}}">Реклама</a>
                     @if ($record->advertising_brand != '')
                         <a class="breadcrumbs__item"
-                           href="{{route('records.'.$record->route_prefix.'.commercials-search', ['id' => $record->id])}}">{{$record->advertising_brand}}</a>
+                           href="{{route('records.'.$record->route_prefix.'.commercials.search', ['id' => $record->id])}}">{{$record->advertising_brand}}</a>
                     @endif
                 @endif
                 @if (!$record->channel && !$record->is_advertising)
@@ -40,7 +40,7 @@
                 @endif
                 @if ($record->program)
                     <a class="breadcrumbs__item"
-                       href="{{$record->program->full_url}}@if($changed_name)?from={{$record->channel_id}}@endif">{{$record->program->name}}</a>
+                       href="{{$record->program->full_url}}?from={{$record->channel_id}}">{{$record->program->name}}</a>
                 @endif
             </div>
             <div class="box__heading">
@@ -67,7 +67,7 @@
                                     <a class="button--dropdown__list__item"
                                        data-confirm-form-input-value="{{$record->id}}"
                                        data-confirm-form-text="Вы уверены, что хотите загрузить эту запись в хранилище сайта из внешнего источника?"
-                                       data-confirm-form-url="{{route('records.download', $record->id)}}">Загрузить на сайт</a>
+                                       data-confirm-form-url="{{route('records.download')}}">Загрузить на сайт</a>
                                     <a class="button--dropdown__list__item" data-show-modal="#update_telegram_id">Указать Telegram ID видео</a>
                                 @endif
                                 @if (!$record->is_radio)
@@ -167,21 +167,24 @@
     </div>
     @if ($record->can_edit)
         <div id="update_preview" data-title="Обновить превью" style="display:none">
-            <form action="/records/screenshot" class="form modal-window__form" data-reset="1" data-auto-close-modal="1">
-                <input type="hidden" name="record_id" value="{{$record->id}}"/>
-                @if ($record->use_own_player)
-                    <div class="input-container input-container--vertical">
-                        <label class="input-container__label">Время, с которого брать кадр (в секундах,
-                            опционально)</label>
-                        <div class="input-container__inner">
-                            <input class="input" name="seconds"/>
+            <form action="{{route('records.thumbnail')}}" class="form modal-window__form" data-reset="1" data-auto-close-modal="1">
+                <div class="form__content">
+                    <input type="hidden" name="record_id" value="{{$record->id}}"/>
+                    @if ($record->use_own_player)
+                        <div class="input-container input-container--vertical">
+                            <label class="input-container__label">Время, с которого брать кадр (в секундах,
+                                опционально)</label>
+                            <div class="input-container__inner">
+                                <input class="input" name="seconds"/>
+                            </div>
                         </div>
-                    </div>
-                @else
-                    <br>
-                    Превью будет обновлено из источника: <a target="_blank" href="{{$record->original_url}}">{{$record->original_url}}</a>
-                    <br> <br> <br>
-                @endif
+                    @else
+                        <div class="modal-window__text">
+                            Превью будет обновлено из источника: <a target="_blank" href="{{$record->original_url}}">{{$record->original_url}}</a>
+                        </div>
+                    @endif
+                </div>
+
                 <div class="form__bottom">
                     <button class="button button--light">Ок</button>
                     <div class="response response--light"></div>
@@ -199,10 +202,56 @@
                     </div>
                 </div>
                 <div class="form__bottom">
-                    <button class="button button--light">Ок</button>
+                    <button class="button button--light">ОК</button>
                     <div class="response response--light"></div>
                 </div>
             </form>
         </div>
     @endif
+
+    <div id="record_complaint" data-title="Пожаловаться на видео" style="display:none">
+        <form action="{{route('records.complaint')}}" class="form modal-window__form" data-reset="1"
+              data-auto-close-modal="1">
+            <div class="form__content">
+                <input type="hidden" name="record_id" value="{{$record->id}}"/>
+                <div class="radio-buttons">
+                    <label class="radio-button">
+                        <input type="radio" checked name="type" value="{{\App\Constants\RecordComplaintTypes::PlayerNotWorking}}"/>
+                        <div class="radio-button__circle"></div>
+                        <div class="radio-button__text">Запись не грузится или удалена</div>
+                    </label>
+                    <label class="radio-button">
+                        <input type="radio" name="type" value="{{\App\Constants\RecordComplaintTypes::CopyrightIssues}}"/>
+                        <div class="radio-button__circle"></div>
+                        <div class="radio-button__text">Авторские права</div>
+                    </label>
+                    <label class="radio-button">
+                        <input type="radio" name="type" value="{{\App\Constants\RecordComplaintTypes::Other}}"/>
+                        <div class="radio-button__circle"></div>
+                        <div class="radio-button__text">Другое</div>
+                    </label>
+                </div>
+                @if (!auth()->user())
+                    <div class="input-container input-container--vertical" style="display: none">
+                        <label class="input-container__label">Контакт для связи (почта, соцсеть, мессенджер)</label>
+                        <div class="input-container__inner">
+                            <input class="input" name="contact" />
+                        </div>
+                    </div>
+                @endif
+                <div class="input-container input-container--vertical">
+                    <label class="input-container__label">Подробности (необязательно)</label>
+                    <div class="input-container__inner">
+                        <textarea class="input" name="description"></textarea>
+                    </div>
+                </div>
+                <div class="form__bottom">
+                    <button class="button button--light">ОК</button>
+                    <div class="response response--light"></div>
+                </div>
+
+            </div>
+
+        </form>
+    </div>
 @endsection

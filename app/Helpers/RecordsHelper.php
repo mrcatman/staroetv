@@ -48,6 +48,10 @@ class RecordsHelper {
             $records = $records->doesntHave('channel');
             unset($conditions['channel_unknown']);
         }
+        if (isset($conditions['program_unknown']) && $conditions['program_unknown'] === true) {
+            $records = $records->doesntHave('program');
+            unset($conditions['program_unknown']);
+        }
         if (isset($conditions['is_selected']) && $conditions['is_selected'] === false) {
             $records = $records->where(function($q) {
                 $q->where(['is_selected' => false]);
@@ -91,9 +95,9 @@ class RecordsHelper {
         }
         $records = self::getQuery($conditions);
         $search = "";
-        if (request()->has('search')) {
+        if (request()->input('search') != '') {
             $search = request()->input('search');
-            $records = $records->where('title', 'LIKE', '%' . $search . '%');
+            $records = $records->search(request()->input('search'));
         }
 
         $years = null;
@@ -118,8 +122,9 @@ class RecordsHelper {
             ksort($years);
         }
         $records = $records->orderBy($sort_field, $sort_order);
-        $count = $records->count();
         $list = $records->paginate(36);
+        $count = $list->total();
+
         return [
             'query_params' => $query_params,
             'base_url' => $base_url,

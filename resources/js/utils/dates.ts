@@ -1,9 +1,9 @@
-import {monthNamesToNumbers, monthNamesToNumbersGenitive} from "@/consts.js";
+import { monthNames, monthNamesToNumbers, monthNamesToNumbersGenitive } from "@/consts";
 
 export const parseDate = (dateString: string): { day: number, month: number, year: number } => {
     let year, month, day: number;
     if (dateString !== "") {
-        dateString = dateString.split(";")[0].replace("–", "-");
+        dateString = dateString.replace('~','').split(";")[0].replace("–", "-");
 
         const splittedMin = dateString.split("-");
         if (splittedMin.length === 2) {
@@ -51,9 +51,32 @@ export const getYearOptions = () => {
     return years;
 }
 
+export const getMonthOptions = () => {
+    const months = [{id: -1, text: 'Неизвестно'}];
+    for (let i = 1; i <= 12; i++) {
+        months.push({id: i, text: monthNames[i - 1]});
+    }
+    return months;
+}
+
 export const getDaysInMonth = (year: number) => {
     const isLeapYear = year > 0 && ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
     return [
         31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
     ];
+}
+
+export const defaultDate = (): Common.Date  => {
+    return {
+        year: -1,
+        month: -1,
+        day: -1,
+        range: false,
+        year_start: -1,
+        month_start: -1,
+        day_start: -1,
+        year_end: -1,
+        month_end: -1,
+        day_end: -1,
+    }
 }

@@ -1,776 +1,805 @@
 <template>
-    <form @submit="onSubmit" ref="form" method="GET" :action="action" class="records-search--container">
-        <div class="records-search">
-            <div class="records-search__inner">
-                <div class="records-search__input-container">
-                    <input v-model="data.search" class="input" placeholder="Поиск по записям" name="search"/>
-                </div>
-                <button class="button button--light">Найти</button>
-                <a class="records-search__expand" @click="extend()">
-                    <span class="records-search__expand__inner">
-                        {{showExtended ? "Свернуть расширенный поиск" : "Расширенный поиск"}}
-                    </span>
-                </a>
-            </div>
-            <div class="records-search__extended" v-show="showExtended" v-if="loaded">
-                <div class="records-search__extended__row">
-                    <div class="inputs-line">
-                        <div class="inputs-line__item">
-                            <div class="inputs-line__item__title">{{isRadio ? "Радиостанции" : "Каналы"}}</div>
-                            <div class="input-container__overlay-outer">
-                                <div class="input-container__disabled-overlay" v-if="isAdvertising"></div>
-                                <div class="input-container__loading-text" v-if="channels.loading">Загрузка...</div>
-                                <input type="hidden" name="channels" :value="selectedChannelsIds" />
-                                <select2 :customOptions="channels.selectOptions" v-if="!channels.loading" multiple :options="channels.list" v-model="channels.selected"></select2>
+    <div class="row row--align-start records-search">
+        <div class="col col--sidebar records-search__filters" :class="showFilters ? 'records-search__filters--opened' : ''">
+            <div class="box">
+                <div class="box__inner">
+                    <div class="form__content records-search__filters__inner">
+                        <div class="form__content records-search__filters__main">
+                            <div
+                                class="radio-buttons radio-buttons--tabs radio-buttons--tabs-one-line records-search__type">
+                                <label class="radio-button radio-button--tabs">
+                                    <input type="radio" v-model="form.is_radio" name="is_radio" :value="false"/>
+                                    <div class="radio-button--tabs__variant">ТВ</div>
+                                </label>
+                                <label class="radio-button radio-button--tabs">
+                                    <input type="radio" v-model="form.is_radio" name="is_radio" :value="true"/>
+                                    <div class="radio-button--tabs__variant">Радио</div>
+                                </label>
                             </div>
-                            <div class="input-container__toggle-buttons">
-                                <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': isAdvertising}" @click="isAdvertising = !isAdvertising">Реклама</a>
+
+                            <div class="input-container records-search__input-container">
+                                <div class="input-container__inner">
+                                    <input ref="title" class="input" placeholder="Поиск по названиям, описаниям и т.д."
+                                           v-model="form.search" @keyup.enter="reload()"/>
+                                </div>
                             </div>
                         </div>
-                        <div class="inputs-line__item" v-if="channels.selected.length > 0">
-                            <div class="inputs-line__item__title">Программа</div>
-                            <div class="input-container__overlay-outer">
-                                <div class="input-container__disabled-overlay" v-if="isInterprogram || isAdvertising"></div>
-                                <div class="input-container__loading-text" v-if="programs.loading">Загрузка...</div>
-                                <input type="hidden" name="programs" :value="selectedProgramsIds" />
-                                <select2 v-if="!programs.loading" multiple :options="programs.list" v-model="programs.selected"></select2>
+
+
+                        <a class="button button--light button--block records-search__toggle"
+                           @click="showFilters = !showFilters">
+                            <template v-if="showFilters">
+                                <i class="fa fa-chevron-up"></i> Свернуть фильтры
+                            </template>
+                            <template v-else>
+                                <i class="fa fa-chevron-down"></i> Развернуть фильтры
+                            </template>
+                        </a>
+
+                        <component :is="isMobile ? 'div' : 'template'"
+                                   :class="showFilters ? 'form__content records-search__filters__advanced' : ''"
+                                   v-if="showFilters">
+                            <component :is="isMobile ? 'div' : 'template'"
+                                       :class="showFilters ? 'form__content records-search__filters__advanced__inner' : ''">
+
+                                <records-search-filter
+                                    v-if="!commercials"
+                                    title="Тип записи"
+                                    v-model:opened="opened.type"
+                                    :show-reset="form.type !== null"
+                                    @reset="() => form.type = null"
+                                >
+                                    <div class="radio-buttons">
+                                        <label class="radio-button">
+                                            <input type="radio" v-model="form.type" name="type" :value="null"/>
+                                            <div class="radio-button__circle"></div>
+                                            <div class="radio-button__text">Все</div>
+                                        </label>
+                                        <label class="radio-button">
+                                            <input type="radio" v-model="form.type" name="type" value="programs"/>
+                                            <div class="radio-button__circle"></div>
+                                            <div class="radio-button__text">Передача</div>
+                                        </label>
+                                        <label class="radio-button">
+                                            <input type="radio" v-model="form.type" name="type" value="interprogram"/>
+                                            <div class="radio-button__circle"></div>
+                                            <div class="radio-button__text">
+                                                {{
+                                                    form.is_radio ? 'Джингл, перебивка и т.д.' : 'Заставка канала, анонс и т.д.'
+                                                }}
+                                            </div>
+                                        </label>
+                                        <label class="radio-button">
+                                            <input type="radio" v-model="form.type" name="type" value="advertising"/>
+                                            <div class="radio-button__circle"></div>
+                                            <div class="radio-button__text">Рекламный ролик</div>
+                                        </label>
+                                        <label class="radio-button">
+                                            <input type="radio" v-model="form.type" name="type" value="program-design"/>
+                                            <div class="radio-button__circle"></div>
+                                            <div class="radio-button__text">Заставка передачи</div>
+                                        </label>
+                                        <label class="radio-button">
+                                            <input type="radio" v-model="form.type" name="type" value="other"/>
+                                            <div class="radio-button__circle"></div>
+                                            <div class="radio-button__text">Прочее</div>
+                                        </label>
+                                    </div>
+                                </records-search-filter>
+                                <records-search-filter
+                                    v-show="form.type === 'advertising'"
+                                    title="Тип рекламы"
+                                    v-model:opened="opened.advertising_type"
+                                    :show-reset="form.advertising_type !== null"
+                                    @reset="() => form.advertising_type = null"
+                                >
+                                    <div class="radio-buttons">
+                                        <label class="radio-button">
+                                            <input type="radio" v-model="form.advertising_type" name="advertising_type"
+                                                   :value="null">
+                                            <div class="radio-button__circle"></div>
+                                            <div class="radio-button__text">Любой</div>
+                                        </label>
+                                        <label class="radio-button" v-for="type in categoriesStore.advertisingTypes">
+                                            <input type="radio" v-model="form.advertising_type" name="advertising_type"
+                                                   :value="type.id">
+                                            <div class="radio-button__circle"></div>
+                                            <div class="radio-button__text">{{ type.text }}</div>
+                                        </label>
+                                    </div>
+                                </records-search-filter>
+
+                                <records-search-filter
+                                    title="Дата выхода"
+                                    v-model:opened="opened.date"
+                                    :show-reset="form.date.year > 0 || form.date.year_start > 0 || form.date.year_end > 0"
+                                    @reset="() => form.date = defaultDate()"
+                                >
+                                    <date-select
+                                        v-model="form.date"
+                                        :range="form.date.range"
+                                        :only-years="['advertising', 'interprogram', 'program-design'].includes(form.type)"
+                                        search
+                                    />
+
+                                    <div class="input-container__toggle-buttons">
+                                        <a class="input-container__toggle-button" v-if="!form.date.range"
+                                           @click="form.date.range = true">Указать временной промежуток
+                                        </a>
+                                        <a class="input-container__toggle-button" v-else
+                                           @click="form.date.range = false">
+                                            Указать конкретную дату
+                                        </a>
+                                    </div>
+                                    <div class="categories-list categories-list--multiline records-search__periods">
+                                        <a class="category" v-for="period in periods"
+                                           @click="setPeriod(period)">{{ period.name }}</a>
+                                    </div>
+                                </records-search-filter>
+                                <records-search-filter
+                                    v-show="form.type !== 'advertising' && form.type !== 'other'"
+                                    v-model:opened="opened.channels"
+                                    :title="form.is_radio ? 'Радиостанции' : 'Каналы'"
+                                    :show-reset="!!form.channels.length"
+                                    @reset="() => form.channels = []"
+                                >
+                                    <records-search-multiselect
+                                        v-model="form.channels"
+                                        :items="channels"
+                                        :counts="counts.channels"
+                                        :loading="channelsStore.loading"
+                                    />
+                                </records-search-filter>
+
+                                <records-search-filter
+                                    v-show="form.channels.length && form.type !== 'interprogram'"
+                                    title="Программы"
+                                    v-model:opened="opened.programs"
+                                    :show-reset="!!form.programs.length"
+                                    @reset="() => form.programs = []"
+                                >
+                                    <records-search-multiselect
+                                        v-model="form.programs"
+                                        :items="programs"
+                                        :counts="counts.programs"
+                                        :loading="programsStore.loading"
+                                    />
+                                </records-search-filter>
+
+                                <records-search-filter
+                                    v-show="form.type === 'advertising'"
+                                    title="Категории"
+                                    v-model:opened="opened.advertising_categories"
+                                    :show-reset="!!form.advertising_categories.length"
+                                    @reset="() => form.advertising_categories = []"
+                                >
+                                    <records-search-multiselect
+                                        ref="multiselect_categories"
+                                        v-model="form.advertising_categories"
+                                        :counts="counts?.advertising_categories"
+                                        :items="itemsFromCountsCategories"
+                                        :get-page="!counts?.advertising_categories ? (page, term) => getAdvertisingCategories(page, term) : null"
+                                    />
+                                </records-search-filter>
+
+                                <records-search-filter
+                                    v-show="form.type === 'advertising'"
+                                    title="Бренды"
+                                    v-model:opened="opened.advertising_brands"
+                                    :show-reset="!!form.advertising_brands.length"
+                                    @reset="() => form.advertising_brands = []"
+                                >
+                                    <records-search-multiselect
+                                        ref="multiselect_brands"
+                                        v-model="form.advertising_brands"
+                                        :counts="counts?.advertising_brands"
+                                        :items="itemsFromCountsBrands"
+                                        :get-page="!counts?.advertising_brands ? (page, term) => getAdvertisingBrands(page, term) : null"
+                                    />
+                                </records-search-filter>
+
+                                <records-search-filter
+                                    v-show="form.type === 'advertising'"
+                                    title="Регионы"
+                                    v-model:opened="opened.advertising_regions"
+                                    :show-reset="!!form.advertising_regions.length"
+                                    @reset="() => form.advertising_regions = []"
+                                >
+                                    <records-search-multiselect
+                                        ref="multiselect_regions"
+                                        v-model="form.advertising_regions"
+                                        :counts="counts?.advertising_regions"
+                                        :items="itemsFromCountsRegions"
+                                        :get-page="!counts?.advertising_regions ? (page, term) => getAdvertisingRegions(page, term) : null"
+                                    />
+                                </records-search-filter>
+
+                                <records-search-filter
+                                    v-show="form.type === 'advertising'"
+                                    title="Страны"
+                                    v-model:opened="opened.advertising_countries"
+                                    :show-reset="!!form.advertising_countries.length"
+                                    @reset="() => form.advertising_countries = []"
+                                >
+                                    <records-search-multiselect
+                                        ref="multiselect_countries"
+                                        v-model="form.advertising_countries"
+                                        :counts="counts?.advertising_countries"
+                                        :items="itemsFromCountsCountries"
+                                        :get-page="!counts?.advertising_countries ? (page, term) => getAdvertisingCountries(page, term) : null"
+                                    />
+                                </records-search-filter>
+                            </component>
+                            <div class="records-search__filters__advanced__bottom">
+                                <a class="button button--big button--block" @click="load(true)">
+                                    <i class="fa fa-search"></i>
+                                    Поиск
+                                </a>
                             </div>
-                            <div class="input-container__toggle-buttons">
-                                <a title="Заставки, анонсы и т.д." class="input-container__toggle-button" :class="{'input-container__toggle-button--active': isInterprogram}" @click="isInterprogram = !isInterprogram">Межпрограммное пространство</a>
-                            </div>
-                        </div>
-                        <div class="records-search__dates">
-                            <div class="inputs-line" v-if="!datesRange">
-                                <div class="inputs-line__item">
-                                    <div class="inputs-line__item__title">Год</div>
-                                    <select2 theme="default" :options="yearOptions" v-model="dates.year"></select2>
-                                </div>
-                                <div class="inputs-line__item">
-                                    <div class="inputs-line__item__title">Месяц</div>
-                                    <select2 theme="default" :options="monthOptions" v-model="dates.month"></select2>
-                                </div>
-                                <div class="inputs-line__item">
-                                    <div class="inputs-line__item__title">День</div>
-                                    <select2 theme="default" :options="dayOptions" v-model="dates.day"></select2>
-                                </div>
-                            </div>
-                            <div class="inputs-line" v-else>
-                                <div class="inputs-line__item">
-                                    <div class="inputs-line__item__title">От</div>
-                                    <Datepicker :disabledDates="disabledDates" v-model="range.start"/>
-                                </div>
-                                <div class="inputs-line__item">
-                                    <div class="inputs-line__item__title">И до</div>
-                                    <Datepicker :disabledDates="disabledDates" v-model="range.end"/>
-                                </div>
-                            </div>
-                            <div class="input-container__toggle-buttons">
-                                <a class="input-container__toggle-button" :class="{'input-container__toggle-button--active': datesRange}" @click="datesRange = !datesRange">Выбрать диапазон дат</a>
-                            </div>
-                        </div>
+                        </component>
                     </div>
-                </div>
-                <div class="records-search__sort">
-                    <span class="records-search__sort__title">Сортировать по: </span>
-                    <a class="records-search__sort__option" :class="{'records-search__sort__option--active': data.sort === option.key}" @click="setSort(option)" :key="$index" v-for="(option, $index) in sortOptions">
-                        <span class="records-search__sort__option__title">{{option.title}}</span>
-                        <span class="records-search__sort__option__arrow" v-if="data.sort === option.key">{{data.sort_order === 'asc' ? '↑' : '↓'}}</span>
-                    </a>
                 </div>
             </div>
         </div>
-        <div class="records-search__result" v-if="showResults">
-            <div class="form__preloader" v-show="isLoading"><img src="/resources/images/ajax.gif"></div>
-            <div class="records-search__programs" v-if="programsList && programsList.length > 0">
-                <a :href="'/programs/' + program.id" class="program" v-for="program in programsList" :key="program.id">
-                    <div class="program__cover">
-                        <div class="program__cover__foreground" :style="{backgroundImage: `url(${program.cover})`}"></div>
-                        <div class="program__cover__background" :style="{backgroundImage: `url(${program.cover})`}"></div>
+        <div class="col col--2-5 records-search__results">
+            <response v-if="error"
+                      :data="{status: 0, text: 'Ошибка сервера, попробуйте позже или напишите на форуме'}"/>
+            <template v-else>
+                <!--
+                <div class="box">
+                    <div class="box__inner">
+                        <div class="records-search__result" v-if="showResults">
+
+                        </div>
                     </div>
-                    <div class="program__name">{{program.name}}</div>
-                </a>
-            </div>
-            <div class="row">
+                </div>
+                -->
                 <div class="box box--dark">
                     <div class="box__inner">
-                        <div class="records-list__pager-container records-list__pager-container--top" v-show="resultsList.last_page > 1">
-                            <pagination :limit="3" :data="resultsList" @pagination-change-page="getResults"></pagination>
+                        <preloader v-if="loading"/>
+                        <div class="records-list__filters">
+                            <div class="records-list__sort">
+                                <div class="top-list records-list__sort__items records-search__sort">
+                                    <span class="records-search__total" v-if="results?.total > 0">
+                                         {{
+                                            declination(results.total, ['Найдена [number] запись', 'Найдено [number] записи', 'Найдено [number] записей'])
+                                        }}
+                                    </span>
+                                    <a class="top-list__item"
+                                       :class="{'top-list__item--active': form.sort === option.key}"
+                                       @click="setSort(option)" :key="$index" v-for="(option, $index) in sortOptions">
+                                        {{ option.title }}
+                                        <template v-if="form.sort === option.key">
+                                            {{ form.sort_order === 'asc' ? '↑' : '↓' }}
+                                        </template>
+                                    </a>
+                                </div>
+
+                            </div>
                         </div>
-                        <div class="records-search__nothing-found" v-if=" resultsList.data.length === 0">
+
+                        <div class="records-search__nothing-found" v-if="results?.data?.length === 0">
                             По вашему запросу ничего не найдено
                         </div>
-                        <div v-if="isRadio" class="records-list">
-                            <a :href="record.url"  v-for="(record) in resultsList.data" :key="record.id" class="radio-recording">
-                                <div class="radio-recording__button">
-                                    <i class="fa fa-play"></i>
-                                </div>
-                                <div class="radio-recording__texts">
-                                    <span v-html="getHighlights(record.title)" class="radio-recording__title"></span>
-                                    <div class="radio-recording__timecodes">
-                                        <div class="radio-recording__timecodes__line" v-for="(line, $index) in getDescriptionHighlights(record.description)" :key="$index">
-                                            <i class="fa fa-play"></i>
-                                            <span class="radio-recording__timecodes__line__text" v-html="getHighlights(line, true)"></span>
-                                        </div>
-                                    </div>
-                                    <!--
-                                    <div class="radio-recording__info">
-                                        <span class="radio-recording__date">
-                                            <i class="fa fa-calendar"></i>{{record.created_at}}
-                                        </span>
-                                        <span class="radio-recording__listens">
-                                            <i class="fa fa-headphones-alt"></i>{{record.views}}
-                                        </span>
-                                    </div>
-                                    -->
-                                </div>
-                            </a>
+                        <div class="programs-list records-search__programs" v-if="displayPrograms?.length">
+                            <programs-item v-for="program in displayPrograms" :program="program"/>
                         </div>
-                        <div v-else class="records-list">
-                            <a :href="record.url" v-for="(record) in resultsList.data" :key="record.id" class="record-item">
-                                <div class="record-item__cover" :style="{backgroundImage: `url(${record.cover})`}"></div>
-                                <div class="record-item__texts">
-                                    <span v-html="getHighlights(record.title)" class="record-item__title"></span>
+
+                        <div class="records-list" :class="{'records-list--thumbs': !form.is_radio}">
+                            <records-item v-for="record in results.data" :key="record.id" :record="record">
+                                <template #title>
+                                    <span v-html="highlight(record.title, search)"></span>
+                                </template>
+                                <template #description>
                                     <div class="record-item__timecodes">
-                                        <div class="record-item__timecodes__line" v-for="(line, $index) in getDescriptionHighlights(record.description)" :key="$index">
-                                            <i class="fa fa-play"></i>
-                                            <span class="record-item__timecodes__line__text" v-html="getHighlights(line, true)"></span>
-                                        </div>
+                                        <a :href="`${record.url}?start=${getStartTimeFromTimecodeLine(line)}`"
+                                           class="record-item__timecodes__line"
+                                           v-for="(line, $index) in highlightDescription(record.description, search)"
+                                           :key="$index" v-html="highlight(line, search, true)">
+                                        </a>
                                     </div>
-                                   <!-- <div class="record-item__info">
-                                        <span class="record-item__date"><i class="fa fa-calendar"></i>{{record.created_at}}</span>
-                                        <span class="record-item__views"><i class="fa fa-eye"></i>{{record.views}}</span>
-                                    </div> -->
-                                </div>
-                            </a>
-                        </div>
-                        <div class="records-list__pager-container" v-show="resultsList.last_page > 1">
-                            <pagination :limit="3" :data="resultsList" @pagination-change-page="getResults"></pagination>
+                                </template>
+                            </records-item>
                         </div>
                     </div>
+                    <div class="box__pager" v-show="results?.last_page > 1">
+                        <pagination
+                            :limit="3"
+                            :data="results"
+                            @pagination-change-page="(page) => setPage(page)"
+                        />
+                    </div>
                 </div>
-            </div>
+            </template>
         </div>
-    </form>
+    </div>
+
+
 </template>
-<style lang="scss">
-    @use "../../sass/mixins" as *;
+<style lang="scss" scoped>
+@use "../../sass/mixins" as *;
 
-    .records-search {
-        box-shadow: var(--block-box-shadow);
-        border-bottom: 1px solid var(--border-color);
-        margin: -1.125em -1.125em 0;
-        @include light() {
-            margin: 0;
-            box-shadow: none;
-            border: none;
+.records-search {
+    @include mobile() {
+        min-height: 100vh;
+    }
+    &__filters {
+        height: calc(100vh - 8.5em);
+        padding: 0 0 0 4em;
+        margin: 0 0 0 -4em;
+        position: sticky;
+        align-self: flex-start;
+        top: 5em;
+        overflow-y: auto;
+        @include mobile() {
+            position: fixed;
+            display: flex;
+            flex: unset;
+            height: unset;
+            width: 100%;
+            max-height: calc(100vh - 3.25em);
+            left: 0;
+            top: 3.25em;
+            z-index: 10;
+            padding: 0;
+            margin: 0 !important;
+            .box {
+                margin: 0;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
+                &__inner {
+                    height: 100%;
+                    box-sizing: border-box;
+                }
+            }
         }
+
+        &--opened {
+            height: 100%;
+            display: flex;
+        }
+
+        &__main {
+                flex-direction: row;
+        }
+
         &__inner {
-            padding: 1.75em;
-            display: flex;
-            align-items: center;
-            background: var(--bg-darker);
-            @include light() {
-                background: none;
-                padding: 0 0 1em;
-                box-shadow: none;
-                border-bottom: 1px solid var(--border-color);
-                margin-bottom: 1em;
-            }
-            @include mobile {
-                padding: 1em 1em .5em .5em;
-                justify-content: flex-end;
-                font-size: .75em;
-                flex-wrap: wrap;
-                @include light() {
-                    padding: 1em 0;
-                }
+            @include mobile() {
+                height: 100%;
+                overflow: hidden;
             }
         }
 
-        &__form {
-            display: flex;
-            align-items: center;
-            flex: 1;
-            margin: 0 0 0 1em;
-        }
-
-        &__title {
-            font-size: 1.25em;
-            font-weight: 500;
-            @include mobile {
-                text-align: left;
-                margin: 0 0 0 .75em;
-                width: 100%;
-            }
-        }
-
-        &__input-container {
-            flex: 1;
-            margin: 0 2.5em 0 0;
-            .input {
+        &__advanced {
+            @include mobile() {
+                align-items: stretch;
+                overflow: hidden;
+                height: 100%;
                 flex: 1;
-                width: 100%;
             }
-        }
 
-        &__expand {
-            color: var(--text-lighter);
-            cursor: pointer;
-            border-bottom: 1px dashed var(--text-lighter);
-            margin: 0 0 0 1em;
-            @include mobile {
-                text-align: left;
-                margin: 1em 0 1em 1em;
-                width: 100%;
-                font-size: 1.125em;
-                border-bottom: none;
-            }
             &__inner {
-                @include mobile {
-                    border-bottom: 1px dashed;
-                }
-            }
-            &:hover {
-                color: #777;
-            }
-        }
-
-        .select2 {
-            display: block;
-            width: 100%!important;
-        }
-
-        &__extended {
-            border-top: 1px solid var(--border-color);
-            @include light() {
-                border-top: none;
-            }
-            &__row {
-                flex: 1;
-                padding: 1em 1.5em;
-                display: flex;
-                @include light() {
-                    padding: 1em 0;
-                }
-                .inputs-line {
+                @include mobile() {
+                    height: 100%;
+                    overflow: auto;
+                    align-items: stretch;
                     flex: 1;
                 }
             }
-
-            &__input {
-                width: calc(33% - 1em);
-                margin: 0 1em 0 0;
-            }
-        }
-        &__dates {
-            flex: 1;
-        }
-        &__nothing-found {
-            font-size: 1.25em;
-            font-weight: bold;
-        }
-        &__sort {
-            font-size: 1.125em;
-            background: var(--bg-darker);
-            border-top: 1px solid var(--border-color);
-            padding: 1em 1.25em;
-            @include light() {
-                background: none;
-                padding: 1em 0;
-            }
-            &__title {
-                margin: 0 .5em 0 0;
-                font-weight: bold;
-            }
-
-            &__option {
-                color: var(--text-lighter);
-                margin: 0 .75em 0 0;
-                &--active {
-                    color: var(--primary);
-                    border-bottom: 1px dashed;
-                }
-                &__arrow {
-                    margin: 0 -.25em;
-                }
-                &__title {
-                    margin: 0 .5em 0 0;
-                    cursor: pointer;
-                }
-
-            }
-        }
-        &__channel {
-            display: flex;
-            align-items: center;
-
-            &__logo {
-                width: 3em;
-                height: auto;
-                margin: 0 1em 0 0;
-            }
-
-            &__main-name {
-                font-weight: bold;
-            }
-
-            &__additional-names {
-                color: #999;
-                font-size: .75em;
-            }
-        }
-        &__result {
-            .record-item {
-                font-size: 1.125em;
-            }
-        }
-
-
-        &__programs {
-            display: flex;
-            flex-wrap: wrap;
-            overflow: auto;
-            font-size: .75em;
-            background: var(--box-color-dark);
-            padding: 2em 2em 0;
-            .program {
-                width: calc(100% / 5 - 1em);
-                cursor: pointer;
-
-                &:hover {
-                    opacity: .75;
-                }
+            &__bottom {
+                display: none;
                 @include mobile() {
-                    width: calc(100% / 2 - 1em);
-                }
-                &__name {
-                    font-size: 1.5em;
-                    color: var(--box-text-color-dark);
+                    display: block;
                 }
             }
         }
     }
 
+
+    &__type {
+        @include mobile() {
+            width: 8em;
+        }
+    }
+
+    &__toggle {
+        display: none;
+        @include mobile() {
+            display: block;
+        }
+    }
+
+    &__sort {
+        @include mobile() {
+            display: flex;
+            width: 100%;
+            font-size: 1em;
+        }
+    }
+
+    &__results {
+        @include mobile() {
+            margin-top: 8em !important;
+        }
+    }
+
+    &__total {
+        margin-right: auto;
+    }
+
+    &__programs {
+        margin-bottom: calc(var(--col-margin) * 2);
+    }
+
+    &__periods {
+        font-size: .875em;
+        margin: .5em 0;
+        padding: 0;
+    }
+}
 </style>
-<script>
-    import Datepicker from './datepicker/components/Datepicker.vue';
+<script lang="ts" setup>
+import { computed, ref, useTemplateRef, watch } from "vue";
+import { Bootstrap5Pagination as Pagination } from 'laravel-vue-pagination';
 
-    const selectOptions = {
-        templateResult: (channel) => {
-            let additionalNames = '';
-            if (channel.names && channel.names.length > 0) {
-                let names = channel.names.map(name => name.name).filter(name => name.length > 0);
-                names = [...new Set(names)];
-                additionalNames = names.join(", ");
-            }
-            let html = `<div class="records-search__channel">
-                ${channel.logo ? `<img alt="${channel.name}" class="records-search__channel__logo" src="${channel.logo.url}"/>` : ''}
-                <div class="records-search__channel__names">
-                    <div class="records-search__channel__main-name">${channel.name}</div>
-                    ${additionalNames.length > 0 ? `<div class="records-search__channel__additional-names">${additionalNames}</div>` : ''}
-                </div>
-            </div>`;
-            return $(html);
-        },
-        templateSelection: (channel) => {
-            return channel.name;
-        },
-        matcher: (termData, channel) => {
-            let term = termData.term;
-            if (!term || term.length === 0) {
-                return channel;
-            }
-            term = term.toLocaleLowerCase();
-            if (channel.name.toLocaleLowerCase().indexOf(term) !== -1) {
-                return channel;
-            }
-            if (channel.names) {
-                for (let index in channel.names) {
-                    let name = channel.names[index].name.toLocaleLowerCase();
-                    if (name.indexOf(term) !== -1) {
-                        return channel;
-                    }
-                }
-            }
-            return null;
+import { useChannelsStore } from "@/stores/channels";
+import { useProgramsStore } from "@/stores/programs";
+import { updateQueryString } from "@/utils/query-string";
+import { getStartTimeFromTimecodeLine, highlight, highlightDescription } from "@/utils/highlight";
+import { defaultDate } from "@/utils/dates";
+import { useCategoriesStore } from "@/stores/categories";
+
+import RecordsSearchMultiselect, { type MultiselectItem } from './records-search/RecordsSearchMultiselect.vue';
+import DateSelect from "@/components/DateSelect.vue";
+import RecordsSearchFilter from "@/components/records-search/RecordsSearchFilter.vue";
+import ProgramsItem from "@/components/programs/ProgramsItem.vue";
+import { declination } from "@/utils/numbers";
+import RecordsItem from "@/components/records/RecordsItem.vue";
+import { isMobile } from "@/utils/mobile";
+
+interface SearchForm {
+    page: number,
+    is_radio: boolean,
+    search: string,
+    type?: Records.Type,
+    channels: number[],
+    programs: number[],
+    sort?: string,
+    sort_order: 'asc' | 'desc'
+    date: Common.Date,
+
+    advertising_type?: number,
+    advertising_brands?: string[]
+    advertising_countries?: string[]
+    advertising_regions?: string[]
+    advertising_categories?: string[]
+}
+
+export interface SearchRecordsCounts {
+    [key: number]: number
+}
+
+type SearchRecordsCountsList = {
+    channels?: SearchRecordsCounts
+    programs?: SearchRecordsCounts,
+    advertising_brands?: SearchRecordsCounts,
+    advertising_categories?: SearchRecordsCounts,
+    advertising_regions?: SearchRecordsCounts,
+    advertising_countries?: SearchRecordsCounts,
+}
+
+const props = defineProps<{
+    results: Forms.PaginatedResponse<Models.Record[]>,
+    params: Partial<SearchForm>,
+    counts: SearchRecordsCountsList,
+    recommendedPrograms?: Models.Program[],
+    periods?: Common.Period[],
+    commercials?: boolean,
+}>();
+
+const results = ref<any>(props.results);
+const counts = ref<SearchRecordsCountsList>(props.counts);
+const displayPrograms = ref<Models.Program[]>(props.recommendedPrograms);
+
+const channelsStore = useChannelsStore();
+const programsStore = useProgramsStore();
+const categoriesStore = useCategoriesStore();
+
+const search = ref<string>(props.params.search ?? '');
+
+const form = ref<SearchForm>({
+    page: 1,
+    search: '',
+    type: props.commercials ? 'advertising' : null,
+    channels: [],
+    programs: [],
+    sort: 'created_at',
+    sort_order: 'desc',
+    advertising_type: null,
+    advertising_brands: [],
+    advertising_countries: [],
+    advertising_regions: [],
+    advertising_categories: [],
+
+    ...props.params,
+    is_radio: !!props.params?.is_radio,
+    date: {
+        ...defaultDate(),
+        ...props.params?.date
+    },
+});
+
+const prevForm = ref<SearchForm>(form.value);
+
+const loading = ref<boolean>(false);
+const error = ref<boolean>(false);
+
+const load = (loadMobile: boolean = false) => {
+    if (showFilters.value && isMobile()) {
+        if (loadMobile) {
+            prevForm.value = {
+                ...prevForm.value,
+                ...form.value
+            };
+            showFilters.value = false;
+        } else {
+            return;
         }
-    };
-
-    export default {
-        components: {
-            Datepicker
-        },
-        computed: {
-            selectedProgramsIds() {
-                return this.programs.selected.join(",");
-            },
-            selectedChannelsIds() {
-                return this.channels.selected.join(",");
-            },
-            dayOptions() {
-                let year = this.dates.year;
-                let isLeapYear = year > 0 && ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
-                let days = [{id: -1, text: 'Неизвестно'}];
-                let daysInMonth = [
-                    31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-                ];
-                let daysInMonthNumber = this.dates.month > 0 ? daysInMonth[this.dates.month - 1] : 31;
-                for (let i = 1; i <= daysInMonthNumber; i++) {
-                    days.push({id: i, text: i.toString()});
-                }
-                return days;
-            },
-            monthOptions() {
-                let months = [{id: -1, text: 'Неизвестно'}];
-                let monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
-                for (let i = 1; i <= 12; i++) {
-                    months.push({id: i, text: monthNames[i - 1]});
-                }
-                return months;
-            },
-            yearOptions() {
-                let years = [{id: -1, text: 'Неизвестно'}];
-                for (let i = 1950; i < 2011; i++) {
-                    years.push({id: i, text: i.toString()});
-                }
-                return years;
-            },
-            channelNames() {
-                let names = {};
-                if (!this.channels.list) {
-                    return names;
-                }
-                this.channels.list.forEach(channel => {
-                    names[channel.id] = channel.name;
-                });
-                return names;
-            }
-        },
-        watch: {
-            "channels.selected"(newChannels) {
-                let countToLoad = 0;
-                let loadedCount = 0;
-                newChannels.forEach(channelId => {
-                    if (!this.programs.cache[channelId]) {
-                        countToLoad++;
-                    }
-                });
-                if (countToLoad > 0) {
-                    this.programs.loading = true;
-                }
-                newChannels.forEach(channelId => {
-                    if (!this.programs.cache[channelId]) {
-                        this.programs.cache[channelId] = [];
-                        $.get('/channels/'+channelId+'/programs').done(res => {
-                            this.$set(this.programs.cache, channelId, res.data.programs);
-                            this.reloadProgramsCache();
-                            loadedCount++;
-                            if (loadedCount >= countToLoad) {
-                                this.programs.loading = false;
-                            }
-                        })
-                    } else {
-                        loadedCount++;
-                    }
-                });
-                this.reloadProgramsCache();
-            }
-        },
-        methods: {
-            reloadProgramsCache() {
-                let selected = this.channels.selected;
-                let programs = [];
-                selected.forEach(channelId => {
-                    if (this.programs.cache[channelId]) {
-                        programs.push({text: this.channelNames[channelId], children: this.programs.cache[channelId].map(program => {
-                            return {
-                                id: program.id,
-                                text: program.name
-                            }
-                        })});
-                    }
-                });
-                this.programs.list = programs;
-            },
-            loadChannels() {
-                if (this.showExtended && !this.channels.list && !this.channels.loading) {
-                    this.channels.loading = true;
-                    $.get((this.isRadio ? '/radio-stations' : '/channels') + '/ajax', {is_radio: this.isRadio}).done(res => {
-                        this.channels.list = res.data.channels;
-                        this.channels.loading = false;
-                    })
-                }
-            },
-            extend() {
-                this.showExtended = !this.showExtended;
-                this.loadChannels();
-            },
-            setSort(option) {
-                if (this.data.sort === option.key) {
-                    this.$set(this.data, 'sort_order', this.data.sort_order === 'desc' ? 'asc' : 'desc')
-                } else {
-                    this.$set(this.data, 'sort', option.key);
-                    this.$set(this.data, 'sort_order', 'desc');
-                }
-                if (this.showResults) {
-                    this.load();
-                } else {
-                    this.$refs.form.submit();
-                }
-            },
-            load() {
-                if (this.data.search) {
-                    this.lastSearch = this.data.search;
-                }
-                this.isLoading = true;
-                let data = {}; //this.data;
-                if (this.isAdvertising) {
-                    data.is_advertising = true;
-                } else {
-                    if (this.channels.selected.length > 0) {
-                        data.channels = this.channels.selected;
-                    }
-                }
-                if (this.data.page) {
-                    data.page = this.data.page;
-                }
-                if (this.data.sort) {
-                    data.sort = this.data.sort;
-                }
-                if (this.data.sort_order) {
-                    data.sort_order = this.data.sort_order;
-                }
-                if (this.data.search) {
-                    data.search = this.data.search;
-                }
-                if (this.isInterprogram) {
-                    data.is_interprogram = true;
-                } else {
-                    if (!this.isAdvertising) {
-                        if (this.programs.selected.length > 0) {
-                            data.programs = this.programs.selected;
-                        }
-                    }
-                }
-                if (!this.datesRange) {
-                    if (this.dates.year > 0 || this.dates.month > 0 || this.dates.day > 0) {
-                        data.date = {};
-                        if (this.dates.year > 0) {
-                            data.date.year = this.dates.year;
-                        }
-                        if (this.dates.month > 0) {
-                            data.date.month = this.dates.month;
-                        }
-                        if (this.dates.day > 0) {
-                            data.date.day = this.dates.day;
-                        }
-                    }
-                } else {
-                    if (this.range.start || this.range.end) {
-                        data.dates_range = {};
-                        if (this.range.start) {
-                            data.dates_range.start = Math.floor(this.range.start.getTime() / 1000);
-                        }
-                        if (this.range.end) {
-                            data.dates_range.end = Math.floor(this.range.end.getTime() / 1000);
-                        }
-                    }
-                }
-                console.log(data, this.dates);
-                let params = new URLSearchParams();
-                for (let key in data) {
-                    if (data[key] !== null) {
-                        if (typeof data[key] === "object") {
-                            if (Array.isArray(data[key])) {
-                                params.set(key, data[key].join(','));
-                            } else {
-                                for (let subkey in data[key]) {
-                                    params.set(key + "." + subkey, data[key][subkey]);
-                                }
-                            }
-                        } else {
-                            params.set(key, data[key]);
-                        }
-                    }
-                }
-                params = params.toString();
-                window.history.replaceState({}, '', `${location.pathname}?${params}`);
-                $.post(this.action, data).done((res) => {
-                    this.programsList = res.data.programs;
-                    this.resultsList = res.data.records;
-                    this.isLoading = false;
-                    window.scrollTo(0, 0);
-                })
-            },
-            onSubmit(e) {
-                if (this.showResults) {
-                    e.preventDefault();
-                    this.data.page = 1;
-                    this.load();
-                }
-            },
-            getResults(page) {
-                this.data.page = page;
-                this.load();
-            },
-            getDescriptionHighlights(text) {
-                const search = this.lastSearch.toLowerCase();
-                if (search.length === 0) {
-                    return [];
-                }
-                let lines = text.split("\n");
-                lines = lines.filter(line => {
-                    return line.toLocaleLowerCase().indexOf(search) !== -1;
-                }).map(line => line.trim()).map(line => {
-                    const timecodeRegex = /^[0-9.:]+ - (.*)/;
-                    let isTimecode = timecodeRegex.test(line);
-                    if (isTimecode) {
-                        let matches  = timecodeRegex.exec(line);
-                        return matches[1];
-                    }
-                    return line;
-                });
-                return lines;
-            },
-            getHighlights(text, limitLength = false) {
-                if (!text) {
-                    return '';
-                }
-                text = text.replace(/<\/?[^>]+(>|$)/g, "");
-
-                const textLength = text.length;
-                const search = this.lastSearch.toLowerCase();
-
-                if (search.length === 0) {
-                    return text;
-                }
-                let lowercaseText = text.toLowerCase();
-
-                const startReplacement = '<span class="highlight">';
-                const endReplacement = '</span>';
-                const offsetCount = startReplacement.length + endReplacement.length;
-                const maxTextSize = 250;
-
-                let index = 0;
-                let offset = 0;
-
-                let firstMatch = lowercaseText.indexOf(search);
-                if (firstMatch !== -1) {
-                    if (limitLength && text.length > maxTextSize) {
-                        const start = (firstMatch - maxTextSize / 2) > 0 ? (firstMatch - maxTextSize / 2) : 0;
-                        const end = firstMatch + maxTextSize / 2;
-                        text = text.substring(start, end);
-                        lowercaseText = lowercaseText.substring(start, end);
-                    }
-                } else {
-                    if (limitLength && text.length > maxTextSize) {
-                        text = text.substring(0, maxTextSize) + "...";
-                    }
-                }
-
-                while (index !== -1) {
-                    index = lowercaseText.indexOf(search);
-                    if (index !== -1) {
-                      //  console.log(text.substr(0, index + offset), index, offset);
-
-                        text = text.substr(0, index + offset) + startReplacement + text.substr(index + offset);
-                        text = text.substr(0, index + startReplacement.length + search.length + offset) + endReplacement + text.substr(index + startReplacement.length + search.length + offset);
-                        offset += (index + offsetCount + search.length);
-                    }
-                    lowercaseText = lowercaseText.substring(index + search.length);
-               }
-
-                if (limitLength && (firstMatch + maxTextSize / 2) < textLength) {
-                    text = text + "...";
-                }
-                if (limitLength && (firstMatch - maxTextSize / 2) > 0) {
-                    text = "..." + text;
-                }
-                return text;
-            },
-        },
-        mounted() {
-            if (this.data.search) {
-                this.lastSearch = this.data.search;
-            }
-            ['year', 'month', 'day'].forEach(key => {
-                if (this.data['date_' + key]) {
-                    this.$set(this.dates, key, this.data['date_' + key]);
-                    this.data['date_' + key] = undefined;
-                }
-            });
-            if (this.data.dates_range_start) {
-                this.range.start = new Date(this.data.dates_range_start * 1000);
-                this.datesRange = true;
-            }
-            if (this.data.dates_range_end) {
-                this.range.end = new Date(this.data.dates_range_end * 1000);
-                this.datesRange = true;
-            }
-            if (this.data.is_interprogram) {
-                this.isInterprogram = this.data.is_interprogram;
-            }
-            if (this.data.is_advertising) {
-                this.isAdvertising = this.data.is_advertising;
-            }
-            if (this.data.channels) {
-                this.channels.selected = this.data.channels.split(",");
-            }
-            if (this.data.programs) {
-                this.programs.selected = this.data.programs.split(",");
-            }
-            if (this.showExtended) {
-                this.loadChannels();
-            }
-            this.loaded = true;
-        },
-        data() {
-            return {
-                loaded: false,
-                isAdvertising: false,
-                isInterprogram: false,
-                datesRange: false,
-                range: {
-                    start: null,
-                    end: null
-                },
-                dates: {
-                    year: -1,
-                    month: -1,
-                    day: -1
-                },
-                programs: {
-                    list: [],
-                    cache: {},
-                    loading: false,
-                    selected: [],
-                },
-                channels: {
-                    loading: false,
-                    list: null,
-                    selected: [],
-                    selectOptions
-                },
-                showExtended: this.showResults,
-                isLoading: false,
-                resultsList: this.results,
-                programsList: this.recommendedPrograms,
-                lastSearch: '',
-                data: JSON.parse(JSON.stringify(this.params)),
-                sortOptions: [
-                    {
-                        title: 'Дате выхода', key: 'date'
-                    },
-                    {
-                        title: 'Дате заливки', key: 'created_at'
-                    }
-                ],
-                disabledDates: {
-                    to: new Date(1950, 0, 1),
-                    from: new Date(2011, 0, 1),
-                }
-            }
-        },
-        props: ['action', 'params', 'showResults', 'results', 'recommendedPrograms', 'isRadio'],
     }
+
+    if (loading.value) {
+        return;
+    }
+
+    const data = form.value;
+    if (data.search.length) {
+        search.value = data.search;
+    }
+    loading.value = true;
+
+    updateQueryString(data);
+    $.post(route('records.search'), data).done((res) => {
+        error.value = false;
+        results.value = res.data.results;
+        counts.value = res.data.counts;
+        displayPrograms.value = res.data.programs;
+
+        loading.value = false;
+        window.scrollTo(0, 0);
+    }).catch(() => {
+        error.value = true;
+        loading.value = false;
+        window.scrollTo(0, 0);
+    })
+}
+
+const reload = () => {
+    form.value.page = 1;
+    load();
+}
+
+const setPage = (page: number) => {
+    form.value.page = page;
+    load();
+}
+
+watch(() => [
+    form.value.is_radio,
+    form.value.programs,
+    form.value.date.year, form.value.date.month, form.value.date.day,
+    form.value.date.year_start, form.value.date.month_start, form.value.date.day_start,
+    form.value.date.year_end, form.value.date.month_end, form.value.date.day_end,
+    form.value.advertising_brands, form.value.advertising_countries, form.value.advertising_regions, form.value.advertising_categories
+], reload);
+
+watch(() => form.value.type, (type) => {
+    if (type !== 'advertising') {
+        form.value.advertising_type = null;
+        form.value.advertising_brands = [];
+        form.value.advertising_countries = [];
+        form.value.advertising_regions = [];
+        form.value.advertising_categories = [];
+    }
+
+    if (type === 'advertising' || type === 'other') {
+        form.value.channels = [];
+        form.value.programs = [];
+
+        categoriesStore.load();
+    }
+    reload();
+})
+
+watch(() => form.value.channels, (channelIds, oldChannelIds) => {
+    const diff = oldChannelIds.filter(x => !channelIds.includes(x));
+    if (diff.length) {
+        const excludeProgramIds = diff.flatMap(channelId => (programsStore.programs[channelId] ?? []).map(program => program.id) ?? []);
+        form.value.programs = form.value.programs.filter(programId => !excludeProgramIds.includes(programId))
+    }
+    reload();
+});
+
+
+interface SortOption {
+    title: string,
+    key: string
+}
+
+const sortOptions: SortOption[] = [
+    {
+        title: 'Дата эфира', key: 'supposed_date'
+    },
+    {
+        title: 'Дата заливки', key: 'created_at'
+    }
+];
+const setSort = (sort: SortOption) => {
+    if (form.value.sort === sort.key) {
+        form.value.sort_order = form.value.sort_order === 'desc' ? 'asc' : 'desc';
+    } else {
+        form.value.sort = sort.key;
+        form.value.sort_order = 'desc';
+    }
+    load();
+}
+
+const channels = computed<MultiselectItem[]>(() => {
+    return (form.value.is_radio ? channelsStore.radioStations : channelsStore.channels).map(channel => {
+        const names = [channel.name.toLocaleLowerCase()];
+        const description = [];
+        channel.names.forEach(name => {
+            if (name.name?.length) {
+                names.push(name.name.toLocaleLowerCase());
+                if (name.name != channel.name && !description.includes(name.name)) {
+                    description.push(name.name);
+                }
+            }
+            name.alternatives?.length && name.alternatives.forEach(alternative => names.push(alternative.toLocaleLowerCase()));
+        })
+        return {
+            id: channel.id,
+            name: channel.name,
+            description: description.join(', '),
+            search: names
+        }
+    })
+})
+
+
+const programs = computed<MultiselectItem[]>(() => {
+    return form.value.channels.flatMap(channelId => {
+        const channelPrograms = programsStore.programs[channelId] ?? [];
+
+        return channelPrograms.map(program => {
+            const names = [program.name.toLocaleLowerCase()];
+
+            return {
+                id: program.id,
+                name: program.name,
+                description: '',
+                search: names,
+            }
+        })
+    }).sort((a, b) => a.name.localeCompare(b.name));
+});
+
+const opened = ref({
+    type: true,
+    date: true,
+    channels: false,
+    programs: false,
+    advertising_type: true,
+    advertising_brands: false,
+    advertising_countries: false,
+    advertising_regions: false,
+    advertising_categories: false,
+});
+
+watch(() => opened.value.channels, (channelsOpened) => {
+    channelsOpened && channelsStore.load();
+})
+watch(() => opened.value.programs, (programsOpened) => {
+    programsOpened && form.value.channels.forEach(channelId => programsStore.load(channelId));
+})
+
+if (props.params.channels?.length) opened.value.channels = true;
+if (props.params.programs?.length) opened.value.programs = true;
+if (props.params.type === 'advertising' || props.commercials) categoriesStore.load();
+
+const getMultiselectItems = (_route: string, page: number, term: string): Promise<MultiselectItem[]> => {
+    return new Promise(resolve => {
+        $.get(route(_route, {
+            page,
+            term,
+            advertising_type: form.value.advertising_type,
+            is_radio: form.value.is_radio,
+            for_search: true
+        })).then(({data}) => {
+            resolve(data);
+        });
+    })
+}
+
+const getAdvertisingBrands = (page: number, term?: string): Promise<MultiselectItem[]> => {
+    return getMultiselectItems('records.autocomplete.commercials-brands', page, term);
+}
+
+const getAdvertisingCountries = (page: number, term?: string): Promise<MultiselectItem[]> => {
+    return getMultiselectItems('records.autocomplete.countries', page, term);
+}
+
+const getAdvertisingRegions = (page: number, term?: string): Promise<MultiselectItem[]> => {
+    return getMultiselectItems('records.autocomplete.regions', page, term);
+}
+
+const getAdvertisingCategories = (page: number, term?: string): Promise<MultiselectItem[]> => {
+    return getMultiselectItems('records.autocomplete.categories', page, term);
+}
+
+
+const brandsMultiselect = useTemplateRef<typeof RecordsSearchMultiselect>('multiselect_brands');
+const countriesMultiselect = useTemplateRef<typeof RecordsSearchMultiselect>('multiselect_countries');
+const regionsMultiselect = useTemplateRef<typeof RecordsSearchMultiselect>('multiselect_regions');
+const categoriesMultiselect = useTemplateRef<typeof RecordsSearchMultiselect>('multiselect_categories');
+
+watch(() => form.value.advertising_type, () => {
+    form.value.advertising_brands = [];
+
+    brandsMultiselect.value?.resetItems();
+    countriesMultiselect.value?.resetItems();
+    regionsMultiselect.value?.resetItems();
+    categoriesMultiselect.value?.resetItems();
+
+    reload();
+})
+
+const itemsFromCounts = (counts: SearchRecordsCountsList): MultiselectItem[] => {
+    if (counts) {
+        return Object.keys(counts).map((name) => {
+            return {
+                id: name,
+                name,
+                search: [name.toLocaleLowerCase()]
+            }
+        })
+    }
+    return [];
+}
+
+const itemsFromCountsBrands = computed(() => {
+    return itemsFromCounts(counts.value?.advertising_brands);
+})
+const itemsFromCountsCategories = computed(() => {
+    return itemsFromCounts(counts.value?.advertising_categories);
+})
+const itemsFromCountsCountries = computed(() => {
+    return itemsFromCounts(counts.value?.advertising_countries);
+})
+const itemsFromCountsRegions = computed(() => {
+    return itemsFromCounts(counts.value?.advertising_regions);
+})
+
+const setPeriod = (period: Common.Period) => {
+    form.value.date = {
+        ...defaultDate(),
+        range: true,
+        year_start: period.years[0] ?? -1,
+        year_end: period.years[1] ?? -1,
+    }
+}
+
+const showFilters = ref<boolean>(!isMobile());
+watch(showFilters, () => {
+   if (showFilters.value) {
+       prevForm.value = {
+           ...prevForm.value,
+           ...form.value
+       };
+   } else {
+       form.value = {
+           ...form.value,
+           ...prevForm.value
+       }
+   }
+});
 </script>

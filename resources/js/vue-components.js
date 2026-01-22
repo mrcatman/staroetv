@@ -9,9 +9,6 @@ const pinia = createPinia();
 
 const registerComponents = (app) => {
 
-    app.component('pagination', defineAsyncComponent(() => {
-        return import('laravel-vue-pagination')
-    }));
     app.component('select2', defineAsyncComponent(() => {
         return import('./components/Select2.vue')
     }));
@@ -68,8 +65,18 @@ const registerComponents = (app) => {
         return import('./components/record-form/ChannelSelect.vue')
     }));
     app.component('date-select', defineAsyncComponent(() => {
-        return import('./components/record-form/DateSelect.vue')
+        return import('./components/DateSelect.vue')
     }));
+    app.component('response', defineAsyncComponent(() => {
+        return import('./components/Response.vue')
+    }));
+    app.component('preloader', defineAsyncComponent(() => {
+        return import('./components/Preloader.vue')
+    }));
+    app.component('tiptap-editor', defineAsyncComponent(() => {
+        return import('./components/TiptapEditor.vue')
+    }));
+
     app.component('tags-editor', defineAsyncComponent(() => {
         return import('./components/TagsEditor.vue')
     }));

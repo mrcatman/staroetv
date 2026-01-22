@@ -294,10 +294,10 @@ class ProfileController extends Controller
                 'dom' => [
                     $page > 1 ? [
                         'append_to' => '.notifications__items',
-                        'html' => view("blocks/notifications", ['show_more' => $show_more, 'only_list' => true, 'notifications' => $notifications])->render()
+                        'html' => view("blocks.notifications.list", ['show_more' => $show_more, 'only_list' => true, 'notifications' => $notifications])->render()
                     ] : [
                         'replace' => '.notifications__list',
-                        'html' => view("blocks/notifications", ['show_more' => $show_more, 'only_list' => false, 'notifications' => $notifications])->render()
+                        'html' => view("blocks.notifications.list", ['show_more' => $show_more, 'only_list' => false, 'notifications' => $notifications])->render()
                     ]
                 ]
             ]

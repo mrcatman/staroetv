@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Constants\CacheTimes;
 use App\Helpers\PermissionsHelper;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -48,7 +49,7 @@ class DesignPackage extends Model {
     }
 
     public function getRandomPicturesAttribute() {
-        return Cache::remember('interprogram_random_pictures_'.$this->id, 60 * 30, function () {
+        return Cache::remember('design_package_random_pictures_'.$this->id, CacheTimes::RANDOM, function () {
             $records = Record::where(['interprogram_package_id' => $this->id])->whereNotNull('cover_id')->where(function ($q) {
                 $q->whereNotIn('interprogram_type', [11, 22]);
                 $q->orWhereNull('interprogram_type');
@@ -128,11 +129,26 @@ class DesignPackage extends Model {
 
 
     public function getFullUrlAttribute() {
-        $url = $this->url ? $this->url : $this->id;
-        if ($this->program) {
-            return route('design.programs.show', $this->program_id).'#package_'.$this->id;
+        if (!$this->id) {
+            if ($this->program_id) {
+                return Cache::remember('design_package_url_program_'.$this->program_id, CacheTimes::RELATION, function () {
+                    return route('design.programs.show', $this->program->url ?? $this->program->id) . '#package_' . $this->id;
+                });
+            }
+            if ($this->channel_id) {
+                return Cache::remember('design_package_url_channel_'.$this->channel_id, CacheTimes::RELATION, function () {
+                    $url = $this->url ? $this->url : $this->id;
+                    return typed_route('design.[CHANNEL].show', $this->channel->is_radio, [$this->channel->url ?? $this->channel->id, $url]);
+                });
+            }
         }
-        return typed_route('design.[CHANNEL].show', $this->channel->is_radio, [$this->channel->url ?? $this->channel->id, $url]);
+        return Cache::remember('design_package_url_'.$this->id, CacheTimes::RELATION, function () {
+            $url = $this->url ? $this->url : $this->id;
+            if ($this->program) {
+                return route('design.programs.show', $this->program->url ?? $this->program->id) . '#package_' . $this->id;
+            }
+            return typed_route('design.[CHANNEL].show', $this->channel->is_radio, [$this->channel->url ?? $this->channel->id, $url]);
+        });
     }
 
     public function getFullNameAttribute() {

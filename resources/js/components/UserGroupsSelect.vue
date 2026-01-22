@@ -70,7 +70,7 @@
             allGroups(allGroupsHandler) {
                 if (this.set) {
                     this.groups.forEach(group => {
-                        this.$set(this.dataByGroup, group.id, allGroupsHandler);
+                        this.dataByGroup[group.id]  = allGroupsHandler;
                     });
                 }
             }
@@ -78,8 +78,8 @@
         mounted() {
             let splitted = this.val.split(",").filter(val => val.length > 0).map(val => parseInt(val));
             this.groups.forEach(group => {
-                let groupVal = !this.val || this.val === "0" || splitted.indexOf(group.id) !== -1;
-                this.$set(this.dataByGroup, group.id, groupVal);
+                const groupVal = !this.val || this.val === "0" || splitted.indexOf(group.id) !== -1;
+                this.dataByGroup[group.id] = groupVal;
                 if (!groupVal) {
                     this.allGroups = false;
                 }

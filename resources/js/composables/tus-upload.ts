@@ -41,7 +41,7 @@ export const useTusUpload = (isRadio?: boolean) => {
                 },
                 onSuccess: async (e) => {
                     const uploadId = tusUpload.url.split("/");
-                    $.post('/records/after-upload', {
+                    $.post(route('records.upload.process'), {
                         server_upload_id: uploadId[uploadId.length - 1],
                         is_radio: isRadio
                     }).done(res => {

@@ -35,7 +35,7 @@
             </div>
 
             <div class="col col--sidebar">
-                @include('blocks/generic_sidebar', ['hide_articles' => true, 'is_radio' => $is_radio])
+                @include('blocks.global.generic-sidebar', ['hide_articles' => true, 'is_radio' => $is_radio])
             </div>
         </div>
 

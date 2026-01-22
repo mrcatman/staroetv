@@ -29,7 +29,7 @@
                                 <i class="fa fa-film"></i>
                                 Добавить видео
                             </a>
-                            <a class="button" href="{{route('mass-upload.index')}}">
+                            <a class="button" href="{{route('mass-upload.list')}}">
                                 <i class="fa fa-upload"></i>
                                 Массовая загрузка
                             </a>
@@ -45,7 +45,23 @@
             <div class="col col--2-5">
                 <div class="box">
                     <div class="box__inner">
-                        @include('blocks/records_search', ['is_radio' => $params['is_radio']])
+                        <form class="channels-list-page__search" method="GET" action="{{route('records.search')}}">
+                            <input type="hidden" name="is_radio" value="{{$params['is_radio'] ? 1 : 0}}" />
+                            <div class="row">
+                                <div class="col">
+                                    <div class="input-container ">
+                                        <div class="input-container__inner">
+                                            <input class="input" name="search" placeholder="Поиск записей"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col col--auto">
+                                    <button type="submit" class="button"><i class="fa fa-search"></i>Найти</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="horisontal-delimiter"></div>
+
                         <div class="channels-list-page__tabs">
                             <div class="tabs" data-id="channels">
                                 <a class="tab tab--active" data-content="federal">Федеральные</a>
@@ -86,7 +102,7 @@
                         </a>
                         <div class="box__inner">
                             @foreach($events as $event)
-                                @include('blocks/event', ['big' => true, 'event' => $event])
+                                @include('blocks.events.item', ['big' => true, 'event' => $event])
                             @endforeach
                         </div>
                     </div>
@@ -97,7 +113,7 @@
                         <div class="box__inner">
                             <div class="programs-list">
                                 @foreach ($other_categories as $other_category)
-                                    @include('blocks.programs.item', ['program' => $other_category, 'url' => typed_route('records.[RECORD].other.category', $params['is_radio'], $other_category->url)])
+                                    @include('blocks.programs.item', ['program' => $other_category])
                                 @endforeach
                             </div>
                         </div>
@@ -138,8 +154,8 @@
                         @include ('blocks.records.material-categories', ['is_radio' => $params['is_radio']])
                     </div>
                 </div>
-                @include('blocks.banner')
-                @include('blocks.generic_sidebar', ['is_radio' => $params['is_radio']])
+                @include('blocks.global.digitization')
+                @include('blocks.global.generic-sidebar', ['is_radio' => $params['is_radio']])
             </div>
         </div>
 

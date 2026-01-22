@@ -1,4 +1,4 @@
-import {showModalAjax} from "@/modules/modals.js";
+import {showModalAjax} from "@/modules/modals";
 
 const body = $('body');
 

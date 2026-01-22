@@ -48,11 +48,19 @@
                         </div>
                     </a>
                     <div class="box__inner">
-                        <div class="records-list records-list--small">
-                            @foreach($records as $record)
-                                @include('blocks.records.item')
+                        <div class="records-periods">
+                            @foreach($records as $period)
+                                <div class="records-period">
+                                    <div class="records-period__name">{{$period['name']}}</div>
+                                    <div class="records-list records-list--small">
+                                        @foreach($period['records'] as $record)
+                                            @include('blocks.records.item')
+                                        @endforeach
+                                    </div>
+                                </div>
                             @endforeach
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -60,6 +68,7 @@
                 <!--
                 <div class="box  @if ($in_this_day && count($in_this_day) > 0) @else
                     box--stretch
+
 
                 @endif">
                     <a href="/events" class="box__heading">
@@ -69,11 +78,28 @@
                     </a>
                     <div class="box__inner">
                         @foreach($events as $event)
-                    @include('blocks/event', ['event' => $event])
+                    @include('blocks.events.item', ['event' => $event])
                 @endforeach
                 </div>
             </div>
 -->
+                @if ($commercials && count($commercials) > 0)
+                    <div class="box">
+                        <a href="{{route('records.video.commercials')}}" class="box__heading">
+                            <div class="box__heading__inner">
+                                <i class="fa fa-comment-dollar"></i>
+                                Архив рекламных роликов
+                            </div>
+                        </a>
+                        <div class="box__inner">
+                            <div class="records-list">
+                                @foreach($commercials as $commercials_record)
+                                    @include('blocks.records.item', ['record' => $commercials_record])
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
                 @if ($last_viewed && count($last_viewed) > 0)
                     <div class="box">
                         <div class="box__heading">
@@ -88,7 +114,6 @@
                                     @include('blocks.records.item', ['record' => $last_viewed_record])
                                 @endforeach
                             </div>
-
                         </div>
                     </div>
                 @endif
@@ -104,6 +129,23 @@
                             <div class="records-list">
                                 @foreach($in_this_day as $in_this_day_record)
                                     @include('blocks.records.item', ['record' => $in_this_day_record])
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                @if ($teletext && count($teletext) > 0)
+                    <div class="box">
+                        <a href="{{route('teletext.index')}}" class="box__heading">
+                            <div class="box__heading__inner">
+                                <i class="fa fa-list"></i>
+                                Архив телетекста
+                            </div>
+                        </a>
+                        <div class="box__inner">
+                            <div class="records-list">
+                                @foreach($teletext as $teletext_item)
+                                    @include('blocks.teletext.item', ['teletext' => $teletext_item])
                                 @endforeach
                             </div>
                         </div>
@@ -129,15 +171,14 @@
                                        class="article article--big">
                                         <div class="article__texts">
                                             <div class="article__title">{{$first_news_item->title}}</div>
-                                            <div class="article__short-content"
-                                                 style="display:none;">{{$first_news_item->short_content}}</div>
+                                            <div class="article__short-content">{{$first_news_item->short_content}}</div>
                                         </div>
                                     </a>
                                 @endforeach
                             </div>
                             <div class="articles-list__block articles-list__block--right">
                                 @foreach ($news as $news_item)
-                                    @include('blocks.articles.news', ['hide_tags' => true, 'show_cover' => false, 'news_item' => $news_item])
+                                    @include('blocks.articles.news', ['class' => 'news-block--card', 'show_cover' => true, 'news_item' => $news_item])
                                 @endforeach
                             </div>
                         </div>
@@ -148,79 +189,81 @@
         <div class="row row--stretch">
             <div class="col">
                 <div class="box">
-                    <a href="{{route('forum.index')}}" class="box__heading">
+                    <a href="{{route('comments.latest')}}" class="box__heading">
                         <div class="box__heading__inner">
-                            <i class="fa fa-comments"></i>
-                            Форум
+                            <i class="fa fa-comment"></i>
+                            Последние комментарии
                         </div>
                     </a>
-                    <div class="box__inner forum-topics-list">
-                        @foreach ($forum_topics as $forum_topic)
-                            <a class="forum-topics-list__item"
-                               href="{{route('forum.topics.show-last-message', [$forum_topic->forum_id, $forum_topic->id])}}">
-                                <div class="forum-topics-list__item__title">{{$forum_topic->title}}</div>
-                                <div class="forum-topics-list__item__bottom">
-                                    <div class="icon-blocks">
-                                         <span class="icon-block">
-                                            <i class="fa fa-clock"></i>
-                                            <span class="icon-block__text">{{$forum_topic->last_reply_at}}</span>
-                                        </span>
-                                        <span class="icon-block">
-                                           <i class="fa fa-user"></i>
-                                           <span class="icon-block__text">{{$forum_topic->topic_last_username}}</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </a>
+                    <div class="box__inner">
+                        <div class="comments">
+                            @foreach ($comments as $comment)
+                                @include('blocks.comments.item', ['go_to' => true, 'show_link' => true, 'comment' => $comment])
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="box__heading">
+                        <div class="box__heading__inner">
+                            <i class="fa fa-users"></i>
+                            Сейчас на сайте
+                        </div>
+                    </div>
+                    <div class="box__inner">
+                        @php($index = 0)
+                        @foreach ($users_on_site as $user)
+                            @php ($last = !isset($users_on_site[$index + 1]))
+
+                            <a target="_blank" href="{{$user->url}}" class="user-online"
+                               data-group-id="{{$user->group_id}}">{{$user->username}}</a>@if (!$last)
+                                ,
+                            @endif
+                            @php ($index++)
                         @endforeach
                     </div>
                 </div>
             </div>
             @if (isset($comments))
                 <div class="col">
-                    <div class="box box--comments-main-page">
-                        <a href="{{route('comments.latest')}}" class="box__heading">
+                    <div class="box">
+                        <a href="{{route('forum.index')}}" class="box__heading">
                             <div class="box__heading__inner">
-                                <i class="fa fa-comment"></i>
-                                Последние комментарии
+                                <i class="fa fa-comments"></i>
+                                Форум
                             </div>
                         </a>
-                        <div class="box__inner">
-                            <div class="comments">
-                                @foreach ($comments as $comment)
-                                    @include('blocks.comments.item', ['go_to' => true, 'show_link' => true, 'comment' => $comment])
-                                @endforeach
-                            </div>
+                        <div class="box__inner forum-topics-list">
+                            @foreach ($forum_topics as $forum_topic)
+                                <a class="forum-topics-list__item"
+                                   href="{{route('forum.topics.show-last-message', [$forum_topic->forum_id, $forum_topic->id])}}">
+                                    <div class="forum-topics-list__item__title">{{$forum_topic->title}}</div>
+                                    <div class="forum-topics-list__item__bottom">
+                                        <div class="icon-blocks">
+                                         <span class="icon-block">
+                                            <i class="fa fa-clock"></i>
+                                            <span class="icon-block__text">{{$forum_topic->last_reply_at}}</span>
+                                        </span>
+                                            <span class="icon-block">
+                                           <i class="fa fa-user"></i>
+                                           <span class="icon-block__text">{{$forum_topic->topic_last_username}}</span>
+                                        </span>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endforeach
                         </div>
                     </div>
+
                 </div>
             @else
                 <div class="col">
-                    @include('blocks/banner')
+                    @include('blocks.global.digitization')
                 </div>
             @endif
         </div>
         <div class="row">
-            <div class="box">
-                <div class="box__heading">
-                    <div class="box__heading__inner">
-                        <i class="fa fa-users"></i>
-                        Сейчас на сайте
-                    </div>
-                </div>
-                <div class="box__inner">
-                    @php($index = 0)
-                    @foreach ($users_on_site as $user)
-                        @php ($last = !isset($users_on_site[$index + 1]))
 
-                        <a target="_blank" href="{{$user->url}}" class="user-online"
-                           data-group-id="{{$user->group_id}}">{{$user->username}}</a>@if (!$last)
-                            ,
-                        @endif
-                        @php ($index++)
-                    @endforeach
-                </div>
-            </div>
         </div>
     </div>
 @endsection

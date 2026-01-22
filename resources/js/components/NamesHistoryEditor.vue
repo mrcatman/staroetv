@@ -14,10 +14,9 @@
                             </div>
 
                             <div class="input-container input-container--vertical">
-                                <label class="input-container__label">Лого</label>
+                                <label class="input-container__label">Логотип</label>
                                 <div class="input-container__inner channel-names__picture-uploader-container">
-                                    <picture-uploader :key="name.id" :light="true" tag="logo" :data="name.logo"
-                                                      v-model="name.logo_id" :channelid="channelId"/>
+                                    <picture-uploader light :key="name.id" tag="logo" v-model="name.logo" :channel-id="channelId"/>
                                 </div>
                             </div>
                         </div>

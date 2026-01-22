@@ -28,7 +28,7 @@
     cursor: pointer;
     margin: 0 .25em .25em 0;
     transition: all .35s;
-    border-radius: .25em;
+    border-radius: var(--border-radius-small);
     &:hover {
       background: rgba(255, 255, 255, 0.75);
     }

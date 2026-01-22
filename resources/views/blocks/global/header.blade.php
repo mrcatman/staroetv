@@ -47,9 +47,7 @@
                         <span class="auth-panel__button--menu__text">Меню</span>
                     </a>
 
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                        @csrf
-                    </form>
+
                 </div>
             @endauth
             @guest
@@ -69,26 +67,25 @@
         </div>
     </div>
 </div>
+@php($second_menu = [
+    ['icon' => 'list', 'link' => route('teletext.index'), 'name' => 'Телетекст'],
+    ['icon' => 'star', 'link' => route('records.commercials'), 'name' => 'Рекламные ролики'],
+    ['icon' => 'search', 'link' => route('records.search'), 'name' => 'Расширенный поиск записей']
+])
 <div class="header__second-menu">
     <div class="header__second-menu__inner">
-        <a class="header__second-menu__link" href="{{route('teletext.index')}}">
-            <i class="fa fa-list"></i>
-            Телетекст
+        @foreach ($second_menu as $second_menu_item)
+        <a class="header__second-menu__link" href="{{$second_menu_item['link']}}">
+            <i class="fa fa-{{$second_menu_item['icon']}}"></i>
+            {{$second_menu_item['name']}}
         </a>
-        <a class="header__second-menu__link" href="{{route('records.video.commercials')}}">
-            <i class="fa fa-star"></i>
-            Рекламные ролики
-        </a>
-        <a class="header__second-menu__link" href="{{route('records.video.search')}}">
-            <i class="fa fa-search"></i>Расширенный поиск записей
-        </a>
+        @endforeach
         @if (auth()->user())
         <a class="header__second-menu__link header__second-menu__link--right"  onclick="event.preventDefault();document.getElementById('logout-form').submit();">
             <i class="fa fa-sign-out-alt"></i>Выйти из аккаунта
         </a>
-            @endif
+        @endif
     </div>
-
 </div>
 <div class="mobile-menu" style="display: none">
     <div class="mobile-menu__items">
@@ -96,6 +93,12 @@
         <a class="mobile-menu__item" href="{{route('records.radio.index')}}">Радиоархив</a>
         <a class="mobile-menu__item" href="{{route('articles.index')}}">Публикации</a>
         <a class="mobile-menu__item" href="{{route('forum.index')}}">Форум</a>
+        <div class="mobile-menu__delimiter"></div>
+        @foreach ($second_menu as $second_menu_item)
+            <a class="mobile-menu__item mobile-menu__item--small" href="{{$second_menu_item['link']}}">
+                {{$second_menu_item['name']}}
+            </a>
+        @endforeach
         <div class="mobile-menu__delimiter"></div>
         <a class="mobile-menu__item mobile-menu__item--search">
             <i class="fa fa-search"></i>
@@ -137,10 +140,12 @@
         </div>
     </div>
 </div>
-
+<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+    @csrf
+</form>
 @php ($month = \Carbon\Carbon::now()->month)
 @php ($day = \Carbon\Carbon::now()->day)
 @if (($month == 12 && $day > 20) || ($month == 1 && $day < 20))
-    @include('blocks.garland')
+    <!--@include('blocks.global.garland') -->
 @endif
 

@@ -1,12 +1,14 @@
 <?php
 
 namespace App\Models;
+use App\Constants\CacheTimes;
 use App\Constants\MaterialTypes;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use App\Traits\HasChannel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class Teletext extends Model {
@@ -48,11 +50,13 @@ class Teletext extends Model {
     }
 
     public function getCoverAttribute() {
-        if ($this->coverPicture) {
-            return $this->coverPicture->url;
-        }
+        return Cache::remember('teletext_cover_'.$this->id, CacheTimes::RELATION, function () {
+            if ($this->coverPicture) {
+                return $this->coverPicture->url;
+            }
 
-        return "/pictures/unknown.png";
+            return "/pictures/unknown.png";
+        });
     }
 
     public function channel() {

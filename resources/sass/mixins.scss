@@ -30,7 +30,7 @@
         position: absolute;
 
         background: var(--box-color-hover);
-        border-radius: .5em;
+        border-radius: var(--border-radius-standard);
         content: "";
         display: block;
         z-index: -1;

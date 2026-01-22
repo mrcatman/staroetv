@@ -1,9 +1,10 @@
 import replaceDom from './replaceDom';
 import {showModal, showModalAjax} from "./modals";
+import { FORM_PRELOADER_CLASS, FORM_PRELOADER_HTML } from "./preloader";
 
 const body = $('body');
 
-const buildFormData = (formData, data, parentKey) => {
+const buildFormData = (formData: FormData, data: any, parentKey?: string) => {
     if (data && typeof data === 'object' && !(data instanceof Date) && !(data instanceof File) && !(data instanceof Blob)) {
         Object.keys(data).forEach(key => {
             buildFormData(formData, data[key], parentKey ? `${parentKey}[${key}]` : key);
@@ -15,33 +16,13 @@ const buildFormData = (formData, data, parentKey) => {
     }
 }
 
-const jsonToFormData = (data) => {
+const jsonToFormData = (data: any) => {
     const formData = new FormData();
 
     buildFormData(formData, data);
 
     return formData;
 }
-
-$.each( [ "put", "delete" ], function( i, method ) {
-    $[ method ] = function( url, data, callback, type ) {
-        if ( $.isFunction( data ) ) {
-            type = type || callback;
-            callback = data;
-            data = undefined;
-        }
-
-        return $.ajax({
-            url: url,
-            type: method,
-            dataType: type,
-            data: data,
-            success: callback
-        });
-    };
-});
-
-
 
 $(body).on('click', '.captcha', function() {
     $(this).attr('src', $(this).attr('src'));
@@ -50,25 +31,13 @@ $(body).on('click', '.captcha', function() {
 $(body).on('submit', '.form', function (e) {
     e.preventDefault();
 
-    let confirmed = true;
     if ($(this).data('confirm')) {
-        let text = $(this).data('confirm-text') || "Вы уверены?";
-        if (!confirm(text)) {
-            confirmed = false;
+        if (!confirm($(this).data('confirm-text') || "Вы уверены?")) {
+            return;
         }
-    }
-
-    if (!confirmed) {
-        return;
     }
 
     const url = $(this).attr('action') || window.location.pathname;
-    $('#editor').each(function () {
-        const textarea = $(this);
-        if (typeof CKEDITOR !== 'undefined' && CKEDITOR.instances['editor']) {
-            textarea.val(CKEDITOR.instances['editor'].getData());
-        }
-    });
 
     const data = $(this).serializeArray();
     const checkboxesData = {};
@@ -90,6 +59,7 @@ $(body).on('submit', '.form', function (e) {
     Object.keys(checkboxesData).forEach(name => {
         data.push({name, value: checkboxesData[name]})
     });
+
     $(this).find('input[type="file"]').each(function () {
         data.push({
             name: $(this).attr('name'),
@@ -97,11 +67,15 @@ $(body).on('submit', '.form', function (e) {
         })
     });
 
-    $(this).append('<div class="form__preloader"><img src="/images/ajax.gif"></div>');
+    $(this).append(FORM_PRELOADER_HTML);
     let formData = {};
     data.forEach(item => {
         formData[item.name] = item.value;
     });
+
+    for (const key in window.activeEditors) {
+        formData[key] = window.activeEditors[key].getHTML();
+    }
 
     $(this).find('.input-container').removeClass('input-container--with-errors');
     $(this).find('.input-container__message').html('');
@@ -123,7 +97,7 @@ $(body).on('submit', '.form', function (e) {
 
     const submit = () => {
         $.ajax(url, params).done((res) => {
-            $(this).find('.form__preloader').remove();
+            $(this).find(`.${FORM_PRELOADER_CLASS}`).remove();
             if (res.status) {
                 if ($(this).data('auto-close-modal')) {
                     setTimeout(() => {
@@ -133,6 +107,8 @@ $(body).on('submit', '.form', function (e) {
                             }
                             $(this).parents('.modal-window').find('.modal-window__close').click();
                         }
+                        $(response).removeClass('response--error').removeClass('response--success').html('');
+
                     }, 2500)
                 } else {
                     if ($(this).data('reset')) {
@@ -150,9 +126,6 @@ $(body).on('submit', '.form', function (e) {
                 }
                 if ($(this).data('callback')) {
                     window[$(this).data('callback')](res);
-                }
-                if ($(this).data('reset')) {
-                    $(this)[0].reset();
                 }
             } else {
                 if ($(response).length > 0) {
@@ -176,17 +149,17 @@ $(body).on('submit', '.form', function (e) {
             }
         })
             .fail((xhr) => {
-                $(this).find('.form__preloader').remove();
-                let error = xhr.responseJSON;
+                $(this).find(`.${FORM_PRELOADER_CLASS}`).remove();
+                const error = xhr.responseJSON;
 
                 if (error.message === "") {
-                    if ($(response).length > 0) {
+                    if ($(response).length) {
                         $(response).removeClass('response--success').addClass('response--error').html("Неизвестная ошибка");
                     } else {
                         alert("Неизвестная ошибка");
                     }
                 } else {
-                    if ($(response).length > 0) {
+                    if ($(response).length) {
                         $(response).removeClass('response--success').addClass('response--error').html(error.message);
                     } else {
                         alert(error.message);
@@ -196,7 +169,7 @@ $(body).on('submit', '.form', function (e) {
                     })
                 }
                 if (!$(this).data('noscroll')) {
-                    if ($(response).length > 0) {
+                    if ($(response).length) {
                         $(response)[0].scrollIntoView();
                     }
                 }
@@ -233,15 +206,17 @@ $(body).on('click', '*[data-confirm-form-url]', function() {
     const formId = 'confirm_form_' + url.split('/').join('_');
    $(body).append(`<div id="${formId}">
        <form action="${url}" data-auto-close-modal="1" class="form  modal-window__form">
-          <input type="hidden" name="${inputName}" value="${inputValue}"/>
-          <input type="hidden" name="_from_confirm_form" value="1"/>
-          <div class="modal-window__text">
-            ${text}
-          </div>
-          <div class="form__bottom">
-            <button class="button button--light">ОК</button>
-            <a class="button button--light modal-window__close-button">Отмена</a>
-            <div class="response response--light"></div>
+            <div class="form__content">
+              <input type="hidden" name="${inputName}" value="${inputValue}"/>
+              <input type="hidden" name="_from_confirm_form" value="1"/>
+              <div class="modal-window__text">
+                ${text}
+              </div>
+              <div class="form__bottom">
+                <button class="button button--light">ОК</button>
+                <a class="button button--light modal-window__close-button">Отмена</a>
+                <div class="response response--light"></div>
+              </div>
           </div>
        </form>
    </div>`);

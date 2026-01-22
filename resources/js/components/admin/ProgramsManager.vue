@@ -161,7 +161,8 @@ const mergeOptions = computed(() => {
 
 const merge = () => {
     mergeLoading.value = true;
-    $.post('/programs/merge', {
+    if (!mergeSelectedProgram.value) return;
+    $.post(route('programs.merge'), {
         original_id: mergeSelectedProgram.value.id,
         merged_id: mergeSecondProgramId.value,
         is_interprogram: mergeToInterprogram.value
@@ -169,16 +170,17 @@ const merge = () => {
         mergeLoading.value = false;
         mergeResponse.value = res;
         if (res.status) {
-            mergeModalRef.value.hide();
-            programs.value = programs.value.filter(program => program.id !== this.mergeSelectedProgram.value.id);
-            let genreId = this.mergeSelectedProgram.value.genre_id;
+            mergeModalRef.value?.hide();
+            const programId = mergeSelectedProgram.value!.id;
+            const genreId = mergeSelectedProgram.value!.genre_id;
+            programs.value = programs.value.filter(program => program.id !== programId);
             if (genreId && genreId > 0) {
-                programsByGenre.value[genreId] = programsByGenre[genreId].value.filter(
-                    program => program.id !== mergeSelectedProgram.value.id
+                programsByGenre.value[genreId] = programsByGenre.value[genreId].filter(
+                    program => program.id !== programId
                 );
             } else {
                 programsWithoutGenre.value = programsWithoutGenre.value.filter(
-                    program => program.id !== mergeSelectedProgram.value.id
+                    program => program.id !== programId
                 );
             }
         }
@@ -206,7 +208,7 @@ const saveOrder = () => {
         order[genreId] = programsByGenre.value[genreId].map(program => program.id);
     })
     order[-1] = programsWithoutGenre.value.map(program => program.id);
-    $.post(route('programs.edit-list', props.channel.id), {order}).done(res => {
+    $.post(route('channels.programs.save-list', props.channel.id), {order}).done(res => {
         loading.value = false;
         response.value = res;
     }).fail((xhr) => {

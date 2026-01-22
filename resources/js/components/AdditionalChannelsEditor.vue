@@ -8,9 +8,7 @@
                         <div class="input-container input-container--vertical">
                             <label class="input-container__label">{{is_radio ? 'Радио' : 'Канал'}}</label>
                             <div class="input-container__inner">
-                                <select class="select-classic" v-model="channelItem.channel_id">
-                                    <option :value="channel.id" v-for="(channel, $index) in channelsList" :key="channel.id">{{channel.name}}</option>
-                                </select>
+                                <select2 v-model="channelItem.channel_id" :options="channelsList" />
                             </div>
                         </div>
 
@@ -27,7 +25,7 @@
                         <div class="input-container input-container--vertical">
                             <label class="input-container__label">Начальная дата показа</label>
                             <div class="input-container__inner">
-                                <Datepicker v-model="channelItem.date_start"/>
+                                <input class="input" type="date" v-model="channelItem.date_start"/>
                             </div>
                         </div>
                     </div>
@@ -35,7 +33,7 @@
                         <div class="input-container input-container--vertical">
                             <label class="input-container__label">Конечная дата показа</label>
                             <div class="input-container__inner">
-                                <Datepicker v-model="channelItem.date_end"/>
+                                <input class="input" type="date" v-model="channelItem.date_end"/>
                             </div>
                         </div>
                     </div>
@@ -77,9 +75,11 @@
     }
 </style>
 <script>
-    import Datepicker from 'vuejs-datepicker';
+
+    import Select2 from "@/components/Select2.vue";
 
     export default {
+        components: {Select2},
         computed: {
             channelsJson() {
                 return JSON.stringify(this.additionalChannels)
@@ -91,7 +91,7 @@
                 //this.$forceUpdate();
             },
             addItem() {
-                let data = JSON.parse(JSON.stringify({
+                const data = JSON.parse(JSON.stringify({
                     title: "",
                     channel_id: null,
                     date_start: null,
@@ -119,8 +119,5 @@
                 this.channelsList = res.data.channels;
             })
         },
-        components: {
-            Datepicker
-        }
     }
 </script>

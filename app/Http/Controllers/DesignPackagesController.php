@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Constants\Actions;
 use App\Helpers\ActionsLogHelper;
-use App\Helpers\HTMLHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
 use App\Models\Annotation;
@@ -14,6 +13,8 @@ use App\Models\DesignPackage;
 use App\Models\Program;
 use App\Models\Record;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Mews\Purifier\Facades\Purifier;
 
 
 class DesignPackagesController extends Controller
@@ -167,12 +168,15 @@ class DesignPackagesController extends Controller
         $annotations = [];
         $hide_unsorted = request()->input('hide_unsorted', true);
 
-        if ($package_url == "other") {
+        $is_other = $package_url == "other";
+
+        if ($is_other) {
             $types_to_hide = [11, 22];
-            $base_url = $channel->full_url . "/graphics/other";
-            $is_other = true;
+            $base_url = typed_route('design.[CHANNEL].show', $channel->is_radio, [$channel->url ?? $channel->id, 'other']);
+
             $conditions = [
                 'channel_id' => $channel->id,
+                'program_id' => null,
                 'is_interprogram' => true,
                 'is_selected' => false,
                 'show_years' => true
@@ -182,7 +186,7 @@ class DesignPackagesController extends Controller
                 $conditions['interprogram_type_not_in'] = $types_to_hide;
             }
             $package = new DesignPackage([
-                'id' => 0,
+                'id' => 'other_'.$channel->id,
                 'name' => 'Прочее',
                 'pictures' => [],
                 'years_range' => '',
@@ -195,7 +199,6 @@ class DesignPackagesController extends Controller
         } else {
             $types_to_hide = [22];
             $conditions = [];
-            $is_other = false;
             $package = DesignPackage::where(['channel_id' => $channel->id])->where(function ($q) use ($package_url) {
                 $q->where(['id' => $package_url]);
                 $q->orWhere(['url' => $package_url]);
@@ -214,14 +217,6 @@ class DesignPackagesController extends Controller
                     return !in_array($record->interprogram_type, $types_to_hide);
                 });
             }
-
-//            $records = $records->map(function ($record) {
-//                return [
-//                    'order' => $record->internal_order,
-//                    'is_annotation' => false,
-//                    'data' => $record
-//                ];
-//            });
 
             $annotations = $package->annotations;
             $annotations = $annotations->map(function ($annotation, $index) use ($annotations, $records) {
@@ -519,7 +514,7 @@ class DesignPackagesController extends Controller
         ]);
 
         if (isset($data['description'])) {
-            $data['description'] = HTMLHelper::sanitize($data['description']);
+            $data['description'] = Purifier::clean($data['description']);
         }
 
         $package->fill($data);
@@ -573,6 +568,10 @@ class DesignPackagesController extends Controller
                 Annotation::whereIn('id', $ids_to_delete)->delete();
             }
         }
+
+        Cache::forget('design_package_url_'.$package->id);
+        Cache::forget('design_package_random_pictures_'.$package->id);
+
         return [
             'status' => 1,
             'text' => 'Информация о пакете оформления обновлена',
@@ -607,7 +606,6 @@ class DesignPackagesController extends Controller
         if (count($not_sorted_interprogram) > 0) {
             //$not_sorted_interprogram = $not_sorted_interprogram->slice(0, 50);
             $packages->push(new DesignPackage([
-                'id' => 0,
                 'name' => count($packages) > 0 ? 'Прочее' : '',
                 'pictures' => [],
                 'years_range' => '',

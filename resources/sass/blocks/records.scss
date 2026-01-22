@@ -10,7 +10,7 @@
 .records-list {
     display: flex;
     flex-wrap: wrap;
-    gap: .75em;
+    gap: var(--col-margin);
     &__empty {
         font-weight: bold;
         padding: .25em;
@@ -27,7 +27,7 @@
     &__filters {
         display: flex;
         flex-direction: column;
-        gap: .75em;
+        gap: var(--col-margin);
         margin-bottom: 1.75em;
     }
 
@@ -42,12 +42,12 @@
         align-items: center;
         justify-content: space-between;
         @include mobile() {
-            margin: 0 0 1em;
-            padding: 0 0 1.25em;
+            gap: var(--col-margin);
             flex-direction: column;
             align-items: flex-start;
         }
         &__items {
+            flex: 1;
             font-size: 1.25em;
             @include mobile() {
                 display: none;
@@ -57,14 +57,13 @@
         }
 
         &__search {
-            font-size: 1.25em;
-            max-width: 20em;
+            max-width: 25em;
             width: 25%;
             display: flex;
             margin: 0;
             @include mobile() {
                 max-width: unset;
-                width: calc(100% - 1.25em);
+                width: 100%;
             }
         }
 
@@ -75,7 +74,6 @@
                 border-color: var(--border-color-dark);
                 display: block;
                 width: 100%;
-                margin: 0 0 1.5em;
             }
         }
     }
@@ -139,7 +137,7 @@
         z-index: 10;
         background: rgba(0, 0, 0, .5);
         padding: .25em .5em;
-        border-radius: .25em;
+        border-radius: var(--border-radius-small);
         color: var(--box-text-color-dark);
     }
 
@@ -154,7 +152,7 @@
         line-height: 1;
         background: rgba(0, 0, 0, .5);
         padding: .25em;
-        border-radius: .25em;
+        border-radius: var(--border-radius-small);
         color: var(--box-text-color-dark);
         opacity: .75;
         font-size: .75em;
@@ -191,6 +189,8 @@
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 3;
         font-weight: bold;
+        text-decoration: none;
+        transition: color .2s;
         @include light {
             font-weight: normal;
         }
@@ -203,9 +203,8 @@
             filter: drop-shadow(1px 1px 0 rgba(255,255,255,.25)) drop-shadow(-1px -1px 0 rgba(255,255,255,.25));
         }
     }
-
-    .highlight {
-        background: rgba(255, 255, 255, 0.35);
+    &:hover &__title {
+        color: var(--primary);
     }
 
     &__tags {
@@ -217,7 +216,7 @@
     }
 
     &__tag {
-        border-radius: .25em;
+        border-radius: var(--border-radius-small);
         color: var(--box-text-color-dark);
         background: rgba(0, 0, 0, 0.5);
         padding: .25em .5em;
@@ -252,11 +251,17 @@
         }
     }
     &__timecodes {
+        font-size: .875em;
+        opacity: .8;
+        color: var(--box-text-color-dark);
+        display: flex;
+        flex-direction: column;
+        gap: .25em;
         &__line {
-            margin: .5em 0;
-
-            &__text {
-                margin: 0 .5em;
+            text-decoration: none;
+            transition: color .2s;
+            &:hover {
+                color: var(--primary);
             }
         }
     }
@@ -293,7 +298,12 @@
         align-items: center;
         justify-content: space-between;
         color: var(--text-lighter);
-         padding: 0;
+        &__inner {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: var(--col-margin);
+        }
     }
 
     &__comments {
@@ -406,6 +416,9 @@
     gap: var(--col-margin);
     padding: 0;
     width: 100%;
+    @include mobile() {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
     .record-item {
         width: 100%;
         flex-direction: column;
@@ -484,10 +497,7 @@
     display: flex;
     flex-wrap: wrap;
     .record-item {
-        width: 50%;
-        @include light() {
-            width: calc(50% - 1em);
-        }
+        width: calc(50% - .4em);
         @include mobile() {
             width: 100%!important;
         }
@@ -645,4 +655,28 @@
     font-size: 1.125em;
     cursor: pointer;
     font-weight: bold;
+}
+
+
+.records-periods {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+    margin-top: 2px;
+}
+
+
+
+.records-period {
+    display: flex;
+    flex-direction: column;
+    &__name {
+        border-bottom: 1px solid var(--border-c);
+        font-size: 1.3125em;
+        font-weight: 600;
+        background: var(--bg-darker);
+        padding: .5em .75em;
+        box-shadow: var(--element-box-shadow);
+        margin: -.75em calc(-.75em - 1px) .75em;
+    }
 }

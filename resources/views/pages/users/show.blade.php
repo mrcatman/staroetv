@@ -119,31 +119,31 @@
                                 </div>
                                 <div class="col user-info__col">
                                     @if ($user->meta->date_of_birth)
-                                        <div class="user-info__item">
+                                        <div class="user-info__item user-info__item--with-icon">
                                             <div class="user-info__item__icon"><i class="fa fa-birthday-cake"></i></div>
                                             {{$user->meta->date_of_birth_formatted}}
                                         </div>
                                     @endif
                                     @if ($user->meta->yandex_video)
-                                        <div class="user-info__item">
+                                        <div class="user-info__item user-info__item--with-icon">
                                             <div class="user-info__item__icon"><i class="fa fa-play"></i></div>
                                             {{$user->meta->yandex_video}}
                                         </div>
                                     @endif
                                     @if ($user->meta->vk)
-                                        <div class="user-info__item">
+                                        <div class="user-info__item user-info__item--with-icon">
                                             <div class="user-info__item__icon"><i class="fab fa-vk"></i></div>
                                             {{$user->meta->vk}}
                                         </div>
                                     @endif
                                     @if ($user->meta->youtube)
-                                        <div class="user-info__item">
+                                        <div class="user-info__item user-info__item--with-icon">
                                             <div class="user-info__item__icon"><i class="fab fa-youtube"></i></div>
                                             {{$user->meta->youtube}}
                                         </div>
                                     @endif
                                     @if ($user->meta->facebook)
-                                        <div class="user-info__item">
+                                        <div class="user-info__item user-info__item--with-icon">
                                             <div class="user-info__item__icon"><i class="fab fa-facebook"></i></div>
                                             {{$user->meta->facebook}}
                                         </div>

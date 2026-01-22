@@ -370,7 +370,7 @@
                 right: .25em;
                 top: .25em;
                 z-index: 100;
-                border-radius: .25em;
+                border-radius: var(--border-radius-small);
                 cursor: pointer;
             }
 

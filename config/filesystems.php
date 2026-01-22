@@ -71,6 +71,10 @@ return [
             'driver' => 'local',
             'root'   => storage_path('temp'),
         ],
+        'media-storage' => [
+            'driver' => 'local',
+            'root'   => env('STORAGE_PATH')
+        ],
     ],
 
 ];

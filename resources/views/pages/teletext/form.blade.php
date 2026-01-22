@@ -28,7 +28,7 @@
                 <div class="input-container">
                     <label for="channel_id" class="input-container__label">Канал</label>
                     <div class="input-container__inner">
-                        <channel-select :value='@json($teletext ? $teletext->channel : null)' :channels-list='@json($channels)'></channel-select>
+                        <channel-select :channel='@json($teletext ? $teletext->channel : null)' :channels-list='@json($channels)'></channel-select>
                         <span class="input-container__message"></span>
                     </div>
                 </div>
@@ -37,7 +37,7 @@
                     <label for="year" class="input-container__label">Дата</label>
                     <div class="input-container__inner">
                         <div class="input-container__element-outer">
-                            <date-select :value='@json($teletext ? ['year' => $teletext->year, 'month' => $teletext->month, 'day' => $teletext->day] : null)'></date-select>
+                            <date-select :date='@json($teletext ? ['year' => $teletext->year, 'month' => $teletext->month, 'day' => $teletext->day] : null)'></date-select>
                         </div>
 
                         <span class="input-container__message"></span>

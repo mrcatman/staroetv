@@ -64,9 +64,11 @@
         background: var(--box-color-dark);
         padding: 1em;
         position: relative;
-        z-index: 9999;
+        z-index: 20;
         box-shadow: var(--block-box-shadow);
-
+        @include mobile() {
+            display: none;
+        }
         &__link {
             color: var(--box-text-color-dark);
             text-decoration: none;

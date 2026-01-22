@@ -28,14 +28,25 @@ body {
     --site-background-color: #ebe2da;
     --bg-darker-2: #e6e6e6;
     --bg-darker-3: #dddd;
-    --modal-header-background-color: #111;
-    --modal-header-color: #fafafa;
+    --modal-header-background-color: rgba(0,0,0,.05);
+    --modal-header-color: #555;
     --modal-color: #333;
     --modal-background-color: #eee;
-    --block-box-shadow: 0 1em 4em -1em inset #cd702d29, 0 .5em 5em -1.25em #69524057;
-    --input-box-shadow: 0 0 .5em inset #cd702d29, 0 .5em 2em -.25em #69524042;
-    --element-box-shadow: 0 .5em 4em -1em inset #17161529, 0 1em 1.75em -.25em #69524042;
-    --button-box-shadow: 0 .5em 1.25em -.25em #6952402b;
+    --big-texts-shadow: 2px 2px 5px #ccc, -2px -2px 5px #fff;
+    --big-texts-shadow-dark: 1px 1px 1px #333;
+    --block-box-shadow: 0 1em 4em -1em inset rgba(185, 168, 156, 0.4), 0 .5em 5em -1.25em rgba(96, 88, 82, 0.66);
+    --input-box-shadow: 0 0 .25em inset rgba(194, 173, 160, 0.1), 0 .5em 1.75em -.5em rgba(84, 78, 73, 0.26);
+    --element-box-shadow: 0 .5em 1em -1em inset #17161529, 0 1em 1.75em -.25em #69524042;
+    --button-box-shadow: 0 .5em 1.75em -.75em #ff6b02;
+    --button-text-shadow: 0 .125em .75em rgba(38, 29, 23, 0.25);
+    --border-radius-small: .25em;
+    --border-radius-standard: .5em;
+    --border-radius-big: .75em;
+    --overlay-darken: transparent;
+    --overlay-darken-2: transparent;
+    --overlay-margin: 0;
+    --overlay-padding: 0;
+
     --font-main: "Raleway", sans-serif;
     --font-texts: "Merriweather", serif;
     overflow-x: hidden;
@@ -95,8 +106,10 @@ a {
     gap: var(--col-margin);
 
     @include mobile() {
-        align-items: flex-start;
-        flex-direction: column;
+        &:not(.row--mobile) {
+            align-items: flex-start;
+            flex-direction: column;
+        }
     }
 
     &--vertical {
@@ -110,6 +123,10 @@ a {
 
     &--align-start {
         align-items: flex-start;
+    }
+
+    &--align-end {
+        align-items: flex-end;
     }
 }
 
@@ -201,7 +218,7 @@ a {
     display: flex;
     align-items: center;
     font-size: 1.25em;
-    border-radius: .25em;
+    border-radius: var(--border-radius-small);
 
     &:before {
         margin: 0 .5em 0 0;
@@ -231,7 +248,7 @@ hr {
 .picture-link {
     display: block;
     margin: 0 0 var(--col-margin);
-    border-radius: .75em;
+    border-radius: var(--border-radius-big);
     overflow: hidden;
     &__img {
         width: 100%;
@@ -251,6 +268,7 @@ hr {
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: var(--border-radius-big);
     @include mobile() {
         background-size: 100% auto;
     }
@@ -283,6 +301,7 @@ blockquote {
 }
 
 .certain-ratio-wrapper {
+    width: 100%;
     margin: 1em 0;
     position: relative;
     > * {
@@ -310,7 +329,8 @@ blockquote {
     @include light() {
         margin: 0;
     }
-    .input {
-        margin: 0;
+    @include mobile() {
+        width: 100%;
+        flex-direction: row;
     }
 }

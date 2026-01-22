@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Records;
+use App\Helpers\ExternalServicesHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\RegexHelper;
 use App\Models\VideoCut;
@@ -11,13 +13,14 @@ use Illuminate\Support\Str;
 class MassUploadController extends Controller {
 
 
-    public function index() {
+    public function index($is_radio) {
         if (!PermissionsHelper::allows('viadd')) {
             return redirect(route('index'));
         }
-        $can_upload = PermissionsHelper::allows('viupload');
+
+      //  $can_upload = PermissionsHelper::allows('viupload');
         return view('pages.mass-upload.index', [
-            'can_upload' => $can_upload
+            'is_radio' => $is_radio
         ]);
     }
 
@@ -28,44 +31,53 @@ class MassUploadController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         }
+
         $items = null;
-       // $user = auth()->user();
         $owner_id = request()->input('source');
-        $next_page_token = null;
 
         $can_upload = PermissionsHelper::allows('viupload');
-        $files = $can_upload ? array_values(array_diff(scandir('/storage/temp-upload'), array('.', '..'))) : [];
+
+        try {
+            $files = $can_upload ? array_values(array_diff(scandir('/storage/temp-upload'), array('.', '..'))) : [];
+        } catch (\Exception $e) {
+            $files = [];
+        }
+
+        $count = 25;
+        $offset = request()->input('next_page_token', '');
 
         if ($owner_id == 'local' && $can_upload) {
-            $type = 'local';
-            $files = array_slice($files, 0, 100);
+            $offset = (int)$offset;
+            $next_page_token = $offset + $count;
+
+            $files = array_slice($files, $offset, $count + $offset);
             foreach ($files as $file) {
                 $items[] = (object)[
                     'file' => $file,
                     'title' => pathinfo($file, PATHINFO_FILENAME),
                     'description' => '',
                     'player' => null,
-                    'image' => [
-                        [
-                            'url' => null
-                        ]
-                    ]
+                    'thumbnails' => []
                 ];
             }
-        } elseif (is_numeric($owner_id)) {
-            $type = "vk";
-            $token = config('tokens.vk');
-            $count = 100;
-            $offset = request()->has('next_page_token') ? request()->input('next_page_token') : 0;
+        } elseif ($vk_group_id = ExternalServicesHelper::resolveVkId($owner_id)) {
+            $offset = (int)$offset;
             $next_page_token = $offset + $count;
-            $vk_url = "https://api.vk.com/method/video.get?count=$count&offset=$offset&access_token=$token&v=5.101&owner_id=$owner_id&extended=1";
-            $data = json_decode(shell_exec(" curl '$vk_url'"));
+
+            $data = ExternalServicesHelper::vkVideoList($vk_group_id, $count, $offset);
             if (isset($data->error)) {
                 return [
                     'status' => 0,
                     'text' => $data->error->error_msg
                 ];
             }
+            if (!isset($data->response)) {
+                return [
+                    'status' => 0,
+                    'text' => 'Пользователь/группа не найдены'
+                ];
+            }
+
             $items = collect($data->response->items)->filter(function ($item) {
                 return isset($item->player);
             });
@@ -78,26 +90,24 @@ class MassUploadController extends Controller {
             $items = $items->filter(function ($item) use ($already_added) {
                 return !$already_added->contains($item->external_id);
             });
-            $items = $items->values();
-        } else {
-            $type = "youtube";
-            $token = config('tokens.youtube');
-            $playlist_data = json_decode(file_get_contents("https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forUsername=$owner_id&key=$token"));
-            $uploads_playlist_id = $playlist_data->items[0]->contentDetails->relatedPlaylists->uploads ?? null;
-            if (!$uploads_playlist_id) {
-               return ['status' => 0, 'text' => 'Не найден плейлист загрузок'];
-            }
-            $youtube_url = "https://www.googleapis.com/youtube/v3/playlistItems?playlistId=$uploads_playlist_id&key=$token&part=snippet&maxResults=50";
-            if (request()->has('next_page_token')) {
-                $youtube_url.="&pageToken=".request()->input('next_page_token');
-            }
-            $data = collect(json_decode(file_get_contents($youtube_url)));
+            $items = $items->map(function($item) {
+                return [
+                    'title' => $item->title,
+                    'description' => $item->description,
+                    'player' => $item->player,
+                    'code' => str_replace('URL', $item->player, Records::IFRAME_CODE),
+                    'thumbnails' => array_values(array_map(function($image) {
+                        return $image->url;
+                    }, $item->image)),
+                ];
+            })->values();
+        } elseif ($youtube_id = ExternalServicesHelper::resolveYoutubeId($owner_id)) {
+            $data = ExternalServicesHelper::youtubeVideoList($youtube_id, $count, $offset);
+
             $items = collect($data->items);
-
             $next_page_token = $data->nextPageToken;
-
             foreach ($items as $item) {
-                $item->external_id = RegexHelper::getExternalIdFromEmbedCode($item->player);
+                $item->external_id = $item->snippet->resourceId->videoId;
             }
             $already_added = Record::whereIn('external_id', $items->pluck('external_id'))->pluck('external_id');
             $items = $items->filter(function ($item) use ($already_added) {
@@ -108,19 +118,22 @@ class MassUploadController extends Controller {
                     'title' => $item->snippet->title,
                     'description' => $item->snippet->description,
                     'player' => 'https://youtube.com/embed/' . $item->snippet->resourceId->videoId,
-                    'image' => [
-                        [
-                            'url' => $item->snippet->thumbnails->high->url
-                        ]
+                    'code' => str_replace('URL', 'https://youtube.com/embed/' . $item->snippet->resourceId->videoId, Records::IFRAME_CODE),
+                    'thumbnails' => [
+                        $item->snippet->thumbnails->high->url
                     ]
                 ];
             })->values();
+        } else {
+            return [
+                'status' => 0,
+                'text' => 'Введена некорректная ссылка'
+            ];
         }
         return [
             'status' => 1,
             'data' => [
                 'next_page_token' => $next_page_token,
-                'type' => $type,
                 'items' => $items,
                 'files' => $files,
             ]

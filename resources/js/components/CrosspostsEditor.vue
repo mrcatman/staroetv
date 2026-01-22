@@ -23,7 +23,7 @@
                 </div>
             </div>
             <div class="form__bottom">
-                <a @click="$refs.settingsModal.hide()" class="button button--light">ОК</a>
+                <a @click="settingsModal.hide()" class="button button--light">ОК</a>
             </div>
         </modal>
 
@@ -93,112 +93,109 @@
         }
     }
 </style>
-<script>
+<script setup>
+    import { ref, reactive, onMounted } from 'vue';
     import PictureUploader from './PictureUploader.vue';
     import Modal from './Modal.vue';
     import Response from './Response.vue';
     import Snackbar from './Snackbar.vue';
-    export default {
-        components: {
-            PictureUploader, Modal, Response, Snackbar
-        },
-        methods: {
-            showSettings(networkId) {
-                this.settingsPanel.networkId = networkId;
-                if (!this.settings[networkId]) {
-                    this.settingsPanel.loading = true;
-                    this.$set(this.settings, networkId, {
-                        text: '',
-                        link: '',
-                        picture: ''
-                    });
-                    this.$refs.settingsModal.show();
-                    $.get(route('articles.get-crosspost-parameters'), {article_id: this.article.id, network_id: networkId}).done((res) => {
-                        this.settingsPanel.loading = false;
-                        this.$set(this.settings, networkId, res.data);
-                    })
-                } else {
-                    this.$refs.settingsModal.show();
-                }
-            },
-            deletePost(networkId) {
-              return new Promise((resolve, reject) => {
-                  this.$set(this.statusesByNetwork, networkId, -2);
-                  $.post(route('articles.crosspost'), {article_id: this.article.id, network_id: networkId, delete: true}).done((res) => {
-                      if (res.status) {
-                          this.$set(this.statusesByNetwork, networkId, -1);
-                          resolve();
-                      } else {
-                          this.$set(this.errorsByNetwork, networkId, res.text);
-                          this.$set(this.statusesByNetwork, networkId, 0);
-                          reject(res.text);
-                      }
-                  }).catch(xhr => {
-                      let error = xhr.responseJSON;
-                      let text = error.message || "Неизвестная ошибка";
-                      this.$set(this.errorsByNetwork, networkId, text);
-                      this.$set(this.statusesByNetwork, networkId, 0);
-                      reject(text);
-                  })
-              })
-            },
-            async makePost(networkId) {
-                if (this.statusesByNetwork[networkId] === 1) {
-                    if (!this.networksById[networkId].can_edit_posts) {
-                        await this.deletePost(networkId);
-                    }
-                }
-                this.$set(this.statusesByNetwork, networkId, -2);
 
-                let data = {article_id: this.article.id, network_id: networkId};
-                if (this.settings[networkId]) {
-                    data = {...data, ...this.settings[networkId]};
+    const props = defineProps(['crossposts', 'article', 'networks']);
+
+    const settingsModal = ref(null);
+
+    const settingsPanel = reactive({
+        response: null,
+        loading: false,
+        networkId: null
+    });
+
+    const settings = reactive({});
+    const statusClasses = {
+        '0': 'error',
+        '1': 'success'
+    };
+    const errorsByNetwork = reactive({});
+    const crosspostsByNetwork = reactive({});
+    const statusesByNetwork = reactive({});
+    const networksById = reactive({});
+
+    const showSettings = (networkId) => {
+        settingsPanel.networkId = networkId;
+        if (!settings[networkId]) {
+            settingsPanel.loading = true;
+            settings[networkId] = {
+                text: '',
+                link: '',
+                picture: ''
+            };
+            settingsModal.value.show();
+            $.get(route('articles.get-crosspost-parameters'), {article_id: props.article.id, network_id: networkId}).done((res) => {
+                settingsPanel.loading = false;
+                settings[networkId] = res.data;
+            })
+        } else {
+            settingsModal.value.show();
+        }
+    };
+
+    const deletePost = (networkId) => {
+        return new Promise((resolve, reject) => {
+            statusesByNetwork[networkId] = -2;
+            $.post(route('articles.crosspost'), {article_id: props.article.id, network_id: networkId, delete: true}).done((res) => {
+                if (res.status) {
+                    statusesByNetwork[networkId] = -1;
+                    resolve();
+                } else {
+                    errorsByNetwork[networkId] = res.text;
+                    statusesByNetwork[networkId] = 0;
+                    reject(res.text);
                 }
-                $.post(route('articles.crosspost'), data).done((res) => {
-                   if (res.status) {
-                       this.$set(this.statusesByNetwork, networkId, 1);
-                       let crosspost = res.data.crosspost;
-                       crosspost.link = res.data.link;
-                       this.$set(this.crosspostsByNetwork, networkId, crosspost);
-                    } else {
-                       this.$set(this.errorsByNetwork, networkId, res.text);
-                       this.$set(this.statusesByNetwork, networkId, 0);
-                    }
-                }).catch(xhr => {
-                    let error = xhr.responseJSON;
-                    let text = error.message || "Неизвестная ошибка";
-                    this.$set(this.errorsByNetwork, networkId, text);
-                    this.$set(this.statusesByNetwork, networkId, 0);
-                })
+            }).catch(xhr => {
+                let error = xhr.responseJSON;
+                let text = error.message || "Неизвестная ошибка";
+                errorsByNetwork[networkId] = text;
+                statusesByNetwork[networkId] = 0;
+                reject(text);
+            })
+        })
+    };
+
+    const makePost = async (networkId) => {
+        if (statusesByNetwork[networkId] === 1) {
+            if (!networksById[networkId].can_edit_posts) {
+                await deletePost(networkId);
             }
-        },
-        data() {
-            return {
-                settingsPanel: {
-                    response: null,
-                    loading: false,
-                    networkId: null
-                },
-                settings: {},
-                statusClasses: {
-                    '0': 'error',
-                    '1': 'success'
-                },
-                errorsByNetwork: {},
-                crosspostsByNetwork: {},
-                statusesByNetwork: {},
-                networksById: {},
+        }
+        statusesByNetwork[networkId] = -2;
+
+        let data = {article_id: props.article.id, network_id: networkId};
+        if (settings[networkId]) {
+            data = {...data, ...settings[networkId]};
+        }
+        $.post(route('articles.crosspost'), data).done((res) => {
+            if (res.status) {
+                statusesByNetwork[networkId] = 1;
+                const crosspost = res.data.crosspost;
+                crosspost.link = res.data.link;
+                crosspostsByNetwork[networkId] = crosspost;
+            } else {
+                errorsByNetwork[networkId] = res.text;
+                statusesByNetwork[networkId] = 0;
             }
-        },
-        mounted() {
-            this.crossposts.forEach(crosspost => {
-                this.$set(this.crosspostsByNetwork, crosspost.network, crosspost);
-            });
-            this.networks.forEach(network => {
-                this.$set(this.statusesByNetwork, network.id, this.crosspostsByNetwork[network.id] ? 1 : -1);
-                this.$set(this.networksById, network.id, network);
-            });
-        },
-        props: ['crossposts', 'article', 'networks']
-    }
+        }).catch(xhr => {
+            errorsByNetwork[networkId] = xhr.responseJSON?.message || "Неизвестная ошибка";
+            statusesByNetwork[networkId] = 0;
+        })
+    };
+
+    onMounted(() => {
+        props.crossposts.forEach(crosspost => {
+            crosspostsByNetwork[crosspost.network] = crosspost;
+        });
+        props.networks.forEach(network => {
+            statusesByNetwork[network.id] = crosspostsByNetwork[network.id] ? 1 : -1;
+            networksById[network.id] = network;
+        });
+    });
 </script>

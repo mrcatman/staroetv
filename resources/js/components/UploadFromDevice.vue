@@ -7,7 +7,7 @@
         <div class="device-uploader__top">
             <div class="inputs-line">
                 <div class="inputs-line__item">
-                    <div class="inputs-line__item__title">Канал</div>
+                    <div class="inputs-line__item__label">Канал</div>
                     <select2 theme="default" :options="channelOptions" @input ="e => loadInterprogramPackages()" v-model="channelId"></select2>
                     <a class="input-container__toggle-button" @click="loadChannels()">Перезагрузить</a>
                 </div>
@@ -17,11 +17,11 @@
             <div class="device-uploader__section" v-for="(section, $index) in sections" :key="$index">
                 <div class="inputs-line">
                     <div class="inputs-line__item">
-                        <div class="inputs-line__item__title">Выбор файлов</div>
+                        <div class="inputs-line__item__label">Выбор файлов</div>
                         <input type="file" multiple @change="(e) => addFiles(e, section)" />
                     </div>
                     <div class="inputs-line__item">
-                        <div class="inputs-line__item__title">Пакет оформления</div>
+                        <div class="inputs-line__item__label">Пакет оформления</div>
                         <select2 theme="default" :options="interprogramOptions" v-model="interprogramPackageId"></select2>
                         <a  class="input-container__toggle-button"@click="loadInterprogramPackages(section, true)">Перезагрузить</a>
                     </div>

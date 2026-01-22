@@ -4,8 +4,16 @@
         <div class="autocomplete">
             <div class="row">
                 <div class="col">
-                    <input class="input" @change="onNameChange()" v-model="program.name"
-                           :disabled="disabled || program.unknown" placeholder="Поиск программ канала по названию..."/>
+                    <div class="input-container__inner input-container__inner--with-button">
+                        <div class="input-container__element-outer">
+                            <input class="input" @change="onNameChange()" v-model="program.name"
+                                   :disabled="disabled || program.unknown" placeholder="Поиск программ канала по названию..."/>
+                            <a v-if="program.name.length && !program.id && !program.unknown" class="input-container__button input-container__button--big input-container__button--info">
+                                <span class="tooltip">Будет создана новая программа</span>
+                                <i class="fa fa-exclamation-circle"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 <div class="col col--auto">
                     <label class="input-container input-container--checkbox">
@@ -84,12 +92,8 @@ const selectProgram = (_program: Models.Program) => {
 
 let findByNameTimeout;
 const onNameChange = () => {
-    if (program.value.id) {
-        return;
-    }
-    if (program.value.name === '') {
-        program.value.id = null;
-    }
+    program.value.id = null;
+
     clearTimeout(findByNameTimeout);
     findByNameTimeout = setTimeout(findByName, 500);
 }

@@ -1,4 +1,4 @@
-import './init'
+import './init.js'
 import 'jquery-pjax';
 import './jquery-ui.min'
 
@@ -36,6 +36,7 @@ import './modules/survey'
 import './modules/previews'
 import './modules/telegram-auth'
 import './modules/actions-logs'
+import './modules/complaints'
 import './modules/teletext'
 
 import { initializeVue } from './vue-components.js'
@@ -53,7 +54,6 @@ function onPageChange() {
 
 const onReady = () => {
     $(document).pjax('a[target!="_blank"]', '#pjax-container', {timeout: 10000});
-    console.log('pjax');
     onPageChange();
 
     let lastLoadedUrl = window.location.href;
@@ -86,6 +86,8 @@ const onReady = () => {
         setTimeout(() => {
             $('body').removeClass('page-loading');
             $('.form__preloader').remove();
+
+            onPageChange();
         }, 250);
     });
 };

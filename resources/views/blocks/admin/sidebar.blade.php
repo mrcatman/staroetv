@@ -7,6 +7,9 @@
         <a class="admin-panel__link" href="{{route('admin.actions-logs.index')}}">
             <i class="fa fa-list"></i>Лог действий
         </a>
+        <a class="admin-panel__link" href="{{route('admin.records-complaints.index')}}">
+            <i class="fa fa-exclamation-triangle"></i>Жалобы на записи
+        </a>
         <a class="admin-panel__link" href="{{route('admin.channels.index')}}">
             <i class="fa fa-tv"></i>Каналы и радио
         </a>

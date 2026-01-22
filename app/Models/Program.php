@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Constants\CacheTimes;
 use App\Constants\MaterialTypes;
 use App\Helpers\PermissionsHelper;
 use Carbon\Carbon;
@@ -62,7 +63,7 @@ class Program extends Model {
     }
 
     public function getRandomPicturesAttribute() {
-        return Cache::remember('program_random_pictures_'.$this->id, 60 * 30, function () {
+        return Cache::remember('program_random_pictures_'.$this->id, CacheTimes::RANDOM, function () {
             $records = Record::where(['program_id' => $this->id])->whereNotNull('cover_id')->inRandomOrder()->limit(12)->get();
             $pictures = [];
             foreach ($records as $record) {
@@ -76,18 +77,23 @@ class Program extends Model {
         });
     }
 
+    public function getCoverAttribute() {
+        return $this->cover_url;
+    }
+
     public function getCoverUrlAttribute() {
+        return Cache::remember('program_cover_'.$this->id, CacheTimes::RELATION, function () {
+            if ($this->coverPicture && $this->coverPicture->url != '/Obloshki/11.PNG') {
+                return $this->coverPicture->url;
+            }
+            $pictures = $this->random_pictures;
 
-        if ($this->coverPicture && $this->coverPicture->url != '/Obloshki/11.PNG') {
-            return $this->coverPicture->url;
-        }
-        $pictures = $this->random_pictures;
-
-        if (count($pictures) > 0) {
-            return $pictures[0];
-        }
-       // return '/img/noise.jpg';
-        return '/Obloshki/11.PNG';
+            if (count($pictures) > 0) {
+                return $pictures[0];
+            }
+            // return '/img/noise.jpg';
+            return '/Obloshki/11.PNG';
+        });
     }
 
     public function getChannelsNamesListAttribute() {
@@ -105,7 +111,7 @@ class Program extends Model {
 
     public function getChannelsHistoryAttribute()
     {
-       return Cache::remember('programs_channels_names_' . $this->id, 1800, function () {
+       return Cache::remember('programs_channels_names_' . $this->id, CacheTimes::RELATION, function () {
             $used_channel_ids = [];
             $channels = [];
             if ($this->channel) {
@@ -203,7 +209,7 @@ class Program extends Model {
                             return $name->logo;
                         });
                         if (count($names_with_logos) > 0) {
-                            $name_data['logo'] = $names_with_logos[0]->logo->url;
+                            $name_data['logo'] = $names_with_logos->first()->logo->url;
                         }
                     } else {
                         $main_name = $this->channel->name;
@@ -219,7 +225,7 @@ class Program extends Model {
                                 return $name->logo;
                             });
                             if (count($names_with_logos) > 0) {
-                                $name_data['logo'] = $names_with_logos[0]->logo->url;
+                                $name_data['logo'] = $names_with_logos->first()->logo->url;
                             }
                         }
                         $first_name = $unique_names->shift();
@@ -261,19 +267,6 @@ class Program extends Model {
         return $query;
     }
 
-    public function getCoverAttribute() {
-        if ($this->coverPicture) {
-            $url = $this->coverPicture->url;
-            if ($url == "/Obloshki/11.PNG") {
-                return "/pictures/logo-grey.svg";
-            } else {
-                return $url;
-            }
-        } else {
-            return "/pictures/logo-grey.svg";
-        }
-    }
-
     public function getCoverWithoutEmptyAttribute() {
         if ($this->cover != "/pictures/logo-grey.svg") {
 
@@ -309,7 +302,7 @@ class Program extends Model {
             'id',
             'id',
             'article_id'
-        );
+        )->approved()->orderBy('created_at', 'DESC');
     }
 
 

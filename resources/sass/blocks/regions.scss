@@ -4,10 +4,11 @@
     align-items: center;
     gap: var(--col-margin) 0;
     margin: 1em 0;
+    @include mobile() {
+        font-size: .75em;
+    }
     &__search {
         margin-top: var(--col-margin);
-    }
-    &__container {
         @include mobile() {
             font-size: .875em;
         }
@@ -22,6 +23,9 @@
     border-top-left-radius: .5em;
     border-bottom-left-radius: .5em;
     flex-wrap: wrap;
+    &:hover {
+        background: var(--bg-darker-2);
+    }
     &--active {
         background: var(--bg-darker-2);
     }
@@ -54,7 +58,9 @@
         font-size: 1.125em;
         background: var(--bg-darker);
         padding: .5em .75em;
-
+        &:hover {
+            background: var(--bg-darker-2);
+        }
 
         &--parent-active {
             background: var(--bg-darker-2);

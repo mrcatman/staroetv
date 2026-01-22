@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\CacheTimes;
 use App\Constants\MaterialTypes;
 use App\Models\Article;
 use App\Crossposting\CrossposterManager;
@@ -13,6 +14,7 @@ use App\Models\Comment;
 use App\Models\Crosspost;
 use App\Models\Tag;
 use App\Models\TagMaterial;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
 class ArticlesController extends EntityController {
@@ -21,7 +23,7 @@ class ArticlesController extends EntityController {
     protected $permissions = [
         'approve' => 'nwapprove'
     ];
-    protected $redirect_after_delete = '/articles';
+
 
     public $types_data = [
         MaterialTypes::TYPE_NEWS => [
@@ -83,6 +85,10 @@ class ArticlesController extends EntityController {
         ]
     ];
 
+    public function __construct() {
+        $this->redirect_after_delete = route('articles.index');
+    }
+
     public function redirect($conditions) {
         $article = Article::where($conditions)->first();
         if (!$article) {
@@ -101,7 +107,7 @@ class ArticlesController extends EntityController {
     }
 
     public function show($url) {
-        $data = Cache::remember('article_'.$url, 60 * 10,  function() use ($url) {
+        $data = Cache::remember('article_'.$url, CacheTimes::PAGE,  function() use ($url) {
             $article = Article::where(['url' => $url])->firstOrFail();
             $see_also = Article::where('id', '<', $article->id)->where(['pending' => false])->orderBy('created_at', 'desc')->limit(5)->get();
             $see_also = $see_also->merge(
@@ -139,7 +145,6 @@ class ArticlesController extends EntityController {
     }
 
     public function index() {
-        $category = null;
         $articles = Article::where(function($q) {
             $q->where('type_id', '!=', MaterialTypes::TYPE_BLOG);
             $q->orWhereNull('type_id');
@@ -171,7 +176,7 @@ class ArticlesController extends EntityController {
         }
         $articles = $articles->paginate(20);
 
-        $tags = Cache::remember('articles_tags', 60 * 30, function() {
+        $tags = Cache::remember('articles_tags', CacheTimes::RELATION, function() {
             $all_ids = Article::where(['pending' => false])->where('type_id', '!=', MaterialTypes::TYPE_BLOG)->pluck('id');
             return Tag::all()->map(function($tag) use ($all_ids) {
                 $count = TagMaterial::where(['tag_id' => $tag->id, 'material_type' => 'articles'])->whereIn('material_id', $all_ids)->count();
@@ -429,14 +434,13 @@ class ArticlesController extends EntityController {
 
             $article->original_id = $article->id;
             $article->save();
-            $article_link = $article->url;
+
             $this->setTags($article);
 
-            Cache::forget('article_'.$article->url);
             return [
                 'status' => 1,
                 'text' => 'Добавлено',
-                'redirect_to' => $article_link
+                'redirect_to' => $article->url
             ];
         }
     }
@@ -468,6 +472,8 @@ class ArticlesController extends EntityController {
         $this->saveEntity($article);
 
         $this->setTags($article);
+        $this->clearCache($article);
+
         return [
             'status' => 1,
             'text' => 'Обновлено'
@@ -556,7 +562,7 @@ class ArticlesController extends EntityController {
                 'dom' => [
                     [
                         'replace' => $selector,
-                        'html' => view("blocks/articles.actions", [
+                        'html' => view("blocks.articles.actions", [
                             'article' => $article,
                             'can_edit' => $can_edit,
                             'can_approve' => $can_approve,
@@ -600,6 +606,18 @@ class ArticlesController extends EntityController {
         }
     }
 
+    private function clearCache(Article $article)
+    {
+        Cache::forget('article_'.$article->url);
+        Cache::forget('article_short_content_'.$article->id);
+        Cache::forget('article_fixed_content_'.$article->id);
+        Cache::forget('articles_tags');
+    }
 
+    protected function afterDelete(Model $entity)
+    {
+        $this->clearCache($entity);
+        return parent::afterDelete($entity);
+    }
 
 }

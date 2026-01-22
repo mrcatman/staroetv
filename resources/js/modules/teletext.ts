@@ -1,14 +1,13 @@
-let currentPage;
-let pageSelect;
-let pages = [];
+let currentPage: string;
+let pageSelect: JQuery<HTMLElement>;
+let pages: string[] = [];
 let pushState = true;
 
-const loadPage = (page) => {
+const loadPage = (page: string) => {
     currentPage = page;
 
     $('.record-page__player-container').append(' <div class="form__preloader form__preloader--dark"><img src="/img/ajax.gif"></div>');
-    const url = `/teletext/${$('input[name=teletext_id]').val()}/?page=${page}&ajax=1`;
-    $.get(url).then(res => {
+    $.get(`/teletext/${$('input[name=teletext_id]').val()}/?page=${page}&ajax=1`).then(res => {
         $('.record-page__player-container').find('.form__preloader').remove();
         $('.teletext').html(res);
 
@@ -24,7 +23,7 @@ const loadPage = (page) => {
 
         if (pushState) {
             const url = new URL(window.location.href);
-            url.searchParams.set('page', page);
+            url.searchParams.set('page', page.toString());
             window.history.pushState(null, '', url.toString());
         }
 
@@ -66,8 +65,15 @@ const onKeydown = (e) => {
     }
 }
 
+const onResize = () => {
+    const teletext = $('.teletext');
+    const width = $(teletext).width();
+    $(teletext).css({fontSize: width / 33});
+}
+
 const initTeletext = () => {
     $(document).off('keydown', onKeydown);
+    $(window).off('resize', onResize);
 
     if (!$('.teletext-controls').length) {
         return;
@@ -76,11 +82,11 @@ const initTeletext = () => {
     pageSelect = $('.teletext-controls__select');
 
     pages = [...$(pageSelect)[0].options].map(o => o.value);
-    currentPage = $(pageSelect).val();
+    currentPage = $(pageSelect).val() as string;
     initSubpages();
 
     $(pageSelect).select2().on('change', function() {
-        loadPage($(this).val());
+        loadPage($(this).val() as string);
     });
 
     $('body').on('click', '.teletext-controls__subpage', function() {
@@ -101,6 +107,9 @@ const initTeletext = () => {
 
     $(document).on('keydown', onKeydown);
 
+    $(window).on('resize', onResize);
+    onResize();
+
     const url = new URL(window.location.href);
     if (url.searchParams.get('update_cover') && !$('input[name=cover_id]').val()) {
         updateCover();
@@ -117,6 +126,7 @@ $(window).on('popstate', function() {
 
 const updateCover = () => {
     const callback = () => {
+        //@ts-ignore
         html2canvas($('.teletext')[0]).then(function(canvas) {
             canvas.toBlob((blob) => {
 

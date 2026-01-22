@@ -2,20 +2,16 @@
     display: block;
 
     > .content {
-        margin-left: 0;
-        width: 100%;
-        margin-top: 4.5em;
+        margin: 0 1em;
+        width: calc(100% - 2em);
         z-index: 10;
         position: relative;
         @include mobile() {
             margin-top: 3em;
             @include light() {
-                margin: 3.25em 1em 0 !important;
+                margin: 3.25em .5em 0 !important;
+                width: calc(100% - 1em) !important;
             }
-        }
-        @include light() {
-            margin: 0 1em;
-            width: calc(100% - 2em);
         }
     }
 
@@ -67,8 +63,6 @@
         flex: 1;
         @include mobile() {
             display: none;
-        }
-        @include mobile {
             position: fixed;
             top: 5em;
             background: #000;
@@ -98,7 +92,6 @@
                 width: 100%;
                 height: .25em;
             }
-
             &:nth-of-type(1):after {
                 background: #fffd00;
             }
@@ -114,6 +107,7 @@
             &:nth-of-type(5):after {
                 background: #da1e1e;
             }
+
         }
     }
     &__logo {
@@ -162,11 +156,6 @@ div.sidebar__menu::-webkit-scrollbar {
     }
     .button {
         margin: 0!important;
-        @media screen and (max-width: 380px) {
-            padding: .35em .5em .5em;
-            font-size: 1.125em;
-            line-height: 1.5;
-        }
     }
     &--logged-in {
         padding: 0;
@@ -205,7 +194,7 @@ div.sidebar__menu::-webkit-scrollbar {
             font-size: .5em;
             font-weight: bold;
             padding: 0 .25em;
-            border-radius: .25em;
+            border-radius: var(--border-radius-small);
             position: absolute;
             top: .75em;
             right: .5em;
@@ -229,10 +218,11 @@ div.sidebar__menu::-webkit-scrollbar {
                 height: 1.75em;
                 display: flex;
                 align-items: center;
+                gap: .5em;
             }
             &__text {
+                font-size: .75em;
                 @include mobile() {
-                    margin: 0 0 0 .5em;
                     @media screen and (max-width: 450px) {
                         display: none;
                     }
@@ -259,38 +249,49 @@ div.sidebar__menu::-webkit-scrollbar {
     }
 
     &__item {
-        display: block;
-        font-size: 1.5em;
+        display: flex;
+        gap: .5em;
+        font-size: 1.25em;
         color: var(--box-text-color-dark);
         padding: .5em 1em;
         text-decoration: none;
-
-        i {
-            margin: 0 .5em 0 0;
+        @include hover(true);
+        cursor: pointer;
+        &--small {
+            font-size: 1em;
         }
+
 
         &:last-of-type {
             margin-bottom: 2em;
         }
 
         &:nth-of-type(1) {
-            border-left: .25em solid #fffd00;
+            border-left: 4px solid #fff;
         }
 
         &:nth-of-type(2) {
-            border-left: .25em solid #00fffd;
+            border-left: 4px solid #fffd00;
         }
 
         &:nth-of-type(3) {
-            border-left: .25em solid #00ff00;
+            border-left: 4px solid #00fffd;
         }
 
         &:nth-of-type(4) {
-            border-left: .25em solid #e702e8;
+            border-left: 4px solid #00ff00;
         }
 
         &:nth-of-type(5) {
-            border-left: .25em solid #da1e1e;
+            border-left: 4px solid #e702e8;
+        }
+
+        &:nth-of-type(6) {
+            border-left: 4px solid #da1e1e;
+        }
+
+        &:nth-of-type(7) {
+            border-left: 4px solid #0000c1;
         }
 
         &__count {

@@ -96,21 +96,21 @@
                             <div class="input-container">
                                 <label class="input-container__label">Читать записи в форуме могут:</label>
                                 <div class="input-container__inner">
-                                    @include('blocks/user_groups_select', ['name' => 'can_view', 'data' => $forum ? $forum->can_view : "0"])
+                                    @include('blocks.forms.user-groups-select', ['name' => 'can_view', 'data' => $forum ? $forum->can_view : "0"])
                                     <span class="input-container__message"></span>
                                 </div>
                             </div>
                             <div class="input-container">
                                 <label class="input-container__label">Создавать новые темы могут:</label>
                                 <div class="input-container__inner">
-                                    @include('blocks/user_groups_select', ['name' => 'can_create_topics', 'data' => $forum ? $forum->can_create_topics : "0"])
+                                    @include('blocks.forms.user-groups-select', ['name' => 'can_create_topics', 'data' => $forum ? $forum->can_create_topics : "0"])
                                     <span class="input-container__message"></span>
                                 </div>
                             </div>
                             <div class="input-container">
                                 <label class="input-container__label">Добавлять ответы могут:</label>
                                 <div class="input-container__inner">
-                                    @include('blocks/user_groups_select', ['name' => 'can_post', 'data' => $forum ? $forum->can_post : "0"])
+                                    @include('blocks.forms.user-groups-select', ['name' => 'can_post', 'data' => $forum ? $forum->can_post : "0"])
                                     <span class="input-container__message"></span>
                                 </div>
                             </div>

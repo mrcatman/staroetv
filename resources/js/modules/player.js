@@ -2,7 +2,7 @@ import Plyr from 'plyr';
 import 'plyr/dist/plyr.css';
 let body = $('body');
 
-const generateControls = (title = null) => {
+const generateControls = (title = null, isRadio = false) => {
     const titleEl = title ? `<div class="plyr__title"><span class="plyr__title__inner">${title}</span></div>` : '';
     const rightControls = `<button type="button" class="plyr__control plyr__control--embed">
                     <i class="fa fa-code"></i>
@@ -15,9 +15,9 @@ const generateControls = (title = null) => {
                     <span class="label--pressed plyr__tooltip" role="tooltip">Развернуть</span>
                     <span class="label--not-pressed plyr__tooltip" role="tooltip">Свернуть</span>
                 </button>`;
-    let isMobile = $(window).width() <= 768;
+    const isMobile = $(window).width() <= 768;
     return `
-    ${isMobile ? rightControls : ''}
+    ${isMobile && !isRadio ? rightControls : ''}
     <div class="plyr__controls">
         <button type="button" class="plyr__control plyr__control--play-button" aria-label="Play, {title}" data-plyr="play">
             <svg class="icon--pressed" role="presentation"><use xlink:href="#plyr-pause"></use></svg>
@@ -48,7 +48,7 @@ const generateControls = (title = null) => {
                 <div class="plyr__volume">
                     <input data-plyr="volume" type="range" min="0" max="1" step="0.05" value="1" autocomplete="off" aria-label="Громкость">
                 </div>
-                ${!isMobile ? rightControls : ''}
+                ${!isMobile || isRadio ? rightControls : ''}
             </div>
         </div>
     </div>
@@ -57,10 +57,11 @@ const generateControls = (title = null) => {
 
 window.initOwnPlayer = () => {
     $('.own-player').each(function() {
-        let playerEl = this;
-        let title = $(playerEl).data('title');
+        const playerEl = this;
+        const title = $(playerEl).data('title');
+        const isRadio = $(playerEl).hasClass('own-player--radio');
         const player = new Plyr(playerEl, {
-            controls: generateControls(title)
+            controls: generateControls(title, isRadio)
         });
         window.player = player;
         player.on('ready', function (event) {
@@ -101,10 +102,15 @@ window.initOwnPlayer = () => {
                 window.onRecordEnded();
             }
         });
-console.log(player);
+
         player.on('error', (event) => {
             console.error('Plyr error occurred:', event);
         });
+
+        const start = parseInt(new URLSearchParams(window.location.search).get('start'));
+        if (start) {
+            playerEl.currentTime = start;
+        }
     });
 };
 

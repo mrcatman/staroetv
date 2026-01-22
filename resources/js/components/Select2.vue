@@ -4,7 +4,8 @@
     </select>
 </template>
 <script lang="ts" setup>
-import {nextTick, onBeforeUnmount, onMounted, useTemplateRef, ref, watch} from "vue";
+import { nextTick, onBeforeUnmount, onMounted, useTemplateRef, ref, watch } from "vue";
+import { language } from '@/utils/select2-language';
 
 const props = defineProps<{
     options?: any,
@@ -14,13 +15,12 @@ const props = defineProps<{
 }>();
 
 const select2 = ref();
-const model = defineModel<string | number | string[] | number[]>();
+const model = defineModel<string | number | string[]>();
+const name = defineModel<string | number | string[]>('name');
+
 const el = useTemplateRef('el');
 const emit = defineEmits<{ (e: 'change'): void }>();
 
-const language = {
-    searching: () => 'Загрузка...'
-}
 
 onMounted(() => {
     select2.value = $(el.value).select2({
@@ -30,6 +30,7 @@ onMounted(() => {
         ...(props.customOptions || {})
     }).val(model.value).trigger('change').on('change', function (e, params) {
         model.value = $(this).val();
+        name.value = $(this).find(':selected').text();
 
         if (!params?.manual) {
             emit('change');
@@ -41,7 +42,7 @@ watch(() => model.value, () => {
     $(el.value).val(model.value).trigger('change', {manual: true})
 })
 
-watch(() => props.options, async() => {
+watch(() => props.options, async () => {
     $(el.value).empty().select2({data: props.options});
     await nextTick();
     $(el.value).val(model.value).trigger('change', {manual: true})

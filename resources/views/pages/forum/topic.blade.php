@@ -23,20 +23,26 @@
                         </div>
                         <div class="forum-section__title">
                             <div class="forum-section__title__inner">
-                                @if ($topic->is_closed)
-                                    <div class="forum__param forum__param--dark">
-                                        <i class="fa fa-lock"></i>
-                                    </div>
-                                @endif
-                                {{$topic->title}}
+                                <div class="forum-section__title__texts">
+                                    @if ($topic->is_closed)
+                                        <div class="forum__param forum__param--dark">
+                                            <i class="fa fa-lock"></i>
+                                        </div>
+                                    @endif
+                                    {{$topic->title}}
+                                </div>
                                 <div class="forum-section__title__actions">
                                     @include('blocks.forum.topic-actions', ['topic' => $topic])
                                 </div>
                             </div>
                             <div class="forum-section__title__buttons">
                                 <form action="{{route('forum.topics.show', [$topic->forum_id, $topic->id])}}" method="GET"
-                                      class="forum-section__search">
-                                    <input placeholder="Поиск по теме" class="input" name="s" value="{{$search}}">
+                                      class="forum-section__search forum-section__search--topic">
+                                    <div class="input-container__inner input-container__inner--with-icon">
+                                        <i class="fa fa-search input-container__icon"></i>
+                                        <input placeholder="Поиск по теме" class="input" name="s" value="{{$search}}">
+                                    </div>
+
                                     <button type="submit" class="button"><i class="fa fa-search"></i>Искать</button>
                                 </form>
                             </div>
@@ -100,7 +106,7 @@
                             {{$paginator->links()}}
 
                             <form action="{{route('forum.topics.show', [$topic->forum_id, $topic->id])}}" method="GET"
-                                  class="input-container forum-section__search forum-section__search--bottom">
+                                  class="input-container forum-section__search forum-section__search--topic forum-section__search--bottom">
 
                                 <div class="input-container__inner input-container__inner--with-icon">
                                     <i class="fa fa-search input-container__icon"></i>

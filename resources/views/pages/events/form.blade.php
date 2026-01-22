@@ -30,7 +30,7 @@
             <div class="input-container">
                 <label class="input-container__label">Описание</label>
                 <div class="input-container__inner">
-                    <textarea id="editor"  class="input input--textarea" name="description">{{$event ? $event->description : ""}}</textarea>
+                    <tiptap-editor name="description" :content='@json($event ? $event->description : '')'></tiptap-editor>
                     <span class="input-container__message"></span>
                 </div>
             </div>

@@ -35,9 +35,9 @@
 .private-message {
     font-size: 1.125em;
     display: flex;
+    gap: var(--col-margin);
     align-items: center;
     padding: .5em;
-    @include hover;
     text-decoration: none;
     &:nth-of-type(2n) {
         background: var(--bg-darker);
@@ -46,8 +46,7 @@
         display: none;
     }
     @include mobile() {
-        flex-direction: column;
-        align-items: stretch;
+        flex-wrap: wrap;
     }
     &--unread {
         border-left: .25em solid var(--primary);
@@ -59,6 +58,10 @@
         font-size: 1.125em;
         text-decoration: none;
         font-weight: 500;
+        @include hover;
+        @include mobile() {
+            font-size: .9375em;
+        }
     }
 
     &__time {
@@ -70,6 +73,11 @@
         @include mobile() {
             flex: 1;
         }
+    }
+
+    &__delete {
+        cursor: pointer;
+        @include hover();
     }
 
     &__right {
@@ -95,9 +103,11 @@
 .private-message-page {
 
     &__text {
-        word-break: break-all;
         font-size: 1.125em;
         padding: .25em;
+        img {
+            max-width: 100%;
+        }
     }
 
     &__form {

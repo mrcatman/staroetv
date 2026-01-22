@@ -6,7 +6,8 @@
                 Написать новое сообщение
             </div>
 
-            <div class="box__heading__buttons"><a class="button button--light" href="{{route('pm.index')}}">Назад</a></div>
+            <div class="box__heading__buttons"><a class="button button--light" href="{{route('pm.index')}}">Назад</a>
+            </div>
         </div>
         <div class="box__inner">
             <form method="POST" class="form">
@@ -15,16 +16,13 @@
                         <label class="input-container__label">Пользователь<span
                                 class="input-container__required">*</span></label>
                         <div class="input-container__element-outer">
-                            <div class="input-container__overlay-outer">
-                                <div class="input-container__disabled-overlay" style="display: none"></div>
-                                <div class="input-container__inner">
-                                    <select name="to_id" id="users_autocomplete">
-                                        @if ($user)
-                                            <option value="{{$user->id}}">{{$user->username}}</option>
-                                        @endif
-                                    </select>
-                                    <span class="input-container__message"></span>
-                                </div>
+                            <div class="input-container__inner">
+                                <select name="to_id" id="users_autocomplete">
+                                    @if ($user)
+                                        <option value="{{$user->id}}">{{$user->username}}</option>
+                                    @endif
+                                </select>
+                                <span class="input-container__message"></span>
                             </div>
                             @if ($can_mass_send)
                                 <input type="hidden" name="is_group" value="0"/>
@@ -33,7 +31,7 @@
                                         рассылка</a>
                                 </div>
                                 <div style="display:none" id="users_groups_select_container">
-                                    @include('blocks/user_groups_select', ['name' => 'group_ids', 'data' => "0", 'default_settings' => false])
+                                    @include('blocks.forms.user-groups-select', ['name' => 'group_ids', 'data' => "0", 'default_settings' => false])
                                 </div>
                             @endif
                         </div>

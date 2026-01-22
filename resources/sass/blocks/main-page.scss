@@ -10,7 +10,7 @@
         height: unset;
         padding-top: 41.66%;
         @include mobile() {
-            margin: 3.25em -1em 1em;
+            margin: -.875em -1em 1em;
             background-size: 150%;
             padding-top: 70%;
             background-position: 55% 50%;
@@ -69,7 +69,7 @@
         line-height: 1.6;
         font-family: var(--font-texts);
         @include mobile() {
-            font-size: 1.25em;
+            font-size: 1em;
         }
         a {
             color: var(--primary);

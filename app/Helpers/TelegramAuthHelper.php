@@ -18,10 +18,10 @@ class TelegramAuthHelper {
         $secret_key = hash('sha256', $token, true);
         $generated_hash = hash_hmac('sha256', $data_check_string, $secret_key);
         if (strcmp($generated_hash, $hash) !== 0) {
-            throw new \Exception('Ошибка проверки данных');
+            throw new \Exception('Ошибка проверки данных, попробуйте ещё раз');
         }
         if ((time() - $auth_data['auth_date']) > 86400) {
-            throw new \Exception('Ошибка: Данные устарели, авторизуйтесь ещё раз');
+            throw new \Exception('Данные устарели, авторизуйтесь ещё раз');
         }
 
         return $auth_data;

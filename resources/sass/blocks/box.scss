@@ -4,14 +4,11 @@
     flex-direction: column;
     background: var(--box-color);
     box-shadow: var(--block-box-shadow);
-    border-top: 1px solid var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-big);
     position: relative;
-    @include light() {
-        background: #fff;
-        border: 1px solid var(--border-color);
-        border-radius: .75em;
-        flex: 1;
-    }
+    box-sizing: border-box;
+    flex: 1;
 
     @include mobile() {
         margin: .5em 0;
@@ -31,6 +28,7 @@
         pointer-events: none;
         opacity: .1;
         filter: contrast(1.4) brightness(7);
+        border-radius: var(--border-radius-big);
     }
 
     &--dark {
@@ -46,10 +44,9 @@
 
     &__breadcrumbs {
         padding: 1em;
-        background: linear-gradient(to right, #111 30%, #454545);
+        background: var(--overlay-darken-2);
         @include light() {
             padding: 1em 1em 0;
-            background: none;
         }
     }
 
@@ -61,13 +58,14 @@
         align-items: center;
         justify-content: space-between;
         gap: var(--col-margin);
-        padding: 1em;
+        padding: 1rem;
         text-overflow: ellipsis;
         position: relative;
-
+        transition: color .2s;
+        background: var(--overlay-darken);
         @include mobile() {
+            flex-wrap: wrap;
             min-height: unset;
-            flex-direction: column;
             align-items: stretch;
         }
 
@@ -112,6 +110,7 @@
             align-items: center;
             font-weight: 600;
             font-size: 1.625em;
+            text-shadow: var(--big-texts-shadow);
             @include light() {
                 line-height: 1;
             }
@@ -179,7 +178,12 @@
         }
     }
 
+    &--dark &__heading__inner {
+        text-shadow: var(--big-texts-shadow-dark);
+    }
+
     &--dark &__inner {
+
         @include light() {
             color: var(--box-text-color-dark);
         }
@@ -200,7 +204,7 @@
 
     &__pager {
         .pagination {
-            margin: 0 1em;
+            padding: 1em;
         }
 
     }

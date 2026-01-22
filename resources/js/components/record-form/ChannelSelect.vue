@@ -5,8 +5,17 @@
         <div class="autocomplete">
             <div class="row row--align-start">
                 <div class="col">
-                    <input class="input" @change="onNameChange()" v-model="channel.name"
-                           :disabled="disabled || channel.unknown" placeholder="Поиск каналов по названию..."/>
+                    <div class="input-container__inner input-container__inner--with-button">
+                        <div class="input-container__element-outer">
+                            <input class="input" @change="onNameChange()" v-model="channel.name"
+                                   :disabled="disabled || channel.unknown" placeholder="Поиск каналов по названию..."/>
+                            <a v-if="channel.name.length && !channel.id && !channel.unknown" class="input-container__button input-container__button--big input-container__button--info">
+                                <span class="tooltip">Будет создан новый канал</span>
+                                <i class="fa fa-exclamation-circle"></i>
+                            </a>
+                        </div>
+                    </div>
+
                     <slot></slot>
                 </div>
                 <div class="col col--auto">
@@ -46,40 +55,47 @@
     </div>
 </template>
 <script lang="ts" setup>
-import { computed, ref, defineModel } from 'vue';
+import { computed, ref, watch, defineModel } from 'vue';
 import { storeToRefs } from "pinia";
 import { filterChannel, channelCategories, findByName, getDisplayName, getAdditionalNames } from "@/utils/channels";
 import { useChannelsStore } from "@/stores/channels.js";
 import { RecordsUploadRelationData } from "@/composables/record-form";
 import Preloader from "@/components/Preloader.vue";
 
-const { loading, channels } = storeToRefs(useChannelsStore());
+const channelsStore = useChannelsStore()
+const { loading, channels, radioStations } = storeToRefs(channelsStore);
+channelsStore.load();
 
 const emit = defineEmits<{ (e: 'selected'): void }>();
 
 const props = defineProps<{
     disabled?: boolean,
     isRadio?: boolean,
+    channel?: RecordsUploadRelationData
 }>();
 
-const channel = defineModel<RecordsUploadRelationData>('channel', {
-    default: {
+const model = defineModel<RecordsUploadRelationData>({
+    default: () => ({
         id: null,
-        name: ''
-    }
+        name: '',
+        unknown: false,
+    })
 });
+
+const channel = ref<RecordsUploadRelationData>(props.channel ?? model.value);
+watch(() => channel, () => {
+    model.value = channel.value;
+}, { deep: true })
 
 const category = ref<string>('federal');
 
 const filteredChannels = computed(() => {
+    const list = props.isRadio ? radioStations : channels;
     if (channel.value.name === '') {
-        return channels.value.filter(channel => filterChannel(channel, category.value) && channel.is_radio === props.isRadio);
+        return list.value.filter(channel => filterChannel(channel, category.value) && channel.is_radio === props.isRadio);
     } else {
         const lowercaseName = channel.value.name.toLowerCase();
-        return channels.value.filter(channel => {
-            if (channel.is_radio !== props.isRadio) {
-                return false;
-            }
+        return list.value.filter(channel => {
             if (channel.name.toLowerCase().indexOf(lowercaseName) !== -1) {
                 return true;
             }
@@ -102,12 +118,7 @@ const selectChannel = (_channel: Models.Channel) => {
 
 let findChannelTimeout;
 const onNameChange = () => {
-    if (channel.value.id) {
-        return;
-    }
-    if (channel.value.name === '') {
-        channel.value.id = null;
-    }
+    channel.value.id = null;
     clearTimeout(findChannelTimeout);
     findChannelTimeout = setTimeout(findChannel, 500);
 }

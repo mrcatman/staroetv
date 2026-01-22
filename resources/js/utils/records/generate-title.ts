@@ -1,5 +1,6 @@
-import {RecordsUploadData} from "../../composables/record-form";
-import {capitalizeFirstLetter} from "../strings";
+import { RecordsUploadData } from "../../composables/record-form";
+import { capitalizeFirstLetter } from "../strings";
+import { monthNames } from "@/consts";
 
 const generateDate = (data: RecordsUploadData) => {
     if (data.date.range && data.date.year_start > 0) {
@@ -8,13 +9,21 @@ const generateDate = (data: RecordsUploadData) => {
         }
         return data.date.year_start;
     }
-    let date = [
-        (data.date.day > 0 ? data.date.day : ''),
-        (data.date.month > 0 ? data.date.month.toString().padStart(2, '0') : ''),
-        (data.date.year > 0 ? data.date.year : '')
-    ].join('.');
 
-    if (!date.trim().length) {
+    let date: string;
+    if (data.date.day > 0 && data.date.month > 0 && data.date.year > 0 ) {
+        date = [
+            (data.date.day.toString()),
+            (data.date.month.toString().padStart(2, '0')),
+            (data.date.year.toString())
+        ].join('.');
+    } else if (data.date.month > 0) {
+        date = `${monthNames[data.date.month - 1].toLocaleLowerCase()} ${data.date.year}`;
+    } else if (data.date.year > 0) {
+        date = data.date.year.toString();
+    }
+
+    if (!date?.trim().length) {
         date = "неизвестная дата";
     }
 
@@ -36,12 +45,16 @@ export const generateTitle = (data: RecordsUploadData) => {
         return title;
     }
 
-    let channel = !data.channel.unknown ? data.channel.name : 'Неизвестный канал';
-    let program = !data.program.unknown ? data.program.name : 'Неизвестная программа';
+    const channel = !data.channel.unknown && data.channel.name?.length ? data.channel.name : 'неизвестный канал';
+    let program = !data.program.unknown && data.program.name?.length ? data.program.name : 'неизвестная программа';
+
+    if (data.type === 'program-design') {
+        program = `заставка программы "${program}"`;
+    }
 
     const date = generateDate(data);
 
-    title = `${program} (${channel}, ${date} ${data.short_description})`.trim();
+    title = `${program} (${channel}, ${date}) ${data.short_description}`.trim();
     return capitalizeFirstLetter(title);
 }
 

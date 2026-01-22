@@ -47,7 +47,7 @@
                             <div class="input-container">
                                 <label class="input-container__label">Канал</label>
                                 <div class="input-container__inner">
-                                    <select class="select-classic" name="channel_id">
+                                    <select class="select" name="channel_id">
                                         <option value="" selected>-</option>
                                         @foreach ($all_channels as $channel_id => $channel_name)
                                             <option value="{{$channel_id}}"
@@ -69,20 +69,20 @@
                         <div class="input-container">
                             <label class="input-container__label">Описание</label>
                             <div class="input-container__inner">
-                                 <textarea id="editor" class="input input--textarea" name="description">{{$program ? $program->description : ""}}</textarea>
+                                <tiptap-editor name="description" :content='@json($program ? $program->description : '')'></tiptap-editor>
                                 <span class="input-container__message"></span>
                             </div>
                         </div>
                         <div class="input-container">
                             <label class="input-container__label">Жанр</label>
                             <div class="input-container__inner">
-                                <select class="select-classic" name="genre_id">
+                                <select class="select" name="genre_id">
                                     <option value="">Не выбран</option>
                                     @foreach(\App\Models\Genre::where(['type' => 'programs'])->get() as $genre)
                                         <option value="{{$genre->id}}"
                                                 @if ($program && $program->genre_id == $genre->id) selected="selected" @endif>{{$genre->name}}</option>
                                     @endforeach
-                                </select>
+                                </select >
                                 <span class="input-container__message"></span>
                             </div>
                         </div>
@@ -150,7 +150,7 @@
                 <div class="input-container">
                     <label class="input-container__label">Выберите программу</label>
                     <div class="input-container__element-outer">
-                        <select class="select-classic" name="merged_id">
+                        <select class="select" name="merged_id">
                             @foreach ($all_programs as $program)
                                 <option
                                     value="{{$program->id}}">{{$program->name}} @if (request()->input('all_programs'))

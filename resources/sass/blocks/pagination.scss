@@ -6,8 +6,11 @@
     background: none;
     color: unset;
     border: none;
-    @include mobile {
-        overflow: auto;
+    box-shadow: var(--input-box-shadow);
+    @include mobile() {
+        overflow: hidden;
+        overflow-x: auto;
+
         max-width: 100vw;
         font-size: .875em;
     }
@@ -24,7 +27,7 @@ ul.pagination::-webkit-scrollbar {
 
 .box--dark .pagination, .theme-dark .forum-section__pager .pagination {
     border-top: 1px solid var(--border-color-dark);
-    .page-item:not(.disabled) {
+    .page-item {
         background: var(--clickable-block-color-dark);
     }
     .page-item a {
@@ -77,7 +80,7 @@ ul.pagination::-webkit-scrollbar {
     }
 
     &.active {
-        background: var(--primary);
+        background: var(--primary) !important;
         .page-link {
             color: var(--button-active-text);
         }
@@ -86,10 +89,8 @@ ul.pagination::-webkit-scrollbar {
 
     &.disabled {
         cursor: default;
-        background: none;
-        opacity: .5;
-        &:hover {
-            background: none!important;
+        &:before {
+            display: none;
         }
     }
 

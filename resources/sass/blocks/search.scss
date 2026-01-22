@@ -63,7 +63,6 @@
 
     &__results {
         position: relative;
-        padding: 0 1.75em;
         height: calc(100vh - 12em);
         overflow: auto;
         @include mobile() {
@@ -85,6 +84,9 @@
             @include mobile() {
                 margin: 1em 0 .5em;
             }
+            &--link {
+                @include hover;
+            }
             &__count {
                 font-weight: bold;
             }
@@ -95,11 +97,15 @@
                 top: -.125em;
                 opacity: .5;
             }
-            &:hover &__link-icon {
-                opacity: .875;
+
+        }
+        &__results {
+            @include mobile() {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: var(--col-margin);
             }
         }
-
 
         &--channels &__results {
             display: flex;
@@ -110,18 +116,16 @@
     &__result {
         text-decoration: none;
         color: var(--box-text-color-dark);
-        margin: 0 .75em 0 0;
         display: flex;
         align-items: center;
         text-align: center;
         padding: 1em 0;
+        @include hover();
         @include mobile() {
             flex-direction: column;
             align-items: flex-start;
         }
-        &:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
+
         &__title {
             margin: 0 0 .25em;
             font-size: 1.25em;

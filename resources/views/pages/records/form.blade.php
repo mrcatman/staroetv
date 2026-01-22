@@ -11,7 +11,7 @@
             </div>
         </div>
         <div class="box__inner" data-vue-root>
-            <record-form upload-endpoint="{{$upload_endpoint}}" :can-upload="{{$can_upload ? "true" : "false"}}" :can-edit-all="{{$can_edit_all ? "true" : "false"}}" :is-radio="{{$data['is_radio'] ? "true" : "false"}}" :record='@json($record)'></record-form>
+            <record-form :can-edit-all="{{$can_edit_all ? "true" : "false"}}" :is-radio="{{$data['is_radio'] ? "true" : "false"}}" :record='@json($record)'></record-form>
         </div>
         @csrf
     </form>

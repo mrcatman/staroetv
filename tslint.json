@@ -1,0 +1,7 @@
+{
+    "rules": {
+        "array-bracket-spacing": [true, "always"],
+        "object-curly-spacing": [true, "always"],
+        "whitespace": [true, "check-module"]
+    }
+}

@@ -9,6 +9,7 @@ use App\Models\Smile;
 class BBCodesHelper {
 
     public static function BBToHTML($text) {
+        $text = strip_tags($text);
         $text = str_replace(PHP_EOL, "<br>", $text);
 
         $text = preg_replace('/\[(\/?)(b|i|u|s)\s*\]/', "<$1$2>", $text);

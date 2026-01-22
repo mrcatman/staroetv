@@ -3,27 +3,32 @@ import { defineStore } from 'pinia';
 
 export const useProgramsStore = defineStore('programs', () => {
 
-    const loading = ref<boolean>(true);
+    const loading = ref<boolean>(false);
     const programs = ref<{
         [key: number]: Models.Program[]
     }>({});
 
-    const load = (channelId: number) => {
-        return new Promise<void>(resolve => {
-            if (programs.value[channelId]) {
-                resolve();
-            }
+    const promises: {
+        [key: number]: Promise<void>
+    } = {};
 
+    const load = (channelId: number, force: boolean = false) => {
+        if (programs.value[channelId] && !force) {
+            return Promise.resolve();
+        }
+        if (promises[channelId] && !force) {
+            return promises[channelId];
+        }
+        promises[channelId] = new Promise<void>(resolve => {
             loading.value = true;
 
-            // @ts-ignore
             $.get(route('channels.programs.ajax', channelId)).done(res => {
                 programs.value[channelId] = res.data.programs;
                 loading.value = false;
-                resolve();
+                return resolve();
             })
         })
-
+        return promises[channelId];
     }
 
     const findByNameAndChannelId = (name: string, channelId: number) => {

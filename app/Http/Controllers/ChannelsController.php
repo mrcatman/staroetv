@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Constants\Actions;
+use App\Constants\CacheTimes;
 use App\Helpers\ActionsLogHelper;
-use App\Helpers\HTMLHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
 use App\Models\AdditionalChannel;
@@ -16,9 +16,12 @@ use App\Models\Picture;
 use App\Models\Program;
 use App\Models\Record;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Mews\Purifier\Facades\Purifier;
 
-class ChannelsController extends EntityController {
+class ChannelsController extends EntityController
+{
 
     protected $entity_class = Channel::class;
     protected $permissions = [
@@ -29,19 +32,15 @@ class ChannelsController extends EntityController {
 
     public function show($url)
     {
+        $channel = Channel::where(['url' => $url])->first();
+        if (!$channel) {
+            $channel = Channel::where(['id' => $url])->first();
+        }
+        if (!$channel) {
+            return redirect(route('index'));
+        }
 
-        $channel = Cache::remember('channel_data_' . $url, 60 * 10, function () use ($url) {
-            $channel = Channel::where(['url' => $url])->first();
-            if (!$channel) {
-                $channel = Channel::where(['id' => $url])->first();
-            }
-            if (!$channel) {
-                return redirect(route('index'));
-            }
-            return $channel;
-        });
-
-        $genres = Cache::remember('channel_programs_' . $url, 60 * 10, function () use ($channel) {
+        $genres = Cache::remember('channel_programs_' . $channel->id, CacheTimes::PAGE, function () use ($channel) {
             $programs = $channel->programs()->withCount('records')->get();
             $additional = $channel->additionalPrograms()->withCount('records')->get();
             foreach ($additional as $program) {
@@ -74,20 +73,7 @@ class ChannelsController extends EntityController {
                 ];
                 $genres->push($no_genre);
             }
-            $unknown_count = $channel->records->whereNull('program_id')->count();
-            $popular_programs = $channel->programs()->withCount('records')->orderBy('views', 'desc')->limit($unknown_count > 0 ? 24 : 25)->get();
-
-            if ($unknown_count > 0) {
-                $popular_programs->add((object)[
-                    'pending' => false,
-                    'name' => 'Прочее / неопознанные передачи',
-                    'full_url' => '',
-                    'cover_url' => '',
-                    'records_count' => $unknown_count,
-
-                    'channels_history' => [],
-                ]);
-            }
+            $popular_programs = $channel->programs()->withCount('records')->orderBy('views', 'desc')->limit(25)->get();
 
             $genres->prepend((object)[
                 'id' => -2,
@@ -99,9 +85,30 @@ class ChannelsController extends EntityController {
             return $genres;
         });
 
-        $interprogram_packages = Cache::remember('channel_interprogram_' . $url, 60 * 10, function () use ($channel) {
+        $global_programs = Cache::remember('channel_global_5' . $channel->id, CacheTimes::PAGE, function () use ($channel) {
+            $global_programs = Program::whereNull('channel_id')->whereHas('records', function ($q) use ($channel) {
+                $q->where(['channel_id' => $channel->id]);
+            })->get();
+            $unknown = $channel->records()->where(['is_interprogram' => false])->whereNull('program_id');
+            $unknown_count = $unknown->clone()->count();
 
+            if ($unknown_count > 0) {
+                $unknown_random_cover = $unknown->inRandomOrder()->first()->cover;
+                $global_programs->add((object)[
+                    'pending' => false,
+                    'name' => 'Прочее / неопознанные передачи',
+                    'full_url' => typed_route('[CHANNEL].programs.unknown', $channel->is_radio, [$channel->url ?? $channel->id]),
+                    'cover_url' => $unknown_random_cover,
+                    'records_count' => $unknown_count,
+                    'channels_history' => [],
+                ]);
+            }
+           return $global_programs;
+        });
+
+        $interprogram_packages = Cache::remember('channel_interprogram_' . $channel->id, CacheTimes::PAGE, function () use ($channel) {
             $interprogram_packages = $channel->interprogramPackages;
+
 //        foreach ($interprogram_packages as $interprogram_package) {
 //            //$interprogram_package->records = $interprogram_package->records->shuffle();
 //        }
@@ -114,7 +121,6 @@ class ChannelsController extends EntityController {
             })->first();
             if (count($channel->interprogramRecords) > 0) {
                 $interprogram_packages->push(new DesignPackage([
-                    'id' => 0,
                     'name' => 'Прочее',
                     'pictures' => [],
                     'years_range' => '',
@@ -133,13 +139,15 @@ class ChannelsController extends EntityController {
         return view("pages.channels.show", [
             'channel' => $channel,
             'programs' => $genres,
+            'global_programs' => $global_programs,
             'interprogram_packages' => $interprogram_packages,
             'records_conditions' => ['show_years' => true, 'channel_id' => $channel->id, 'is_advertising' => false, 'is_radio' => $channel->is_radio],
             'records_conditions_interprogram' => ['channel_id' => $channel->id, 'is_interprogram' => true, 'is_radio' => $channel->is_radio]
         ]);
     }
 
-    public function add() {
+    public function add()
+    {
         if (!PermissionsHelper::allows('channelsown') && !PermissionsHelper::allows('channels')) {
             return view("pages.errors.403");
         }
@@ -150,7 +158,8 @@ class ChannelsController extends EntityController {
         ]);
     }
 
-    public function edit($id) {
+    public function edit($id)
+    {
         $channel = Channel::find($id);
         if (!$channel) {
             return redirect(typed_route('records.[RECORD].index', false));
@@ -167,7 +176,34 @@ class ChannelsController extends EntityController {
         ]);
     }
 
-    protected function fillData($channel) {
+    public function unknownPrograms($url)
+    {
+        $channel = Channel::where(['url' => $url])->first();
+        if (!$channel) {
+            $channel = Channel::where(['id' => $url])->first();
+        }
+        if (!$channel) {
+            return redirect(route('index'));
+        }
+
+        $conditions = [ 'show_years' => true, 'new_titles' => false, 'channel_id' => $channel->id, 'is_advertising' => false, 'is_radio' => $channel->is_radio, 'program_id' => null, 'is_interprogram' => false];
+
+        $program = new Program([
+            'name' => 'Прочее / неопознанные передачи',
+            'description' => 'Здесь представлены все материалы канала <strong>'.$channel->name.'</strong>, конкретную принадлежность которых установить, увы, не удалось. <br/>Мы будем признательны Вам, если Вы поможете нам опознать их!'
+        ]);
+
+        return view("pages.programs.show", [
+            'program' => $program,
+            'related_programs' => [],
+            'channel' => $channel,
+            'records_conditions' => $conditions,
+            'unknown' => true
+        ]);
+    }
+
+    protected function fillData($channel)
+    {
         $data = request()->validate([
             'name' => 'required',
             'description' => 'sometimes',
@@ -182,12 +218,12 @@ class ChannelsController extends EntityController {
             'url' => 'sometimes'
         ]);
 
-        foreach(['is_regional', 'is_abroad', 'is_federal'] as $key) {
+        foreach (['is_regional', 'is_abroad', 'is_federal'] as $key) {
             if (isset($data[$key])) {
                 $data[$key] = ($data[$key] === "true" || $data[$key] === true) ? 1 : 0;
             }
         }
-        if (request()->has('url') &&  request()->input('url') != '') {
+        if (request()->has('url') && request()->input('url') != '') {
             $same_url_channel = Channel::where(['url' => request()->input('url')])->first();
             if ($same_url_channel && $same_url_channel->id != $channel->id) {
                 $error = \Illuminate\Validation\ValidationException::withMessages([
@@ -198,8 +234,10 @@ class ChannelsController extends EntityController {
         }
 
         if (isset($data['description'])) {
-            $data['description'] = HTMLHelper::sanitize($data['description']);
+            $data['description'] = Purifier::clean($data['description']);
         }
+
+        $this->clearCache($channel);
 
         $channel->fill($data);
         $this->saveEntity($channel);
@@ -211,15 +249,15 @@ class ChannelsController extends EntityController {
             foreach ($names as $name) {
                 $start = Carbon::parse($name->date_start);
                 $end = Carbon::parse($name->date_end);
-                $alternatives = isset($name->alternatives) ? array_values(array_map(function($alternative) {
-                    return $alternative->text;
+                $alternatives = isset($name->alternatives) ? array_values(array_map(function ($alternative) {
+                    return is_object($alternative) ? $alternative->text : $alternative;
                 }, $name->alternatives)) : [];
                 $name_data = [
                     'channel_id' => $channel->id,
                     'name' => $name->name,
                     'alternatives' => $alternatives,
                     'logo_id' => $name->logo_id,
-                    'date_start' => !$start->isToday() ? $start  : null,
+                    'date_start' => !$start->isToday() ? $start : null,
                     'date_end' => !$end->isToday() ? $end : null
                 ];
                 if (!isset($name->id)) {
@@ -242,7 +280,8 @@ class ChannelsController extends EntityController {
         ];
     }
 
-    public function merge() {
+    public function merge()
+    {
         $original = Channel::find(request()->input('original_id'));
         if (!$original) {
             return [
@@ -283,8 +322,9 @@ class ChannelsController extends EntityController {
         ];
     }
 
-    public function getAjaxList($is_radio = false) {
-        $channels = Channel::selectDefault()->where(['is_radio' => $is_radio])
+    public function ajaxList()
+    {
+        $channels = Channel::selectDefault()
             ->with(['names', 'logo'])->orderBy('is_federal', 'desc')->orderBy('order', 'asc')->get();
         return [
             'status' => 1,
@@ -294,7 +334,8 @@ class ChannelsController extends EntityController {
         ];
     }
 
-    public function getPrograms($id) {
+    public function programs($id)
+    {
         $channel = Channel::find($id);
         if (!$channel) {
             return [
@@ -304,6 +345,8 @@ class ChannelsController extends EntityController {
         }
         $programs = Program::where(['channel_id' => $channel->id])->with('coverPicture')->get();
         $programs = $programs->merge($channel->additionalPrograms);
+        $global_programs = Program::whereNull('channel_id')->get();
+        $programs = $programs->merge($global_programs);
         return [
             'status' => 1,
             'data' => [
@@ -313,11 +356,12 @@ class ChannelsController extends EntityController {
     }
 
 
-    public function autocomplete() {
+    public function autocomplete()
+    {
         $count = 30;
         $channels = Channel::select('id', 'name', 'is_radio')->orderBy('id', 'asc');
         if (request()->has('term')) {
-            $channels = $channels->where('name', 'LIKE', '%'.request()->input('term').'%');
+            $channels = $channels->where('name', 'LIKE', '%' . request()->input('term') . '%');
         }
         $total = $channels->count();
         $page = request()->input('page', 1);
@@ -330,4 +374,17 @@ class ChannelsController extends EntityController {
             ]
         ];
     }
+
+    private function clearCache($channel) {
+        Cache::forget('channel_programs_' . $channel->id);
+        Cache::forget('channel_global_' . $channel->id);
+        Cache::forget('channel_interprogram_' . $channel->id);
+    }
+
+    protected function afterDelete(Model $entity)
+    {
+        $this->clearCache($entity);
+        return parent::afterDelete($entity);
+    }
+
 }
