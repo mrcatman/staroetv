@@ -39,6 +39,10 @@ import './modules/complaints'
 import './modules/records-manager'
 import './modules/teletext'
 
+import.meta.glob([
+    '../images/**',
+]);
+
 import { initializeVue } from './vue-components.ts'
 
 function onPageChange() {
