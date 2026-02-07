@@ -65,7 +65,6 @@
     </div>
 </template>
 <style lang="scss">
-    @use "~vue-wysiwyg/dist/vueWysiwyg.css";
     .history-event-editor {
         &__block {
             padding: 0 0 1em;
@@ -87,8 +86,6 @@
     }
 </style>
 <script>
-    import wysiwyg from "vue-wysiwyg";
-    Vue.use(wysiwyg, {});
 
     import Datepicker from './datepicker/components/Datepicker.vue';
 
