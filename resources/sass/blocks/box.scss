@@ -130,14 +130,13 @@
         &__right {
             margin-left: auto;
             white-space: nowrap;
+            position: relative;
+            z-index: 2;
 
             &:empty {
                 display: none;
             }
 
-            @include mobile {
-                margin: 0;
-            }
         }
 
         &__count {

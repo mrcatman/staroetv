@@ -62,12 +62,10 @@
                         </div>
                     </div>
 
-
                 </div>
                 <div class="mass-uploader__record__picture" v-if="data.record.thumbnail_url"
                      :style="{backgroundImage: `url(${data.record.thumbnail_url})`}"></div>
             </div>
-            todo источник записи, предпросмотр в окошке, быстрый переход к редактированию
             <input-container
                 vertical
                 with-button
@@ -233,6 +231,11 @@
 
             <div class="form__bottom">
                 <button :disabled="saving" @click="save()" class="button">Добавить</button>
+                <div class="form__progress" v-if="isUploadingFile">
+                    <div class="form__progress__bar" :style="{width: uploadPercent + '%'}">
+                        {{ uploadPercent + '%' }}
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -380,9 +383,8 @@ const {
 
     response,
 
-    uploadFile,
+    //uploadFile,
     setUploadFile,
-    setUploadEndpoint,
     isUploadingFile,
     uploadPercent,
 } = useRecordForm(startParams, null, false);

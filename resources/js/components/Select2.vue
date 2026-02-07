@@ -1,5 +1,5 @@
 <template>
-    <select :name="name" ref="el">
+    <select :name="name" :multiple="multiple" ref="el">
         <slot></slot>
     </select>
 </template>
@@ -11,7 +11,8 @@ const props = defineProps<{
     options?: any,
     name?: string,
     theme?: 'default',
-    customOptions?: any
+    customOptions?: any,
+    multiple?: boolean
 }>();
 
 const select2 = ref();
@@ -39,6 +40,9 @@ onMounted(() => {
 })
 
 watch(() => model.value, () => {
+    if (props.multiple) {
+        return;
+    }
     $(el.value).val(model.value).trigger('change', {manual: true})
 })
 

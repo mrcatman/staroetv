@@ -8,6 +8,7 @@ use App\Helpers\PermissionsHelper;
 use App\Helpers\RegexHelper;
 use App\Models\VideoCut;
 use App\Models\Record;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class MassUploadController extends Controller {
@@ -38,7 +39,7 @@ class MassUploadController extends Controller {
         $can_upload = PermissionsHelper::allows('viupload');
 
         try {
-            $files = $can_upload ? array_values(array_diff(scandir('/storage/temp-upload'), array('.', '..'))) : [];
+            $files = $can_upload ? Storage::disk('media-storage')->files('temp-upload') : [];
         } catch (\Exception $e) {
             $files = [];
         }
@@ -60,11 +61,11 @@ class MassUploadController extends Controller {
                     'thumbnails' => []
                 ];
             }
-        } elseif ($vk_group_id = ExternalServicesHelper::resolveVkId($owner_id)) {
+        } elseif ($vk_owner_id = ExternalServicesHelper::resolveVkChannelId($owner_id)) {
             $offset = (int)$offset;
             $next_page_token = $offset + $count;
 
-            $data = ExternalServicesHelper::vkVideoList($vk_group_id, $count, $offset);
+            $data = ExternalServicesHelper::vkVideoList($vk_owner_id, $count, $offset);
             if (isset($data->error)) {
                 return [
                     'status' => 0,
@@ -83,7 +84,7 @@ class MassUploadController extends Controller {
             });
 
             foreach ($items as $item) {
-                $item->external_id = RegexHelper::getExternalIdFromEmbedCode($item->player);
+                $item->external_id = ExternalServicesHelper::resolveVkId($item->player);
             }
             $already_added = Record::whereIn('external_id', $items->pluck('external_id'))->pluck('external_id');
 
@@ -101,7 +102,7 @@ class MassUploadController extends Controller {
                     }, $item->image)),
                 ];
             })->values();
-        } elseif ($youtube_id = ExternalServicesHelper::resolveYoutubeId($owner_id)) {
+        } elseif ($youtube_id = ExternalServicesHelper::resolveYoutubeChannelId($owner_id)) {
             $data = ExternalServicesHelper::youtubeVideoList($youtube_id, $count, $offset);
 
             $items = collect($data->items);
@@ -138,13 +139,6 @@ class MassUploadController extends Controller {
                 'files' => $files,
             ]
         ];
-    }
-
-    public function uploadFromDevice() {
-        if (!PermissionsHelper::allows('viadd')) {
-            return redirect(route('index'));
-        }
-        return view('pages.mass-upload.from-device');
     }
 
     public function importFromTelegram()

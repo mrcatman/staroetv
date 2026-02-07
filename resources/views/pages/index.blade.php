@@ -26,13 +26,13 @@
                 <div class="main-page__site-description">
                     Наш сайт создан для тех, кто любит телевидение прошлого и интересуется телевидением настоящего. <br>
                     В нашем архиве вы можете найти записи старых телепередач <a
-                        href="/video/search?dates_range.end=479376360">времён раннего СССР</a>, <a
-                        href="/video/search?dates_range.start=479376360&dates_range.end=693738360">перестроечных лет</a>,
-                    <a href="/video/search?dates_range.start=693738360&dates_range.end=946631160">девяностых</a> и <a
-                        href="/video/search?dates_range.start=946631160">начала 2000-х</a> годов.<br>
-                    Отдельное внимание уделено теме <a href="/video/graphics">телевизионного дизайна</a> и <a
-                        href="/video/commercials">рекламы</a>.<br><br>
-                    Материалы сайта собираются силами <a href="/top-list/videos">сообщества</a>: как с просторов
+                        href="{{route('records.search', ['is_radio' => false, 'date' => ['range' => true, 'year_end' => 1984]])}}">времён раннего СССР</a>, <a
+                        href="{{route('records.search', ['is_radio' => false, 'date' => ['range' => true, 'year_start' => 1985, 'year_end' => 1991]])}}">перестроечных лет</a>,
+                    <a href="{{route('records.search', ['is_radio' => false, 'date' => ['range' => true, 'year_start' => 1992, 'year_end' => 1999]])}}">девяностых</a> и <a
+                        href="{{route('records.search', ['is_radio' => false, 'date' => ['range' => true, 'year_start' => 2000, 'year_end' => 2010]])}}">2000-х</a> годов.<br>
+                    Отдельное внимание уделено теме <a href="{{route('design.channels.index')}}">телевизионного дизайна</a> и <a
+                        href="{{route('records.commercials')}}">рекламы</a>.<br><br>
+                    Материалы сайта собираются силами <a href="{{route('top-list.videos')}}">сообщества</a>: как с просторов
                     Интернета, так и благодаря собственным коллекциям.
                 </div>
             </div>

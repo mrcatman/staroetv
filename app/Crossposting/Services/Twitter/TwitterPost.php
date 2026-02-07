@@ -2,9 +2,11 @@
 
 namespace App\Crossposting\Services\Twitter;
 
-use App\Crossposting\BasePost;
+use App\Crossposting\Post;
 
-class TwitterPost extends BasePost {
+class TwitterPost extends Post {
+
+    public bool $multiple_texts = false;
 
     public function setText($text) {
         if (is_array($text)) {

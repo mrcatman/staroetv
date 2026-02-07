@@ -149,7 +149,7 @@ class ChannelsController extends EntityController
     public function add()
     {
         if (!PermissionsHelper::allows('channelsown') && !PermissionsHelper::allows('channels')) {
-            return view("pages.errors.403");
+            return redirect('/');
         }
         $is_radio = !!request()->input('is_radio', false);
         return view("pages.channels.form", [
@@ -165,7 +165,7 @@ class ChannelsController extends EntityController
             return redirect(typed_route('records.[RECORD].index', false));
         }
         if (!$channel->can_edit) {
-            return view("pages.errors.403");
+            return redirect('/');
         }
         $is_radio = $channel->is_radio;
         $all_channels = Channel::where(['is_radio' => $channel->is_radio])->where('id', '!=', $id)->get();

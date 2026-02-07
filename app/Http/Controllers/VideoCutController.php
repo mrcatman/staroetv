@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\MediaHelper;
 use App\Helpers\PermissionsHelper;
+use App\Jobs\CutVideo;
+use App\Jobs\DownloadExternalVideoForCut;
 use App\Models\Channel;
 use App\Models\Genre;
 use App\Models\Picture;
 use App\Models\Record;
 use App\Models\VideoCut;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\Storage;
 
 class VideoCutController extends Controller {
 
@@ -83,12 +88,11 @@ class VideoCutController extends Controller {
         $indexes = [];
         $errors = [];
         foreach ($cuts as $index => $cut_result) {
-            $need_edit = false;
-            if (!isset($cut_result['video_id'])) {
-                $need_edit = true;
-            } elseif (isset($old_cuts[$index]) && ($old_cuts[$index]['start'] != $cut_result['start']) || (!isset($old_cuts[$index]['end']) && isset($cut_result['end'])) || (isset($old_cuts[$index]['end']) && $old_cuts[$index]['end'] != $cut_result['end'])) {
-                $need_edit = true;
-            }
+            $need_edit = (!isset($cut_result['video_id']) ||
+                 isset($old_cuts[$index]) && ($old_cuts[$index]['start'] != $cut_result['start']) ||
+                 (!isset($old_cuts[$index]['end']) && isset($cut_result['end'])) ||
+                 (isset($old_cuts[$index]['end']) && $old_cuts[$index]['end'] != $cut_result['end'])
+            );
             //$need_edit = true;
             if ($need_edit) {
                 $indexes[] = $index;
@@ -154,30 +158,30 @@ class VideoCutController extends Controller {
             }
             $path = "temp_videos/" . $video->id . ".mp4";
         } else {
-            $path = $video->source_path;
+            $path = $video->download_url;
         }
-        $output_path = public_path($path);
+
+
         $cut = VideoCut::firstOrNew([
             'video_id' => $video->id
         ]);
         $cut->download_path = $path;
         $cut->data = [];
         $cut->save();
+
         if ($video->use_own_player) {
+            $storage_path = Storage::disk('media-storage')->path($video->source_path);
+            Process::forever()->run("cp $storage_path $path");
             $this->onDownloaded($cut->id, 1);
         } else {
-            $command = "youtube-dl -i '$url' --output $output_path && curl https://staroetv.su/cut/downloaded/" . $cut->id . "?status=1 || curl https://staroetv.su/cut/downloaded/" . $cut->id . "?status=0";
-             $output = shell_exec($command);
-            if (strpos($output, ".mkv") !== false) {
-                $mkv_path = str_replace(".mp4", ".mkv", $output_path);
-                $convert_command = "ffmpeg -y -i $mkv_path -c:v libx264 $output_path && rm $mkv_path";
-                shell_exec($convert_command);
-            }
+            $output_path = public_path($path);
+            DownloadExternalVideoForCut::dispatch($cut, $url, $output_path);
+
         }
         return [
             'status' => 1,
             'text' => $video->use_own_player ? 'Перенаправление...' : 'Видео поставлено в очередь загрузки',
-            'redirect_to' => '/cut/' . $cut->id
+            'redirect_to' => route('cut.show', $cut->id)
         ];
     }
 
@@ -185,16 +189,12 @@ class VideoCutController extends Controller {
         $cut = VideoCut::find($id);
         if ($cut) {
             $path = public_path($cut->download_path);
-            $fps = shell_exec("ffprobe -v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate $path");
-            $frames = shell_exec("ffprobe -v error -select_streams v:0 -show_entries stream=nb_frames -of default=nokey=1:noprint_wrappers=1 $path");
-            $cut->fps = (int)explode("/", $fps)[0];
-            if (count($fps_data = explode("/", $cut->fps) ) === 2) {
-                $fps = (int)$fps_data[0] / (int)$fps_data[1];
-                $cut->fps = $fps;
-            }
-            $cut->frames = (int)$frames;
+
+            $cut->fps = MediaHelper::getFps($path);
+            $cut->frames = MediaHelper::getFrames($path);
             $cut->download_status = request()->input('status', $status);
             $cut->save();
+
             return [
                 'status' => 1,
                 'data' => [
@@ -227,7 +227,7 @@ class VideoCutController extends Controller {
         if (isset($cut_results[$index])) {
             $user = auth()->user();
 
-            $input_path = public_path($cut->download_path);
+            $path = public_path($cut->download_path);
 
             $cut_result = $cut_results[$index];
             $start_frame = $cut_result['start'] ? $cut_result['start'] : 0;
@@ -252,15 +252,14 @@ class VideoCutController extends Controller {
                 ];
             }
 
-            $output = public_path("videos/$filename.mp4");
-            $command = null;
+
             if (!$data_only) {
                 if (request()->hasFile('video')) {
                     $file = request()->file('video');
                     $file->move(public_path("videos"), $filename . ".mp4");
                 } else {
-                    $command = "ffmpeg -y -i $input_path -c:v libx264 -acodec copy -ss $start -to $end $output";
-                    shell_exec($command);
+                    $output_path = public_path("videos/$filename.mp4");
+                    CutVideo::dispatch($path, $output_path, $start, $end);
                 }
             }
             $original_video = $cut->video;
@@ -295,12 +294,9 @@ class VideoCutController extends Controller {
 
             $middle = ($start_frame + (($end_frame - $start_frame) / 2)) / $cut->fps;
 
-            $screenshot_path = "/pictures/video_covers/$filename.jpg";
-            $screenshot_command = "ffmpeg -y -ss $middle -i $input_path -vframes 1 ".public_path($screenshot_path);
-            shell_exec($screenshot_command);
-
+            $thumbnail = MediaHelper::makeThumbnail($path, $middle);
             $cover = new Picture([
-                'url' => $screenshot_path
+                'url' => $thumbnail
             ]);
             $cover->save();
             $video->cover_id = $cover->id;
@@ -375,8 +371,6 @@ class VideoCutController extends Controller {
                 'data' => [
                     'video' => $video,
                     'video_id' => $video->id,
-                    'command' => $command,
-                    'screenshot_command' => $screenshot_command
                 ]
             ];
         } else {
@@ -395,22 +389,21 @@ class VideoCutController extends Controller {
             $url = request()->input('url');
             $path = "temp_videos/" .time().".mp4";
             $output_path = public_path($path);
+
             $cut = new VideoCut();
             $cut->download_path = $path;
             $cut->data = [];
             $cut->save();
-            $command = "youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' -i '$url' --output $output_path && curl http://staroetv.su/cut/downloaded/" . $cut->id . "?status=1 || curl http://staroetv.su/cut/downloaded/" . $cut->id . "?status=0";
-            exec('bash -c "exec nohup setsid '.$command.' > /dev/null 2>&1 &"');
+
+            DownloadExternalVideoForCut::dispatch($cut->id, $url, $output_path);
 
             return [
                 'status' => 1,
                 'text' => 'Видео загружено',
-                'redirect_to' => '/cut/' . $cut->id
+                'redirect_to' => route('cut.show', $cut->id)
             ];
         }
-        return view ('pages.cut.download', [
-
-        ]);
+        return view ('pages.cut.download', []);
     }
 
 }

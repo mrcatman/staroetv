@@ -65,7 +65,7 @@ class Teletext extends Model {
 
     public function setSupposedDate()
     {
-        $year = 1950;
+        $year = 1949;
         $month = 1;
         $day = 1;
 

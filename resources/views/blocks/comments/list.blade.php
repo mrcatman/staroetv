@@ -26,7 +26,7 @@
 
                     <div class="comments__form">
                         @if (!auth()->user())
-                            <div class="comments__form__register">
+                            <div class="login-to-continue">
                                 <span>
                                       <a class="button--login" href="{{route('login')}}">Войдите</a> или <a href="{{route('register')}}">зарегистрируйтесь</a>, чтобы
                                 добавить комментарий
@@ -41,7 +41,7 @@
                             @if (\App\Helpers\PermissionsHelper::allows("comadd"))
                                 @include('blocks.comments.form', ['material_type' => $conditions['material_type'], 'material_id' => $conditions['material_id']])
                             @else
-                                <div class="comments__form__register">
+                                <div class="login-to-continue">
                                     Пользователи, находящиеся в вашей группе, не могут оставлять комментарии
                                 </div>
                             @endif

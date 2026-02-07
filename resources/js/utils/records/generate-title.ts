@@ -7,7 +7,7 @@ const generateDate = (data: RecordsUploadData) => {
         if (data.date.year_end > 0) {
             return `${data.date.year_start}-${data.date.year_end}`;
         }
-        return data.date.year_start;
+        return data.date.year_start > 0? data.date.year_start.toString() : 'неизвестная дата';
     }
 
     let date: string;
@@ -34,10 +34,10 @@ export const generateTitle = (data: RecordsUploadData) => {
     let title;
     if (data.type === 'advertising') {
         title = data.advertising.brand;
-        if (!data.date.year_start || !data.date.year_end || data.date.year_start === data.date.year_end) {
-            title += ` (${data.date.year})`;
+        if (!data.date.year_start || !data.date.year_end || data.date.year_start === data.date.year_end || (data.date.year_start > 0 && data.date.year_end <= 0)) {
+            title += ` (${data.date.year > 0 ? data.date.year : 'неизвестная дата'})`;
         } else {
-            title += ` (${data.date.year_start}-${data.date.year_end})`;
+            title += ` (${data.date.year_start >0 ? `${data.date.year_start}-${data.date.year_end}` : 'неизвестная дата'})`;
         }
         if (data.short_description?.length) {
             title += ` ${data.short_description}`;

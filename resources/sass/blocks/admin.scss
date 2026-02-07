@@ -2,47 +2,42 @@
     font-size: .875em;
     background: var(--box-color);
     color: var(--text-color);
-    margin: 1em 0 0;
     display: flex;
 
     &__sidebar {
         width: 20em;
-        background: var(--box-color);
-        border-right: 1px solid var(--border-color);
+        @include mobile() {
+            width: 100%;
+        }
     }
 
     &__name {
-        font-size: 1em;
-        padding: 1.25em;
-        font-weight: bold;
-        background: var(--box-color-dark);
-        color: var(--box-text-color-dark);
         position: relative;
         z-index: 1;
     }
 
     &__main-content {
         position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: var(--col-margin);
     }
 
     &__link {
-        border-bottom: 1px solid var(--border-color);
         text-decoration: none;
         font-size: 1.125em;
         padding: 1em;
         margin: 0;
-
-        &:hover {
-            background: var(--box-color-hover);
-        }
-
-        i {
-            width: 1.5em;
-            margin: 0 .5em 0 0;
-        }
+        @include hover;
+        display: flex;
+        align-items: center;
+        gap: 1em;
 
         &.link--active {
             background: var(--bg-darker-2);
+        }
+        @include mobile() {
+            width: calc(50% - 2em);
         }
     }
 
@@ -74,19 +69,26 @@
     &__content {
         max-width: calc(100% - 20em);
         flex: 1;
+        @include mobile() {
+            max-width: unset;
+        }
     }
 
     &__links {
         display: flex;
         flex-direction: column;
+        @include mobile() {
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
     }
 
 
     &__table {
         width: 100%;
         border-collapse: collapse;
-        margin: 0 0 1em;
-
+        font-size: .9375em;
+        box-shadow: var(--block-box-shadow);
         &__row-loading {
             position: absolute;
             top: 0;
@@ -159,7 +161,7 @@
 
         th {
             font-size: 1.125em;
-            padding: .75em 0;
+            padding: .75em .25em;
             border: 1px solid var(--border-color);
             cursor: pointer;
 
@@ -183,7 +185,6 @@
                 top: -.125em;
             }
         }
-        font-size: 1.125em;
 
         &--bigger {
             td {
@@ -200,8 +201,7 @@
 
     &__table-filters {
         display: flex;
-        padding: 1em;
-
+        gap: var(--col-margin);
         &__input {
             flex: 1;
             text-align: right;
@@ -210,25 +210,31 @@
 }
 
 .pager-container--admin-panel {
-  margin: -.5em 0 0;
+    &-bottom {
+        margin-left: auto;
+    }
+    .pagination {
+        box-shadow: none;
+        margin: 0;
+        padding: 0;
+    }
 }
-
-.container--admin-panel {
-
-}
-
 
 
 .admin-panel__crossposting {
     display: flex;
     flex-wrap: wrap;
-
+    gap: 1em;
     &__service {
-        margin: 0 1em 1em 0;
-        border: 1px solid var(--border-color);
-        width: calc(50% - 1em - 2px);
+        background: var(--bg-darker);
+        box-shadow: var(--block-box-shadow);
+        border-radius: var(--border-radius-standard);
+        width: calc(50% - 1em);
         padding: 1.5em;
         box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: .5em;
     }
 
     &__top {
@@ -243,10 +249,11 @@
 
     &__instructions {
         background: var(--bg-darker-2);
-        border: 1px solid var(--border-color);
+        box-shadow: var(--element-box-shadow);
+        border-radius: var(--border-radius-standard);
         overflow: auto;
+        word-break: break-all;
         padding: .5em 1em;
-        margin: 0 0 .5em;
     }
 
     &__name {
@@ -259,22 +266,37 @@
 .editor-panel {
     display: flex;
     flex-direction: column;
-    gap: 1em;
+    gap: 1.75em;
     &__title {
         font-size: 1.75em;
         margin: 0;
-        padding: .25em 0;
+        padding: 0;
+    }
+    &__block {
+        display: flex;
+        flex-direction: column;
+        gap: .25em;
+    }
+    &__items {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25em;
     }
 
-    &__row {
+    &__item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-bottom: 1px solid var(--border-color);
+        gap: 1em;
         padding: .25em 0;
 
         &__title {
             font-size: 1.25em;
+        }
+        &__texts {
+            display: flex;
+            flex-direction: column;
+            gap: .75em;
         }
     }
 

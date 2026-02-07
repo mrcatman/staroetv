@@ -2,46 +2,47 @@
 
 namespace App\Crossposting\Services\Odnoklassniki;
 
-use App\Crossposting\BaseCrossposter;
+use App\Crossposting\Crossposter;
+use App\Crossposting\Post;
+use Illuminate\Support\Facades\Http;
 
-class OdnoklassnikiCrossposter extends BaseCrossposter {
+class OdnoklassnikiCrossposter extends Crossposter {
 
-    public $id = "odnoklassniki";
-    public $public_name = "Одноклассники";
-    public $can_auto_connect = true;
-    public $can_edit_posts = false;
-    public $can_delete_posts = false;
+    protected $params = [
+        'id' => 'odnoklassniki',
+        'public_name' => 'Одноклассники',
+        'can_auto_connect' => true,
+        'can_edit_posts' => false,
+        'can_edit_comments' => false,
+    ];
 
-    protected $base_url = "http://api.odnoklassniki.ru/fb.do";
+    private $base_url = "http://api.odnoklassniki.ru/fb.do";
 
 
     public function __construct() {
-        parent::__construct();
-        $this->settings_manager = new OdnoklassnikiSettingsManager($this);
+        $this->config = new OdnoklassnikiConfigManager($this);
     }
 
-    public function getPostInstance() {
+    public function getPostInstance(): Post {
         return new OdnoklassnikiPost();
     }
 
-    public function isActive() {
-        $token = $this->settings_manager->get("access_token");
-        return (bool)$token;
+    public function isActive(): bool {
+        return (bool)$this->config->get("access_token");
     }
 
-    public function getAutoConnectRedirectURI() {
-        $client_id = $this->settings_manager->get('app_id');
+    public function getAutoConnectRedirectURI(): string {
+        $client_id = $this->config->get('app_id');
         if (!$client_id) {
             throw new \Exception("Не указан id приложения");
         }
         $redirect_uri = urlencode("https://staroetv.su/crosspost/redirect/odnoklassniki");
         $scope = "VALUABLE_ACCESS,GROUP_CONTENT,VIDEO_CONTENT,PHOTO_CONTENT,LONG_ACCESS_TOKEN";
-        $url = "https://connect.ok.ru/oauth/authorize?client_id=$client_id&scope=$scope&response_type=token&redirect_uri=$redirect_uri";
-        return $url;
+        return "https://connect.ok.ru/oauth/authorize?client_id=$client_id&scope=$scope&response_type=token&redirect_uri=$redirect_uri";
     }
 
-    protected function uploadPicture($picture) {
-        $group_id = $this->settings_manager->get('group_id');
+    private function uploadPicture(string $path) {
+        $group_id = $this->config->get('group_id');
         if (!$group_id) {
             throw new \Exception("Не указан id группы");
         }
@@ -51,60 +52,51 @@ class OdnoklassnikiCrossposter extends BaseCrossposter {
         $upload_url = $upload_url['upload_url'];
 
 
-        if ($picture[0] == "/") {
-            $picture = public_path($picture);
+        if ($path[0] == "/") {
+            $picture = public_path($path);
         } else {
             $rnd = md5(random_bytes(16));
             $path = public_path("pictures/temp/".$rnd);
-            file_put_contents($path, file_get_contents($picture));
-            $picture = $path;
+            file_put_contents($path, file_get_contents($path));
         }
+
         $extension = pathinfo($picture, PATHINFO_EXTENSION);
-        $upload = $this->client->request('POST', $upload_url, [
-            'multipart' => [
-                [
-                    'name'     => 'pic1',
-                    'contents' => fopen($picture, 'r'),
-                    'filename' => 'photo.'.$extension
-                ]
-            ]
-        ]);
-        $upload_data = json_decode($upload->getBody()->getContents(), 1);
-        $token = $upload_data['photos'][array_keys($upload_data['photos'])[0]]['token'];
-        return $token;
+        $data = Http::attach(
+            'pic1',
+            fopen($picture, 'r'),
+            'photo.'.$extension
+        )->post($upload_url)->json();
+
+        return $data['photos'][array_keys($data['photos'])[0]]['token'];
     }
 
     public function request($method, $params) {
-        $token = $this->settings_manager->get("access_token");
+        $token = $this->config->get("access_token");
         if (!$token) {
             throw new \Exception("Не указан токен, возможно вы не авторизовались. Нажмите кнопку 'Подключить'");
         }
-        $key = $this->settings_manager->get("public_key");
+
+        $key = $this->config->get("public_key");
         if (!$key) {
             throw new \Exception("Не указан ключ приложения");
         }
+
         $params["application_key"] = $key;
         $params["method"] = $method;
         $params["sig"] = $this->calcSignature($method, $params);
         $params['access_token'] = $token;
-        $requestStr = "";
-        foreach($params as $key=>$value){
-            $requestStr .= $key . "=" . urlencode($value) . "&";
-        }
-        $requestStr = substr($requestStr, 0, -1);
-        $curl = curl_init($this->base_url . "?" . $requestStr);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        $s = curl_exec($curl);
-        curl_close($curl);
-        return json_decode($s, true);
+
+        return Http::post($this->base_url, $params)->json();
     }
 
-    private function calcSignature($methodName, $params = []){
-        $key = $this->settings_manager->get("public_key");
-        $secret_key = $this->settings_manager->get("secret_key");
-        $token = $this->settings_manager->get("access_token");
+    private function calcSignature($methodName, $params = []): string{
+        $key = $this->config->get("public_key");
+        $secret_key = $this->config->get("secret_key");
+        $token = $this->config->get("access_token");
+
         $params["application_key"] = $key;
         $params["method"] = $methodName;
+
         $requestStr = "";
         ksort($params);
         foreach($params as $key=>$value){
@@ -114,10 +106,10 @@ class OdnoklassnikiCrossposter extends BaseCrossposter {
         return md5($requestStr);
     }
 
-    public function getRequestParams($post, $media = null) {
+    public function getRequestParams(?Post $post, $media = null) {
         if ($post) {
-            $text = $post->getText();
-            $link = $post->getLinkText();
+            $text = $post->getParam('text');
+            $link = $post->getParam('link');
             if ($link != "") {
                 $text.= PHP_EOL.PHP_EOL.$link;
             }
@@ -147,33 +139,33 @@ class OdnoklassnikiCrossposter extends BaseCrossposter {
                 ];
             }
         }
-        $group_id = $this->settings_manager->get('group_id');
-        $params = [
+        $group_id = $this->config->get('group_id');
+        return [
             'type' => 'GROUP_THEME',
             'gid' => $group_id,
             'attachment' => json_encode([
                 'media' => $json_attachment
             ])
         ];
-        return $params;
     }
 
-    public function createPost($post) {
+    public function createPost(Post $post) {
         if (!$post instanceof OdnoklassnikiPost) {
             throw new \Exception("Неверный объект поста");
         }
+
         $post_ids = [];
 
-        $media = $post->getMedia();
+        $media = $post->getParam('media');
         $params = $this->getRequestParams($post, count($media) > 0 ? $media[0] : null);
         $response = $this->request('mediatopic.post', $params);
-        $ids[] = $response;
+        $post_ids[] = $response;
 
         if (count($media) > 1) {
             for ($i = 1; $i < count($media); $i++) {
                 $params = $this->getRequestParams(null, $media[$i]);
                 $response = $this->request('mediatopic.post', $params);
-                $ids[] = $response;
+                $post_ids[] = $response;
             }
         }
         return implode(";", $post_ids);
@@ -187,12 +179,13 @@ class OdnoklassnikiCrossposter extends BaseCrossposter {
         throw new \Exception("Невозможно удалять посты, сделайте это вручную");
     }
 
-    public function makeLinks($post_ids) {
-        $post_ids = explode(";", $post_ids);
-        $group_name = $this->settings_manager->get('group_name');
+    public function makeLinks(string $id): array {
+        $group_name = $this->config->get('group_name');
         if (!$group_name) {
             return [];
         }
+
+        $post_ids = explode(";", $id);
         $list = [];
         foreach ($post_ids as $post_id) {
             $list[] = "https://ok.ru/".$group_name."/topic/".$post_id;

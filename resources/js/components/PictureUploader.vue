@@ -41,8 +41,11 @@
 .picture-uploader {
     display: flex;
     align-items: center;
-    border: 1px solid var(--border-color);
     padding: 1em;
+    background: var(--bg-darker);
+    border-radius: var(--border-radius-standard);
+    box-shadow: var(--element-box-shadow);
+
     @include mobile {
         width: 100%;
         margin: .5em 0 0;
@@ -82,6 +85,7 @@
 
 
     &__image {
+        background-color: var(--bg-darker-2);
         width: 100%;
         height: 100%;
         background-size: contain;
@@ -150,7 +154,7 @@ import Modal from './Modal.vue';
 import Response from './Response.vue';
 import Preloader from "./Preloader.vue";
 
-const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg'];
+const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'];
 
 const props = defineProps<{
     light?: boolean;

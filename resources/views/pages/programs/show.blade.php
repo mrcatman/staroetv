@@ -29,15 +29,15 @@
                                     <span class="button--dropdown__icon">
                                         <i class="fa fa-chevron-down"></i>
                                     </span>
-                                    <div class="button--dropdown__list">
+                                    <div class="menu button--dropdown__list">
                                           @if ($program->can_edit)
-                                            <a class="button--dropdown__list__item" href="{{route('programs.edit', $program)}}">Редактировать</a>
+                                            <a class="menu__item button--dropdown__list__item" href="{{route('programs.edit', $program)}}">Редактировать</a>
                                         @endif
                                         @if (\App\Helpers\PermissionsHelper::allows('contentapprove'))
-                                            <a class="button--dropdown__list__item" data-approve="programs" data-approve-id="{{$program->id}}">{{$program->pending ? "Одобрить" : "Скрыть"}}</a>
+                                            <a class="menu__item button--dropdown__list__item" data-approve="programs" data-approve-id="{{$program->id}}">{{$program->pending ? "Одобрить" : "Скрыть"}}</a>
                                         @endif
                                         @if ($program->can_edit)
-                                            <a class="button--dropdown__list__item"
+                                            <a class="menu__item button--dropdown__list__item"
                                                data-confirm-form-input-value="{{$program->id}}"
                                                data-confirm-form-text="Вы уверены, что хотите удалить программу?"
                                                data-confirm-form-url="{{route('programs.delete')}}">Удалить</a>

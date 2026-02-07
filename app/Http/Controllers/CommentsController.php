@@ -21,7 +21,7 @@ class CommentsController extends Controller {
 
     public function latest()
     {
-        $comments = Comment::orderBy('id', 'desc')->where('material_type', '!=', '3')->paginate(24);
+        $comments = Comment::fromActualSections()->orderBy('id', 'desc')->where('material_type', '!=', '3')->paginate(24);
         return view("pages.users.comments", [
             'comments' => $comments,
             'user' => null,
@@ -33,7 +33,7 @@ class CommentsController extends Controller {
         if (!$user) {
             return redirect(route('index'));
         }
-        $comments = Comment::where(['user_id' => $id])->orderBy('id', 'desc')->paginate(30);
+        $comments = Comment::fromActualSections()->where(['user_id' => $id])->orderBy('id', 'desc')->paginate(30);
 
         return view("pages.users.comments", [
             'comments' => $comments,
@@ -161,7 +161,7 @@ class CommentsController extends Controller {
             'status' => 1,
             'text' => 'Комментарий добавлен',
             'data' => [
-                'dom' => [
+                'html' => [
                     [
                         'prepend_to' => $selector,
                         'html' => view("blocks.comments.item", ['ajax' => true, 'comment' => $comment])->render()
@@ -189,7 +189,7 @@ class CommentsController extends Controller {
                     'status' => 1,
                     'text' => 'Комментарий сохранен',
                     'data' => [
-                        'dom' => [
+                        'html' => [
                             [
                                 'replace' => $selector,
                                 'html' => view("blocks.comments.item", ['ajax' => true, 'comment' => $comment])->render()
@@ -221,7 +221,7 @@ class CommentsController extends Controller {
                 'status' => 1,
                 'text' => 'Комментарий удалён',
                 'data' => [
-                    'dom' => [
+                    'html' => [
                         [
                             'replace' => ".comment[data-id=" . $comment->id . "]",
                             'html' => ""
@@ -277,7 +277,7 @@ class CommentsController extends Controller {
             'status' => 1,
             'text' => 'Комментарий сохранен',
             'data' => [
-                'dom' => [
+                'html' => [
                     [
                         'replace' => ".comment[data-id=".$comment->id."] > .comment__inner .comment__rating__container",
                         'html' => $html

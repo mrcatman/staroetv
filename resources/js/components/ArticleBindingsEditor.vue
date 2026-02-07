@@ -1,20 +1,12 @@
 <template>
     <div class="article-bindings">
         <input type="hidden" name="bindings" :value="JSON.stringify({programs: selectedPrograms, channels: selectedChannels})" />
-        <div class="input-container input-container--vertical">
-            <label class="input-container__label">Программы</label>
-            <div class="input-container__inner">
-                <select2 ref="programs_input" :customOptions="programsAutocompleteOptions" multiple v-model="selectedChannels"></select2>
-                <span class="input-container__message"></span>
-            </div>
-        </div>
-        <div class="input-container input-container--vertical">
-            <label class="input-container__label">Каналы</label>
-            <div class="input-container__inner">
-                <select2 ref="channels_input" :customOptions="channelsAutocompleteOptions" multiple v-model="selectedPrograms"></select2>
-                <span class="input-container__message"></span>
-            </div>
-        </div>
+        <input-container vertical label="Программы" label-small>
+            <select2 ref="programs_input" :customOptions="programsAutocompleteOptions" multiple v-model="selectedPrograms"></select2>
+        </input-container>
+        <input-container vertical label="Каналы" label-small>
+            <select2 ref="channels_input" :customOptions="channelsAutocompleteOptions" multiple v-model="selectedChannels"></select2>
+        </input-container>
     </div>
 </template>
 <style lang="scss">
@@ -26,7 +18,9 @@
     }
 </style>
 <script lang="ts" setup>
-import { ref } from "vue";
+import { onMounted, ref, useTemplateRef } from "vue";
+import InputContainer from "@/components/InputContainer.vue";
+import Select2 from "@/components/Select2.vue";
 
 const props = defineProps<{
     bindings: Models.ArticleBinding[]
@@ -35,16 +29,22 @@ const props = defineProps<{
 const selectedChannels = ref<Models.Channel[]>([]);
 const selectedPrograms = ref<Models.Program[]>([]);
 
+const programsInputRef = useTemplateRef<typeof Select2>('programs_input');
+const channelsInputRef = useTemplateRef<typeof Select2>('channels_input');
 
-            // this.bindings.forEach(binding => {
-            //     if (binding.channel_id) {
-            //         let $option = $(`<option selected value="${binding.channel_id}">${binding.name}</option>`);
-            //         $(this.$refs.channels_input.$el).append($option).trigger('change');
-            //     } else {
-            //         let $option = $(`<option selected value="${binding.program_id}">${binding.name}</option>`);
-            //         $(this.$refs.programs_input.$el).append($option).trigger('change');
-            //     }
-            // })
+onMounted(() => {
+    props.bindings.forEach(binding => {
+        if (binding.channel_id) {
+            const $option = $(`<option selected value="${binding.channel_id}">${binding.name}</option>`);
+            $(channelsInputRef.value.select2).append($option).trigger('change');
+
+        } else {
+            const $option = $(`<option selected value="${binding.program_id}">${binding.name}</option>`);
+            $(programsInputRef.value.select2).append($option).trigger('change');
+        }
+    })
+});
+
 
 const channelsAutocompleteOptions = {
     ajax: {

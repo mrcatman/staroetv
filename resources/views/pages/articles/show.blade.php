@@ -14,61 +14,63 @@
 
     <div class="row row--stretch">
         <div class="col col--2">
-                <div class="box">
-                    <div class="box__inner">
-                        <div class="article-page">
-                            <div class="article-page__title">
-                                {{$article->title}}
-                            </div>
-                            @if ($article->cover_url != "")
-                                <img class="article-page__picture" src="{{$article->cover_url}}">
-                            @endif
-                            <div class="icon-blocks">
+            <div class="box">
+                <div class="box__inner">
+                    <div class="article-page">
+                        <div class="article-page__title">
+                            {{$article->title}}
+                        </div>
+                        @if ($article->cover_url != "")
+                            <img class="article-page__picture" src="{{$article->cover_url}}">
+                        @endif
+                        <div class="icon-blocks">
                             <span class="icon-block"><i class="fa fa-calendar"></i><span
                                     class="icon-block__text">{{$article->created_at}}</span></span>
-                                <span class="icon-block"><i class="fa fa-eye"></i><span
-                                        class="icon-block__text">{{$article->views}}</span></span>
-                                @if ($article->user)
-                                    <a href="{{$article->user->url}}" class="icon-block"><i class="fa fa-user"></i><span
-                                            class="icon-block__text">{{$article->user->username}}</span></a>
-                                @else
-                                    <span class="icon-block"><i class="fa fa-user"></i><span
-                                            class="icon-block__text">{{$article->username}}</span></span>
-                                @endif
-                                @if ($article->source != '' && !str_contains($article->source, 'staroetv.su'))
-                                    <a target=_blank href="{{$article->source}}" class="icon-block"><i
-                                            class="fa fa-link"></i><span
-                                            class="icon-block__text">{{$article->source}}</span></a>
-                                @endif
-                                @if ($show_actions_panel)
-                                    <span data-id="{{$article->id}}"
-                                          class="button button--light button--dropdown  button--article-menu">
+                            <span class="icon-block"><i class="fa fa-eye"></i><span
+                                    class="icon-block__text">{{$article->views}}</span></span>
+                            @if ($article->user)
+                                <a href="{{$article->user->url}}" class="icon-block"><i class="fa fa-user"></i><span
+                                        class="icon-block__text">{{$article->user->username}}</span></a>
+                            @else
+                                <span class="icon-block"><i class="fa fa-user"></i><span
+                                        class="icon-block__text">{{$article->username}}</span></span>
+                            @endif
+                            @if ($article->source != '' && !str_contains($article->source, 'staroetv.su'))
+                                <span class="icon-block">
+                                    <i class="fa fa-link"></i>
+                                    <span class="icon-block__text">{!! $article->source_with_links !!}</span>
+                                </span>
+                            @endif
+                            @if ($show_actions_panel)
+                                <span data-id="{{$article->id}}"
+                                      class="button button--light button--dropdown  button--article-menu">
                         <span class="button--dropdown__text">Действия</span>
                          <span class="button--dropdown__icon">
                              <i class="fa fa-chevron-down"></i>
                          </span>
-                         <div class="button--dropdown__list" id="actions_list_{{$article->id}}"></div>
+                         <div class="menu button--dropdown__list" id="actions_list_{{$article->id}}"></div>
                      </span>
 
-                                @endif
-                            </div>
+                            @endif
+                        </div>
 
-                            <div class="tags-list">
-                                @foreach ($article->tags as $tag)
-                                    <a href="{{route('articles.index', ['tag' => $tag->url])}}" class="tags-list__item">{{$tag->name}}</a>
-                                @endforeach
-                            </div>
-
-
-                            <div class="text-content">
-                                {!! $article->fixed_content !!}
-                            </div>
+                        <div class="tags-list">
+                            @foreach ($article->tags as $tag)
+                                <a href="{{route('articles.index', ['tag' => $tag->url])}}"
+                                   class="tags-list__item">{{$tag->name}}</a>
+                            @endforeach
                         </div>
 
 
+                        <div class="text-content">
+                            {!! $article->fixed_content !!}
+                        </div>
                     </div>
+
+
                 </div>
-                @include('blocks.comments.list', ['ajax' => false, 'lazyload' => true, 'page' => 1, 'conditions' => ['material_type' => $article->type_id ? $article->type_id : 1, 'material_id' => $article->original_id]])
+            </div>
+            @include('blocks.comments.list', ['ajax' => false, 'lazyload' => true, 'page' => 1, 'conditions' => ['material_type' => $article->type_id ? $article->type_id : 1, 'material_id' => $article->original_id]])
 
         </div>
         <div class="col col--sidebar">
@@ -81,8 +83,11 @@
                 <div class="box__inner">
                     <form action="{{route('articles.index')}}" class="small-search-form">
                         @csrf
-                        <input class="input" name="search" placeholder="Поиск">
-                        <button class="button" type="submit">Найти</button>
+                        <div class="input-container__inner input-container__inner--with-icon">
+                            <i class="fa fa-search input-container__icon"></i>
+                            <input class="input" name="search" placeholder="Поиск">
+                        </div>
+                        <button class="button button--light" type="submit">Найти</button>
                     </form>
                 </div>
             </div>

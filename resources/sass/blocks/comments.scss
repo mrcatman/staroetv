@@ -22,22 +22,17 @@
         max-height: 1.75em;
     }
     &__top-container {
-        margin: 0 0 .25em;
+        margin: 0 0 .5em;
         display: flex;
         align-items: center;
     }
     &__top {
-        margin: 0;
-        border: none;
         display: flex;
         flex-wrap: wrap;
-        @include mobile {
-            position: unset;
-        }
+        gap: .25em;
     }
     &__date {
         color: var(--text-lightest);
-        font-size: .875em;
     }
     &__children {
         margin: 0.5em 0 -0.5em 2em;
@@ -155,9 +150,7 @@
             transition: all .35s;
             opacity: 0;
             margin: 0 .5em;
-            &:hover {
-
-            }
+            @include hover;
 
             &--plus {
                 color: #218d20;
@@ -188,19 +181,17 @@
     &__username {
         font-weight: 600;
         width: 100%;
-        font-size: 1.125em;
+        font-size: 1.25em;
         text-decoration: none;
+        @include hover;
     }
 
     &__material-link {
-        margin: 0 0 0 .5em;
+        margin-left: .5em;
         cursor: pointer;
         font-size: 0.875em;
         text-decoration: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0);
-        &:hover {
-            border-bottom: 1px solid;
-        }
+        @include hover(true);
     }
 
     &__reply {
@@ -208,28 +199,25 @@
         display: inline-block;
         cursor: pointer;
         box-shadow: none;
-        font-size: 1em;
-        margin: .25em 0 0;
-        font-weight: bold;
-        border-bottom: 1px solid rgba(255, 255, 255, 0);
-        &:hover {
-            border-bottom: 1px solid;
-        }
+        @include hover(true);
+        margin-top: .3125em;
+        color: var(--text-lighter);
     }
 
     &__edit {
-        margin: 0 .5em;
+        @include hover(true);
+        position: relative;
+        z-index: 10;
         cursor: pointer;
-        font-size: .875em;
         color: var(--text-lighter);
-        text-decoration: underline;
     }
 
     &__delete {
+        @include hover(true);
+        position: relative;
+        z-index: 10;
         cursor: pointer;
-        font-size: .875em;
         color: #bf2b2b;
-        text-decoration: underline;
     }
 }
 
@@ -255,7 +243,7 @@
         margin-top: 1em;
         display: flex;
         flex-direction: column;
-        gap: 1em;
+        gap: 1.25em;
         &:empty {
             display: none;
         }
@@ -283,34 +271,15 @@
             background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.75));
         }
 
-        &__register {
-            font-size: 1.125em;
-            background: var(--bg-darker);
-            box-shadow: var(--block-box-shadow);
-            padding: 1em;
-            border-radius: var(--border-radius-standard);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: var(--col-margin);
-            @include mobile() {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-            a {
-                color: var(--primary);
-            }
-        }
+
     }
     &__pager {
-        margin: 1em 0 0;
-        border-top: 1px solid var(--border-color);
-        padding: 1em 2em 0;
-        @include light() {
-            padding: 1em 0 0;
-        }
+        margin: 1em -1em -1em;
         &:empty {
             display: none;
+        }
+        .pagination {
+            padding: 1em;
         }
     }
     &__reply-form-container {

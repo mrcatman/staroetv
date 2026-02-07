@@ -1,5 +1,5 @@
 let body = $('body');
-import replaceDom from './replaceDom';
+import { replaceHTML} from './replace-html';
 import { FORM_PRELOADER_CLASS, FORM_PRELOADER_HTML } from "./preloader";
 
 $(body).on('click', '.programs-list__show-all .button', function() {
@@ -17,7 +17,7 @@ $(body).on('click', '.programs-list__show-all .button', function() {
         $(programsList).removeClass('programs-list--with-show-all');
         $(programsList).find(`.${FORM_PRELOADER_CLASS}`).remove();
         if (res.status) {
-            replaceDom(res.data.dom);
+            replaceHTML(res.data.html);
         }
     })
 });

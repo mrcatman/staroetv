@@ -1,4 +1,8 @@
 <template>
+    <input v-if="name" type="hidden" :name="`${name}[year]`" :value="date.year" />
+    <input v-if="name" type="hidden" :name="`${name}[month]`" :value="date.month" />
+    <input v-if="name" type="hidden" :name="`${name}[day]`" :value="date.day" />
+
     <div class="row" v-if="!range">
         <div class="col">
             <input-container vertical label="Год" label-small>
@@ -6,7 +10,7 @@
                          @change="onYearChange"/>
             </input-container>
         </div>
-        <div class="inputs-line__item" v-if="!onlyYears">
+        <div class="col" v-if="!onlyYears">
             <input-container vertical label="Месяц" label-small>
                 <select2 ref="month" name="month" theme="default" :options="monthOptions" v-model="date.month"
                          :disabled="date.year < 0"
@@ -14,7 +18,7 @@
                          @change="onMonthChange"/>
             </input-container>
         </div>
-        <div class="inputs-line__item" v-if="!onlyYears">
+        <div class="col" v-if="!onlyYears">
             <input-container vertical label="День" label-small>
                 <select2 ref="day" name="day" theme="default" :options="dayOptions" v-model="date.day"
                          :disabled="date.month < 0"
@@ -22,7 +26,7 @@
             </input-container>
         </div>
     </div>
-    <div class="row" :class="{'row--vertical': search && !onlyYears}" v-else>
+    <div class="row" :class="{'row--vertical row--stretch': search && !onlyYears}" v-else>
         <div class="col">
             <input-container vertical :label="search ? 'Начальная дата' : 'Дата начала показа'" label-small>
                 <div class="row">
@@ -72,6 +76,7 @@ const model = defineModel<Common.Date>({
 })
 
 const props = defineProps<{
+    name?: string,
     range?: boolean,
     onlyYears?: boolean,
     search?: boolean,
@@ -149,4 +154,8 @@ const onYearStartChange = () => {
         date.value.year_end = date.value.year_start;
     }
 }
+
+watch(() => date.value.year_start, () => {
+    date.value.year = date.value.year_start;
+})
 </script>

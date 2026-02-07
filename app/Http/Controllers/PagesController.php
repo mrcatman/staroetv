@@ -29,7 +29,7 @@ class PagesController extends EntityController {
                 'page' => $page,
             ]);
         } else {
-            return view("pages.errors.403");
+            return redirect('/');
         }
     }
 
@@ -44,7 +44,7 @@ class PagesController extends EntityController {
                 'page' => $page,
             ]);
         } else {
-            return view("pages.errors.403");
+            return redirect('/');
         }
     }
 
@@ -141,7 +141,7 @@ class PagesController extends EntityController {
                 'page' => $page,
             ]);
         } else {
-            return view("pages.errors.403");
+            return redirect('/');
         }
     }
 }

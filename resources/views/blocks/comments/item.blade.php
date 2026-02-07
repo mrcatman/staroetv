@@ -2,11 +2,15 @@
     <div class="comment__inner">
         <div class="comment__texts">
             <div class="comment__top-container">
-                @if ($comment->user && $comment->user->avatar) <img class="comment__avatar" src="{{$comment->user->avatar->url}}" /> @endif
+                @if ($comment->user && $comment->user->avatar)
+                    <a href="{{$comment->user->url}}">
+                        <img class="comment__avatar" src="{{$comment->user->avatar->url}}" />
+                    </a>
+                @endif
                 <div class="comment__top">
                     <a @if ($comment->user) href="{{$comment->user->url}}" @endif class="comment__username">{{$comment->username}}</a>
                     <span class="comment__date">{{$comment->created_at}}</span>
-                    @if (isset($show_link) && $show_link)<a target="_blank" href="{{$comment->url}}" class="comment__material-link">[Материал]</a>@endif
+                    @if (isset($show_link) && $show_link && $comment->url)<a target="_blank" href="{{$comment->url}}" class="comment__material-link">[Материал]</a>@endif
                     @if (!isset($show_link) || !$show_link)
                         @if ($comment->can_edit)<a class="comment__edit">[Редактировать]</a>@endif
                         @if ($comment->can_delete)<a class="comment__delete">[Удалить]</a>@endif

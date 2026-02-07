@@ -1,10 +1,9 @@
 <template>
     <div class="form record-form">
-        <Preloader v-if="loading || saving || isUploadingFile"/>
+        <Preloader v-if="loading || saving"/>
         <Response :data="response" v-if="!inModal"/>
 
         <similar-modal ref="similarModal" :similar="similar" @mark="markSimilarAsChecked"/>
-
         <div class="row row--align-start">
             <div class="col col--2">
                 <div class=" form__content record-form__content" v-if="data">
@@ -47,9 +46,7 @@
                                                     <i class="fa fa-trash"></i>
                                                 </a>
                                                 <span class="input-container__message">
-                                                    {{
-                                                        errors.uploaded_file_id ?? errors.url ?? errors.code ?? externalVideoError
-                                                    }}
+                                                    {{errors.uploaded_file_id ?? errors.url ?? errors.code ?? externalVideoError}}
                                                 </span>
                                                 <div v-if="!data.record.upload" class="input-container__toggle-buttons">
                                                     <a class="input-container__toggle-button"
@@ -58,9 +55,7 @@
                                                     </a>
                                                     <a class="input-container__toggle-button" v-else
                                                        @click="data.record.own_code = false">
-                                                        Вставить ссылку с {{
-                                                            isRadio ? 'аудиохостинга' : 'видеохостинга'
-                                                        }}
+                                                        Вставить ссылку с {{isRadio ? 'аудиохостинга' : 'видеохостинга'}}
                                                     </a>
                                                 </div>
                                             </div>
@@ -116,14 +111,16 @@
                             vertical
                             withButton
                             label="Заголовок"
+                            required
                             :errors="errors.title"
                         >
                             <input ref="title" class="input" :readonly="titleLocked" v-model="data.title"/>
                             <a @click="titleLocked = !titleLocked"
-                               :title="titleLocked ? 'Ввести название вручную' : 'Сбросить название'"
                                class="input-container__button">
+                                <span class="tooltip">{{titleLocked ? 'Ввести название вручную' : 'Сбросить название'}}</span>
                                 <i v-if="titleLocked" class="fa fa-edit"></i>
                                 <i v-else class="fa fa-times"></i>
+
                             </a>
 
                             <template #description v-if="titleLocked">
@@ -218,6 +215,7 @@
                                 <input-container
                                     vertical
                                     label="Что рекламируется"
+                                    required
                                     :errors="errors.advertising_brand">
                                     <select2
                                         theme="default"
@@ -260,7 +258,7 @@
 
                         <input-container
                             vertical
-                            :label="data.type === 'advertising' ? 'Слоган' : 'Краткое описание'"
+                            :label="data.type === 'advertising' ? 'Слоган / вариация сюжета' : 'Краткое описание'"
                             :errors="errors.short_description"
                         >
                             <input class="input" v-model="data.short_description"/>
@@ -270,7 +268,7 @@
                                     Уточните название сюжета, участников программы и т.д.
                                 </template>
                                 <template v-else-if="data.type === 'advertising'">
-                                    Обычно идёт на последних секундах. Пример для рекламного ролика Bounty: "Райское наслаждение"
+                                    Слоган обычно идёт на последних секундах. Пример для рекламного ролика Bounty: "Райское наслаждение"
                                 </template>
                             </template>
                         </input-container>
@@ -341,7 +339,7 @@
 
                         <input-container
                             vertical
-                            label="Полное описание"
+                            label="Источник"
                             :errors="errors.source"
                         >
                             <input class="input" v-model="data.source"/>
@@ -589,9 +587,7 @@ import TypeSelect from "@/components/record-form/TypeSelect.vue";
 import SimilarModal from "@/components/record-form/SimilarModal.vue";
 
 const props = defineProps<{
-    uploadEndpoint: string,
-    canUpload: boolean,
-    canEditAll: boolean,
+    canEditAll?: boolean,
     inModal?: boolean,
     record?: Models.Record,
     isRadio?: boolean,
@@ -620,14 +616,12 @@ const {
     response,
     errors,
 
+    canUpload,
     uploadFile,
     setUploadFile,
-    setUploadEndpoint,
     isUploadingFile,
     uploadPercent,
 } = useRecordForm(props.startParams, props.record, !props.record);
-
-setUploadEndpoint(props.uploadEndpoint);
 
 const onFileInputChange = (e: Event) => {
     setUploadFile((e.target as HTMLInputElement).files[0]);

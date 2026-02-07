@@ -95,13 +95,13 @@
                 </div>
 
                 @if ($package)
-                    <records-list-picker name="records_data" :list="{{$package->records}}"
-                                         :annotations="{{$package->annotations}}"
-                                         :meta="{is_radio: {{$channel->is_radio ? "true" : "false"}}}"
-                                         :params="{is_interprogram: true, interprogram_package_id: {{$package->id}}, @if ($program) program_id: {{$program->id}} @else channel_id: {{$channel->id}} @endif }"
-                                         :unset-params="{is_interprogram: false, interprogram_package_id: null}"
-                                         :interprogram-editor="true"
-                                         :select="{is_interprogram: true, interprogram_package_id: null, is_advertising: false, @if ($program) program_id: {{$program->id}} @else channel_id: {{$channel->id}} @endif}"></records-list-picker>
+                    <records-list-picker
+                        name="records_data"
+                        :interprogram-editor="true"
+                        :records="{{$package->records}}"
+                        :annotations="{{$package->annotations}}"
+                        :start-params="{is_radio: {{$channel->is_radio ? "true" : "false"}}}"
+                        :search-params="{type: 'interprogram', interprogram_package_id: null, is_advertising: false, @if ($program) programs: [{{$program->id}}] @else channels: [{{$channel->id}}] @endif}"></records-list-picker>
                 @else
                     <h2>Сохраните пакет, чтобы начать добавлять записи</h2>
                 @endif

@@ -8,12 +8,13 @@ use App\Crossposting\Services\Odnoklassniki\OdnoklassnikiCrossposter;
 use App\Crossposting\Services\Telegram\TelegramCrossposter;
 use App\Crossposting\Services\Twitter\TwitterCrossposter;
 use App\Crossposting\Services\VK\VKCrossposter;
+use App\Helpers\ExternalServicesHelper;
 use App\Models\Record;
 use App\Models\SocialPost;
 
 class CrossposterManager {
 
-    protected $list = [
+    private $list = [
         'vk' => VKCrossposter::class,
         'telegram' => TelegramCrossposter::class,
         'twitter' => TwitterCrossposter::class,
@@ -22,32 +23,35 @@ class CrossposterManager {
         'facebook' => FacebookCrossposter::class
     ];
 
-    public function getList() {
-        return array_values($this->list);
+    /**
+     * @return Crossposter[]
+     */
+    public function getList(): array {
+        return array_map(function($item) { return new $item; }, $this->list);
     }
 
-    public function get($name) {
+    public function get($name): ?Crossposter {
         if (isset($this->list[$name])) {
             return new $this->list[$name];
         }
         return null;
     }
 
-    public function run() {
+    public function publish()
+    {
         $posts = SocialPost::where('post_ts', '<', time())->get();
-         foreach ($posts as $post) {
+        foreach ($posts as $post) {
             $post_connections = $post->postConnections;
             foreach ($post_connections as $post_connection) {
                 if ($post_connection->status == -1) {
-                    var_dump($post->id, $post_connection->service);
-                    $this->runOne($post, $post_connection);
+                    $this->publishPost($post, $post_connection);
                     usleep(500000);
                 }
             }
         }
     }
 
-    public function runOne($crosspost, $post_connection) {
+    public function publishPost($crosspost, $post_connection) {
         $service = $post_connection->service;
         $crossposter = $this->get($service);
         if (!$crossposter) {
@@ -61,11 +65,11 @@ class CrossposterManager {
         $post = $crossposter->getPostInstance();
 
         $text = $this->getText($data, $service);
-        $post->setText($text);
+        $post->setParam('text', $text);
 
         $link = $this->getLink($data, $service);
         if ($link) {
-            $post->setLink($link);
+            $post->setParam('link', $link);
         }
 
         if (isset($data['media']) && count($data['media']) > 0) {
@@ -79,17 +83,15 @@ class CrossposterManager {
                              $id = $val[count($val) - 1];
                              $video = Record::find($id);
                              if ($video->embed_code != "") {
-                                 preg_match('/youtube.com\/embed\/(.*?)"/', $video->embed_code, $output);
-                                 if ($output && count($output) == 2) {
-                                     $link = "https://youtube.com/watch?v=".$output[1];
-                                     $media_item['value'] = $link;
+                                 if ($youtube_video_id = ExternalServicesHelper::resolveYoutubeId($video->embed_code)) {
+                                     $media_item['value'] = "https://youtube.com/watch?v=$youtube_video_id";
                                  }
                              }
                          }
                      }
                 }
             }
-            $post->setMedia($data['media']);
+            $post->setParam('media', $data['media']);
         }
         if ($post_connection->status === 1 && !request()->input('force')) {
             $last_data = $post_connection->last_data;
@@ -110,15 +112,12 @@ class CrossposterManager {
                 'link' => $old_link != $link,
                 'media' => $need_update_media
             ]);
-            if ($post_connection->media_data) {
-                $post->setMediaCache($post_connection->media_data);
-            }
+
             try {
                 $post_ids =  $crossposter->editPost($post_connection->post_ids, $post);
                 $post_connection->post_ids = $post_ids;
                 $post_connection->last_data = $data;
                 $post_connection->error_log = null;
-                $post_connection->media_data = $post->getMediaCache();
                 $post_connection->save();
 
                 $status = 1;
@@ -134,7 +133,6 @@ class CrossposterManager {
                 $post_connection->post_ids = $post_ids;
                 $post_connection->status = 1;
                 $post_connection->last_data = $data;
-                $post_connection->media_data = $post->getMediaCache();
                 $post_connection->save();
                 $status = 1;
             } catch (\Exception $e) {

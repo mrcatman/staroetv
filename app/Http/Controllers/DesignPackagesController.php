@@ -166,9 +166,9 @@ class DesignPackagesController extends Controller
             return redirect(route('index'));
         }
         $annotations = [];
-        $hide_unsorted = request()->input('hide_unsorted', true);
 
         $is_other = $package_url == "other";
+        $hide_unsorted = request()->input('hide_unsorted', !$is_other);
 
         if ($is_other) {
             $types_to_hide = [11, 22];
@@ -299,7 +299,7 @@ class DesignPackagesController extends Controller
     public function add($data)
     {
         if (!PermissionsHelper::allows('additionalown') && !PermissionsHelper::allows('additional')) {
-            return view("pages.errors.403");
+            return redirect('/');
         }
         $channel = null;
         $program = null;
@@ -310,7 +310,7 @@ class DesignPackagesController extends Controller
                 return redirect(route('index'));
             }
             if (!$channel->can_edit) {
-                return view("pages.errors.403");
+                return redirect('/');
             }
         } elseif (isset($data['program_id'])) {
             $program = Program::findByIdOrUrl($data['program_id']);
@@ -318,11 +318,11 @@ class DesignPackagesController extends Controller
                 return redirect(route('index'));
             }
             if (!$program->can_edit) {
-                return view("pages.errors.403");
+                return redirect('/');
             }
             $channel = $program->channel;
             if ($channel && !$channel->can_edit) {
-                return view("pages.errors.403");
+                return redirect('/');
             }
         }
         return view("pages.graphics.form", [
@@ -443,7 +443,7 @@ class DesignPackagesController extends Controller
     {
         $package = DesignPackage::find($id);
         if (!$package || !$package->can_edit) {
-            return view("pages.errors.403");
+            return redirect('/');
         }
         $channel = $package->channel;
         $program = $package->program;
@@ -532,7 +532,11 @@ class DesignPackagesController extends Controller
             if (request()->has('records_data')) {
                 $data = json_decode(request()->input('records_data'));
                 $index = 0;
+
+                Record::where(['interprogram_package_id' => $package->id])->update(['interprogram_package_id' => null]);
+
                 foreach ($data as $item) {
+
                     if ($item->is_annotation) {
                         $annotation = null;
                         if (isset($item->id)) {
@@ -543,11 +547,11 @@ class DesignPackagesController extends Controller
                                 'interprogram_package_id' => $package->id
                             ]);
                         }
-                        if (isset($item->title)) {
-                            $annotation->title = $item->title;
+                        if (isset($item->model->title)) {
+                            $annotation->title = $item->model->title;
                         }
-                        if (isset($item->text)) {
-                            $annotation->text = $item->text;
+                        if (isset($item->model->text)) {
+                            $annotation->text = $item->model->text;
                         }
                         $annotation->order = $index;
                         $annotation->save();
@@ -556,6 +560,7 @@ class DesignPackagesController extends Controller
                     } else {
                         $record = Record::find($item->id);
                         if ($record) {
+                            $record->interprogram_package_id = $package->id;
                             $record->internal_order = $index;
                             $record->save();
                             $index++;
@@ -575,18 +580,18 @@ class DesignPackagesController extends Controller
         return [
             'status' => 1,
             'text' => 'Информация о пакете оформления обновлена',
-            'redirect_to' => $package->program_id ? '/programs/' . $package->program_id . '/graphics/edit/' . $package->id : '/channels/' . $package->channel_id . '/graphics/edit/' . $package->id
+            'redirect_to' => $package->program_id ? route('design.programs.edit', ['id' => $package->program_id, 'package_id' => $package->id]) : typed_route('design.[CHANNEL].edit', $package->channel->is_radio, ['id' => $package->channel_id, 'package_id' => $package->id]),
 
         ];
     }
 
     public function ajax($conditions)
     {
-        $graphics = DesignPackage::where($conditions)->get();
+        $design_packages = DesignPackage::where($conditions)->get();
         return [
             'status' => 1,
             'data' => [
-                'graphics' => $graphics
+                'design_packages' => $design_packages
             ]
         ];
     }

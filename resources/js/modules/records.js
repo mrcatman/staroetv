@@ -37,6 +37,7 @@ const loadRecords = ({container, conditions, link}) => {
         $(container).html(res.data.html);
 
         updateQueryString(request);
+        window.execOnRecordsPageChange.forEach(fn => fn());
     })
 };
 $(body).on('click', '.records-list__ajax-container .top-list__item', function(e) {

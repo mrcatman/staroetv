@@ -69,11 +69,11 @@ class Comment extends Model {
         if ($this->material_type === MaterialTypes::TYPE_NEWS || $this->material_type === MaterialTypes::TYPE_ARTICLES || $this->material_type === MaterialTypes::TYPE_BLOG) {
             $article = Article::where(['type_id' => $this->material_type, 'original_id' => $this->material_id])->first();
             if ($article) {
-                return $article->url;
+                return $article->full_url;
             }
             $article = Article::find($this->material_id);
             if ($article) {
-                return $article->url;
+                return $article->full_url;
             }
         } elseif ($this->material_type === MaterialTypes::TYPE_RECORDS) {
             $record = Record::where(['ucoz_id' => $this->material_id])->first();
@@ -91,6 +91,17 @@ class Comment extends Model {
                 return $program->full_url;
             }
         }
+    }
+
+    public function scopeFromActualSections() {
+        return $this->whereIn('material_type', [
+            MaterialTypes::TYPE_NEWS,
+            MaterialTypes::TYPE_ARTICLES,
+            MaterialTypes::TYPE_BLOG,
+            MaterialTypes::TYPE_CHANNELS,
+            MaterialTypes::TYPE_PROGRAMS,
+            MaterialTypes::TYPE_RECORDS
+        ]);
     }
 
     public function getTotalRatingAttribute() {

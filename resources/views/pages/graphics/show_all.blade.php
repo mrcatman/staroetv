@@ -37,9 +37,9 @@
                                                 <span class="button--dropdown__icon">
                                                     <i class="fa fa-chevron-down"></i>
                                                 </span>
-                                                <div class="button--dropdown__list">
-                                                    <a class="button--dropdown__list__item" href="/channels/{{$channel->id}}/graphics/edit/{{$package->id}}">Редактировать</a>
-                                                    <a class="button--dropdown__list__item" data-confirm-form-input-name="package_id" data-confirm-form-input-value="{{$package->id}}" data-confirm-form-text="Вы уверены, что хотите удалить пакет?" data-confirm-form-url="/graphics/delete">Удалить</a>
+                                                <div class="menu button--dropdown__list">
+                                                    <a class="menu__item button--dropdown__list__item" href="/channels/{{$channel->id}}/graphics/edit/{{$package->id}}">Редактировать</a>
+                                                    <a class="menu__item button--dropdown__list__item" data-confirm-form-input-name="package_id" data-confirm-form-input-value="{{$package->id}}" data-confirm-form-text="Вы уверены, что хотите удалить пакет?" data-confirm-form-url="/graphics/delete">Удалить</a>
                                                 </div>
                                             </span>
                                     </div>

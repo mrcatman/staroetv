@@ -49,6 +49,8 @@ body {
 
     --font-main: "Raleway", sans-serif;
     --font-texts: "Merriweather", serif;
+    font-variant-numeric: lining-nums;
+
     overflow-x: hidden;
     color: var(--text-color);
     background: var(--site-background-color);
@@ -113,7 +115,6 @@ a {
     }
 
     &--vertical {
-        height: 100%;
         flex-direction: column;
     }
 

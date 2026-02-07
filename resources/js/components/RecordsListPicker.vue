@@ -1,37 +1,31 @@
 <template>
 
     <snackbar ref="snackbar"></snackbar>
-    <input type="hidden" v-if="name" :name="name" :value="dataList">
-    <modal ref="searchRecordsModal" title="Поиск записей" :loading="searchPanel.loading">
+    <input type="hidden" v-if="name" :name="name" :value="dataJson">
+    <modal ref="searchRecordsModal" title="Поиск записей" >
         <form class="records-list-picker__search">
-            <div class="input-container records-list-picker__search__input">
-                <label class="input-container__label">Поиск</label>
-                <div class="input-container__inner">
-                    <input @keyup.stop="() => {}" @keydown.stop="() => {}" @keypress.stop="() => {}" class="input"
-                           v-model="searchPanel.search"/>
-                </div>
-                <input type="text" hidden style="display:none;">
+            <Preloader v-if="searchLoading" />
+            <input placeholder="Поиск" class="input" v-model="search"/>
+            <div class="tabs">
+                <a class="tab" :class="{'tab--active': searchType === 'filtered'}" @click="searchType = 'filtered'">Рекомендуемые</a>
+                <a class="tab" :class="{'tab--active': searchType === 'all'}" @click="searchType = 'all'">Все записи</a>
             </div>
-            <div class="records-list records-list-picker__search__list"
-                 v-if="searchPanel.list && searchPanel.list.data">
-                <div class="record-item" @click="onSelectRecord(record)"
-                     :class="{'record-item--selected': selectedIds.indexOf(record.id) !== -1}"
-                     v-for="(record, $index) in searchPanel.list.data">
-                    <a target="_blank" :href="'/video/'+record.id" class="record-item__cover"
-                       :style="{backgroundImage: `url(${(record.cover_picture ? record.cover_picture.url : record.cover)})`}"></a :href="'/records/'+record.id">
-                    <div class="record-item__texts">
-                        <span class="record-item__title" v-html="record.title"></span>
-                    </div>
-                </div>
+            <div class="records-list records-list-picker__search__list" v-if="searchResults?.data">
+                <records-item
+                    v-for="record in searchResults.data"
+                    :record="record"
+                    :disable-links="true"
+                    @click="onSelectRecord(record)"
+                    :class="{'record-item--selected': selectedIds.indexOf(record.id) !== -1}"
+                />
             </div>
-            <div class="modal-window__pager records-list-picker__search__pager">
+            <div v-if="searchResults" class="modal-window__pager records-list-picker__search__pager">
                 <div class="pager-container">
-                    <pagination :limit="3" :data="searchPanel.list" @pagination-change-page="loadSearch"></pagination>
+                    <pagination :limit="3" :data="searchResults" @pagination-change-page="loadSearch"/>
                 </div>
             </div>
             <div class="form__bottom records-list-picker__search__submit">
                 <a @click="submitSelectedRecords()" class="button button--light">Выбрать</a>
-                <Response :light="true" :data="searchPanel.response"/>
             </div>
         </form>
     </modal>
@@ -41,8 +35,7 @@
             class="records-list-picker__form"
             @save="onNewRecord"
             :in-modal="true"
-            :meta="meta"
-            :start-params="params"
+            :start-params="startParams"
         />
     </modal>
 
@@ -54,11 +47,11 @@
 
             <div class="box__heading__buttons">
                 <div class="buttons-row">
-                    <a class="button" @click="showSearchPanel()">
+                    <a class="button" @click="showSearch()">
                         <i class="fa fa-film"></i>
                         Выбрать с сайта
                     </a>
-                    <a class="button" @click="showAddPanel()">
+                    <a class="button" @click="addRecordModalRef.show()">
                         <i class="fa fa-upload"></i>
                         Загрузить новое видео
                     </a>
@@ -69,54 +62,49 @@
                 </div>
             </div>
         </div>
-        <!--
-        <select class="select-classic records-list-picker__type-select" v-model="showRecords" v-if="!hideSelectedButton">
-            <option value="all">Все видео</option>
-            <option value="main">Основной список</option>
-            <option value="other">Остальные</option>
-        </select>
-        -->
-        <div ref="items" class="box__inner records-list-picker__items">
 
+        <div ref="items" class="box__inner records-list-picker__items">
+            <div class="warning-alert">
+                Добавляйте записи, только у которых есть какое-то существенное отличие от остальных.
+                Нет смысла грузить 10 одинаковых начал эфира
+            </div>
             <div class="records-list__empty" v-if="recordsList.length === 0">Нет записей</div>
             <draggable
                 class="records-list"
                 v-model="recordsList"
-                @change="onDragChange"
-                #item="{element}"
+                #item="{element, index}"
                 itemKey="id"
             >
                 <div class="records-list-picker__item">
                     <div v-if="!element.is_annotation"
-                         v-show="showRecords === 'all' || (showRecords === 'main' && element.is_selected) || (showRecords === 'other' && !element.is_selected)"
                          class="record-item record-item--unselectable"
                          :class="{'records-list-picker__item--updating': element.updating, 'records-list-picker__item--selected': element.is_selected}">
                         <div class="records-list-picker__buttons">
-                            <!--
-                            <a class="records-list-picker__button" v-if="!hideSelectedButton" @click="setSelected(record)">{{record.is_selected ? "Удалить из осн.списка" : "Добавить в осн.список"}}</a>
-                            -->
-                            <a class="records-list-picker__button" @click="deleteFromList(element)">Удалить</a>
+                            <a class="records-list-picker__button" @click="deleteRecord(element)">Удалить</a>
                         </div>
-                        <a target="_blank" :href="'/video/'+element.id" class="record-item__cover"
-                           :style="{backgroundImage: `url(${element.cover})`}"></a>
+                        <a target="_blank" :href="element.model.full_url" class="record-item__cover"
+                           :style="{backgroundImage: `url(${element.model.cover})`}"></a>
                         <div class="record-item__texts">
-                            <span class="record-item__title" v-html="element.title"></span>
+                            <span class="record-item__title" v-html="element.model.title"></span>
                             <div class="records-list-picker__fields-container">
-                                <textarea v-if="descriptions" v-model="element.block_description" class="input"
+                                <textarea v-if="recordDescriptions" v-model="element.model.block_description"
+                                          class="input"
                                           placeholder="Описание"></textarea>
                                 <select @change="updateRecord(element, 'interprogram_type')" class="select-classic"
-                                        v-if="interprogramEditor" v-model="element.interprogram_type">
-                                    <option v-for="type in interprogramTypes" :value="type.id">{{ type.text }}</option>
+                                        v-if="interprogramEditor" v-model="element.model.interprogram_type">
+                                    <option v-for="type in categoriesStore.interprogramTypes" :value="type.id">
+                                        {{ type.text }}
+                                    </option>
                                 </select>
                             </div>
                         </div>
                     </div>
                     <div v-else class="records-list-picker__item records-list-picker__annotation">
                         <div class="records-list-picker__buttons">
-                            <a class="records-list-picker__button" @click="recordsList.splice($index, 1)">Удалить</a>
+                            <a class="records-list-picker__button" @click="recordsList.splice(index, 1)">Удалить</a>
                         </div>
-                        <input v-model="element.title" class="input" placeholder="Заголовок аннотации"/>
-                        <textarea v-model="element.text" class="input" placeholder="Описание"></textarea>
+                        <input v-model="element.model.title" class="input" placeholder="Заголовок аннотации"/>
+                        <textarea v-model="element.model.text" class="input" placeholder="Описание"></textarea>
                     </div>
 
                 </div>
@@ -132,8 +120,9 @@
     }
 
     &__items {
-        margin: 1em 0 0;
-
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
     }
 
     &__type-select {
@@ -256,304 +245,198 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
-
-        &__input {
-            margin: 0 0 .5em;
-            font-size: .875em;
-        }
+        gap: var(--col-margin);
 
         &__list {
+            max-height: 45em;
             overflow: auto;
-            font-size: .875em;
-
-            .record-item {
-                border-bottom: 1px solid var(--border-color) !important;
-            }
-
-            .record-item__title {
-                font-size: 1.5em;
-            }
+            overflow-x: hidden;
         }
 
-        &__pager {
-            font-size: .75em;
-        }
     }
 }
 
 
 </style>
-<script>
+<script lang="ts" setup>
+import { computed, nextTick, ref, useTemplateRef, watch } from "vue";
 import draggable from 'vuedraggable';
 
+import { Bootstrap5Pagination as Pagination } from 'laravel-vue-pagination';
 import Modal from './Modal.vue';
-import Response from './Response.vue';
 import Snackbar from './Snackbar.vue';
+import { type SearchForm } from "./RecordsSearch.vue";
 
-export default {
-    watch: {
-        "searchPanel.search"() {
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = setTimeout(() => {
-                this.loadSearch(1);
-            }, 500)
-        }
-    },
-    computed: {
-        interprogramTypes() {
-            let categories = this.categories;
-            if (categories.length === 0) {
-                return [];
-            }
-            categories = categories.filter(category => category.type === 'interprogram').map(category => {
-                return {id: category.id, text: category.name}
-            });
-            categories.unshift({
-                id: -1,
-                text: '-'
-            });
-            return categories;
-        },
-        dataList() {
-            return JSON.stringify(this.recordsList.map(record => {
-                return record.is_annotation ? record : {
-                    is_annotation: false,
-                    id: record.id,
-                }
-            }))
-        },
-        selectedIds() {
-            return this.selectedRecords.map(record => record.id);
-        }
-    },
-    methods: {
-        addAnnotation() {
-            this.recordsList.push({
-                is_annotation: true,
-                title: '',
-                text: ''
-            })
-            this.$nextTick(() => {
-                this.$refs.items.scrollIntoView({
-                    block: 'end',
-                    behavior: 'smooth'
-                })
-            })
-        },
-        onDragChange() {
-            if (this.manual) {
-                this.$emit('selected', this.recordsList);
-            }
-        },
-        onNewRecord(record) {
-            this.recordsList.push(record);
-            if (this.manual) {
-                this.$emit('selected', this.recordsList);
-            }
-            this.$refs.addRecordModal.hide();
-        },
-        showAddPanel() {
-            this.$refs.addRecordModal.show();
-        },
-        updateRecord(record, field) {
-            record.updating = true;
-            let params = {};
-            params[field] = record[field];
-            $.post('/records/mass-edit', {
-                ids: [record.id],
-                params
-            }).done(res => {
-                record.updating = false;
-                if (!res.status) {
-                    this.$refs.snackbar.show(res);
-                }
-            })
-        },
-        setSelected(record) {
-            record.updating = true;
-            $.post('/records/mass-edit', {
-                ids: [record.id],
-                params: {
-                    is_selected: !record.is_selected
-                }
-            }).done(res => {
-                record.updating = false;
-                if (res.status) {
-                    record.is_selected = !record.is_selected;
-                } else {
-                    this.$refs.snackbar.show(res);
-                }
-            })
-        },
-        deleteFromSite(record) {
-            record.updating = true;
-            $.post('/records/delete', {
-                id: record.id,
-            }).done(res => {
-                if (res.status) {
-                    this.recordsList.splice(this.recordsList.map(item => item.id).indexOf(record.id), 1);
-                } else {
-                    record.updating = false;
-                    this.$refs.snackbar.show(res);
-                }
-            })
-        },
-        deleteFromList(record) {
-            if (this.manual) {
-                this.recordsList.splice(this.recordsList.map(item => item.id).indexOf(record.id), 1);
-                this.$emit('selected', this.recordsList);
-                return;
-            }
-            record.updating = true;
-            $.post('/records/mass-edit', {
-                ids: [record.id],
-                params: this.unsetParams
-            }).done(res => {
-                if (res.status) {
-                    this.recordsList.splice(this.recordsList.map(item => item.id).indexOf(record.id), 1);
-                } else {
-                    record.updating = false;
-                    this.$refs.snackbar.show(res);
-                }
-            })
-        },
-        submitSelectedRecords() {
-            if (this.manual) {
-                this.recordsList = [...this.recordsList, ...this.selectedRecords];
-                this.$emit('selected', this.recordsList);
-                this.$refs.searchRecordsModal.hide();
-                return;
-            }
-            this.searchPanel.loading = true;
-            $.post('/records/mass-edit', {
-                ids: this.selectedIds,
-                params: this.params,
-            }).done(res => {
-                this.searchPanel.response = res;
-                this.searchPanel.loading = false;
-                if (res.status) {
-                    this.$refs.searchRecordsModal.hide();
-                    this.recordsList = [...this.recordsList, ...this.selectedRecords];
-                }
-            })
-        },
-        onSelectRecord(record) {
-            if (this.selectedIds.indexOf(record.id) === -1) {
-                this.selectedRecords.push(record);
-            } else {
-                this.selectedRecords.splice(this.selectedIds.indexOf(record.id), 1);
-            }
-        },
-        loadSearch(page) {
-            this.searchPanel.loading = true;
-            if (page) {
-                this.searchPanel.currentPage = page;
-            }
+import { type RecordsUploadData } from "@/composables/record-form";
+import { useCategoriesStore } from "@/stores/categories";
+import RecordsItem from "@/components/records/RecordsItem.vue";
+import Preloader from "@/components/Preloader.vue";
 
-            let params = this.select;
-            params.page = this.searchPanel.currentPage;
-            params.exclude_ids = this.recordsList.map(record => record.id);
-            if (this.searchPanel.search !== '') {
-                params.search = this.searchPanel.search;
-            }
-            $.post('/records/search', params).done(res => {
-                this.searchPanel.list = res.data.records;
-                this.searchPanel.loading = false;
-                this.$nextTick(() => {
-                    //this.$refs.searchRecordsModal.setSize();
-                })
-            })
-        },
-        showSearchPanel() {
-            this.$refs.searchRecordsModal.show();
-            this.loadSearch();
-        },
-        loadCategories() {
-            $.get('/records/categories').done(res => {
-                this.categories = res.data.categories;
-            })
-        },
-    },
-    mounted() {
-        this.recordsList = [...this.list, ...(this.annotations ? this.annotations.map(annotation => {
-            annotation.is_annotation = true;
-            return annotation;
-        }) : [])].sort((a, b) => {
-            let orderA = a.internal_order ? a.internal_order : a.order;
-            let orderB = b.internal_order ? b.internal_order : b.order;
-            return orderA - orderB;
-        });
+const categoriesStore = useCategoriesStore();
+categoriesStore.load();
 
-        this.loadCategories();
-    },
-    data() {
-        return {
-            categories: [],
-            showRecords: 'all',
-            selectedRecords: [],
-            recordsList: [],
-            searchPanel: {
-                search: '',
-                currentPage: 1,
-                loading: false,
-                list: {},
-                response: null,
-            },
-            searchTimeout: null,
-        }
-    },
-    components: {
-        Modal, Response, Snackbar, draggable
-    },
-    props: {
-        annotations: {
-            type: Array,
-            required: false,
-        },
-        interprogramEditor: {
-            type: Boolean,
-            required: false,
-        },
-        descriptions: {
-            type: Boolean,
-            required: false
-        },
-        hideSelectedButton: {
-            type: Boolean,
-            required: false
-        },
-        name: {
-            type: String,
-            required: false
-        },
-        disableDrag: {
-            type: Boolean,
-            required: false
-        },
-        manual: {
-            type: Boolean,
-            required: false
-        },
-        meta: {
-            type: Object,
-            required: false
-        },
-        list: {
-            type: Array,
-            required: true
-        },
-        unsetParams: {
-            type: Object,
-            required: false
-        },
-        params: {
-            type: Object,
-            required: false
-        },
-        select: {
-            type: Object,
-            required: true
-        }
+type AnnotationOrRecord = {
+    is_annotation: boolean,
+    updating?: boolean,
+    model: Models.Annotation | Models.Record,
+}
+
+const props = defineProps<{
+    records: Models.Record[],
+    annotations: Models.Annotation[],
+    interprogramEditor?: boolean,
+    recordDescriptions?: boolean,
+    name?: string,
+    startParams?: Partial<RecordsUploadData>,
+    searchParams?: Partial<SearchForm>
+}>();
+
+const recordsList = ref<AnnotationOrRecord[]>([...(props.records || []).map(record => {
+    return {
+        is_annotation: false,
+        model: record
     }
+}), ...((props.annotations || []).map(annotation => {
+    return {
+        is_annotation: true,
+        model: annotation
+    };
+}))].sort((a, b) => {
+    const orderA = a.model.internal_order ?? a.model.order;
+    const orderB = b.model.internal_order ?? b.model.order;
+    return orderA - orderB;
+}));
+
+const selectedRecords = ref<Models.Record[]>([]);
+
+const dataJson = computed(() => {
+    return JSON.stringify(recordsList.value.map(record => {
+        return record.is_annotation ? record : {
+            is_annotation: false,
+            id: record.model.id,
+        }
+    }))
+});
+
+const selectedIds = computed(() => {
+    return selectedRecords.value.map(record => record.id);
+});
+
+const addAnnotation = async () => {
+    recordsList.value.push({
+        is_annotation: true,
+        model: {
+            title: '',
+            text: ''
+        }
+    })
+
+    await nextTick();
+    scrollToEnd();
+}
+
+const addRecordModalRef = useTemplateRef<typeof Modal>('addRecordModal');
+const searchRecordsModalRef = useTemplateRef<typeof Modal>('searchRecordsModal');
+const snackbarRef = useTemplateRef<typeof Snackbar>('snackbar');
+const itemsRef = useTemplateRef<HTMLElement>('items');
+
+const onNewRecord = (record: Models.Record) => {
+    recordsList.value.push({
+        is_annotation: false,
+        model: record
+    });
+    addRecordModalRef.value.hide();
+}
+
+const updateRecord = (record: AnnotationOrRecord, field: string) => {
+    record.updating = true;
+
+    const params = {
+        [field]: record.model[field]
+    };
+    $.post('/records/mass-edit', {
+        ids: [record.model.id],
+        params
+    }).done(res => {
+        record.updating = false;
+        if (!res.status) {
+            snackbarRef.value.show(res);
+        }
+    })
+}
+
+const onSelectRecord = (record: Models.Record) => {
+    if (selectedIds.value.indexOf(record.id) === -1) {
+        selectedRecords.value.push(record);
+    } else {
+        selectedRecords.value.splice(selectedIds.value.indexOf(record.id), 1);
+    }
+}
+
+const deleteRecord = (record: AnnotationOrRecord) => {
+    recordsList.value.splice(recordsList.value.map(item => item.model.id).indexOf(record.model.id), 1);
+}
+
+let searchTimeout: number;
+const search = ref<string>('');
+const searchLoading = ref<boolean>(false);
+const searchPage = ref<number>(1);
+const searchResults = ref<Forms.PaginatedResponse<Models.Record[]>>();
+const searchType = ref<'filtered' | 'all'>('filtered');
+
+watch(() => search.value, () => {
+    searchTimeout = setTimeout(() => {
+        loadSearch(1);
+    }, 500)
+});
+watch(() => searchType.value, () => {
+   loadSearch(1);
+});
+
+const loadSearch = (page?: number) => {
+    searchLoading.value = true;
+    if (page) {
+        searchPage.value = page;
+    }
+
+    const params = {
+        ...(searchType.value === 'filtered' ? props.searchParams : {}),
+        page: searchPage.value,
+        exclude_ids: recordsList.value.map(record => record.model.id).filter(id => !!id),
+    }
+    if (search.value !== '') {
+        params.search = search.value;
+    }
+    $.post('/records/search', params).done(async (res) => {
+        searchResults.value = res.data.results;
+        searchLoading.value = false;
+        await nextTick();
+        searchRecordsModalRef.value.centerY();
+    })
+}
+const showSearch = () => {
+    searchRecordsModalRef.value.show();
+    loadSearch();
+}
+const submitSelectedRecords = async () => {
+    searchRecordsModalRef.value.hide();
+    if (selectedRecords.value.length === 0) {
+        return;
+    }
+    recordsList.value = [...recordsList.value, ...selectedRecords.value.map(record => {
+        return {
+            is_annotation: false,
+            model: record
+        }
+    })];
+    await nextTick();
+    scrollToEnd();
+}
+
+const scrollToEnd = async () => {
+    itemsRef.value.scrollIntoView({
+        block: 'end',
+        behavior: 'smooth'
+    })
 }
 </script>

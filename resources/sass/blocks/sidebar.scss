@@ -69,6 +69,12 @@
         @include mobile() {
             display: none;
         }
+        &__delimiter {
+            background: var(--box-text-color-dark);
+            width: 1px;
+            height: 1.3125em;
+            opacity: .25;
+        }
         &__link {
             color: var(--box-text-color-dark);
             text-decoration: none;
@@ -80,6 +86,9 @@
             @include hover(true);
             --box-color-hover: var(--box-color-hover-dark);
             --links-color: var(--box-text-color-dark);
+            &.link--active {
+                color: var(--primary);
+            }
             &--right {
                 margin-left: auto;
             }

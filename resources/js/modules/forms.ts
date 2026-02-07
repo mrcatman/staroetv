@@ -1,4 +1,4 @@
-import replaceDom from './replaceDom';
+import { replaceHTML} from './replace-html';
 import {showModal, showModalAjax} from "./modals";
 import { FORM_PRELOADER_CLASS, FORM_PRELOADER_HTML } from "./preloader";
 
@@ -70,7 +70,20 @@ $(body).on('submit', '.form', function (e) {
     $(this).append(FORM_PRELOADER_HTML);
     let formData = {};
     data.forEach(item => {
-        formData[item.name] = item.value;
+        if (item.name?.includes('[')) {
+            const parts = item.name.split('[');
+            const name = parts[0];
+            const key = parts[1].replace(']', '');
+            if (!formData[name]) {
+                formData[name] = {
+                    [key]: item.value
+                };
+            } else {
+                formData[name][key] = item.value;
+            }
+        } else {
+            formData[item.name] = item.value;
+        }
     });
 
     for (const key in window.activeEditors) {
@@ -117,12 +130,17 @@ $(body).on('submit', '.form', function (e) {
                 }
                 $(response).removeClass('response--error').addClass('response--success').html(res.text);
                 if (res.redirect_to) {
+                    console.log($(this), $(this).data('disable-redirects'));
                     setTimeout(() => {
-                        window.location.href = res.redirect_to;
+                        if ($(this).data('disable-redirects')) {
+                            window.location.reload();
+                        } else {
+                            window.location.href = res.redirect_to;
+                        }
                     }, 1250)
                 }
-                if (res.data && res.data.dom) {
-                    replaceDom(res.data.dom);
+                if (res.data?.html) {
+                    replaceHTML(res.data.html);
                 }
                 if ($(this).data('callback')) {
                     window[$(this).data('callback')](res);
@@ -203,9 +221,10 @@ $(body).on('click', '*[data-confirm-form-url]', function() {
     const url = $(this).data('confirm-form-url');
     const inputName = $(this).data('confirm-form-input-name') || 'id';
     const inputValue = $(this).data('confirm-form-input-value');
+    const disableRedirects = $(this).data('confirm-form-disable-redirects');
     const formId = 'confirm_form_' + url.split('/').join('_');
    $(body).append(`<div id="${formId}">
-       <form action="${url}" data-auto-close-modal="1" class="form  modal-window__form">
+       <form action="${url}" data-disable-redirects="${disableRedirects ? 1 : 0}" data-auto-close-modal="1" class="form  modal-window__form">
             <div class="form__content">
               <input type="hidden" name="${inputName}" value="${inputValue}"/>
               <input type="hidden" name="_from_confirm_form" value="1"/>

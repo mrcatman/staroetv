@@ -1,5 +1,7 @@
 <div class="admin-panel__sidebar">
+    <!--
     <div class="admin-panel__name">Панель управления сайтом</div>
+    -->
     <div class="admin-panel__links">
         <a class="admin-panel__link" href="{{route('admin.pages.index')}}">
             <i class="fa fa-newspaper"></i>Страницы сайта
@@ -15,6 +17,9 @@
         </a>
         <a class="admin-panel__link" href="{{route('admin.channels.order.index')}}">
             <i class="fa fa-sort-amount-up"></i>Порядок каналов
+        </a>
+        <a class="admin-panel__link" href="{{route('admin.programs.index')}}">
+            <i class="fa fa-list-ol"></i>Программы
         </a>
         <a class="admin-panel__link" href="{{route('admin.genres.index')}}">
             <i class="fa fa-clipboard-list"></i>Категории

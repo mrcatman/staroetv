@@ -77,6 +77,10 @@ ul.pagination::-webkit-scrollbar {
     .page-link {
         color: var(--text-color);
         text-decoration: none;
+        font: inherit;
+        background: none;
+        border: none;
+
     }
 
     &.active {

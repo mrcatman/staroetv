@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->call(function () {
-            (new CrossposterManager())->run();
+            (new CrossposterManager())->publish();
         })->everyFiveMinutes();
     }
 

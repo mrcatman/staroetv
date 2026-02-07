@@ -14,7 +14,7 @@ class HistoryEventsController extends Controller {
 
     public function add() {
         if (!PermissionsHelper::allows('historyown') && !PermissionsHelper::allows('history')) {
-            return view("pages.errors.403");
+            return redirect('/');
         }
 
         return view("pages.events.form", [
@@ -41,7 +41,7 @@ class HistoryEventsController extends Controller {
     public function edit($id) {
         $event = HistoryEvent::find($id);
         if (!$event || !$event->can_edit) {
-            return view("pages.errors.403");
+            return redirect('/');
         }
         foreach ($event->blocks as $block) {
             $block->loadRecords();

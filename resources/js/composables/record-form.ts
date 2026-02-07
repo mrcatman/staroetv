@@ -13,6 +13,8 @@ import { useCategoriesStore } from "../stores/categories";
 import { useTusUpload } from "./tus-upload";
 import { findByName as findChannelByName } from "../utils/channels";
 import {generateInterprogramTitle, generateTitle} from "../utils/records/generate-title";
+import { useUploadConfigStore } from "../stores/upload-config";
+import { storeToRefs } from "pinia";
 
 export type RecordsUploadRelationData = {
     name: string,
@@ -121,6 +123,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
     const categoriesStore = useCategoriesStore();
     const channelsStore = useChannelsStore();
     const programsStore = useProgramsStore();
+    const uploadConfigStore = useUploadConfigStore();
     //const designPackagesStore = useDesignPackagesStore();
     const tusUpload = useTusUpload(startParams?.is_radio);
 
@@ -144,6 +147,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
 
     const load = async () => {
         const promises = [
+            uploadConfigStore.load(),
             categoriesStore.load(),
             channelsStore.load()
         ];
@@ -465,6 +469,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
     const update = async () => {
         saving.value = true;
         if (tusUpload.needUpload.value) {
+            tusUpload.setEndpoint(uploadConfigStore.uploadEndpoint);
             try {
                 await tusUpload.upload();
             } catch (e) {
@@ -514,6 +519,9 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
         }
     }
 
+    const {
+        canUpload
+    } = storeToRefs(uploadConfigStore);
 
     return {
         loading,
@@ -538,7 +546,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
 
         setUploadFile,
         uploadFile: tusUpload.file,
-        setUploadEndpoint: tusUpload.setEndpoint,
+        canUpload,
 
         isUploadingFile: tusUpload.isUploading,
         uploadPercent: tusUpload.percent,

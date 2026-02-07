@@ -1,9 +1,9 @@
 @if ($can_edit)
-    <a class="button--dropdown__list__item" href="{{route('articles.edit', $article->id)}}">Редактировать</a>
-    <a class="button--dropdown__list__item button--delete-article">Удалить</a>
+    <a class="menu__item button--dropdown__list__item" href="{{route('articles.edit', $article->id)}}">Редактировать</a>
+    <a class="menu__item button-dropdown__list__item button--delete-article">Удалить</a>
 @endif
 @if ($can_approve)
-    <a class="button--dropdown__list__item" data-approve="articles" data-approve-id="{{$article->id}}">{{$article->pending ? "Одобрить" : "Скрыть"}}</a>
+    <a class="menu__item button--dropdown__list__item" data-approve="articles" data-approve-id="{{$article->id}}">{{$article->pending ? "Одобрить" : "Скрыть"}}</a>
 @endif
 
 

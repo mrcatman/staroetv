@@ -1,4 +1,4 @@
-<a href="{{$article->url}}" class="short-article">
+<a href="{{$article->full_url}}" class="short-article">
     <div class="short-article__top">
         @if ($article->cover_url != "")
             <div class="short-article__cover" style="background-image:url({{$article->cover_url}})"></div>

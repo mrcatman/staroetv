@@ -2,53 +2,55 @@
 
 namespace App\Crossposting\Services\VK;
 
-use App\Crossposting\BaseCrossposter;
+use App\Crossposting\Crossposter;
+use App\Crossposting\Post;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
-class VKCrossposter extends BaseCrossposter {
+class VKCrossposter extends Crossposter {
 
-    public $id = "vk";
-    public $public_name = "ВК";
-    public $can_auto_connect = true;
+    protected $params = [
+        'id' => 'vk',
+        'public_name' => 'ВК',
+        'can_auto_connect' => true,
+        'can_edit_posts' => true,
+        'can_edit_comments' => true,
+    ];
 
-    protected $base_url = "https://api.vk.com/method/";
-    protected $version = "5.103";
+    private $base_url = "https://api.vk.com/method/";
+    private $version = "5.103";
 
 
     public function __construct() {
-        parent::__construct();
-        $this->settings_manager = new VKSettingsManager($this);
+        $this->config = new VKConfigManager($this);
     }
 
-    public function getPostInstance() {
+    public function getPostInstance(): Post {
         return new VKPost();
     }
 
-    public function isActive() {
-        $token = $this->settings_manager->get("access_token");
-        return (bool)$token;
+    public function isActive(): bool {
+        return !!$this->config->get("access_token");
     }
 
-    public function getAutoConnectRedirectURI() {
-        $client_id = $this->settings_manager->get('app_id');
+    public function getAutoConnectRedirectURI(): string {
+        $client_id = $this->config->get('app_id');
         if (!$client_id) {
             throw new \Exception("Не указан id приложения");
         }
+
         $redirect_uri = urlencode("https://oauth.vk.com/blank.html");
-        $scope = 335888;
-        $url = "https://oauth.vk.com/authorize?client_id=$client_id&redirect_uri=$redirect_uri&display=page&scope=$scope&response_type=token&v=".$this->version."&revoke=1";
-        return $url;
+        return "https://oauth.vk.com/authorize?client_id=$client_id&redirect_uri=$redirect_uri&display=page&scope=335888&response_type=token&v=".$this->version."&revoke=1";
     }
 
-
-
-    public function request($url, $params, $group_params = true) {
-        $token = $this->settings_manager->get("access_token");
+    private function apiRequest(string $url, mixed $params, bool $group_params = true) {
+        $token = $this->config->get("access_token");
         if (!$token) {
             throw new \Exception("Не указан токен, возможно вы не авторизовались. Нажмите кнопку 'Подключить'");
         }
         $params['access_token'] = $token;
         if ($group_params) {
-            $group_id = $this->settings_manager->get('group_id');
+            $group_id = $this->config->get('group_id');
             if (!$group_id) {
                 throw new \Exception("Не указан id группы");
             }
@@ -58,23 +60,21 @@ class VKCrossposter extends BaseCrossposter {
         }
         $params['v'] = $this->version;
         $request_url = $this->base_url.$url;
-        $res = $this->client->request('POST', $request_url, [
-            'form_params' => $params,
-        ]);
-        return json_decode($res->getBody()->getContents());
+
+        return Http::post($request_url, $params)->json();
     }
 
-    protected function getPostText($post) {
-       $text = $post->getText();
-       $link = $post->getLinkText();
+    private function getPostText(VKPost $post): string {
+       $text = $post->getParam('text');
+       $link = $post->getParam('link_text');
        if ($link != "") {
            $text.= PHP_EOL.PHP_EOL.$link;
        }
        return $text;
     }
 
-    protected function isOnePost($post) {
-        $media = $post->getMedia();
+    private function isOnePost(VKPost $post) {
+        $media = $post->getParam('text');
         $is_one_post = true;
         foreach ($media as $media_item) {
             if ($media_item['type'] == "video" && strpos($media_item['value'], "youtu") === false) {
@@ -84,16 +84,19 @@ class VKCrossposter extends BaseCrossposter {
         return $is_one_post;
     }
 
-    public function createPost($post) {
+    public function createPost(Post $post) {
         if (!$post instanceof VKPost) {
             throw new \Exception("Неверный объект поста");
         }
+
         $text = $this->getPostText($post);
-        $link = $post->getLinkValue();
-        $media = $post->getMedia();
+        $link = $post->getParam('link_value');
+
+        $media = $post->getParam('media');
         $params = [
             'message' => $text,
         ];
+
         $multiple_posts = false;
         if (count($media) == 0) {
             if ($link) {
@@ -104,10 +107,10 @@ class VKCrossposter extends BaseCrossposter {
             $params['attachments'] = $attachments_string;
         } else {
             $multiple_posts = true;
-            $attachments_string = $this->uploadOneMediaItem($post, $media[0]);
+            $attachments_string = $this->uploadMediaItem($post, $media[0]);
             $params['attachments'] = $attachments_string;
         }
-        $response = $this->request("wall.post", $params);
+        $response = $this->apiRequest("wall.post", $params);
         if (isset($response->error)) {
             throw new \Exception("Ошибка: ".$response->error->error_msg);
         }
@@ -115,7 +118,7 @@ class VKCrossposter extends BaseCrossposter {
             $post_ids = [$response->response->post_id];
             for ($i = 1; $i < count($media); $i++) {
                 $params = $this->getRequestParams($post, $media[$i]);
-                $response = $this->request("wall.post", $params);
+                $response = $this->apiRequest("wall.post", $params);
                 if (isset($response->error)) {
                     throw new \Exception("Ошибка: ".$response->error->error_msg);
                 }
@@ -128,7 +131,7 @@ class VKCrossposter extends BaseCrossposter {
                     'message' => $text,
                     'attachments' => $link
                 ];
-                $response = $this->request("wall.post", $params);
+                $response = $this->apiRequest("wall.post", $params);
                 if (isset($response->error)) {
                     throw new \Exception("Ошибка: ".$response->error->error_msg);
                 }
@@ -149,32 +152,32 @@ class VKCrossposter extends BaseCrossposter {
             $params['message'] = $text.PHP_EOL.PHP_EOL.$media['value'];
             $params['attachments'] = $media['value'];
         } else {
-            $media_id = $this->uploadOneMediaItem($post, $media);
+            $media_id = $this->uploadMediaItem($post, $media);
             $params['attachments'] = $media_id;
         }
         return $params;
     }
 
-    public function editPost($post_ids, $post) {
-        $post_ids = explode(";", $post_ids);
+    public function editPost($id, $post) {
+        $id = explode(";", $id);
         if (!$post instanceof VKPost) {
             throw new \Exception("Неверный объект поста");
         }
         $text = $this->getPostText($post);
-        $media = $post->getMedia();
+        $media = $post->getParam('media');
         $params = [
-            'post_id' => $post_ids[0],
+            'post_id' => $id[0],
             'message' => $text,
         ];
         if ($this->isOnePost($post)) {
             $attachments_string = $this->uploadMedia($post, $media);
             $params['attachments'] = $attachments_string;
         } else {
-            $attachments_string = $this->uploadOneMediaItem($post, $media[0]);
+            $attachments_string = $this->uploadMediaItem($post, $media[0]);
             $params['attachments'] = $attachments_string;
         }
 
-        $response = $this->request("wall.edit", $params);
+        $response = $this->apiRequest("wall.edit", $params);
         if (isset($response->error)) {
             throw new \Exception("Ошибка: ".$response->error->error_msg);
         }
@@ -183,61 +186,59 @@ class VKCrossposter extends BaseCrossposter {
             for ($i = 1; $i < count($need_update_media); $i++) {
                 if ($need_update_media[$i]) {
                     if (isset($media[$i])) {
-
-                        if (isset($post_ids[$i])) {
+                        if (isset($id[$i])) {
                             $params = [
-                                'post_id' => $post_ids[0],
+                                'post_id' => $id[0],
                                 'message' => $text,
                                 'attachments' => $attachments_string
                             ];
-                            $this->request("wall.edit", $params);
+                            $this->apiRequest("wall.edit", $params);
                         } else {
                             $params = [
                                 'message' => $text,
                                 'attachments' => $attachments_string
                             ];
-                            $response = $this->request("wall.post", $params);
+                            $response = $this->apiRequest("wall.post", $params);
                             if (isset($response->error)) {
                                 throw new \Exception("Ошибка: ".$response->error->error_msg);
                             }
-                            $post_ids[] = $response->response->post_id;
+                            $id[] = $response->response->post_id;
                         }
                     } else {
-                        $post_to_delete_id = $post_ids[$i];
+                        $post_to_delete_id = $id[$i];
                         $params = [
                             'post_id' => $post_to_delete_id,
                         ];
-                        $response = $this->request("wall.delete", $params);
-                        $post_ids = array_filter($post_ids, function($post_id) use ($post_to_delete_id) {
+                        $this->apiRequest("wall.delete", $params);
+                        $id = array_filter($id, function($post_id) use ($post_to_delete_id) {
                             return $post_id != $post_to_delete_id;
                         });
                     }
                 }
             }
         }
-        return implode(";", $post_ids);
+        return implode(";", $id);
     }
 
-    public function deletePost($post_ids) {
-        $post_ids = explode(";", $post_ids);
+    public function deletePost(int|string $id): void {
+        $post_ids = explode(";", $id);
         foreach ($post_ids as $post_id) {
-            $params = [
+            $response = $this->apiRequest("wall.delete",  [
                 'post_id' => $post_id,
-            ];
-            $response = $this->request("wall.delete", $params);
+            ]);
             if (isset($response->error)) {
                 throw new \Exception("Ошибка: ".$response->error->error_msg);
             }
         }
-        return $post_ids;
     }
 
-    public function makeLinks($post_ids) {
-        $post_ids = explode(";", $post_ids);
-        $group_id = $this->settings_manager->get('group_id');
+    public function makeLinks(string $id): array {
+        $group_id = $this->config->get('group_id');
         if (!$group_id) {
             return [];
         }
+
+        $post_ids = explode(";", $id);
         $list = [];
         foreach ($post_ids as $post_id) {
             $list[] = "https://vk.com/wall-".$group_id."_".$post_id;
@@ -245,65 +246,58 @@ class VKCrossposter extends BaseCrossposter {
         return $list;
     }
 
-    public function uploadVideo($video) {
+    private function uploadVideo($video): string {
         $ids = [];
-        $group_id = $this->settings_manager->get('group_id');
+        $group_id = $this->config->get('group_id');
         if (!$group_id) {
             throw new \Exception("Не указан id группы");
         }
-        $response = $this->request("video.save", [
+        $response = $this->apiRequest("video.save", [
             'group_id' => $group_id,
             'link' => $video
         ]);
-        $ch = curl_init($response->response->upload_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_exec($ch);
-        curl_close($ch);
-        $ids[] = "video-".$group_id."_".$response->response->video_id;
 
+        Http::get($response->response->upload_url);
+
+        $ids[] = "video-".$group_id."_".$response->response->video_id;
         return implode(",",$ids);
     }
 
-    protected function uploadPicture($picture) {
-        $group_id = $this->settings_manager->get('group_id');
+    protected function uploadPicture(string $path) {
+        $group_id = $this->config->get('group_id');
         if (!$group_id) {
             throw new \Exception("Не указан id группы");
         }
-        $server = $this->request("photos.getWallUploadServer", [
+        $server = $this->apiRequest("photos.getWallUploadServer", [
             'group_id' => $group_id
         ]);
         $upload_url = $server->response->upload_url;
-        if ($picture[0] == "/") {
-            $picture = public_path($picture);
+        if ($path[0] == "/") {
+            $picture = public_path($path);
         } else {
             $rnd = md5(random_bytes(16));
             $path = public_path("pictures/temp/".$rnd);
-            file_put_contents($path, file_get_contents($picture));
-            $picture = $path;
+            file_put_contents($path, file_get_contents($path));
         }
+
         $extension = pathinfo($picture, PATHINFO_EXTENSION);
-        $upload = $this->client->request('POST', $upload_url, [
-            'multipart' => [
-                [
-                    'name'     => 'photo',
-                    'contents' => fopen($picture, 'r'),
-                    'filename' => 'photo.'.$extension
-                ]
-            ]
-        ]);
-        $upload_data = json_decode($upload->getBody()->getContents());
-        $save = $this->request("photos.saveWallPhoto", [
-            'photo' => $upload_data->photo,
-            'server' => $upload_data->server,
-            'hash' => $upload_data->hash,
+
+        $data = Http::attach(
+            'photo',
+            fopen($picture, 'r'),
+            'photo.'.$extension
+        )->post($upload_url)->json();
+        $save = $this->apiRequest("photos.saveWallPhoto", [
+            'photo' => $data->photo,
+            'server' => $data->server,
+            'hash' => $data->hash,
             'group_id' => $group_id
         ]);
-        $id = "photo".$save->response[0]->owner_id."_".$save->response[0]->id;
-        return $id;
+        return "photo".$save->response[0]->owner_id."_".$save->response[0]->id;
     }
 
-    public function uploadOneMediaItem($post, $media_item) {
-        $cache_value = $post->getMediaCacheForUrl($media_item['value']);
+    public function uploadMediaItem(VKPost $post, $media_item) {
+        $cache_value = Cache::get('crosspost-media-'.$media_item['value']);
         if ($cache_value) {
             return $cache_value;
         } else {
@@ -319,21 +313,22 @@ class VKCrossposter extends BaseCrossposter {
             }
             usleep(500000);
             if ($media_id) {
-                $post->setMediaCacheForUrl($media_item['value'], $media_id);
+                Cache::put('crosspost-media-'.$media_item['value'], $media_id, 3600);
                 return $media_id;
             }
         }
     }
-    public function uploadMedia($post, $media, $add_link = true) {
+
+    private function uploadMedia(VKPost $post, $media, bool $add_link = true) {
         $media_ids = [];
         foreach ($media as $media_item) {
-            $media_id = $this->uploadOneMediaItem($post, $media_item);
+            $media_id = $this->uploadMediaItem($post, $media_item);
             if ($media_id) {
                $media_ids[] = $media_id;
            }
         }
         if ($add_link) {
-            $link = $post->getLinkValue();
+            $link = $post->getParam('link_value');
             if ($link) {
                 $media_ids[] = $link;
             }

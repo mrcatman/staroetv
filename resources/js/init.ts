@@ -38,6 +38,7 @@ window.$.each( [ "put", "delete" ], function( i, method ) {
 declare global {
     interface Window {
         execOnMounted: (() => void)[],
+        execOnRecordsPageChange: (() => void)[],
         activeEditors: {
             [key: string]: Editor
         }
@@ -45,4 +46,5 @@ declare global {
 }
 
 window.execOnMounted = [];
+window.execOnRecordsPageChange = [];
 window.activeEditors = {};

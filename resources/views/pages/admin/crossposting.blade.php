@@ -14,17 +14,17 @@
                     </div>
                     <div class="admin-panel__crossposting__top__right">
                         @if ($service['can_auto_connect'])
-                            <a target="_blank" href="{{route('crosspostAutoconnect', $service['id'])}}"
+                            <a target="_blank" href="{{route('crossposts.autoconnect', $service['id'])}}"
                                class="button button--light">Подключить</a>
                         @endif
                     </div>
                 </div>
                 @if (view()->exists('blocks.crossposting.instructions.'.$service['id']))
                     <div class="admin-panel__crossposting__instructions">
-                        @include('blocks/crossposting/instructions/'.$service['id'], $service)
+                        @include('blocks.crossposting.instructions.'.$service['id'], $service)
                     </div>
                 @endif
-                <form method="POST" action="{{route('crosspostSaveSettings', $service['id'])}}"
+                <form method="POST" action="{{route('crossposts.save-settings', $service['id'])}}"
                       class="form admin-panel__crossposting__form">
                     <div class="response"></div>
                     @if (view()->exists('blocks.crossposting.forms.'.$service['id']))

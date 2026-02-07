@@ -43,7 +43,7 @@
     </div>
     <div class="box__inner">
 
-        <div class="categories-list categories-list--multiline">
+        <div class="categories-list categories-list--multiline @if ($tag) categories-list--multiline-opened @endif">
             <a class="category @if (!$tag) category--active @endif" href="{{route('articles.index')}}">Все теги</a>
             @foreach ($tags as $tag_item)
                 <a class="category @if ($tag && $tag_item->id == $tag->id) category--active @endif" href="{{route('articles.index', ['tag' => $tag_item->url])}}">

@@ -29,16 +29,16 @@
                     <span class="button--dropdown__icon">
                         <i class="fa fa-chevron-down"></i>
                     </span>
-                    <div class="button--dropdown__list">
+                    <div class="menu button--dropdown__list">
                          @if ($message->user)
-                            <a class="button--dropdown__list__item forum-message__show-profile" data-message-id="{{$message->id}}">Профиль</a>
+                            <a class="menu__item button-dropdown__list__item forum-message__show-profile" data-message-id="{{$message->id}}">Профиль</a>
                         @endif
                         @if ($message->can_edit)
-                            <a class="button--dropdown__list__item forum-message__edit">Редактировать</a>
-                            <a class="button--dropdown__list__item forum-message__delete">Удалить</a>
+                            <a class="menu__item button-dropdown__list__item forum-message__edit">Редактировать</a>
+                            <a class="menu__item button-dropdown__list__item forum-message__delete">Удалить</a>
                         @endif
                         @auth
-                            <a onclick="bb.insertQuote({{$message->id}},'{{$message->username}}');" onmouseover="bb.getSelection()" class="button--dropdown__list__item forum-message__quote">Цитата</a>
+                            <a onclick="bb.insertQuote({{$message->id}},'{{$message->username}}');" onmouseover="bb.getSelection()" class="menu__item button-dropdown__list__item forum-message__quote">Цитата</a>
                         @endauth
                     </div>
                 </span>

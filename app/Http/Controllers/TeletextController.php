@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Teletexts;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\TeletextHelper;
 use App\Helpers\ViewsHelper;
@@ -12,61 +13,20 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
-class TeletextController extends EntityController {
+class TeletextController extends EntityController
+{
 
     protected $entity_class = Teletext::class;
     protected $permissions = [
         'approve' => 'contentapprove',
     ];
 
-    protected $redirect_after_delete = '/teletext';
+    public function __construct()
+    {
+        $this->redirect_after_delete = route('teletext.index');
+    }
 
 
-    private $texts = [
-        [
-            'name' => 'Телеинф',
-            'url' => 'teleinf',
-            'channels' => [
-                ['url' => 'ort', 'date_start' => [1,1,1991], 'date_end' => [31,12,2003]],
-            ]
-        ],
-        [
-            'name' => 'Телетекст Первого канала',
-            'url' => 'channel-one',
-            'channels' => [
-                ['url' => 'ort', 'date_start' => [1,1,2004], 'date_end' => [1,1,2020]],
-            ]
-        ],
-        [
-            'name' => 'Р-Тел',
-            'url' => 'r-tel',
-            'channels' => [
-                ['url' => 'rtr']
-            ]
-        ],
-        [
-            'name' => 'Блиц-Текст',
-            'url' => 'blitz-text',
-            'channels' => [
-                ['url' => 'ntv']
-            ]
-        ],
-        [
-            'name' => 'Центр-Инфо',
-            'url' => 'center-info',
-            'channels' => [
-                ['url' => 'tv-center']
-            ]
-        ],
-        [
-            'name' => 'Мостекст',
-            'url' => 'mostext',
-            'channels' => [
-                ['url' => 'mtk'],
-                ['url' => '2x2'],
-            ]
-        ],
-    ];
 
     private function findResults($query, $text)
     {
@@ -82,7 +42,7 @@ class TeletextController extends EntityController {
                     return $q->whereBetween('date', [$date_start, $date_end]);
                 });
 
-                $names = $channel->names->filter(function($name) use ($date_start) {
+                $names = $channel->names->filter(function ($name) use ($date_start) {
                     return (!$name->date_end || $name->date_end->gt($date_start));
                 })->unique('name');
                 foreach ($names as $name) {
@@ -113,7 +73,7 @@ class TeletextController extends EntityController {
         if (!$teletext->channel) {
             return null;
         }
-        $texts = array_values(array_filter($this->texts, function($text) use ($teletext) {
+        $texts = array_values(array_filter(Teletexts::LIST, function ($text) use ($teletext) {
             foreach ($text['channels'] as $channel_params) {
                 if ($channel_params['url'] == $teletext->channel->url) {
                     if (!isset($channel_params['date_start'])) {
@@ -141,7 +101,8 @@ class TeletextController extends EntityController {
         ];
     }
 
-    public function index() {
+    public function index()
+    {
         $params = [];
         if (!PermissionsHelper::allows('contentapprove')) {
             $params['pending'] = false;
@@ -149,7 +110,7 @@ class TeletextController extends EntityController {
 
         $used_channel_ids = [];
         $sections = [];
-        foreach ($this->texts as $text) {
+        foreach (Teletexts::LIST as $text) {
             $section = [
                 'name' => $text['name'],
                 'url' => $text['url'],
@@ -171,7 +132,7 @@ class TeletextController extends EntityController {
         $channels = Channel::whereIn('id', $other_channel_ids)->get();
         foreach ($channels as $channel) {
             $section = [
-                'name' => 'Телетекст '.$channel->name,
+                'name' => 'Телетекст ' . $channel->name,
                 'url' => $channel->url ?? $channel->id,
                 'channels' => [
                     [
@@ -204,7 +165,7 @@ class TeletextController extends EntityController {
 
     public function channel($url)
     {
-        $texts = array_values(array_filter($this->texts, function($text) use ($url) {
+        $texts = array_values(array_filter(Teletexts::LIST, function ($text) use ($url) {
             return $text['url'] == $url;
         }));
 
@@ -247,7 +208,8 @@ class TeletextController extends EntityController {
         ]);
     }
 
-    public function show($id) {
+    public function show($id)
+    {
         $teletext = Teletext::find($id);
         if (!$teletext || !count($teletext->pages)) {
             return redirect(route('index'));
@@ -272,7 +234,7 @@ class TeletextController extends EntityController {
 
         $navigation = [
             'prev' => $index > 0 ? $teletext->pages[$index - 1] : $teletext->pages[count($teletext->pages) - 1],
-            'next' => $index < count($teletext->pages) - 1 ? $teletext->pages[$index+1] : $teletext->pages[0],
+            'next' => $index < count($teletext->pages) - 1 ? $teletext->pages[$index + 1] : $teletext->pages[0],
         ];
 
         return view("pages.teletext.show", [
@@ -285,9 +247,10 @@ class TeletextController extends EntityController {
         ]);
     }
 
-    public function add() {
+    public function add()
+    {
         if (!PermissionsHelper::allows('teletextown') && !PermissionsHelper::allows('teletext')) {
-            return view("pages.errors.403");
+            return redirect('/');
         }
         return view("pages.teletext.form", [
             'teletext' => null,
@@ -295,13 +258,14 @@ class TeletextController extends EntityController {
         ]);
     }
 
-    public function edit($id) {
+    public function edit($id)
+    {
         $teletext = Teletext::find($id);
         if (!$teletext) {
             return redirect(route('index'));
         }
         if (!$teletext->can_edit) {
-            return view("pages.errors.403");
+            return redirect('/');
         }
         return view("pages.teletext.form", [
             'teletext' => $teletext,
@@ -309,7 +273,8 @@ class TeletextController extends EntityController {
         ]);
     }
 
-    public function save() {
+    public function save()
+    {
         if (!PermissionsHelper::allows('teletextown') && !PermissionsHelper::allows('teletext')) {
             return [
                 'status' => 0,
@@ -338,9 +303,9 @@ class TeletextController extends EntityController {
             'channel_id' => 'required|exists:channels,id',
             'quality' => 'numeric|min:1|max:10',
             'description' => 'sometimes',
-            'year' => 'sometimes|numeric',
-            'month' => 'sometimes|numeric',
-            'day' => 'sometimes|numeric',
+            'date.year' => 'sometimes|numeric',
+            'date.month' => 'sometimes|numeric',
+            'date.day' => 'sometimes|numeric',
         ]);
 
         $is_new = !$teletext->id;
@@ -355,6 +320,12 @@ class TeletextController extends EntityController {
                 'file' => ['Загрузите файл с расширением .t42'],
             ]);
         }
+
+        $data['year'] = $data['date']['year'] ?? null;
+        $data['month'] = $data['date']['month'] ?? null;
+        $data['day'] = $data['date']['day'] ?? null;
+        unset($data['date']);
+
         $teletext->fill($data);
 
         if ($is_new) {
@@ -368,7 +339,7 @@ class TeletextController extends EntityController {
             TeletextHelper::process($teletext, $file);
         }
 
-        Cache::forget('teletext_cover_'.$teletext->id);
+        Cache::forget('teletext_cover_' . $teletext->id);
 
         return [
             'status' => 1,
@@ -376,7 +347,6 @@ class TeletextController extends EntityController {
             'redirect_to' => route('teletext.show', $teletext) . (!$teletext->cover_id ? '?update_cover=1' : '')
         ];
     }
-
 
 
     private function getChannels()

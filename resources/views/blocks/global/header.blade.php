@@ -72,13 +72,27 @@
     ['icon' => 'star', 'link' => route('records.commercials'), 'name' => 'Рекламные ролики'],
     ['icon' => 'search', 'link' => route('records.search'), 'name' => 'Расширенный поиск записей']
 ])
+@if (\App\Helpers\PermissionsHelper::allows('admbar'))
+    @php($second_menu[] = ['delimiter' => true])
+    @php($second_menu[] = ['icon' => 'cog', 'link' => route('admin.channels.index'), 'name' => 'Админ-панель'])
+@endif
+@if (\App\Helpers\PermissionsHelper::allows('redactorbar'))
+    @php($second_menu[] = ['icon' => 'check', 'link' => route('redactor.approve-panel'), 'name' => 'Панель редактора'])
+@endif
+@if (\App\Helpers\PermissionsHelper::allows('crosspost'))
+    @php($second_menu[] = ['icon' => 'copy', 'link' => route('crossposts.index'), 'name' => 'Посты в соцсетях'])
+@endif
 <div class="header__second-menu">
     <div class="header__second-menu__inner">
         @foreach ($second_menu as $second_menu_item)
-        <a class="header__second-menu__link" href="{{$second_menu_item['link']}}">
-            <i class="fa fa-{{$second_menu_item['icon']}}"></i>
-            {{$second_menu_item['name']}}
-        </a>
+            @if (isset($second_menu_item['delimiter']))
+                <div class="header__second-menu__delimiter"></div>
+            @else
+                <a class="header__second-menu__link" href="{{$second_menu_item['link']}}">
+                    <i class="fa fa-{{$second_menu_item['icon']}}"></i>
+                    {{$second_menu_item['name']}}
+                </a>
+            @endif
         @endforeach
         @if (auth()->user())
         <a class="header__second-menu__link header__second-menu__link--right"  onclick="event.preventDefault();document.getElementById('logout-form').submit();">
@@ -95,9 +109,13 @@
         <a class="mobile-menu__item" href="{{route('forum.index')}}">Форум</a>
         <div class="mobile-menu__delimiter"></div>
         @foreach ($second_menu as $second_menu_item)
+            @if (isset($second_menu_item['delimiter']))
+                <div class="mobile-menu__delimiter"></div>
+            @else
             <a class="mobile-menu__item mobile-menu__item--small" href="{{$second_menu_item['link']}}">
                 {{$second_menu_item['name']}}
             </a>
+            @endif
         @endforeach
         <div class="mobile-menu__delimiter"></div>
         <a class="mobile-menu__item mobile-menu__item--search">

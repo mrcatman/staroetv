@@ -15,7 +15,6 @@ use App\Helpers\RecordsHelper;
 use App\Helpers\RegexHelper;
 use App\Helpers\ViewsHelper;
 use App\Http\Requests\RecordsSearchRequest;
-use App\Jobs\makeThumbnail;
 use App\Jobs\DownloadExternalVideo;
 use App\Models\AdditionalChannel;
 use App\Models\Channel;
@@ -326,7 +325,7 @@ class RecordsController extends EntityController
     public function add($params)
     {
         if (PermissionsHelper::isBanned()) {
-            return view('pages.errors.403');
+            return redirect('/');
         }
         return view("pages.records.form", [
             'can_edit_all' => false,
@@ -339,7 +338,7 @@ class RecordsController extends EntityController
     public function edit($id)
     {
         if (PermissionsHelper::isBanned()) {
-            return view('pages.errors.403');
+            return redirect('/');
         }
         if (!auth()->user()) {
             return redirect(route('index'));
@@ -350,10 +349,9 @@ class RecordsController extends EntityController
         }
 
         if (!$record->can_edit) {
-            return view('pages.errors.403');
+            return redirect('/');
         }
         $ts = $record->original_added_at_ts;
-        $can_upload = PermissionsHelper::allows('viupload');
         $can_edit_all = PermissionsHelper::allows('viedit');
         $record->original_added_at_ts = $ts;
 
@@ -567,11 +565,12 @@ class RecordsController extends EntityController
             $errors['url'] = "Укажите корректную ссылку";
         } else {
             $code = Purifier::clean(request()->input('record.code'), 'embed');
+            $code = str_replace('&amp;', '&', $code);
             if (empty($code)) {
                 $errors['code'] = "Некорректный код для вставки видео";
             }
             $record->embed_code = $code;
-            $record->external_id = RegexHelper::getExternalIdFromEmbedCode($record->embed_code);
+            $record->external_id = ExternalServicesHelper::resolveId($record->embed_code);
         }
 
         $record->year = null;
@@ -1079,72 +1078,27 @@ class RecordsController extends EntityController
                 'text' => 'Ошибка доступа'
             ];
         };
-        if ($record->original_url && (strpos($record->original_url, 'vk.com') !== false || strpos($record->original_url, 'vkvideo.ru') !== false) && !$record->source_path) {
 
-            preg_match('/(.*?)video_ext.php\?oid=(.*?)&id=(.*?)&hash=(.*?)[&"](.*?)/', $record->embed_code, $matches);
-            $user_id = $matches[2];
-            $video_id = $matches[3];
-            $hash = $matches[4];
-            $data = ExternalServicesHelper::vkVideo($user_id . "_" . $video_id . "_" . $hash);
 
-            if (isset($data->response) && count($data->response->items) > 0) {
-                $video = $data->response->items[0];
-                $thumbnail = $video->image[count($video->image) - 2]->url;
-
-                $cover = Picture::firstOrNew([
-                    'url' => $thumbnail
-                ]);
-                $cover->save();
-
-                $record->cover_id = $cover->id;
-                $record->save();
-                return [
-                    'status' => 1,
-                    'text' => 'Превью обновлено',
-                    'redirect_to' => $record->url
-                ];
-            }
-            return [
-                'status' => 0,
-                'text' => 'Не удалось обновить превью'
-            ];
-        }
-        if ($record->original_url && strpos($record->original_url, 'youtu') !== false && !$record->source_path) {
-            preg_match('/youtube.com\/embed\/(.*?)"/', $record->embed_code, $output);
-            if ($output && count($output) == 2) {
-                $thumbnail = 'https://i.ytimg.com/vi/' . $output[1] . '/hqdefault.jpg';
-                $cover = Picture::firstOrNew([
-                    'url' => $thumbnail
-                ]);
-                $cover->save();
-
-                $record->cover_id = $cover->id;
-                $record->save();
-                return [
-                    'status' => 1,
-                    'text' => 'Превью обновлено',
-                    'redirect_to' => $record->url
-                ];
-            }
-            return [
-                'status' => 0,
-                'text' => 'Не удалось обновить превью'
-            ];
-        }
         if (!$record->source_path) {
-            return [
-                'status' => 0,
-                'text' => 'Не удалось обновить превью',
-            ];
-        }
-        $seconds = request()->input('seconds');
-        if (!$seconds || $seconds == "") {
-            $seconds = null;
+            $thumbnail = ExternalServicesHelper::getThumbnail($record);
+            if (!$thumbnail) {
+                return [
+                    'status' => 0,
+                    'text' => 'Не удалось обновить превью',
+                ];
+            }
+        } else {
+            $seconds = request()->input('seconds');
+            if (!$seconds || $seconds == "") {
+                $seconds = null;
+            }
+
+            $thumbnail = MediaHelper::makeThumbnail($record->source_path, $seconds);
         }
 
-        $thumbnail_path = MediaHelper::makeThumbnail($record->source_path, $seconds);
         $cover = Picture::firstOrNew([
-            'url' => $thumbnail_path
+            'url' => $thumbnail
         ]);
         $cover->save();
 
@@ -1301,7 +1255,7 @@ class RecordsController extends EntityController
                     'url' => $record->url,
                 ],
 
-                'dom' => [
+                'html' => [
                     [
                         'replace' => '#record_title',
                         'html' => $record->title_without_tags,
@@ -1378,8 +1332,15 @@ class RecordsController extends EntityController
         if (!auth()->user() && request()->input('type') != RecordComplaintTypes::PlayerNotWorking->value) {
             $rules['contact'] = 'required';
         }
-
         $data = request()->validate($rules);
+        $complaint_exists = RecordComplaint::where(['record_id' => $data['record_id'], 'type' => $data['type'], 'description' => isset($data['description']) ? $data['description'] : ''])->whereDate('created_at', '>=', Carbon::now()->subDays(1))->count() > 0;
+
+        if ($complaint_exists) {
+            return [
+                'status' => 1,
+                'text' => 'Жалоба уже на рассмотрении'
+            ];
+        }
 
         $complaint = new RecordComplaint($data);
         if (auth()->user()) {

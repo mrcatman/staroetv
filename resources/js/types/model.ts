@@ -563,9 +563,10 @@ namespace Models {
     };
     export type SocialPost = {
         id: number;
-        user_id: any;
+        user_id: number;
         post_data: string;
-        post_ts?: any;
+        short_texts?: string[];
+        post_ts?: number;
         created_at?: string;
         updated_at?: string;
         post_data_old?: string;
@@ -732,16 +733,16 @@ namespace Models {
     };
     export type VideoCut = {
         id: number;
-        video_id: any;
-        download_status: any;
+        video_id: number;
+        download_status: number;
         download_path?: string;
         data: string;
         created_at?: string;
         updated_at?: string;
-        frames?: any;
-        fps?: any;
-        channel_id?: any;
-        year?: any;
+        frames: number;
+        fps: number;
+        channel_id?: number;
+        year?: number;
         video?: Record;
     };
 }

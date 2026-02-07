@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Record;
 
-class RecordsAutocompleteController extends Controller {
+class RecordsAutocompleteController extends Controller
+{
 
     const ITEMS_COUNT = 30;
 
@@ -19,18 +20,26 @@ class RecordsAutocompleteController extends Controller {
         if (request()->has('is_radio')) {
             $items = $items->where(['is_radio' => !!request()->input('is_radio')]);
         }
+
+
+        if (request()->has('advertising_type') && request()->input('advertising_type') > 0) {
+            $items = $items->where(['advertising_type' => request()->input('advertising_type')]);
+        } else {
+            $items = $items->where(function ($query) {
+                $query->whereNull('advertising_type')->orWhere(['advertising_type' => -1]);
+            });
+        }
+
+        $fields = ['countries' => 'country', 'regions' => 'region', 'advertising_brands' => 'advertising_brand', 'advertising_categories' => 'advertising_category'];
+        foreach ($fields as $request_field => $db_field) {
+            if ($field != $db_field && request()->has($request_field) && count(request()->input($request_field)) > 0) {
+                $items = $items->whereIn($db_field, request()->input($request_field));
+            }
+        }
+
         return $items;
     }
 
-    private function filterByCommercialType($query)
-    {
-        if (request()->has('advertising_type') && request()->input('advertising_type') > 0) {
-            $query = $query->where(['advertising_type' => request()->input('advertising_type')]);
-        } else {
-            $query = $query->whereNull('advertising_type');
-        }
-        return $query;
-    }
 
     private function process($query, $field, $default_item_name = null)
     {
@@ -40,8 +49,8 @@ class RecordsAutocompleteController extends Controller {
         if (request()->has('term')) {
             $items = $items->where($field, 'LIKE', '%' . request()->input('term') . '%');
         }
-        $items = $items->clone()->whereNotNull($field)->where($field, '!=' ,'')->limit(self::ITEMS_COUNT)->offset(self::ITEMS_COUNT * ($page - 1))->get()->map(function ($item) use ($field) {
-            return ['id' => $item->{$field},  'name' => $item->{$field}, 'count' => $item->count];
+        $items = $items->clone()->whereNotNull($field)->where($field, '!=', '')->limit(self::ITEMS_COUNT)->offset(self::ITEMS_COUNT * ($page - 1))->get()->map(function ($item) use ($field) {
+            return ['id' => $item->{$field}, 'name' => $item->{$field}, 'count' => $item->count];
         });
         if (request()->input('for_search') && $default_item_name && $page == 1) {
             $default = $query->clone()->whereNull($field)->first();
@@ -79,14 +88,12 @@ class RecordsAutocompleteController extends Controller {
     public function commercialsBrands()
     {
         $brands = $this->select('advertising_brand', ['is_advertising' => true]);
-        $brands = $this->filterByCommercialType($brands);
         return $this->process($brands, 'advertising_brand');
     }
 
     public function commercialsCategories()
     {
         $categories = $this->select('advertising_category', ['is_advertising' => true]);
-        $categories = $this->filterByCommercialType($categories);
         return $this->process($categories, 'advertising_category');
     }
 

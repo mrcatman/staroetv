@@ -15,16 +15,16 @@ class DatesHelper {
         return ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
     }
 
-    public static function format($date) {
+    public static function format($date, $time = true) {
         $ts = strtotime($date);
-        return self::formatTS($ts);
+        return self::formatTS($ts, $time);
     }
 
-    public static function formatTS($ts) {
+    public static function formatTS($ts, $time = true) {
         $ts = $ts + 3 * 3600;
         $month_index = (int)date("m", $ts) - 1;
         $month = self::monthNamesParentalCase()[$month_index];
-        return date("j", $ts)." ".$month." ".date("Y, H:i", $ts);
+        return date("j", $ts)." ".$month." ".date($time ? "Y, H:i" : "Y", $ts);
     }
 
     public static function guess($date)

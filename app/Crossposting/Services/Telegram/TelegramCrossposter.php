@@ -2,48 +2,49 @@
 
 namespace App\Crossposting\Services\Telegram;
 
-use App\Crossposting\BaseCrossposter;
+use App\Crossposting\Crossposter;
+use App\Crossposting\Post;
+use Illuminate\Support\Facades\Http;
 
-class TelegramCrossposter extends BaseCrossposter {
+class TelegramCrossposter extends Crossposter {
 
-    public $id = "telegram";
-    public $public_name = "Telegram";
-    public $can_auto_connect = false;
+    protected $params = [
+        'id' => 'telegram',
+        'public_name' => 'Telegram',
+        'can_auto_connect' => false,
+        'can_edit_posts' => true,
+        'can_edit_comments' => false,
+    ];
 
     public function __construct() {
-        parent::__construct();
-        $this->settings_manager = new TelegramSettingsManager($this);
+        $this->config = new TelegramConfigManager($this);
     }
 
-    public function getPostInstance() {
+    public function getPostInstance(): Post {
         return new TelegramPost();
     }
 
-    public function isActive() {
-        $token = $this->settings_manager->get("access_token");
-        return (bool)$token;
+    public function isActive(): bool {
+        return !!$this->config->get("access_token");
     }
 
-    public function request($url, $params) {
-        $token = $this->settings_manager->get("access_token");
+    public function request($url, $params)
+    {
+        $token = $this->config->get("access_token");
         if (!$token) {
             throw new \Exception("Не указан токен");
         }
-        $group_id = $this->settings_manager->get("group_id");
+        $group_id = $this->config->get("group_id");
         if (!$group_id) {
             throw new \Exception("Не указан id группы");
         }
         $params['chat_id'] = $group_id;
         $params['parse_mode'] = "html";
 
-        $request_url = 'https://api.telegram.org/bot'.$token."/".$url;
-        $res = $this->client->request('POST', $request_url, [
-            'json' => $params,
-        ]);
-        return json_decode($res->getBody()->getContents());
+        return Http::post('https://api.telegram.org/bot' . $token . "/" . $url, $params)->json();
     }
 
-    protected function getRequestParamsForMedia($media_item, $post = null) {
+    protected function getRequestParamsForMedia($media_item, ?Post $post = null) {
         $method = null;
         $params = null;
         if ($media_item['type'] == "picture") {
@@ -58,7 +59,6 @@ class TelegramCrossposter extends BaseCrossposter {
         } elseif ($media_item['type'] == "video") {
             $text = $this->getPostText($post, $media_item);
 
-
             $method = "sendMessage";
             $params = [
                 'text' => $text
@@ -71,7 +71,7 @@ class TelegramCrossposter extends BaseCrossposter {
     }
 
 
-    protected function getPostText($post = null, $media_item = null) {
+    protected function getPostText(Post $post = null, $media_item = null): string {
         if (!$media_item && !$post) {
             return "";
         }
@@ -81,12 +81,12 @@ class TelegramCrossposter extends BaseCrossposter {
                 $text.= PHP_EOL.$media_item['value'];
             }
         } elseif ($post) {
-            $text = $post->getText();
+            $text = $post->getParam('text');
             if ($media_item && $media_item['type'] == "video") {
                 $text .= PHP_EOL;
                 $text .= $media_item['value'];
             }
-            $link = $post->getLinkText();
+            $link = $post->getParam('link_text');
             if ($link != "") {
                 $text.= PHP_EOL.PHP_EOL.$link;
             }
@@ -98,13 +98,14 @@ class TelegramCrossposter extends BaseCrossposter {
         return $text;
     }
 
-    public function createPost($post) {
+    public function createPost(Post $post) {
         if (!$post instanceof TelegramPost) {
             throw new \Exception("Неверный объект поста");
         }
-        $text = $post->getText();
-        $link = $post->getLinkText();
-        $media = $post->getMedia();
+        $text = $post->getParam('text');
+        $link = $post->getParam('link_text');
+        $media = $post->getParam('media');
+
         if ($link != "") {
             $text.= PHP_EOL.PHP_EOL.$link;
         }
@@ -136,13 +137,14 @@ class TelegramCrossposter extends BaseCrossposter {
 
 
 
-    public function editPost($post_ids, $post) {
+    public function editPost(int|string $id, Post $post) {
         if (!$post instanceof TelegramPost) {
             throw new \Exception("Неверный объект поста");
         }
         $text = $this->getPostText($post);
-        $media = $post->getMedia();
-        $post_ids = explode(";", $post_ids);
+
+        $media = $post->getParam('media');
+        $id = explode(";", $id);
         $need_update_media = $post->needUpdateField('media');
 
         $first_media_item = array_shift($media);
@@ -151,20 +153,20 @@ class TelegramCrossposter extends BaseCrossposter {
             $need_update_first_item = $need_update_media[0];
             if ($need_update_first_item) {
                 $text = $this->getPostText($post, $first_media_item);
-                if (!isset($post_ids[0]) || $post_ids[0] == "") {
+                if (!isset($id[0]) || $id[0] == "") {
                     $request_params = $this->getRequestParamsForMedia($first_media_item, $post);
                     $method = $request_params['method'];
                     $params = $request_params['params'];
                     $response = $this->request($method, $params);
-                    $post_ids[] = $response->result->message_id;
+                    $id[] = $response->result->message_id;
                 } else {
                     if ($first_media_item['type'] == "picture") {
                         $this->request("editMessageCaption", [
-                            'message_id' => $post_ids[0],
+                            'message_id' => $id[0],
                             'caption' => $text
                         ]);
                         $this->request("editMessageMedia", [
-                            'message_id' => $post_ids[0],
+                            'message_id' => $id[0],
                             'media' => [
                                 'type' => 'photo',
                                 'media' => $this->getPictureFullUrl($first_media_item['value'])
@@ -173,7 +175,7 @@ class TelegramCrossposter extends BaseCrossposter {
                     } else {
                         $text = $this->getPostText($post, $first_media_item);
                         $this->request("editMessageText", [
-                            'message_id' => $post_ids[0],
+                            'message_id' => $id[0],
                             'text' => $text
                         ]);
                     }
@@ -183,7 +185,7 @@ class TelegramCrossposter extends BaseCrossposter {
         if (!$need_update_first_item) {
             if ($post->needUpdateField('text') || $post->needUpdateField('link')) {
                 $this->request("editMessageText", [
-                    'message_id' => $post_ids[0],
+                    'message_id' => $id[0],
                     'text' => $text
                 ]);
             }
@@ -192,15 +194,15 @@ class TelegramCrossposter extends BaseCrossposter {
             for ($i = 1; $i < count($need_update_media); $i++) {
                 if ($need_update_media[$i]) {
                      if (isset($media[$i - 1])) {
-                        if (isset($post_ids[$i])) {
+                        if (isset($id[$i])) {
                             $text = $this->getPostText(null, $media[$i - 1]);
                             $this->request("editMessageCaption", [
-                                'message_id' => $post_ids[$i],
+                                'message_id' => $id[$i],
                                 'caption' => $text
                             ]);
                             if ($media[$i - 1]['type'] == "picture") {
                                 $this->request("editMessageMedia", [
-                                    'message_id' => $post_ids[$i],
+                                    'message_id' => $id[$i],
                                     'media' => [
                                         'type' => 'photo',
                                         'media' => $this->getPictureFullUrl($media[$i - 1]['value'])
@@ -212,38 +214,38 @@ class TelegramCrossposter extends BaseCrossposter {
                             $method = $request_params['method'];
                             $params = $request_params['params'];
                             $response = $this->request($method, $params);
-                            $message_ids[] = $response->result->message_id;
+                            $id[] = $response->result->message_id;
                         }
                     } else {
-                        $post_to_delete_id = $post_ids[$i - 1];
+                        $post_to_delete_id = $id[$i - 1];
                         $response = $this->request("deleteMessage", [
                             'message_id' => $post_to_delete_id,
                         ]);
-                        $post_ids = array_filter($post_ids, function($post_id) use ($post_to_delete_id) {
+                        $id = array_filter($id, function($post_id) use ($post_to_delete_id) {
                             return $post_id != $post_to_delete_id;
                         });
                     }
                 }
             }
         }
-        return implode(";", $post_ids);
+        return implode(";", $id);
     }
 
-    public function deletePost($post_ids) {
-        $post_ids = explode(";", $post_ids);
+    public function deletePost(int|string $id): void {
+        $post_ids = explode(";", $id);
         foreach ($post_ids as $id) {
-            $response = $this->request("deleteMessage", [
+           $this->request("deleteMessage", [
                 'message_id' => $id,
             ]);
         }
-        return $post_ids;
     }
-    public function makeLinks($post_ids) {
-        $post_ids = explode(";", $post_ids);
-        $channel_name = $this->settings_manager->get('channel_name');
+    public function makeLinks(string $id): array {
+        $channel_name = $this->config->get('channel_name');
         if (!$channel_name) {
             return [];
         }
+
+        $post_ids = explode(";", $id);
         $list = [];
         foreach ($post_ids as $post_id) {
             $list[] = "https://t.me/".$channel_name."/".$post_id;

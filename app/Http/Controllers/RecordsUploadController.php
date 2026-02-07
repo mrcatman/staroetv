@@ -9,14 +9,19 @@ use App\Jobs\DownloadExternalVideo;
 use App\Models\Record;
 use Illuminate\Support\Facades\Storage;
 
-class RecordsUploadController extends Controller {
+class RecordsUploadController extends Controller
+{
 
-    public function config() {
+    public function config()
+    {
         $can_upload = PermissionsHelper::allows('viupload') && !PermissionsHelper::isBanned();
         $upload_endpoint = config('site.upload_endpoint');
         return [
-            'can_upload' => $can_upload,
-            'upload_endpoint' => $upload_endpoint,
+            'status' => 1,
+            'data' => [
+                'can_upload' => $can_upload,
+                'upload_endpoint' => $upload_endpoint,
+            ]
         ];
     }
 
@@ -39,7 +44,7 @@ class RecordsUploadController extends Controller {
             ];
         }
 
-        $meta = json_decode($storage->get($upload_path.".info"));
+        $meta = json_decode($storage->get($upload_path . ".info"));
 
         $original_filename = $meta->MetaData->filename;
         $extension = last(explode(".", $original_filename));
@@ -83,7 +88,7 @@ class RecordsUploadController extends Controller {
         if (!$record->original_url) {
             return ['status' => 0, 'text' => 'Не найден исходный URL видео для скачивания'];
         }
-        DownloadExternalVideo::dispatchSync($record);
+        DownloadExternalVideo::dispatch($record);
 
         return [
             'status' => 1,

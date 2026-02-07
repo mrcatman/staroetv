@@ -43,10 +43,10 @@
                                                     <span class="button--dropdown__icon">
                                                         <i class="fa fa-chevron-down"></i>
                                                     </span>
-                                                    <div class="button--dropdown__list">
-                                                        <a class="button--dropdown__list__item"
+                                                    <div class="menu button--dropdown__list">
+                                                        <a class="menu__item button--dropdown__list__item"
                                                            href="{{route('design.programs.edit', [$program->id, $package->id])}}">Редактировать</a>
-                                                        <a class="button--dropdown__list__item"
+                                                        <a class="menu__item button--dropdown__list__item"
                                                            data-confirm-form-input-value="{{$package->id}}"
                                                            data-confirm-form-text="Вы уверены?"
                                                            data-confirm-form-url="{{route('design.delete')}}">Удалить</a>

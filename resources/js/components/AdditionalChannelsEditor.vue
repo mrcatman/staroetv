@@ -2,47 +2,38 @@
     <div class="additional-channels">
         <input type="hidden" name="additional_channels" :value="channelsJson" />
         <div class="additional-channels__inner">
-            <div  v-for="(channelItem, $index) in this.additionalChannels" :key="$index">
-                <div class="row ">
+            <div  v-for="(channelItem, $index) in additionalChannels" :key="$index">
+                <div class="row row--align-end">
                     <div class="col">
-                        <div class="input-container input-container--vertical">
-                            <label class="input-container__label">{{is_radio ? 'Радио' : 'Канал'}}</label>
-                            <div class="input-container__inner">
-                                <select2 v-model="channelItem.channel_id" :options="channelsList" />
-                            </div>
-                        </div>
+                        <input-container vertical :label="isRadio ? 'Радио' : 'Канал'">
+                            <select2 v-model="channelItem.channel_id" :options="channelsList" />
+                        </input-container>
 
                     </div>
                     <div class="col ">
-                        <div class="input-container input-container--vertical">
-                            <label class="input-container__label">Название (если оно отличалось)</label>
-                            <div class="input-container__inner">
-                                <input v-model="channelItem.title" class="input"/>
-                            </div>
-                        </div>
+                        <input-container vertical label="Название (если оно отличалось)">
+                            <input v-model="channelItem.title" class="input"/>
+                        </input-container>
                     </div>
                     <div class="col additional-channels__datepicker-container">
-                        <div class="input-container input-container--vertical">
-                            <label class="input-container__label">Начальная дата показа</label>
-                            <div class="input-container__inner">
-                                <input class="input" type="date" v-model="channelItem.date_start"/>
-                            </div>
-                        </div>
+                        <input-container vertical label="Дата начала показа">
+                            <datepicker v-model="channelItem.date_start"/>
+                        </input-container>
                     </div>
                     <div class="col additional-channels__datepicker-container">
-                        <div class="input-container input-container--vertical">
-                            <label class="input-container__label">Конечная дата показа</label>
-                            <div class="input-container__inner">
-                                <input class="input" type="date" v-model="channelItem.date_end"/>
-                            </div>
-                        </div>
+                        <input-container vertical label="Дата конца показа">
+                            <datepicker v-model="channelItem.date_end"/>
+                        </input-container>
                     </div>
-                    <a class="button button--light" @click="deleteItem($index)">Удалить</a>
+                    <a class="button button--light" @click="additionalChannels.splice($index, 1)">Удалить</a>
                 </div>
             </div>
         </div>
         <div class="additional-channels__bottom">
-            <a class="button button--light" @click="addItem()">Добавить доп.{{ is_radio ? 'радио' : 'канал' }}</a>
+            <a class="button button--light" @click="addItem()">
+                <i class="fa fa-plus"></i>
+                Добавить {{ isRadio ? 'радио' : 'канал' }}
+            </a>
         </div>
 
     </div>
@@ -74,50 +65,37 @@
 
     }
 </style>
-<script>
+<script lang="ts" setup>
+import { computed, onMounted, ref } from "vue";
+import Select2 from "@/components/Select2.vue";
+import InputContainer from "@/components/InputContainer.vue";
+import { useChannelsStore } from "@/stores/channels";
+import Datepicker from "@/components/Datepicker.vue";
 
-    import Select2 from "@/components/Select2.vue";
+const props = defineProps<{
+    data: Models.AdditionalChannel[],
+    isRadio: boolean
+}>();
 
-    export default {
-        components: {Select2},
-        computed: {
-            channelsJson() {
-                return JSON.stringify(this.additionalChannels)
-            }
-        },
-        methods: {
-            deleteItem(index) {
-                this.additionalChannels.splice(index, 1);
-                //this.$forceUpdate();
-            },
-            addItem() {
-                const data = JSON.parse(JSON.stringify({
-                    title: "",
-                    channel_id: null,
-                    date_start: null,
-                    date_end: null,
-                }));
-                this.additionalChannels.push(data);
-            }
-        },
-        props: {
-            program_id: {},
-            is_radio: {},
-            data: {
-                type: Array,
-                required: true
-            }
-        },
-        data() {
-            return {
-                channelsList: [],
-                additionalChannels: this.data || []
-            }
-        },
-        mounted() {
-            $.get(route(this.is_radio ? 'radio-stations.ajax' : 'channels.ajax')).then(res => {
-                this.channelsList = res.data.channels;
-            })
-        },
-    }
+const additionalChannels = ref<Partial<Models.AdditionalChannel[]>>(props.data);
+
+const channelsJson = computed(() => {
+    return JSON.stringify(additionalChannels.value);
+})
+
+const addItem = () => {
+    additionalChannels.value.push({
+        title: "",
+        channel_id: null,
+        date_start: null,
+        date_end: null,
+    });
+}
+
+const channelsStore = useChannelsStore();
+channelsStore.load();
+
+const channelsList = computed(() => {
+    return (props.isRadio ? channelsStore.radioStatuins : channelsStore.channels).map((channel) => ({ id: channel.id, text: channel.name }));
+})
 </script>

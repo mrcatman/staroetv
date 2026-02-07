@@ -31,6 +31,7 @@ use App\Http\Controllers\PrivateMessagesController;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\RecordsController;
 use App\Http\Controllers\RecordsAutocompleteController;
+use App\Http\Controllers\RecordsEditController;
 use App\Http\Controllers\RecordsUploadController;
 use App\Http\Controllers\ReputationController;
 use App\Http\Controllers\SiteSearchController;
@@ -48,6 +49,7 @@ use App\Http\Controllers\Admin\ChannelsController as AdminChannelsController;
 use App\Http\Controllers\Admin\GenresController as AdminGenresController;
 use App\Http\Controllers\Admin\PagesController as AdminPagesController;
 use App\Http\Controllers\Admin\PermissionsController as AdminPermissionsController;
+use App\Http\Controllers\Admin\ProgramsController as AdminProgramsController;
 use App\Http\Controllers\Admin\RecordComplaintsController as AdminRecordComplaintsController;
 use App\Http\Controllers\Admin\SmilesController as AdminSmilesController;
 use App\Http\Controllers\Admin\UsersController as AdminUsersController;
@@ -201,7 +203,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         Route::post('delete', [RecordsController::class, 'delete'])->name('delete');
         Route::get('categories', [RecordsController::class, 'categories'])->name('categories');
         Route::any('ajax', [RecordsController::class, 'ajax'])->name('ajax');
-        Route::post('screenshot', [RecordsController::class, 'screenshot'])->name('screenshot');
+        Route::post('thumbnail', [RecordsController::class, 'thumbnail'])->name('thumbnail');
         Route::post('set-telegram-id', [RecordsController::class, 'setTelegramID'])->name('set-telegram-id');
         Route::get('playlist-ajax/{id}', [RecordsController::class, 'playlistAjax'])->name('playlist-ajax');
 
@@ -213,6 +215,24 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         Route::get('similar', [RecordsController::class, 'similar'])->name('similar');
         Route::post('complaint', [RecordsController::class, 'complaint'])->name('complaint');
 
+        Route::name('edit.')->prefix('edit')->group(function () {
+            Route::get('menu', [RecordsEditController::class, 'menu'])->name('menu');
+            Route::get('basic-info', [RecordsEditController::class, 'basicInfoForm'])->name('basic-info.form');
+            Route::post('basic-info', [RecordsEditController::class, 'saveBasicInfo'])->name('basic-info.save');
+            Route::get('transfer', [RecordsEditController::class, 'transferForm'])->name('transfer.form');
+            Route::post('transfer', [RecordsEditController::class, 'saveTransfer'])->name('transfer.save');
+            Route::get('type', [RecordsEditController::class, 'typeForm'])->name('type.form');
+            Route::post('type', [RecordsEditController::class, 'saveType'])->name('type.save');
+            Route::get('commercials-info', [RecordsEditController::class, 'commercialsInfoForm'])->name('commercials-info.form');
+            Route::post('commercials-info', [RecordsEditController::class, 'saveCommercialsInfo'])->name('commercials-info.save');
+
+            Route::post('update-thumbnails', [RecordsEditController::class, 'updateThumbnails'])->name('update-thumbnails');
+            Route::post('upload-to-server', [RecordsEditController::class, 'uploadToServer'])->name('upload-to-server');
+            Route::post('approve', [RecordsEditController::class, 'approve'])->name('approve');
+            Route::post('unapprove', [RecordsEditController::class, 'unapprove'])->name('unapprove');
+
+
+        });
     });
 
     // MASS UPLOAD
@@ -225,7 +245,6 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
             return (new MassUploadController())->index(true);
         })->name('radio');
         Route::post('', [MassUploadController::class, 'fetchList'])->name('list');
-        Route::get('from-device', [MassUploadController::class, 'uploadFromDevice'])->name('from-device');
     });
 
     //  Route::get('/mass-upload/import-from-telegram', [MassUploadController::class, 'importFromTelegram']);
@@ -234,11 +253,12 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
     // PROGRAMS
     Route::name('programs.')->prefix('programs')->group(function () {
+        Route::post('merge', [ProgramsController::class, 'merge'])->name('merge');
+        Route::get('autocomplete', [ProgramsController::class, 'autocomplete'])->name('autocomplete');
         defineCrudRoutes(ProgramsController::class, [
             'index' => false,
         ]);
-        Route::post('merge', [ProgramsController::class, 'merge'])->name('merge');
-        Route::get('autocomplete', [ProgramsController::class, 'autocomplete'])->name('autocomplete');
+
     });
 
 
@@ -436,10 +456,11 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         Route::get('{forum_id}-{topic_id}-{message_id}-{time}', [ForumController::class, 'redirectToMessage'])->name('topics.redirect-to-message');
         Route::get('{forum_id}-{topic_id}-{message_id}-{page_id}-{time}', [ForumController::class, 'redirectToMessage'])->name('topics.redirect-to-message-with-page');
 
+        Route::get('{id}-0-{page_id}', [ForumController::class, 'subforum'])->name('subforums.show');
+
         Route::get('{forum_id}-{topic_id}-{page_id}', [ForumController::class, 'showTopic'])->name('topics.show-page');
         Route::get('{forum_id}-{topic_id}', [ForumController::class, 'showTopic'])->name('topics.show');
 
-        Route::get('{id}-0-{page_id}', [ForumController::class, 'subforum'])->name('subforums.show');
         Route::get('{id}', [ForumController::class, 'subforum'])->name('subforums.show');
         Route::get('{id}/new', [ForumController::class, 'newForum'])->name('subforums.new');
         Route::get('edit/{id}', [ForumController::class, 'editForum'])->name('subforums.edit');
@@ -539,7 +560,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
                         'id' => $user->id
                     ]);
                 } else {
-                    return view("pages.errors.403");
+                    return redirect('/');
                 }
             }
             return (new \App\Http\Controllers\UsersController())->show([
@@ -574,7 +595,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
                         'id' => $user->id
                     ]);
                 } else {
-                    return view("pages.errors.403");
+                    return redirect('/');
                 }
             }
             return (new \App\Http\Controllers\UsersController())->show([
@@ -623,6 +644,8 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
     });
 
     Route::name('profile.')->group(function() {
+        Route::get('permissions', [ProfileController::class, 'getPermissions'])->name('permissions');
+
         Route::get('forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('forgot-password');
         Route::post('forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('forgot-password-send');
         Route::get('password/reset/{token}', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('reset-password');
@@ -692,7 +715,12 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
     //REDACTOR
 
-    Route::get('/redactor-panel', [EditorController::class, 'panel'])->name('admin.redactor-panel');
+    Route::name('redactor.')->prefix('redactor-panel')->group(function() {
+        Route::get('', [EditorController::class, 'approvePanel'])->name('approve-panel');
+
+        Route::get('commercials', [EditorController::class, 'commercialsPanel'])->name('commercials.panel');
+        Route::get('commercials/random', [EditorController::class, 'getRandomCommercial'])->name('commercials.get-random');
+    });
 
 
     // OTHER
@@ -738,11 +766,18 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
         Route::name('users.')->prefix('users')->group(function() {
             Route::get('', [AdminUsersController::class, 'index'])->name('index');
+            Route::get('list', [AdminUsersController::class, 'list'])->name('list');
             Route::post('change-group', [AdminUsersController::class, 'changeGroup'])->name('change-group');
             Route::post('change-password', [AdminUsersController::class, 'changePassword'])->name('change-password');
             Route::post('delete', [AdminUsersController::class, 'delete'])->name('delete');
             Route::get('reputation', [AdminUsersController::class, 'getReputationHistory'])->name('reputation');
         });
+
+        Route::name('programs.')->prefix('programs')->group(function() {
+            Route::get('', [AdminProgramsController::class, 'index'])->name('index');
+            Route::get('list', [AdminProgramsController::class, 'list'])->name('list');
+        });
+
 
         Route::name('genres.')->prefix('genres')->group(function() {
             Route::get('', [AdminGenresController::class, 'index'])->name('index');
@@ -762,22 +797,23 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 //        });
     });
 
-// CROSSPOST
-    Route::middleware(\App\Http\Middleware\checkCanCrosspost::class)->group(function () {
-        Route::get('/crossposts', [CrosspostController::class, 'index']);
-        Route::get('/crossposts/add', [CrosspostController::class, 'add']);
-        Route::post('/crossposts/add', [CrosspostController::class, 'save']);
-        Route::get('/crossposts/{id}/edit', [CrosspostController::class, 'edit']);
-        Route::post('/crossposts/{id}/edit', [CrosspostController::class, 'update']);
-        Route::any('/crossposts/{id}/make-post/{service}', [CrosspostController::class, 'makePost']);
-        Route::any('/crossposts/{id}/delete-post/{service}', [CrosspostController::class, 'deletePost']);
-        Route::post('/crossposts/delete', [CrosspostController::class, 'delete']);
-    });
+    // CROSSPOST
+    Route::prefix('crosspost')->name('crossposts.')->group(function () {
+        Route::middleware(\App\Http\Middleware\checkCanCrosspost::class)->group(function () {
+            defineCrudRoutes(CrosspostController::class, [
+                'show' => false,
+                'approve' => false
+            ]);
 
-    Route::middleware(\App\Http\Middleware\checkAdmin::class)->group(function () {
-        Route::get('/crosspost/autoconnect/{name}', [CrosspostController::class, 'autoconnect'])->name('crosspostAutoconnect');
-        Route::post('/crosspost/settings/{name}', [CrosspostController::class, 'saveSettings'])->name('crosspostSaveSettings');
-        Route::get('/crosspost/redirect/{name}', [CrosspostController::class, 'afterRedirect'])->name('crosspostRedirectUri');
+            Route::any('{id}/make-post/{service}', [CrosspostController::class, 'makePost'])->name('make-post');
+            Route::any('{id}/delete-post/{service}', [CrosspostController::class, 'deletePost'])->name('delete-post');
+        });
+
+        Route::middleware(\App\Http\Middleware\checkAdmin::class)->group(function () {
+            Route::get('autoconnect/{name}', [CrosspostController::class, 'autoconnect'])->name('autoconnect');
+            Route::post('settings/{name}', [CrosspostController::class, 'saveSettings'])->name('save-settings');
+            Route::get('redirect/{name}', [CrosspostController::class, 'afterRedirect'])->name('redirect-uri');
+        });
     });
 
 

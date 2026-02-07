@@ -72,7 +72,7 @@ class AwardsController extends Controller {
             return [
                 'status' => 1,
                 'text' => 'Награда добавлена',
-                'dom' => [
+                'html' => [
                     [
                         'replace' => '.user-page__info-block__value--awards',
                         'html' => count($user->awards)

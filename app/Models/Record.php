@@ -4,7 +4,9 @@ namespace App\Models;
 use App\Constants\CacheTimes;
 use App\Constants\MaterialTypes;
 use App\Helpers\DatesHelper;
+use App\Helpers\ExternalServicesHelper;
 use App\Helpers\PermissionsHelper;
+use App\Helpers\StringsHelper;
 use App\Traits\HasChannel;
 use Carbon\Carbon;
 use cijic\phpMorphy\Facade\Morphy;
@@ -16,6 +18,7 @@ class Record extends Model {
     use HasChannel;
 
     protected $guarded = [];
+    protected $with = ['coverPicture'];
     protected $appends = ['cover', 'url', 'formatted_duration'];
 
     public function getTitleAttribute() {
@@ -41,7 +44,7 @@ class Record extends Model {
             return [];
         }
         $topics = explode("\n", preg_replace_callback('/([0-9]{1,2}):([0-9]{1,2})(?::([0-9]{1,2}))?/', function ($timecode) {
-            return '-';
+            return '';
         },  $this->description));
         foreach ($topics as &$topic) {
             $topic = str_replace('- -', '-',$topic);
@@ -83,7 +86,24 @@ class Record extends Model {
     }
 
     public function getUrlAttribute() {
-        return route('records.'.$this->route_prefix.'.show', $this->id);
+        return route('records.'.$this->route_prefix.'.show', $this->slug);
+    }
+
+    public function getSlugAttribute() {
+        return Cache::remember('record_slug_'.$this->id, CacheTimes::RELATION, function () {
+            $slug = explode('-', StringsHelper::transliterate($this->title));
+
+            $new_slug = [];
+            $length = 0;
+            foreach ($slug as $slug_item) {
+                if ($length + strlen($slug_item) < 32) {
+                    $new_slug[] = $slug_item;
+                    $length += strlen($slug_item);
+                }
+            }
+            $new_slug = implode('-', $new_slug);
+            return $this->id . '-' . $new_slug;
+        });
     }
 
 
@@ -407,11 +427,7 @@ class Record extends Model {
     }
 
     public function getEmbedYoutubeIdAttribute() {
-        preg_match('/embed\/(.*?)"/', $this->embed_code, $output);
-        if ($output && count($output) == 2 && strlen($output[1]) == 11) {
-            return $output[1];
-        }
-        return null;
+        return ExternalServicesHelper::resolveYoutubeId($this->embed_code);
     }
 
     public function getInterprogramNameAttribute() {
@@ -461,7 +477,7 @@ class Record extends Model {
     public function scopeSearch($query, $search)
     {
         $initial_search = $search;
-        $search = preg_replace('/[,;(){}\[\]]/', '', $search);
+        $search = preg_replace('/[,<>;(){}\[\]]/', '', $search);
         $words = collect(explode(' ', $search))
             ->map(function ($term) {
                 $normalized = Morphy::getPseudoRoot(mb_strtoupper($term));

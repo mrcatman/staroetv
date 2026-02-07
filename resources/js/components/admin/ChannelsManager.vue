@@ -1,7 +1,7 @@
 <template>
     <div class="channels-manager">
 
-        <snackbar ref="snackbar"></snackbar>
+        <snackbar ref="snackbar" />
 
         <modal ref="logoModal" title="Загрузка по URL" :loading="logoPanel.loading" class="modal">
             <div class="input-container input-container--vertical">
@@ -43,13 +43,9 @@
                 <response :light="true" :data="mergePanel.response"/>
             </div>
         </modal>
-        <div class="admin-panel__heading-container">
-            <div class="admin-panel__heading">Управление каналами</div>
-        </div>
+
         <div class="admin-panel__main-content">
-            <div class="form__preloader" v-if="table.loading">
-                <img src="/resources/images/ajax.gif">
-            </div>
+            <Preloader v-if="table.loading" />
             <div class="admin-panel__table-filters">
                 <div class="pager-container pager-container--light pager-container--admin-panel">
                     <b-pagination v-model="table.currentPage" :total-rows="channelsList.length" :per-page="table.perPage" align="fill" size="sm" class="my-0"></b-pagination>
@@ -64,7 +60,7 @@
                         <div class="admin-panel__table__row-loading" v-if="data.item._loading"></div>
                         <div class="channels-manager__logo" v-if="data.item.logo" :style="{backgroundImage: 'url('+data.item.logo.url+')'}"></div>
                         <input @change="setNeedSave(channelsList[data.item._index])" class="input" v-model="channelsList[data.item._index].name"/>
-                        <a title="Перейти на страницу канала" target="_blank" :href="'/channels/' + data.item.full_url">
+                        <a title="Перейти на страницу канала" target="_blank" :href="data.item.full_url">
                             <i class="fa fa-external-link-square-alt"></i>
                         </a>
                         <span class="channels-manager__not-saved" title="Есть несохраненные изменения" v-if="channelsList[data.item._index]._need_save">*</span>
@@ -89,17 +85,27 @@
                     <input @change="setNeedSave(channelsList[data.item._index])" class="input" v-model="channelsList[data.item._index].country"/>
                 </template>
                 <template v-slot:cell(_options)="data">
-                    <div class="channels-manager__buttons">
-                        <a @click="showLogoModal(data.item)" class="button button--light">Логотип...</a>
-                        <a @click="showMergeModal(data.item)" class="button button--light">Объединить...</a>
-                        <a @click="showDeleteModal(data.item)" class="button button--light">Удалить</a>
+                    <div class="buttons-row buttons-row--nowrap">
+                        <a title="Логотип" @click="showLogoModal(data.item)" class="button button--icon-only button--light">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a title="Объединить" @click="showMergeModal(data.item)" target="_blank" class="button button--icon-only button--light">
+                            <i class="fas fa-object-group"></i>
+                        </a>
+                        <a title="Удалить" @click="showDeleteModal(data.item)" class="button button--icon-only button--light">
+                            <i class="fas fa-times"></i>
+                        </a>
                     </div>
                 </template>
             </b-table>
             <div class="form__bottom form__bottom--admin-panel">
                 <a @click="saveChannels()" class="button button--light">Сохранить</a>
                 <response :light="true" :data="table.response"/>
+                <div class="pager-container pager-container--light pager-container--admin-panel pager-container--admin-panel-bottom">
+                    <b-pagination v-model="table.currentPage" :total-rows="channelsList.length" :per-page="table.perPage" align="fill" size="sm" class="my-0"></b-pagination>
+                </div>
             </div>
+
         </div>
     </div>
 </template>
@@ -118,9 +124,7 @@
             background-position: center center;
             background-repeat: no-repeat;
         }
-        &__buttons {
-            font-size: .875em;
-        }
+
         &__first-col {
             padding: .25em;
             display: flex;
@@ -138,6 +142,7 @@ import Modal from '../Modal.vue';
 import Response from '../Response.vue';
 import Snackbar from '../Snackbar.vue';
 import { BTable, BPagination } from 'bootstrap-vue-next'
+import Preloader from "@/components/Preloader.vue";
 
 interface ChannelWithIndex extends Models.Channel {
     _index?: number;

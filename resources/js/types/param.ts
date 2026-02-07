@@ -423,7 +423,7 @@ export type RouteParams = {
     "records.update": {
         id: string;
     };
-    "admin.redactor-panel": {};
+    "redactor.approve-panel": {};
     "register": {};
     "reputation.ajax": {};
     "reputation.change": {};

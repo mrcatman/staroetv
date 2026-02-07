@@ -184,7 +184,7 @@
 
                                 <records-search-filter
                                     v-show="form.type === 'advertising'"
-                                    title="Бренды"
+                                    title="Рекламируемое"
                                     v-model:opened="opened.advertising_brands"
                                     :show-reset="!!form.advertising_brands.length"
                                     @reset="() => form.advertising_brands = []"
@@ -325,11 +325,12 @@
     }
     &__filters {
         height: calc(100vh - 8.5em);
-        padding: 0 0 0 4em;
-        margin: 0 0 0 -4em;
+        padding: 0 1em 4em 4em;
+        margin: 0 -1em -4em -4em;
         position: sticky;
         align-self: flex-start;
         top: 5em;
+        overflow: hidden;
         overflow-y: auto;
         @include mobile() {
             position: fixed;
@@ -457,7 +458,7 @@ import { declination } from "@/utils/numbers";
 import RecordsItem from "@/components/records/RecordsItem.vue";
 import { isMobile } from "@/utils/mobile";
 
-interface SearchForm {
+export interface SearchForm {
     page: number,
     is_radio: boolean,
     search: string,
@@ -497,7 +498,7 @@ const props = defineProps<{
     commercials?: boolean,
 }>();
 
-const results = ref<any>(props.results);
+const results = ref<Forms.PaginatedResponse<Models.Record[]>>(props.results);
 const counts = ref<SearchRecordsCountsList>(props.counts);
 const displayPrograms = ref<Models.Program[]>(props.recommendedPrograms);
 
@@ -712,6 +713,10 @@ const getMultiselectItems = (_route: string, page: number, term: string): Promis
             page,
             term,
             advertising_type: form.value.advertising_type,
+            advertising_categories: form.value.advertising_categories,
+            advertising_brands: form.value.advertising_brands,
+            advertising_countries: form.value.advertising_countries,
+            advertising_regions: form.value.advertising_regions,
             is_radio: form.value.is_radio,
             for_search: true
         })).then(({data}) => {
@@ -733,7 +738,7 @@ const getAdvertisingRegions = (page: number, term?: string): Promise<Multiselect
 }
 
 const getAdvertisingCategories = (page: number, term?: string): Promise<MultiselectItem[]> => {
-    return getMultiselectItems('records.autocomplete.categories', page, term);
+    return getMultiselectItems('records.autocomplete.commercials-categories', page, term);
 }
 
 

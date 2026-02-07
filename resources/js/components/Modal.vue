@@ -27,8 +27,10 @@ export default {
             this.$nextTick(() => {
                 modal = window.showModal(`#${this.randomId}`, this.title, () => this.visible = false, params);
             })
-
         },
+        centerY() {
+            window.centerY(modal);
+        }
     }
 }
 </script>

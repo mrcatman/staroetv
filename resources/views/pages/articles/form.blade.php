@@ -11,7 +11,7 @@
 
             <div class="box__heading__right">
                 @if ($article)
-                    <a href="{{$article->url}}" class="button button--light">Назад</a>
+                    <a href="{{$article->full_url}}" class="button button--light">Назад</a>
                 @endif
             </div>
         </div>
@@ -26,6 +26,16 @@
                         <span class="input-container__message"></span>
                     </div>
                 </div>
+                @if ($can_edit_all)
+                    <div class="input-container">
+                        <label class="input-container__label">Дата публикации</label>
+                        <div class="input-container__inner">
+                            <input class="input" type="date" name="created_at" value="{{$article ? \Carbon\Carbon::createFromTimestamp($article->created_at_original)->format('Y-m-d') : '' }}"/>
+                            <div class="input-container__description">Если дата больше текущей, то статья автоматически станет доступной в указанное время</div>
+                            <span class="input-container__message"></span>
+                        </div>
+                    </div>
+                @endif
                 <div class="input-container">
                     <label class="input-container__label">Краткое описание</label>
                     <div class="input-container__inner">

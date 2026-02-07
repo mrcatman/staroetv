@@ -5,46 +5,41 @@
             <div class="channel-names__item" v-for="(name, $index) in names" :key="$index">
                 <div class="row channel-names__row">
                     <div class="col col--auto">
-                        <div class="form__content">
-                            <div class="input-container input-container--vertical">
-                                <label class="input-container__label">Название</label>
-                                <div class="input-container__inner">
-                                    <input v-model="name.name" class="input"/>
-                                </div>
-                            </div>
-
-                            <div class="input-container input-container--vertical">
-                                <label class="input-container__label">Логотип</label>
-                                <div class="input-container__inner channel-names__picture-uploader-container">
-                                    <picture-uploader light :key="name.id" tag="logo" v-model="name.logo" :channel-id="channelId"/>
-                                </div>
-                            </div>
-                        </div>
+                        <input-container vertical label="Логотип">
+                            <picture-uploader light :key="name.id" tag="logo" v-model="name.logo"
+                                              :channel-id="channelId"/>
+                        </input-container>
                     </div>
                     <div class="col">
                         <div class="form__content">
-                            <div class="input-container input-container--vertical">
-                                <label class="input-container__label">Альтернативные названия для поиска</label>
-                                <div class="input-container__inner">
-                                    <vue-tags-input placeholder="Добавить название" v-model="name._tag" :tags="name.alternatives" @tags-changed="newTags => name.alternatives = newTags"/>
-                                </div>
-                            </div>
                             <div class="row">
                                 <div class="col">
-                                    <div class="input-container input-container--vertical">
-                                        <label class="input-container__label">Начальная дата</label>
-                                        <div class="input-container__inner">
-                                            <Datepicker v-model:value="name.date_start"/>
-                                        </div>
-                                    </div>
+                                    <input-container vertical label="Название">
+                                        <input v-model="name.name" class="input"/>
+                                    </input-container>
                                 </div>
                                 <div class="col">
-                                    <div class="input-container input-container--vertical">
-                                        <label class="input-container__label">Конечная дата</label>
-                                        <div class="input-container__inner">
-                                            <Datepicker v-model:value="name.date_end"/>
-                                        </div>
-                                    </div>
+                                    <input-container vertical label="Альтернативные названия для поиска">
+                                        <vue-tags-input
+                                            placeholder="Добавить название"
+                                            v-model="name._tag"
+                                            :tags="name.alternatives"
+                                            @tags-changed="newTags => name.alternatives = newTags"
+                                        />
+                                    </input-container>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col">
+                                    <input-container vertical label="Начальная дата">
+                                        <Datepicker v-model="name.date_start"/>
+                                    </input-container>
+                                </div>
+                                <div class="col">
+                                    <input-container vertical label="Конечная дата">
+                                        <Datepicker v-model="name.date_end"/>
+                                    </input-container>
                                 </div>
                             </div>
                             <a class="button button--light" @click="deleteItem($index)">Удалить</a>
@@ -109,11 +104,12 @@
 }
 </style>
 <script lang="ts" setup>
-import {computed, ref} from "vue";
+import { computed, ref } from "vue";
 
-import Datepicker from './datepicker/components/Datepicker.vue';
+import Datepicker from './Datepicker.vue';
 import PictureUploader from './PictureUploader.vue';
 import vueTagsInput from "@wslyhbb/vue3-tags-input";
+import InputContainer from "@/components/InputContainer.vue";
 
 const props = defineProps<{
     channelId?: number,

@@ -10,7 +10,7 @@
             </div>
 
             <div class="box__heading__right">
-                <a href="/crossposts" class="button button--light">Назад</a>
+                <a href="{{route('crossposts.index')}}" class="button button--light">Назад</a>
             </div>
         </div>
         <div class="box__inner">

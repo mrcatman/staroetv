@@ -1,0 +1,21 @@
+.actions {
+    position: fixed;
+    top: 5.5em;
+    left: 1em;
+    z-index: 100000;
+    background: var(--box-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-standard);
+    box-shadow: var(--element-box-shadow);
+    padding: .75em;
+    display: flex;
+    align-items: center;
+    gap: var(--col-margin);
+    &__text {
+        font-size: 1.25em;
+    }
+
+    &__number {
+        font-weight: 600;
+    }
+}

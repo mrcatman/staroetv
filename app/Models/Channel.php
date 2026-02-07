@@ -5,12 +5,14 @@ use App\Constants\CacheTimes;
 use App\Constants\MaterialTypes;
 use App\Models\Article;
 use App\Helpers\PermissionsHelper;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
 class Channel extends Model {
 
     protected $guarded = [];
+    protected $with = ['logo'];
     protected $appends = ['full_url'];
 
 
@@ -45,8 +47,29 @@ class Channel extends Model {
         return str_replace("&quot;", "", $this->attributes['name']);
     }
 
+    public function user() {
+        return $this->belongsTo(User::class, 'author_id', 'id');
+    }
+
     public function logo() {
         return $this->hasOne(Picture::class, 'id', 'logo_id');
+    }
+
+    public function getRandomLogoUrlAttribute() {
+        return Cache::remember('channel_random_logo_'.$this->id, CacheTimes::RELATION, function () {
+            $max_date = Carbon::create(2010, 1, 1);
+            $logos = [];
+            if ($this->logo) {
+                $logos[] = $this->logo;
+            }
+
+            foreach ($this->names as $name) {
+                if (!$name->date_start || $name->date_start->lt($max_date)) {
+                    if ($name->logo) $logos[] = $name->logo;
+                }
+            }
+            return count($logos) > 0 ? $logos[array_rand($logos)]->url : null;
+        });
     }
 
     public function getLogoUrlAttribute() {

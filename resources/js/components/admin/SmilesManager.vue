@@ -13,7 +13,7 @@
             <tbody>
                 <tr v-for="(smile, index) in smilesList" :key="index">
                     <td>
-                        <PictureUploader :small="true" :light="true" v-model="smile.picture_id" :data="smile.picture"/>
+                        <picture-uploader :small="true" :light="true" v-model="smile.picture"/>
                     </td>
                     <td>
                         <input class="input" v-model="smilesList[index].text"/>

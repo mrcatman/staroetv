@@ -85,7 +85,15 @@ class BBCodesHelper {
         foreach ($smiles as $smile) {
             $text = str_replace($smile->text, "<img class='smile' src='".$smile->picture->url."' />", $text);
         }
-        return $text;
+
+        $doc = new \DOMDocument();
+        @$doc->loadHTML('<meta charset="utf8" />'.$text);
+        $fixed = $doc->saveHTML();
+        foreach (['<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">','<html><head><meta charset="utf8"></head><body><p>', '</p></body></html>'] as $text_to_remove) {
+            $fixed = str_replace($text_to_remove, '', $fixed);
+        }
+        $fixed = trim($fixed);
+        return $fixed;
     }
 
     public static function HTMLToBB($text) {

@@ -13,17 +13,18 @@ export const useDesignPackagesStore = defineStore('DesignPackages', () => {
         }
 
         // @ts-ignore
-        $.get(route('channels.design.ajax', channelId)).done(res => {
+        $.get(route('design.channels.ajax', channelId)).done(res => {
             designPackages[channelId] = res.data.design_packages;
         })
     }
 
-    const findByNameAndChannelId = (name: string, channelId: number) => {
-        return designPackages[channelId]?.find((DesignPackage: Models.DesignPackage) => DesignPackage.name.toLocaleLowerCase().includes(name.toLocaleLowerCase()));
+    const find = (id: number, channelId: number) => {
+        return designPackages[channelId]?.find((designPackage: Models.DesignPackage) => designPackage.id === id);
     }
 
     return {
+        designPackages,
         load,
-        findByNameAndChannelId
+        find
     }
 })

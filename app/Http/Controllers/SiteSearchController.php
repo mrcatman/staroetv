@@ -205,7 +205,7 @@ class SiteSearchController extends Controller {
         return [
             'status' => 1,
              'data' => [
-                'dom' => [
+                'html' => [
                     [
                         'replace' => '.site-search__results',
                         'html' => view("blocks.site-search.results", ['search' => $search, 'ajax' => true, 'results' => $results])->render()

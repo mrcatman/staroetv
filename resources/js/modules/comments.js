@@ -1,4 +1,4 @@
-import replaceDom from './replaceDom';
+import { replaceHTML} from './replace-html';
 import { showModal, showModalAjax } from './modals';
 import {PRELOADER_CLASS, PRELOADER_HTML} from "@/modules/preloader.js";
 let body = $('body');
@@ -60,7 +60,7 @@ $(body).on('click', '.comment__delete', function() {
     if (confirm("Вы уверены, что хотите удалить комментарий?")) {
         $.post(route('comments.delete'), {id}).done(res => {
             if (res.status) {
-                replaceDom(res.data.dom);
+                replaceHTML(res.data.html);
             } else {
                 alert(res.text);
             }
@@ -73,7 +73,7 @@ $(body).on('click', '.comment__rating__button', function() {
     let weight = !$(this).hasClass('comment__rating__button--minus') ? 1 : -1;
     $.post(route('comments.rating'), {comment_id, weight}).done(res => {
         if (res.status) {
-            replaceDom(res.data.dom);
+            replaceHTML(res.data.html);
         } else {
             alert(res.text);
         }

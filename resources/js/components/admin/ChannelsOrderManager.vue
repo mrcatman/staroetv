@@ -6,7 +6,7 @@
                 <a class="tab" :class="{'tab--active': type === 'radio'}"
                    @click="type = 'radio'">Радио</a>
             </div>
-            <div class="tabs">
+            <div class="tabs channels-order-manager__categories">
                 <a class="tab" v-for="(categoryName, categoryId) in channelCategories" :class="{'tab--active': category === categoryId}" @click="category = categoryId">
                     {{categoryName}}
                 </a>
@@ -15,10 +15,16 @@
 
         <div class="form">
             <Preloader v-if="loading" />
-            <draggable v-model="channelsList" class="channels-order-manager__items">
-                <div class="channels-order-manager__item" v-show="showChannel(channel)" v-for="channel in channelsList" :key="channel.id">
-                    <a target="_blank" :href="getUrl(channel)">
-                        {{ channel.name }}
+            <draggable
+                v-model="channelsList"
+                class="channels-order-manager__items"
+                group="channels"
+                itemKey="id"
+                #item="{element}"
+            >
+                <div class="channels-order-manager__item" v-show="showChannel(element)">
+                    <a target="_blank" :href="getUrl(element)">
+                        {{ element.name }}
                     </a>
                 </div>
             </draggable>
@@ -32,12 +38,19 @@
 </template>
 <style lang="scss">
 .channels-order-manager {
+    &__items {
+        margin-top: 1em;
+    }
     &__item {
         background: var(--bg-darker);
         border: 1px solid var(--border-color);
         padding: .75em;
         margin: 0 0 .5em;
         font-size: 1.125em;
+    }
+    &__categories {
+        width: auto;
+        margin-left: auto;
     }
 }
 </style>

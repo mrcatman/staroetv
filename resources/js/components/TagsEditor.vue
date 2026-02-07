@@ -35,49 +35,41 @@
     }
 }
 </style>
-<script>
+<script lang="ts" setup>
+import { computed, ref } from "vue";
 import vueTagsInput from "@wslyhbb/vue3-tags-input";
-export default {
-    computed: {
-        filteredItems() {
-            if (this.tag.length === 0) {
-                return this.autocompleteItems;
-            }
-            return this.autocompleteItems.filter(i => {
-                return i.text.toLowerCase().indexOf(this.tag.toLowerCase()) !== -1;
-            });
-        },
-    },
-    data() {
-        return {
-            tag: '',
-            selectedTags: this.tags.map(tag => {
-                return {
-                    id: tag.id,
-                    text: tag.name
-                }
-            }),
 
-            autocompleteItems: this.allTags.map(tag => {
-                return {
-                    id: tag.id,
-                    text: tag.name
-                }
-            }),
-        }
-    },
-    components: {
-        vueTagsInput
-    },
-    props: {
-        tags: {
-            type: Array,
-            required: true
-        },
-        allTags: {
-            type: Array,
-            required: true
-        }
-    }
+interface Tag {
+    id: string,
+    name: string
 }
+
+const props = defineProps<{
+    tags: Tag[],
+    allTags: Tag[]
+}>();
+
+const tag = ref<string>('');
+const selectedTags = ref(props.tags.map(tag => {
+    return {
+        id: tag.id,
+        text: tag.name
+    }
+}));
+const autocompleteItems = ref(props.allTags.map(tag => {
+    return {
+        id: tag.id,
+        text: tag.name
+    }
+}));
+
+const filteredItems = computed(() =>{
+    if (tag.value.length === 0) {
+        return autocompleteItems.value;
+    }
+    return autocompleteItems.value.filter(i => {
+        return i.text.toLowerCase().indexOf(tag.value.toLowerCase()) !== -1;
+    });
+});
+
 </script>

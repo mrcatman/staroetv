@@ -53,7 +53,7 @@
                     </div>
                 </div>
                 <div class="history-event-editor__records-picker">
-                    <records-list-picker :key="block.id" @selected="(records) => setRecords(block, records)" :descriptions="true" :list="block.records" :meta="{}" :manual="true" :select="{}"/>
+                    <records-list-picker :key="block.id" @selected="(records) => setRecords(block, records)" :record-descriptions="true" :list="block.records" />
 
                 </div>
             </div>

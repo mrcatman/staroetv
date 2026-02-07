@@ -24,8 +24,11 @@ return [
     'cacheFileMode'      => 0755,
     'settings'      => [
         'default' => [
+            "HTML.SafeIframe"      => 'true',
+            "URI.SafeIframeRegexp" => "%(.*?)%",
             'HTML.Doctype'             => 'HTML 4.01 Transitional',
-            'HTML.Allowed'             => 'div,b,strong,i,em,u,a[href|title],ul,ol,li,p[style],br,span[style],img[width|height|alt|src],h1,h2,h3,h4,h5',
+            'HTML.Allowed'             => 'iframe[src|width|height|frameborder|allow|allowfullscreen],div,b,strong,i,em,u,a[href|title],ul,ol,li,p[style],br,span[style],img[width|height|alt|src],h1,h2,h3,h4,h5,blockquote',
+            'HTML.AllowedAttributes' => ['src', 'width', 'height', 'frameborder', 'allow', 'allowfullscreen','style'],
             'CSS.AllowedProperties'    => 'font,font-size,font-weight,font-style,font-family,text-decoration,padding-left,color,background-color,text-align',
             'AutoFormat.AutoParagraph' => true,
             'AutoFormat.RemoveEmpty'   => true,
@@ -36,6 +39,8 @@ return [
         "embed" => [
             "HTML.SafeIframe"      => 'true',
             "URI.SafeIframeRegexp" => "%(.*?)%",
+            'HTML.AllowedElements' => ['iframe'],
+            'HTML.AllowedAttributes' => ['iframe@src', 'iframe@width', 'iframe@height', 'iframe@frameborder',  'iframe@allow', 'iframe@allowfullscreen'],
         ],
         'custom_definition' => [
             'id'  => 'html5-definitions',
@@ -97,6 +102,7 @@ return [
         ],
         'custom_attributes' => [
             ['a', 'target', 'Enum#_blank,_self,_target,_top'],
+            ['iframe', 'allow', 'CDATA'],
         ],
         'custom_elements' => [
             ['u', 'Inline', 'Inline', 'Common'],

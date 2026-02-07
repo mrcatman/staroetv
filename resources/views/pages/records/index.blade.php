@@ -29,7 +29,7 @@
                                 <i class="fa fa-film"></i>
                                 Добавить видео
                             </a>
-                            <a class="button" href="{{route('mass-upload.list')}}">
+                            <a class="button" href="{{typed_route('mass-upload.[RECORD]', $params['is_radio'])}}">
                                 <i class="fa fa-upload"></i>
                                 Массовая загрузка
                             </a>

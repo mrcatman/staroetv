@@ -25,12 +25,32 @@ use Illuminate\Support\Facades\Hash;
 class UsersController extends Controller {
 
     public function index() {
-        $users = User::paginate(24);
         $groups = UserGroup::all();
         return view("pages.admin.users", [
             'groups' => $groups,
-            'users' => $users
         ]);
+    }
+
+    public function list() {
+        $users = User::query();
+        if (request()->has('sort.0.key')) {
+            $users = $users->orderBy(request()->input('sort.0.key'), request()->input('sort.0.order'));
+        }
+        if (request()->has('search')) {
+            $users = $users->where(function ($q) {
+                $q->where('username', 'like', '%' . request()->input('search') . '%');
+                $q->orWhere('email', 'like', '%' . request()->input('search') . '%');
+                $q->orWhere('ip_address', 'like', '%' . request()->input('search') . '%');
+                $q->orWhere('ip_address_reg', 'like', '%' . request()->input('search') . '%');
+            });
+        }
+        $users = $users->paginate(request()->input('count', 50))->through(fn ($user) => [
+            ...$user->toArray(),
+            'ip_address_reg' => $user->ip_address_reg,
+            'email' => $user->email,
+        ]);
+
+        return $users;
     }
 
     public function changeGroup() {

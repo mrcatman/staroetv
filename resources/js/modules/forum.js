@@ -1,4 +1,4 @@
-import replaceDom from './replaceDom';
+import { replaceHTML} from './replace-html';
 import {showModal, showModalAjax} from './modals';
 let body = $('body');
 
@@ -26,7 +26,7 @@ $(body).on('click', '.forum-message__delete', function() {
     if (confirm("Вы уверены, что хотите удалить это сообщение?")) {
         $.post(route('forum.messages.delete'), {message_id}).done(res => {
             if (res.status) {
-                replaceDom(res.data.dom);
+                replaceHTML(res.data.html);
             } else {
                 alert(res.text);
             }
@@ -58,7 +58,7 @@ function forumMessageCallback(res) {
             let url = "/forum/"+forum_id+"-"+topic_id+"-"+lastPage+"#"+res.data.message.id;
             $.pjax({url: url, container: '#pjax-container'})
         } else {
-            replaceDom(res.data._dom);
+            replaceHTML(res.data._dom);
         }
     }
 }

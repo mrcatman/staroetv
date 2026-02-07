@@ -3,6 +3,7 @@
 namespace App\Models;
 use App\Constants\CacheTimes;
 use App\Constants\MaterialTypes;
+use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,9 @@ use Illuminate\Support\Facades\Cache;
 class Program extends Model {
 
     protected $guarded = [];
+    protected $with = ['coverPicture'];
     protected $appends = ['cover'];
+
 
 
     public function records() {
@@ -305,5 +308,18 @@ class Program extends Model {
         )->approved()->orderBy('created_at', 'DESC');
     }
 
+    public function getCreatedAtAttribute() {
+        if (!isset($this->attributes['created_at'])) {
+            return "";
+        }
+        return DatesHelper::format($this->attributes['created_at'], false);
+    }
+
+    public function getCreatedAtOriginalAttribute() {
+        if (!isset($this->attributes['created_at'])) {
+            return 0;
+        }
+        return strtotime($this->attributes['created_at']);
+    }
 
 }

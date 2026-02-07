@@ -16,8 +16,11 @@
                     <button class="button">Попробовать скачать еще раз</button>
                 @elseif ($cut->download_status === 1)
 
-                    <video-cutter :data='{{json_encode($cut)}}' :channel='{{json_encode($channel)}}'
-                                  :video='{{json_encode($video)}}'></video-cutter>
+                    <video-cutter
+                        :cut='@json($cut)'
+                        :channel='@json($channel)'
+                        :video='@json($video)'
+                    ></video-cutter>
                 @elseif ($cut->download_status === 0)
                     <p class="page-text">Скачивание файла не удалось</p>
                     <button class="button">Попробовать скачать еще раз</button>

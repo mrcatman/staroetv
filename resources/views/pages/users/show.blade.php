@@ -150,25 +150,6 @@
                                     @endif
                                 </div>
                             </div>
-                            @if (auth()->user() && auth()->user()->id == $user->id && (\App\Helpers\PermissionsHelper::allows('admbar') || \App\Helpers\PermissionsHelper::allows('redactorbar') || \App\Helpers\PermissionsHelper::allows('crosspost')))
-                                <div class="user-info__actions">
-                                    <div class="buttons-row">
-                                        @if (\App\Helpers\PermissionsHelper::allows('admbar'))
-                                            <a href="{{route('admin.channels.index')}}" class="button button--light">Панель
-                                                администратора</a>
-                                        @endif
-                                        @if (\App\Helpers\PermissionsHelper::allows('redactorbar'))
-                                            <a href="{{route('admin.redactor-panel')}}" class="button button--light">Панель
-                                                редактора</a>
-                                        @endif
-                                        @if (\App\Helpers\PermissionsHelper::allows('crosspost'))
-                                            <a href="{{route('admin.crossposting')}}" class="button button--light">Управление
-                                                постами в соцсетях</a>
-                                        @endif
-                                    </div>
-                                </div>
-
-                            @endif
                         </div>
 
                         @if ($user->signature != "")

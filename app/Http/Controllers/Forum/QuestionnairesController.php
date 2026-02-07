@@ -64,7 +64,7 @@ class QuestionnairesController extends Controller {
             'status' => 1,
             'text' => 'Ваш голос принят',
             'data' => [
-                'dom' => [
+                'html' => [
                     [
                         'replace' => ".questionnaire__container",
                         'html' => view('blocks.forum.questionnaire', ['questionnaire' => $questionnaire, 'show_results' => true])->render()
@@ -86,7 +86,7 @@ class QuestionnairesController extends Controller {
         return [
             'status' => 1,
             'data' => [
-                'dom' => [
+                'html' => [
                     [
                         'replace' => ".questionnaire__container",
                         'html' => view('blocks.forum.questionnaire', ['questionnaire' => $questionnaire, 'show_results' => $show_results])->render()

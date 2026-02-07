@@ -47,21 +47,24 @@
         }
     }
 </style>
-<script>
-    export default {
-        methods: {
-            show(data) {
-                data._key = Math.floor(Math.random() * 10000);
-                this.messages.unshift(data);
-                setTimeout(() => {
-                    this.messages = this.messages.filter(message => message._key !== data._key)
-                }, 7500)
-            }
-        },
-        data() {
-            return {
-                messages: []
-            }
-        }
-    }
+<script lang="ts" setup>
+import { ref } from "vue";
+
+type Message = {
+    status: number,
+    text: string,
+    _key?: number
+}
+const messages = ref<Message[]>([]);
+
+const show = (data: Message) => {
+    data._key = Math.floor(Math.random() * 10000);
+    messages.value.unshift(data);
+    setTimeout(() => {
+        messages.value = messages.value.filter(message => message._key !== data._key)
+    }, 7500)
+}
+
+defineExpose({show});
+
 </script>

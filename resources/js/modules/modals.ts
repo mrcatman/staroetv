@@ -10,6 +10,7 @@ declare global {
 
         showModal: (selector: string, title?: string, onClose?: () => void, params?: ModalParams) => void
         closeModal: (modal: JQuery<HTMLElement>) => void
+        centerY: (modal: JQuery<HTMLElement>) => void
     }
 }
 
@@ -88,24 +89,28 @@ const showModal = (selector: string, title: string = null, onClose: () => void =
 
 
 function showModalAjax(ajaxCall: JQuery.jqXHR, selector: string, title: string = null, onClose = null) {
-    showModal(selector, title, onClose);
-    const modal = $(`.modal-window[data-selector='${selector}']`);
-    let content = $(modal).find('.modal-window__content');
-    $(content).html('<div class="modal-window__preloader-container"><img class="modal-window__preloader" src="/img/ajax.gif"></div>');
-    ajaxCall.done((res) => {
-        if (res.data) {
-            $(content).html(res.data.html);
-            if (res.data.title) {
-                $(content).parents('.modal-window').find('.modal-window__title').html(res.data.title);
+    return new Promise<void>(resolve => {
+        showModal(selector, title, onClose);
+        const modal = $(`.modal-window[data-selector='${selector}']`);
+        let content = $(modal).find('.modal-window__content');
+        $(content).html('<div class="modal-window__preloader-container"><img class="modal-window__preloader" src="/img/ajax.gif"></div>');
+        ajaxCall.done((res) => {
+            if (res.data) {
+                $(content).html(res.data.html);
+                if (res.data.title) {
+                    $(content).parents('.modal-window').find('.modal-window__title').html(res.data.title);
+                }
+                centerY(modal);
+            } else {
+                $(content).html(res);
             }
-            centerY(modal);
-        } else {
-            $(content).html(res);
-        }
-    }).fail((e) => {
-        const message = e.responseJSON?.message || `Ошибка ${e.status}, повторите попытку позже`;
-        $(content).html(`<div class="modal-window__form"><div class="response response--light response--error">${message}</div></div>`);
-    });
+            resolve();
+        }).fail((e) => {
+            const message = e.responseJSON?.message || `Ошибка ${e.status}, повторите попытку позже`;
+            $(content).html(`<div class="modal-window__form"><div class="response response--light response--error">${message}</div></div>`);
+            resolve();
+        });
+    })
 }
 
 $(body).on('dragstart', '.modal-window', function() {
@@ -149,9 +154,11 @@ const centerY = (modal: JQuery<HTMLElement>) => {
 
 window.showModal = showModal;
 window.closeModal = closeModal;
+window.centerY = centerY;
 
 export {
     showModal,
     showModalAjax,
-    closeModal
+    closeModal,
+    centerY
 };

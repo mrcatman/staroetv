@@ -1,4 +1,4 @@
-import replaceDom from './replaceDom';
+import { replaceHTML} from './replace-html';
 
 const body = $('body');
 const notifications = $('.notifications');
@@ -13,7 +13,7 @@ $(body).on('click', '.auth-panel__button--notifications, .mobile-menu__item--not
 
     $.get(route('profile.notifications')).done(res => {
         if (res.status) {
-            replaceDom(res.data.dom);
+            replaceHTML(res.data.html);
         } else {
             alert(res.text);
         }
@@ -38,7 +38,7 @@ $(body).on('click', '.notifications__more', function (e) {
     page++;
     $.get(`/profile/notifications?page=${page}`).done(res => {
         if (res.status) {
-            replaceDom(res.data.dom);
+            replaceHTML(res.data.html);
             $(this).css('display', res.data.show_more ? '' : 'none');
         } else {
             alert(res.text);

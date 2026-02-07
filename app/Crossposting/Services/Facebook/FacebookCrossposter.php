@@ -2,54 +2,52 @@
 
 namespace App\Crossposting\Services\Facebook;
 
-use App\Crossposting\BaseCrossposter;
+use App\Crossposting\Crossposter;
+use App\Crossposting\Post;
+use Illuminate\Support\Facades\Http;
 
-class FacebookCrossposter extends BaseCrossposter {
+class FacebookCrossposter extends Crossposter {
 
-    public $id = "facebook";
-    public $public_name = "Facebook";
-    public $can_auto_connect = false;
-    public $can_edit_posts = false;
-    public $can_delete_posts = false;
+    protected $params = [
+        'id' => 'facebook',
+        'public_name' => 'Facebook',
+        'can_auto_connect' => false,
+        'can_edit_posts' => false,
+        'can_edit_comments' => false,
+    ];
 
-    public function __construct() {
-        parent::__construct();
-        $this->settings_manager = new FacebookSettingsManager($this);
+    public function __construct() {;
+        $this->config = new FacebookConfigManager($this);
     }
 
-    public function getPostInstance() {
+    public function getPostInstance(): Post{
         return new FacebookPost();
     }
 
-    public function isActive() {
-        $token = $this->settings_manager->get("ifttt_key");
-        return (bool)$token;
+    public function isActive(): bool {
+        return (bool)$this->config->get("ifttt_key");
     }
 
 
-
-
-    public function request($params) {
-        $key = $this->settings_manager->get("ifttt_key");
+    private function request($params) {
+        $key = $this->config->get("ifttt_key");
         if (!$key) {
             throw new \Exception("Не указан ключ");
         }
-        $event = $this->settings_manager->get("ifttt_event");
+        $event = $this->config->get("ifttt_event");
         if (!$event) {
             throw new \Exception("Не указано название события");
         }
         $url = "https://maker.ifttt.com/trigger/$event/with/key/$key";
-        $res = $this->client->request("POST", $url, [
-            \GuzzleHttp\RequestOptions::JSON => $params
-        ]);
-        return $res;
+
+        return Http::post($url, $params);
     }
 
 
-    public function getRequestParams($post, $media = null) {
+    private function getRequestParams(?FacebookPost $post, $media = null) {
         if ($post) {
-            $text = $post->getText();
-            $link = $post->getLinkText();
+            $text = $post->getParam('text');
+            $link = $post->getParam('link');
             if ($link != "") {
                 $text.= PHP_EOL.PHP_EOL.$link;
             }
@@ -63,23 +61,24 @@ class FacebookCrossposter extends BaseCrossposter {
         $params = [
             'value2' => $text
         ];
-        if ($post && $post->getLinkValue()) {
-            $text.= PHP_EOL.$post->getLinkText();
+        if ($post && $post->getParam('link_value')) {
+            $text.= PHP_EOL.$post->getParam('link_text');
             $params['value2'] = $text;
-            $params['value1'] = $post->getLinkValue();
+            $params['value1'] = $post->getParam('link_value');
         } elseif ($media) {
             $params['value1'] = $media['value'];
         }
         return $params;
     }
 
-    public function createPost($post) {
+    public function createPost(Post $post): string {
         if (!$post instanceof FacebookPost) {
             throw new \Exception("Неверный объект поста");
         }
 
-        $media = $post->getMedia();
+        $media = $post->getParam('media');
         $params = $this->getRequestParams($post, count($media) > 0 ? $media[0] : null);
+
         $this->request($params);
 
         if (count($media) > 1) {
@@ -91,20 +90,12 @@ class FacebookCrossposter extends BaseCrossposter {
         return "";
     }
 
-    public function editPost($id, $post) {
+    public function editPost(int|string $id, Post $post) {
         throw new \Exception("Невозможно редактировать посты, внесите изменения вручную");
     }
 
-    public function deletePost($id) {
+    public function deletePost(int|string $id) {
         throw new \Exception("Невозможно удалять посты, сделайте это вручную");
-    }
-
-    public function makeLinkById($post_id) {
-        $group_id = $this->settings_manager->get('group_id');
-        if (!$group_id) {
-            throw new \Exception("Не указан id группы");
-        }
-        return "https://vk.com/wall-".$group_id."_".$post_id;
     }
 
 }

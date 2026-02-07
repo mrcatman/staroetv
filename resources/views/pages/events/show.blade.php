@@ -21,16 +21,16 @@
                             <span class="button--dropdown__icon">
                                 <i class="fa fa-chevron-down"></i>
                             </span>
-                            <div class="button--dropdown__list">
+                            <div class="menu button--dropdown__list">
                                 @if ($event->can_edit)
-                                    <a class="button--dropdown__list__item" href="/events/{{$event->id}}/edit">Редактировать</a>
+                                    <a class="menu__item button--dropdown__list__item" href="/events/{{$event->id}}/edit">Редактировать</a>
                                 @endif
                                 @if (\App\Helpers\PermissionsHelper::allows('historyapprove'))
-                                    <a class="button--dropdown__list__item" data-approve="events"
+                                    <a class="menu__item button--dropdown__list__item" data-approve="events"
                                        data-approve-id="{{$event->id}}">{{$event->pending ? "Одобрить" : "Скрыть"}}</a>
                                 @endif
                                 @if ($event->can_edit)
-                                    <a class="button--dropdown__list__item"
+                                    <a class="menu__item button--dropdown__list__item"
                                        data-confirm-form-input-value="{{$event->id}}"
                                        data-confirm-form-text="Вы уверены, что хотите удалить подборку?"
                                        data-confirm-form-url="/events/delete">Удалить</a>

@@ -1,4 +1,4 @@
-import replaceDom from './replaceDom';
+import { replaceHTML} from './replace-html';
 import { language } from '@/utils/select2-language';
 
 $('body').on('click', '.input-container__toggle-button--mass-send', function() {
@@ -31,7 +31,7 @@ window.pm = {
     updateCount() {
         $.post(route('pm.update')).done(res => {
             if (res.status) {
-                replaceDom(res.data.dom);
+                replaceHTML(res.data.html);
                 setTimeout(() => {
                     showVisibleCounters();
                 }, 1)

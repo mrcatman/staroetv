@@ -2,13 +2,10 @@
 
 namespace App\Crossposting\Services\Discord;
 
-use App\Crossposting\BasePost;
+use App\Crossposting\Post;
 
-class DiscordPost extends BasePost {
+class DiscordPost extends Post {
 
-    public function setText($text) {
-        $this->text = strip_tags($text);
-        return $this;
-    }
+
 
 }

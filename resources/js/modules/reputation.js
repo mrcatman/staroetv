@@ -2,11 +2,11 @@ import { showModal, showModalAjax } from './modals';
 const body = $('body');
 
 $(body).on('click', '.user-page__info-block__value--reputation', function() {
-    showModalAjax($.get(route('reputation.ajax'), {user_id: $('.user-page').data('user-id')}), `#reputation_history_${$(this).data('user-id')}`, 'Репутация пользователя');
+    showModalAjax($.get(route('reputation.ajax'), {user_id: $('.user-page').data('user-id')}), `#reputation_history_${$('.user-page').data('user-id')}`, 'Репутация пользователя');
 });
 
 $(body).on('click', '.forum-message__reputation__number', function() {
-    showModalAjax($.get(route('reputation.ajax'), {user_id: $(this).data('user-id')}), `#reputation_history_${(this).data('user-id')}`, 'Репутация пользователя');
+    showModalAjax($.get(route('reputation.ajax'), {user_id: $(this).data('user-id')}), `#reputation_history_${$(this).data('user-id')}`, 'Репутация пользователя');
 });
 $(body).on('click', '.forum-message__reputation__change', function() {
     showModal('#change_reputation');

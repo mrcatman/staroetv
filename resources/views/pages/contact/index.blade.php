@@ -26,6 +26,7 @@
                                 <div class="input-container__inner">
                                     <input class="input" name="contact" />
                                     <span class="input-container__message"></span>
+                                    <div class="input-container__description">Телеграм, соцсети, почта</div>
                                 </div>
                             </div>
                             <div class="input-container">

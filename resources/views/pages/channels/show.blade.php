@@ -26,17 +26,17 @@
                                     <span class="button--dropdown__icon">
                                         <i class="fa fa-chevron-down"></i>
                                     </span>
-                                    <span class="button--dropdown__list">
+                                    <span class="menu button--dropdown__list">
                                         @if ($channel->can_edit)
-                                            <a class="button--dropdown__list__item"
+                                            <a class="menu__item button--dropdown__list__item"
                                                href="{{typed_route('[CHANNEL].edit', $channel->is_radio, $channel->id)}}">Редактировать</a>
                                         @endif
                                         @if (\App\Helpers\PermissionsHelper::allows('contentapprove'))
-                                            <a class="button--dropdown__list__item" data-approve="channels"
+                                            <a class="menu__item button--dropdown__list__item" data-approve="channels"
                                                data-approve-id="{{$channel->id}}">{{$channel->pending ? "Одобрить" : "Скрыть"}}</a>
                                         @endif
                                         @if ($channel->can_edit)
-                                            <a class="button--dropdown__list__item"
+                                            <a class="menu__item button--dropdown__list__item"
                                                data-confirm-form-input-value="{{$channel->id}}"
                                                data-confirm-form-text="Вы уверены, что хотите удалить канал?"
                                                data-confirm-form-url="{{typed_route('[CHANNEL].delete', $channel->is_radio)}}">Удалить</a>

@@ -291,7 +291,7 @@ class ProfileController extends Controller
             'status' => 1,
             'data' => [
                 'show_more' => $show_more,
-                'dom' => [
+                'html' => [
                     $page > 1 ? [
                         'append_to' => '.notifications__items',
                         'html' => view("blocks.notifications.list", ['show_more' => $show_more, 'only_list' => true, 'notifications' => $notifications])->render()
@@ -301,6 +301,13 @@ class ProfileController extends Controller
                     ]
                 ]
             ]
+        ];
+    }
+
+    public function getPermissions() {
+        $can_edit_records = PermissionsHelper::allows('viedit');
+        return [
+            'can_edit_records' => $can_edit_records
         ];
     }
 

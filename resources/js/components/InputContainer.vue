@@ -2,7 +2,9 @@
     <component :is="checkbox ? 'label' : 'div'" class="input-container"
          :class="{'input-container--vertical': vertical, 'input-container--with-errors': !!errors, 'input-container--checkbox': checkbox}">
         <slot v-if="checkbox" />
-        <component :is="!checkbox ? 'label' : 'div'" class="input-container__label" :class="{'input-container__label--small': labelSmall}">{{ label }}</component>
+        <component :is="!checkbox ? 'label' : 'div'" class="input-container__label" :class="{'input-container__label--small': labelSmall}">
+            {{ label }}<span v-if="required" class="input-container__required">*</span>
+        </component>
         <div  v-if="!checkbox" class="input-container__inner" :class="{'input-container__inner--with-button': withButton}">
             <div class="input-container__element-outer">
                 <slot />
@@ -26,5 +28,6 @@ defineProps<{
     checkbox?: boolean,
     withButton?: boolean,
     vertical?: boolean,
+    required?: boolean,
 }>();
 </script>

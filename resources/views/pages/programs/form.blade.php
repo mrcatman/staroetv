@@ -127,7 +127,7 @@
                 </div>
 
                 <div style="display: none" class="tab-content" data-id="programs-form" data-tab="channels-history">
-                    <additional-channels-editor :data='@json($program ? $program->additionalChannels : [])' :is_radio="@json($channel ? $channel->is_radio : false)"></additional-channels-editor>
+                    <additional-channels-editor :data='@json($program ? $program->additionalChannels : [])' :is-radio="@json($channel ? $channel->is_radio : false)"></additional-channels-editor>
                 </div>
                 <button class="button">Сохранить</button>
             </div>

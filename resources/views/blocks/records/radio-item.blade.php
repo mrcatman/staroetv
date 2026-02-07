@@ -1,4 +1,4 @@
-<a href="{{$record->url}}" class="radio-recording @if ($record->pending) radio-recording--pending @endif">
+<a href="{{$record->url}}" data-id="{{$record->id}}" class="radio-recording @if ($record->pending) radio-recording--pending @endif">
     <div class="radio-recording__button">
         <i class="fa fa-play"></i>
     </div>

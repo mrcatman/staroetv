@@ -179,12 +179,18 @@
 .reputation-history {
     height: 100%;
     overflow: auto;
-
+    display: flex;
+    flex-direction: column;
     &__item {
+        padding: .5em 0;
+        &__reply-form {
+            margin-top: var(--col-margin);
+        }
+        &__top {
+           font-size: 1.25em;
+        }
         &__comment {
-            font-weight: 100;
-            font-size: .875em;
-            margin: .5em 0 0;
+            font-size: 1.125em;
         }
 
         &__user {
@@ -195,6 +201,7 @@
 
         &__weight {
             font-size: 12px;
+            border-radius: var(--border-radius-small);
             padding: 1px 2px 2px 5px;
             margin: 0 5px 0 0;
 
@@ -539,5 +546,26 @@
 
     &[data-group-id="251"] {
         color: #0072cc;
+    }
+}
+
+.login-to-continue {
+    font-size: 1.125em;
+    background: var(--bg-darker);
+    box-shadow: var(--block-box-shadow);
+    padding: 1em;
+    border-radius: var(--border-radius-standard);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--col-margin);
+    @include mobile() {
+        font-size: 1em;
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    a {
+        color: var(--primary);
     }
 }

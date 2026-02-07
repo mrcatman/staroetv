@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Constants\CacheTimes;
 use App\Constants\MaterialTypes;
+use App\Crossposting\Services\Twitter\TwitterCrossposter;
 use App\Models\Article;
 use App\Crossposting\CrossposterManager;
 use App\Helpers\PermissionsHelper;
@@ -16,6 +17,7 @@ use App\Models\Tag;
 use App\Models\TagMaterial;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Mews\Purifier\Facades\Purifier;
 
 class ArticlesController extends EntityController {
 
@@ -85,7 +87,9 @@ class ArticlesController extends EntityController {
         ]
     ];
 
-    public function __construct() {
+    public function __construct(
+        private CrossposterManager $crossposterManager
+    ) {
         $this->redirect_after_delete = route('articles.index');
     }
 
@@ -94,12 +98,12 @@ class ArticlesController extends EntityController {
         if (!$article) {
             $url = "/".request()->path();
             $article = Article::where(['original_url' => $url])->first();
-            if (!$article  || ($article->pending && !$article->can_edit)) {
+            if (!$article  || ($article->is_approved && !$article->can_edit)) {
                 return redirect(route('index'));
             }
             return redirect($article->url);
         }
-        if (!$article  || ($article->pending && !$article->can_edit)) {
+        if (!$article  || (!$article->is_approved && !$article->can_edit)) {
             return redirect(route('index'));
         }
 
@@ -109,9 +113,9 @@ class ArticlesController extends EntityController {
     public function show($url) {
         $data = Cache::remember('article_'.$url, CacheTimes::PAGE,  function() use ($url) {
             $article = Article::where(['url' => $url])->firstOrFail();
-            $see_also = Article::where('id', '<', $article->id)->where(['pending' => false])->orderBy('created_at', 'desc')->limit(5)->get();
+            $see_also = Article::where('id', '<', $article->id)->approved()->orderBy('created_at', 'desc')->limit(5)->get();
             $see_also = $see_also->merge(
-                Article::where('id', '>', $article->id)->where(['pending' => false])->orderBy('id', 'asc')->limit(3)->get()
+                Article::where('id', '>', $article->id)->approved()->orderBy('id', 'asc')->limit(3)->get()
             );
             return [
                 'article' => $article,
@@ -154,7 +158,7 @@ class ArticlesController extends EntityController {
         $show_all = true;
         if (!$can_approve || !request()->input('show_all')) {
             $show_all = false;
-            $articles = $articles->where(['pending' => false]);
+            $articles = $articles->approved();
         }
         $search = null;
         $articles = $articles->orderBy('created_at', 'desc');
@@ -177,7 +181,7 @@ class ArticlesController extends EntityController {
         $articles = $articles->paginate(20);
 
         $tags = Cache::remember('articles_tags', CacheTimes::RELATION, function() {
-            $all_ids = Article::where(['pending' => false])->where('type_id', '!=', MaterialTypes::TYPE_BLOG)->pluck('id');
+            $all_ids = Article::approved()->where('type_id', '!=', MaterialTypes::TYPE_BLOG)->pluck('id');
             return Tag::all()->map(function($tag) use ($all_ids) {
                 $count = TagMaterial::where(['tag_id' => $tag->id, 'material_type' => 'articles'])->whereIn('material_id', $all_ids)->count();
                 $tag->count = $count;
@@ -205,35 +209,34 @@ class ArticlesController extends EntityController {
 
     public function add() {
         if (!PermissionsHelper::isBanned() && PermissionsHelper::allows('nwadd')) {
+            $can_edit_all = PermissionsHelper::allows('nwedit');
             return view("pages.articles.form", [
                 'article' => null,
+                'can_edit_all' => $can_edit_all
             ]);
         } else {
-            return view('pages.errors.403');
+            return redirect('/');
         }
     }
 
     protected function getCrossposts($article) {
-        $resolver = new CrossposterManager();
         $crossposts = $article->crossposts;
         foreach ($crossposts as $crosspost) {
-            $crossposter = $resolver->get($crosspost->network);
+            $crossposter = $this->crossposterManager->get($crosspost->network);
             $crosspost->link = $crossposter->makeLinks($crosspost->crosspost_id);
         }
         return $crossposts;
     }
 
-    protected function getCrosspostNetworks() {
-        $resolver = new CrossposterManager();
-        $list = $resolver->getList();
+    protected function getCrosspostServices() {
+        $list = $this->crossposterManager->getList();
         $services = [];
-        foreach ($list as $service_name) {
-            $service = new $service_name;
+        foreach ($list as $service) {
             if ($service->isActive()) {
                 $services[] = [
-                    'id' => $service->id,
-                    'name' => $service->public_name,
-                    'can_edit_posts' => $service->can_edit_posts
+                    'id' => $service->getParam('id'),
+                    'name' => $service->getParam('public_name'),
+                    'can_edit_posts' => $service->getParam('can_edit_posts'),
                 ];
             }
         }
@@ -248,19 +251,22 @@ class ArticlesController extends EntityController {
         }
 
         $crossposts = null;
-        $networks = null;
+        $services = null;
         if (PermissionsHelper::allows('nwcrosspost')) {
             $crossposts = $this->getCrossposts($article);
-            $networks = $this->getCrosspostNetworks();
+            $services = $this->getCrosspostServices();
         }
+
+        $can_edit_all = PermissionsHelper::allows('nwedit');
         return view("pages.articles.form", [
-            'networks' => $networks,
+            'services' => $services,
             'crossposts' => $crossposts,
             'article' => $article,
+            'can_edit_all' => $can_edit_all
         ]);
     }
 
-    public function getCrosspostParameters($article = null, $network_id = null) {
+    public function getCrosspostParameters($article = null, $service_id = null) {
         if (!$article) {
             $article = Article::find(request()->input('article_id'));
             if (!$article) {
@@ -277,12 +283,13 @@ class ArticlesController extends EntityController {
                 ];
             }
         }
-        if (!$network_id) {
-            $network_id = request()->input('network_id');
+
+        if (!$service_id) {
+            $service_id = request()->input('service_id');
         }
-        if ($network_id === "twitter") {
+        if ($service_id === "twitter") {
             $text = strip_tags($article->short_content);
-            $length = 280 - 23;
+            $length = TwitterCrossposter::TWEET_LENGTH - TwitterCrossposter::LINK_LENGTH;
             if (mb_strlen($text, "UTF-8") > $length) {
                 $text = wordwrap($text, $length - 3);
                 $text = substr($text, 0, strpos($text, "\n"));
@@ -292,12 +299,9 @@ class ArticlesController extends EntityController {
             $text = $article->title . PHP_EOL . PHP_EOL . strip_tags($article->short_content);
         }
 
-        $link = "http://staroetv.su" . $article->url;
-        if ($network_id === "telegram") {
-            $picture = $article->cover;
-        } else {
-            $picture = null;
-        }
+        $link = "https://staroetv.su" . $article->url;
+        $picture = $service_id === "telegram" ? $article->cover : null;
+
         return [
             'status' => 1,
             'data' => [
@@ -325,7 +329,7 @@ class ArticlesController extends EntityController {
             ];
         }
         $network_id = request()->input('network_id');
-        $crossposter = (new CrossposterManager())->get($network_id);
+        $crossposter = $this->crossposterManager->get($network_id);
         if (!$crossposter) {
             return [
                 'status' => 0,
@@ -347,36 +351,25 @@ class ArticlesController extends EntityController {
                 'text' => 'Пост удален',
             ];
         } else {
-
             $post = $crossposter->getPostInstance();
             $parameters = $this->getCrosspostParameters($article, $network_id)['data'];
 
-            $text = $parameters['text'];
-            if (request()->has('text')) {
-                $text = request()->input('text');
-            }
-            $post->setText($text);
+            $text = request()->input('text', $parameters['text']);
+            $link = request()->input('text', $parameters['link']);
+            $media = request()->input('picture', $parameters['picture']);
 
-            $link = $parameters['link'];
-            if (request()->has('link')) {
-                $link = request()->input('link');
-            }
-            $post->setLink($link);
+            $post->setParam('text', $text);
+            $post->setParam('link', $link);
 
-            $media = null;
-            $picture = $parameters['picture'];
-            if (request()->has('picture')) {
-                $picture = request()->input('picture');
+            if ($media) {
+                $post->setParam('media', ['type' => 'picture', 'picture' => $media]);
             }
-            if ($picture) {
-                $media = ['type' => 'picture', 'picture' => $picture];
-                $post->setMedia($media);
-            }
+
             if ($crosspost) {
                 $post->setFieldsToUpdate([
                     'text' => $crosspost->text != $text,
                     'link' => $crosspost->link != $link,
-                    'media' => [$crosspost->picture != $picture]
+                    'media' => [$crosspost->picture != $media]
                 ]);
                 $crossposter->editPost($crosspost->crosspost_id, $post);
             } else {
@@ -386,7 +379,7 @@ class ArticlesController extends EntityController {
                     'article_id' => $article->id,
                     'crosspost_id' => $post_id,
                     'text' => $text,
-                    'picture' => $picture,
+                    'picture' => $media,
                     'link' => $link
                 ]);
                 $crosspost->save();
@@ -407,43 +400,23 @@ class ArticlesController extends EntityController {
 
     public function save() {
         if (PermissionsHelper::allows('nwadd') && !PermissionsHelper::isBanned()) {
-            $data = request()->validate([
-                'title' => 'required|min:1',
-                'content' => 'required|min:1',
-                'cover_id' => 'sometimes',
-                'short_content' => 'sometimes',
-                'source' => 'sometimes',
-                'slug' => 'sometimes'
-            ]);
-           // $type_id = Article::TYPE_ARTICLES;
-            $article = new Article($data);
-            $need_premod = PermissionsHelper::allows('nwpremod');
-            $article->pending = !!$need_premod;
+            $article = new Article();
+
+            $article->pending = PermissionsHelper::allows('nwpremod');
             $user = auth()->user();
             $article->username = $user->username;
             $article->user_id = $user->id;
             $article->views = 0;
             $article->slug = StringsHelper::transliterate($article->title);
-
+            $article->original_id = $article->id;
+            return $this->fillData($article);
 
             //$article->month = date('m', time());
             //$article->day = date('d', time());
             //$article->year = date('Y', time());
-
-            $this->saveEntity($article);
-
-            $article->original_id = $article->id;
-            $article->save();
-
-            $this->setTags($article);
-
-            return [
-                'status' => 1,
-                'text' => 'Добавлено',
-                'redirect_to' => $article->url
-            ];
         }
     }
+
 
     public function update($id) {
         $article = Article::find($id);
@@ -460,15 +433,27 @@ class ArticlesController extends EntityController {
                 'text' => 'Ошибка доступа'
             ];
         }
-        $data = request()->validate([
+        return $this->fillData($article);
+    }
+
+    protected function fillData($article) {
+        $rules = [
             'title' => 'required|min:1',
             'content' => 'required|min:1',
             'cover_id' => 'sometimes',
             'short_content' => 'sometimes',
             'source' => 'sometimes',
             'slug' => 'sometimes'
-        ]);
+        ];
+        if (PermissionsHelper::allows('nwedit')) {
+            $rules['created_at'] = 'sometimes|date';
+        }
+        $data = request()->validate($rules);
         $article->fill($data);
+
+        $article->content = Purifier::clean($article->content);
+        $article->source = strip_tags($article->source);
+
         $this->saveEntity($article);
 
         $this->setTags($article);
@@ -480,7 +465,7 @@ class ArticlesController extends EntityController {
         ];
     }
 
-    public function setTags($article) {
+    private function setTags($article) {
         $tags = json_decode(request()->input('tags'));
         if ($tags) {
             $ids = array_map(function($tag) {
@@ -559,7 +544,7 @@ class ArticlesController extends EntityController {
         return [
             'status' => 1,
             'data' => [
-                'dom' => [
+                'html' => [
                     [
                         'replace' => $selector,
                         'html' => view("blocks.articles.actions", [

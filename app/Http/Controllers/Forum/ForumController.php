@@ -458,7 +458,7 @@ class ForumController extends Controller
             'status' => 1,
             'text' => 'Пост сохранен',
             'data' => [
-                'dom' => [
+                'html' => [
                     [
                         'replace' => $selector,
                         'html' => view("blocks.forum.message", ['inner' => true, 'ajax' => true, 'fixed' => $message->is_fixed, 'message' => $message])->render()
@@ -513,7 +513,7 @@ class ForumController extends Controller
             'status' => 1,
             'text' => 'Сообщение удалено',
             'data' => [
-                'dom' => [
+                'html' => [
                     [
                         'replace' => "#" . $message->id,
                         'html' => ""

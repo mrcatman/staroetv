@@ -43,7 +43,7 @@ class SmilesController extends Controller {
             unset($smile['picture']);
             unset($smile['created_at']);
             unset($smile['updated_at']);
-            if (isset($smile['id'])) {
+            if (isset($smile['id']) && $smile['id'] > 0) {
                 $smile_obj = Smile::find($smile['id']);
                 $smile_obj->fill($smile);
 

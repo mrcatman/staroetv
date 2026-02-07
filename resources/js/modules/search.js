@@ -1,5 +1,5 @@
 let body = $('body');
-import replaceDom from './replaceDom';
+import { replaceHTML} from './replace-html';
 import {PRELOADER_HTML} from "@/modules/preloader.js";
 
 let searchInputTimeout = null;
@@ -25,7 +25,7 @@ $(body).on('keyup', '.site-search__input', function(e) {
             if ($(this).val().length >= 3) {
                 $('.site-search__results').html(PRELOADER_HTML);
                 $.get(`${route('site-search')}?search=${$(this).val()}`).done(res => {
-                    replaceDom(res.data.dom);
+                    replaceHTML(res.data.html);
                 })
             }
         }, 500)

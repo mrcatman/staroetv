@@ -14,7 +14,7 @@
     &__required {
         color: #ca0000;
         font-weight: bold;
-        margin: 0 0 0 .25em;
+        margin-left: .125em;
     }
 
     &__description {
@@ -76,6 +76,9 @@
     &--radio {
         align-items: center;
         cursor: pointer;
+        @include mobile() {
+            flex-direction: row;
+        }
 
         input[type=radio] {
             display: none;
@@ -86,7 +89,6 @@
             height: 1em;
             border-radius: 50%;
             background: var(--box-color);
-            margin: 0 0 0 1em;
             border: 1px solid var(--border-color);
         }
     }
@@ -128,9 +130,15 @@
         flex: 1;
         display: flex;
         flex-direction: column;
+        &--autowidth {
+            flex: unset;
+            width: auto;
+        }
+
         &--with-icon .input {
             padding-left: 2.5em;
         }
+
         &--with-button .input {
             padding-right: 2.5em;
         }
@@ -150,6 +158,7 @@
         min-width: 10em;
         font-size: 1.25em;
         font-weight: 500;
+
         &--small {
             font-size: 1.0625em;
             font-weight: 600;
@@ -166,9 +175,11 @@
         display: flex;
         align-items: center;
         pointer-events: none;
+
         &:empty {
-            display:none;
+            display: none;
         }
+
         @include mobile() {
             bottom: -1.75em;
             top: unset;
@@ -232,6 +243,7 @@
             border-bottom: 1px solid;
         }
     }
+
     &__button {
         position: absolute;
         top: 0;
@@ -243,22 +255,27 @@
         align-items: center;
         justify-content: center;
         transition: all .2s;
-        background: rgba(0,0,0,.025);
+        background: rgba(0, 0, 0, .025);
+
         &:hover {
-            background: rgba(0,0,0,.05);
+            background: rgba(0, 0, 0, .05);
             color: var(--primary);
         }
+
         @include light() {
             height: 2.75em;
         }
+
         &--select {
             right: 1.25em;
         }
+
         &--big {
             i {
                 font-size: 1.125rem;
             }
         }
+
         &--info {
             background: none;
             color: #29ad10;
@@ -269,6 +286,7 @@
             }
         }
     }
+
     &__overlay-outer {
         position: relative;
     }
@@ -330,12 +348,14 @@
     border: 1px solid var(--border-color);
     color: inherit;
     border-radius: var(--border-radius-small);
-    box-shadow: var( --input-box-shadow);
+    box-shadow: var(--input-box-shadow);
     box-sizing: border-box;
     height: 2.75em;
+
     &:read-only {
         color: #777;
     }
+
     &:disabled {
         opacity: .5;
     }
@@ -344,32 +364,43 @@
         outline: none;
         border-bottom-color: var(--primary);
     }
+
+    &[type=date], &[type=datetime-local] {
+        padding-top: calc(.75em - 1px);
+        padding-bottom: calc(.75em - 1px);
+    }
 }
 
 .vue-tags-input {
-    max-width: unset!important;
+    max-width: unset !important;
     width: 100%;
+
     .ti-new-tag-input {
         font: inherit;
         background: none;
     }
+
     .ti-input {
-        background: none!important;
-        border: none!important;
-        padding: 0!important;
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
         font: inherit;
+        margin: -.35em;
+
         &:focus {
             border-bottom: 3px solid var(--primary);
         }
     }
+
     .ti-new-tag-input-wrapper {
         background: none;
         padding: 0 !important;
         margin: 2px;
         font-size: 1em !important;
     }
+
     .ti-tag {
-        background: var(--primary)!important;
+        background: var(--primary) !important;
         font-size: 1em !important;
     }
 }
@@ -515,6 +546,7 @@ textarea.input {
         display: flex;
         align-items: center;
         justify-content: center;
+
         &--dark {
             background: rgba(0, 0, 0, .25);
         }
@@ -526,10 +558,6 @@ textarea.input {
         gap: var(--col-margin);
         align-items: center;
         width: 100%;
-
-        &--with-margin {
-            margin-bottom: 1em;
-        }
 
         &__left {
             display: flex;
@@ -558,6 +586,7 @@ textarea.input {
         overflow: hidden;
         border: 1px solid var(--border-color);
         box-shadow: var(--input-box-shadow);
+
         &__bar {
             transition: all .25s;
             padding: .4em;
@@ -607,6 +636,7 @@ textarea.input {
     &--tabs {
         margin: 0;
         text-align: center;
+
         &__variant {
             padding: .675em 0.75em;
             line-height: 1;
@@ -614,10 +644,12 @@ textarea.input {
             transition: background .2s;
             width: 100%;
             text-align: center;
+
             &:hover {
                 background: var(--bg-darker);
             }
         }
+
         input[type=radio]:checked + &__variant {
             box-shadow: var(--button-box-shadow);
             text-shadow: var(--button-text-shadow);
@@ -631,6 +663,7 @@ textarea.input {
 
 .radio-buttons {
     font-size: 1.125em;
+
     &--inline {
         display: flex;
         flex-wrap: wrap;
@@ -639,21 +672,25 @@ textarea.input {
             margin: .75em 1em 0 0;
         }
     }
+
     &--tabs {
         display: inline-flex;
-        box-shadow: var( --input-box-shadow);
+        box-shadow: var(--input-box-shadow);
         background: var(--inputs-color);
         border: 1px solid var(--border-color);
         border-radius: var(--border-radius-standard);
         overflow: hidden;
+
         &-wide {
             display: flex;
             width: 100%;
             justify-content: stretch;
         }
+
         @include mobile() {
             flex-wrap: wrap;
         }
+
         &-one-line {
             @include mobile() {
                 flex-wrap: nowrap;
@@ -681,12 +718,12 @@ textarea.input {
     max-width: 100%;
 
     &--open {
-        z-index: 10000;
+        z-index: 100000;
     }
 
     &--default {
         .select2-selection {
-            height: 2.6em !important;
+            height: 2.785em !important;
             border-radius: var(--border-radius-small);
             display: flex !important;
             align-items: center !important;
@@ -710,21 +747,34 @@ textarea.input {
             opacity: .5;
         }
 
+        .select2-search__field {
+            font: inherit!important;
+            margin: 0!important;
+        }
+
         .select2-selection--multiple {
+            padding-bottom: 0!important;
+            .select2-selection__rendered {
+                line-height: 1.6 !important;
+                padding: 0 .5em!important;
+                margin: 0!important;
+            }
 
             .select2-selection__choice {
-                border: 1px solid var(--border-color) !important;
+                border-width: 0 !important;
                 background-color: var(--primary) !important;
                 color: var(--button-active-text);
-                font-size: .875em;
-                margin: .5em 0 0 .25em;
-
+                margin: 0 .25em 0 0 !important;
+                padding: .125em 1.25em .125em .25em!important;
                 &__remove {
-                    color: var(--button-active-text);
-                    font-size: 1.25em;
-
+                    color: var(--button-active-text)!important;
+                    font-size: 1.25em!important;
+                    left: unset!important;
+                    right: 0;
+                    top: .2em!important;
                     &:hover {
-                        color: var(--button-active-text);
+                        background: none!important;
+                        color: var(--button-active-text)!important;
                         opacity: .75;
                     }
                 }
@@ -757,6 +807,7 @@ textarea.input {
         }
     }
 }
+
 .select2-selection--multiple .select2-selection__rendered {
     padding: 0 !important;
 }
@@ -782,14 +833,18 @@ textarea.input {
     gap: .75em;
     width: 100%;
     box-sizing: border-box;
+
     &--vertical {
         flex-direction: column;
     }
+
     &__item {
         flex: 1;
+
         &--auto {
             flex: unset;
         }
+
         &__label {
             font-size: 1.0625em;
             font-weight: 600;
@@ -807,6 +862,7 @@ textarea.input {
 .autocomplete {
     display: flex;
     flex-direction: column;
+
     &__items {
         display: flex;
         flex-wrap: wrap;
@@ -815,6 +871,7 @@ textarea.input {
         @include mobile() {
             font-size: .875em;
         }
+
         &--vertical {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -828,17 +885,21 @@ textarea.input {
         gap: .5em;
         @include hover();
         width: auto;
+
         &--vertical {
             text-align: center;
             flex-direction: column;
         }
+
         &--selected:before {
             opacity: 1;
         }
+
         &__texts {
             display: flex;
             flex-direction: column;
         }
+
         &__logo {
             min-width: 2.875em;
             width: 2.875em;
@@ -848,6 +909,7 @@ textarea.input {
             background-position: center center;
             background-repeat: no-repeat;
         }
+
         &--vertical &__logo {
             background-size: cover;
             width: 100%;

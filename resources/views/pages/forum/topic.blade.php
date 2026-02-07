@@ -101,6 +101,7 @@
                     </div>
                 </div>
                 <div class="box__inner">
+                    <div class="forum-section__bottom">
                     @if ($show_pager && (count($messages) > 0 || $fixed_message))
                         <div class="box__pager forum-section__pager-container">
                             {{$paginator->links()}}
@@ -121,7 +122,21 @@
                         <div class="forum-section__form">
                             @include('blocks.forum.bb-editor', ['topic_id' => $topic->id])
                         </div>
+                    @elseif (!auth()->user())
+                     <div class="login-to-continue">
+                         <span>
+                             <a class="button--login" href="{{route('login')}}">Войдите</a>
+                              или <a href="{{route('register')}}">зарегистрируйтесь</a>,
+                         чтобы поучаствовать в обсуждении
+                         </span>
+
+                         <button class="button button--telegram" data-action="register">
+                             <i class="fab fa-telegram"></i>
+                            Вход через Телеграм
+                         </button>
+                     </div>
                     @endif
+                    </div>
                 </div>
             </div>
 

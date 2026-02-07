@@ -49,6 +49,23 @@ class DesignPackage extends Model {
     }
 
     public function getRandomPicturesAttribute() {
+        if (!$this->id) {
+            return Cache::remember('design_package_random_pictures_other_'.$this->channel_id, CacheTimes::RANDOM, function () {
+                $records = Record::where(['is_interprogram' => true, 'channel_id' => $this->channel_id])->whereNotNull('cover_id')->where(function ($q) {
+                    $q->whereNotIn('interprogram_type', [11, 22]);
+                    $q->orWhereNull('interprogram_type');
+                })->inRandomOrder()->limit(12)->get();
+                $pictures = [];
+                foreach ($records as $record) {
+                    if (count($pictures) < 4) {
+                        if ($record && $record->cover && $record->cover != '/Obloshki/Zastavka.PNG') {
+                            $pictures[] = $record->cover;
+                        }
+                    }
+                }
+                return $pictures;
+            });
+        }
         return Cache::remember('design_package_random_pictures_'.$this->id, CacheTimes::RANDOM, function () {
             $records = Record::where(['interprogram_package_id' => $this->id])->whereNotNull('cover_id')->where(function ($q) {
                 $q->whereNotIn('interprogram_type', [11, 22]);

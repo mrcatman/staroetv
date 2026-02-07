@@ -30,6 +30,7 @@
         }
     }
 
+
     &__count {
         font-weight: bold;
         margin: 0 0 0 .25em;
@@ -43,14 +44,29 @@
     white-space: nowrap;
     display: flex;
     gap: .25em;
+    @include mobile() {
+        flex-wrap: wrap;
+    }
     &--multiline {
         display: flex;
         flex-wrap: wrap;
+        &-collapse {
+            position: relative;
+            margin-bottom: 1.75em;
+            .category--collapsed {
+                display: none;
+            }
+        }
     }
 
-    @include mobile() {
-        font-size: .875em;
-        flex-wrap: wrap;
+
+    &__show-all {
+        position: absolute;
+        text-align: center;
+        bottom: -1em;
+        left: 0;
+        width: 100%;
+        box-sizing: border-box;
     }
 }
 

@@ -2,98 +2,97 @@
 
 namespace App\Crossposting\Services\Twitter;
 
-use App\Crossposting\BaseCrossposter;
+use App\Crossposting\Crossposter;
 use Abraham\TwitterOAuth\TwitterOAuth;
+use App\Crossposting\Post;
 
-class TwitterCrossposter extends BaseCrossposter {
+class TwitterCrossposter extends Crossposter {
 
-    public $id = "twitter";
-    public $public_name = "Twitter";
-    public $can_auto_connect = true;
-    public $can_edit_posts = false;
-
+    protected $params = [
+        'id' => 'twitter',
+        'public_name' => 'Twitter',
+        'can_auto_connect' => false,
+        'can_edit_posts' => false,
+        'can_edit_comments' => false,
+    ];
     public const TWEET_LENGTH = 280;
     public const LINK_LENGTH = 23;
 
-    protected $base_url = "https://api.twitter.com/";
-
     public function __construct() {
-        parent::__construct();
-        $this->settings_manager = new TwitterSettingsManager($this);
+        $this->config = new TwitterConfigManager($this);
     }
 
-    public function getPostInstance() {
+    public function getPostInstance(): Post {
         return new TwitterPost();
     }
 
-    private function getBaseConnection() {
-        $consumer_key = $this->settings_manager->get('oauth_consumer_key');
-        $consumer_secret = $this->settings_manager->get('oauth_consumer_secret');
+    private function getBaseConnection(): TwitterOAuth{
+        $consumer_key = $this->config->get('oauth_consumer_key');
+        $consumer_secret = $this->config->get('oauth_consumer_secret');
         if (!$consumer_key || !$consumer_secret) {
             throw new \Exception("Не указан consumer key или consumer secret");
         }
-        $connection = new TwitterOAuth($consumer_key, $consumer_secret);
-        return $connection;
+        return new TwitterOAuth($consumer_key, $consumer_secret);
     }
 
-    private function getConnection() {
-        $consumer_key = $this->settings_manager->get('oauth_consumer_key');
-        $consumer_secret = $this->settings_manager->get('oauth_consumer_secret');
-        $oauth_token = $this->settings_manager->get('oauth_token');
-        $oauth_token_secret = $this->settings_manager->get('oauth_token_secret');
+    private function getConnection(): TwitterOAuth {
+        $consumer_key = $this->config->get('oauth_consumer_key');
+        $consumer_secret = $this->config->get('oauth_consumer_secret');
+        $oauth_token = $this->config->get('oauth_token');
+        $oauth_token_secret = $this->config->get('oauth_token_secret');
         if (!$consumer_key || !$consumer_secret || !$oauth_token || !$oauth_token_secret) {
             throw new \Exception("Не указаны все токены авторизации");
         }
-        $connection = new TwitterOAuth($consumer_key, $consumer_secret, $oauth_token, $oauth_token_secret);
-        return $connection;
+        return new TwitterOAuth($consumer_key, $consumer_secret, $oauth_token, $oauth_token_secret);
     }
 
-    public function getAutoConnectRedirectURI() {
-        $callback = route("crosspostRedirectUri", ["name" => "twitter"]);
+    public function getAutoConnectRedirectURI(): string {
+        $callback = route("crossposts.redirect-uri", ["name" => "twitter"]);
         $connection = $this->getBaseConnection();
         $temporary_credentials = $connection->oauth('oauth/request_token',["oauth_callback" => $callback]);
-        $url = $connection->url('oauth/authenticate', array('oauth_token' => $temporary_credentials['oauth_token']));
-        return $url;
+        return $connection->url('oauth/authenticate', array('oauth_token' => $temporary_credentials['oauth_token']));
     }
 
-    public function afterRedirect($data) {
+    public function afterRedirect($data): void {
         $connection = $this->getBaseConnection();
-        $params = array("oauth_verifier" => $data['oauth_verifier'], 'oauth_token' => $data['oauth_token']);
+        $params = ["oauth_verifier" => $data['oauth_verifier'], 'oauth_token' => $data['oauth_token']];
         $user_data = $connection->oauth('oauth/access_token', $params);
+
         foreach ($user_data as $key => $value) {
-            $this->settings_manager->set($key, $value);
+            $this->config->set($key, $value);
         }
-        $this->settings_manager->saveSettingsToFile();
+        $this->config->saveSettingsToFile();
     }
 
-    public function isActive() {
-        $token = $this->settings_manager->get("oauth_token");
-        return (bool)$token;
+    public function isActive(): bool {
+        return !!$this->config->get("oauth_token");
     }
 
-    protected function uploadPicture($picture) {
+    private function uploadPicture(string $path) {
         $connection = $this->getConnection();
-        if ($picture[0] == "/") {
-            $picture = public_path($picture);
+        if ($path[0] == "/") {
+            $path = public_path($path);
         } else {
             $rnd = md5(random_bytes(16));
             $path = public_path("pictures/temp/".$rnd);
-            file_put_contents($path, file_get_contents($picture));
-            $picture = $path;
+            file_put_contents($path, file_get_contents($path));
         }
-        $upload = $connection->upload('media/upload', ['media' => $picture]);
+        $upload = $connection->upload('media/upload', ['media' => $path]);
         return $upload->media_id;
     }
 
 
-    public function createPost($post) {
+    public function createPost(Post $post) {
         if (!$post instanceof TwitterPost) {
             throw new \Exception("Неверный объект поста");
         }
+
         $connection = $this->getConnection();
-        $post_text = $post->getText();
-        $link = $post->getLinkText();
-        $media = $post->getMedia();
+
+        $post_text = $post->getParam('text');
+        $link = $post->getParam('link_text');
+        $media = $post->getParam('media');
+
         if (is_array($post_text)) {
            $text = array_shift($post_text);
         } else {
@@ -116,9 +115,7 @@ class TwitterCrossposter extends BaseCrossposter {
         }
         if ($first_media_is_video) {
             $text.= PHP_EOL.$media[0]['value'];
-        } elseif(is_array($post_text) && count($post_text) > 0) {
-
-        } elseif ($link) {
+        } elseif (is_array($post_text) && count($post_text) > 0) {} elseif ($link) {
             $text.= PHP_EOL.$link;
         }
         $data = ["status" => $text];
@@ -202,18 +199,17 @@ class TwitterCrossposter extends BaseCrossposter {
 
     }
 
-    public function deletePost($post_ids) {
+    public function deletePost(int|string $id): void {
         $connection = $this->getConnection();
-        $post_ids = explode(";", $post_ids);
+        $post_ids = explode(";", $id);
         foreach ($post_ids as $post_id) {
             $connection->post("statuses/destroy", ["id" => $post_id]);
         }
-        return $post_ids;
     }
 
-    public function makeLinks($post_ids) {
-        $post_ids = explode(";", $post_ids);
-        $screen_name = $this->settings_manager->get('screen_name');
+    public function makeLinks(int|string $id): array {
+        $post_ids = explode(";", $id);
+        $screen_name = $this->config->get('screen_name');
         if (!$screen_name) {
             return [];
         }

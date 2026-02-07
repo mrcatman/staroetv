@@ -1,5 +1,6 @@
 import { showModal } from './modals';
-import replaceDom from "./replaceDom";
+import { replaceHTML } from "./replace-html";
+
 const body = $('body');
 
 $(body).on('click', '.button--delete-article', function() {
@@ -17,9 +18,9 @@ $(body).on('click', '.button--approve-article', function() {
 
 $(body).on('click', '.button--article-menu', function() {
     let id = $(this).data('id');
-    $.post('/articles/actions', {id}).done(res => {
+    $.post(route('articles.get-actions'), {id}).done(res => {
         if (res.status) {
-            replaceDom(res.data.dom);
+            replaceHTML(res.data.html);
         } else {
             alert(res.text);
         }
@@ -27,7 +28,7 @@ $(body).on('click', '.button--article-menu', function() {
 });
 
 $(body).on('click', '*[data-change-article-type]', function () {
-    $.post('/articles/change-type', {type_id: $(this).data('change-article-type'), id: $(this).data('change-article-type-id')}).done(res => {
+    $.post(route('articles.change-type'), {type_id: $(this).data('change-article-type'), id: $(this).data('change-article-type-id')}).done(res => {
         if (res.status) {
             $.pjax.reload('#pjax-container')
         } else {

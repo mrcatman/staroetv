@@ -37,7 +37,7 @@
                     <div class="record-categories">
                         @foreach ($categories as $category_item)
                             <div class="record-categories__item-container">
-                                <a class="record-categories__item @if ($category && $category->id == $category_item->id) record-categories__item--active @endif"
+                                <a class="record-categories__item @if ($category && isset($category_item->id) && $category->id == $category_item->id) record-categories__item--active @endif"
                                    href="{{ $category_item->full_url}}">
                                     {{$category_item->name}}
                                     <span class="record-categories__item__count">{{$category_item->records_count}}</span>

@@ -1,9 +1,8 @@
 <?php
 
 namespace App\Console\Commands;
-use App\Helpers\RegexHelper;
+use App\Helpers\ExternalServicesHelper;
 use App\Models\Record;
-use App\Models\Tag;
 use Illuminate\Console\Command;
 
 class setExternalIds extends Command
@@ -20,7 +19,7 @@ class setExternalIds extends Command
     public function handle() {
         $records = Record::whereNotNull('embed_code')->whereNull('external_id')->get(); //
         foreach ($records as $record) {
-            $record->external_id = RegexHelper::getExternalIdFromEmbedCode($record->embed_code);
+            $record->external_id = ExternalServicesHelper::resolveId($record->embed_code);
             dump($record->title.' '.$record->external_id);
             $record->save();
         }

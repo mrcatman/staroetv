@@ -13,6 +13,10 @@
     @include mobile() {
         font-size: .75em;
     }
+    &--selected, &.selected {
+        background: var(--box-color-hover)!important;
+        color: var(--primary);
+    }
 
     &__button {
         text-decoration: none;

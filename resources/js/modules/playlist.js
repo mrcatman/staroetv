@@ -1,4 +1,4 @@
-import replaceDom from './replaceDom';
+import { replaceHTML} from './replace-html';
 
 window.playlistLastIds = [];
 window.playlistRecordsCache = {};
@@ -44,7 +44,7 @@ const initPlaylist = () => {
 const initPlaylistItem = (data) => {
 
     console.log(data.dom);
-    replaceDom(data.dom);
+    replaceHTML(data.dom);
     document.title = `${data.record.title} - Старый Телевизор`;
 
     $('.box--comments').replaceWith(data.comments);

@@ -35,7 +35,6 @@
             @if ($messages_view)
                 <div class="box">
                     <div class="box__pager">
-
                         <div class="forum-section__pager">
                             {{$paginator->links()}}
                         </div>
@@ -62,6 +61,14 @@
                     @foreach ($messages as $message)
                         @include('blocks.forum.message', ['fixed' => false, 'message' => $message, 'highlight' => $search])
                     @endforeach
+                    <div class="box">
+                        <div class="box__pager">
+                            <div class="forum-section__pager">
+                                {{$paginator->links()}}
+                            </div>
+                        </div>
+                    </div>
+
                 @else
                     @if (count($fixed_topics) > 0)
                         <div class="box">

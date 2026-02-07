@@ -2,13 +2,9 @@
 
 namespace App\Crossposting\Services\VK;
 
-use App\Crossposting\BasePost;
+use App\Crossposting\Post;
 
-class VKPost extends BasePost {
+class VKPost extends Post {
 
-    public function setText($text) {
-        $this->text = strip_tags($text);
-        return $this;
-    }
 
 }

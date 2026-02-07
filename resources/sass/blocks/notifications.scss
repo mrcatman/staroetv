@@ -42,7 +42,7 @@
         display: flex;
         flex-direction: column;
         align-items: stretch;
-        gap: .5em;
+        gap: var(--col-margin);
     }
 
     &__list {
@@ -85,7 +85,6 @@
 .notification {
     color: var(--text-color)!important;
     text-align: left;
-    border-bottom: 1px solid var(--border-color);
     display: block;
     @include hover;
     &__reply-to {

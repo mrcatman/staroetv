@@ -54,26 +54,26 @@
                         <span class="button--dropdown__icon">
                             <i class="fa fa-chevron-down"></i>
                         </span>
-                        <div class="button--dropdown__list">
+                        <div class="menu button--dropdown__list">
                             @if (\App\Helpers\PermissionsHelper::allows('contentapprove'))
-                                <a class="button--dropdown__list__item" data-approve="records"
+                                <a class="menu__item button--dropdown__list__item" data-approve="records"
                                    data-approve-id="{{$record->id}}">{{$record->pending ? "Одобрить" : "Скрыть"}}</a>
                             @endif
                             @if ($record->can_edit)
-                                <a class="button--dropdown__list__item"
+                                <a class="menu__item button--dropdown__list__item"
                                    href="{{route('records.'.$record->route_prefix.'.edit', $record->id)}}">Редактировать</a>
-                                <a class="button--dropdown__list__item" href="{{route('cut.start', $record->id)}}">Обрезка</a>
+                                <a class="menu__item button--dropdown__list__item" href="{{route('cut.start', $record->id)}}">Обрезка</a>
                                 @if (!$record->use_own_player)
-                                    <a class="button--dropdown__list__item"
+                                    <a class="menu__item button--dropdown__list__item"
                                        data-confirm-form-input-value="{{$record->id}}"
                                        data-confirm-form-text="Вы уверены, что хотите загрузить эту запись в хранилище сайта из внешнего источника?"
-                                       data-confirm-form-url="{{route('records.download')}}">Загрузить на сайт</a>
-                                    <a class="button--dropdown__list__item" data-show-modal="#update_telegram_id">Указать Telegram ID видео</a>
+                                       data-confirm-form-url="{{route('records.download')}}">Загрузить на сервер</a>
+                                    <a class="menu__item button--dropdown__list__item" data-show-modal="#update_telegram_id">Указать Telegram ID видео</a>
                                 @endif
                                 @if (!$record->is_radio)
-                                    <a class="button--dropdown__list__item" data-show-modal="#update_preview">Обновить превью</a>
+                                    <a class="menu__item button--dropdown__list__item" data-show-modal="#update_preview">Обновить превью</a>
                                 @endif
-                                <a class="button--dropdown__list__item"
+                                <a class="menu__item button--dropdown__list__item"
                                    data-confirm-form-input-value="{{$record->id}}"
                                    data-confirm-form-text="Вы уверены, что хотите удалить эту запись?"
                                    data-confirm-form-url="{{route('records.delete')}}">Удалить</a>
@@ -160,11 +160,12 @@
 
                             </div>
                         </div>
-            </div>
+                </div>
             @endif
             @endforeach
         </div>
     </div>
+
     @if ($record->can_edit)
         <div id="update_preview" data-title="Обновить превью" style="display:none">
             <form action="{{route('records.thumbnail')}}" class="form modal-window__form" data-reset="1" data-auto-close-modal="1">
@@ -183,14 +184,14 @@
                             Превью будет обновлено из источника: <a target="_blank" href="{{$record->original_url}}">{{$record->original_url}}</a>
                         </div>
                     @endif
-                </div>
-
-                <div class="form__bottom">
-                    <button class="button button--light">Ок</button>
-                    <div class="response response--light"></div>
+                    <div class="form__bottom">
+                        <button class="button button--light">Ок</button>
+                        <div class="response response--light"></div>
+                    </div>
                 </div>
             </form>
         </div>
+
         <div id="update_telegram_id" data-title="Указать Telegram ID видео" style="display:none">
             <form action="{{route('records.set-telegram-id')}}" class="form modal-window__form" data-reset="1"
                   data-auto-close-modal="1">

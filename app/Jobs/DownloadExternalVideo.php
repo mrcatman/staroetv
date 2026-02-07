@@ -30,8 +30,10 @@ class DownloadExternalVideo implements ShouldQueue
         $temp_path = public_path($path);
         $output_path = $storage->path($path);
 
-        $process = Process::run("yt-dlp -f 'mp4' -i '$url' --output $temp_path");
-        var_dump($process->output(), $process->errorOutput());
+        $process = MediaHelper::download($url, $temp_path);
+//        if ($process->errorOutput()) {
+//            throw new \Exception();
+//        }
         if (file_exists($temp_path)) {
             $thumbnail = MediaHelper::makeThumbnail($temp_path);
             $cover = Picture::firstOrNew([

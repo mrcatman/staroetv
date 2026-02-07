@@ -6,16 +6,18 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: stretch;
-        background: #111;
+        background-color: #111;
         min-height: 16em;
-        background: url('/img/noise.jpg') no-repeat center center;
+        background-image: url('/img/noise.jpg') no-repeat center center;
         background-size: cover;
+        border-radius: var(--border-radius-standard);
+        overflow: hidden;
         @include mobile() {
             min-height: 10em;
         }
         &__picture {
             /* flex: 1; */
-            border-radius: var(--border-radius-standard);
+
             padding-top: 8em;
             max-width: 50%;
             width: 100%;

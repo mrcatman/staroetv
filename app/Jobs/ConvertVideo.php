@@ -24,7 +24,7 @@ class ConvertVideo implements ShouldQueue
         $extension = pathinfo($upload_path, PATHINFO_EXTENSION);
 
         $mp4_path = str_replace("." . $extension, ".mp4", $this->new_path);
-        Process::run("ffmpeg -y -i " . $upload_path . " -strict -2 " . $mp4_path);
+        Process::forever()->run("ffmpeg -y -i " . $upload_path . " -strict -2 " . $mp4_path);
 
         $storage->delete($this->upload_path);
     }

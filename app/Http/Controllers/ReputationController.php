@@ -103,7 +103,7 @@ class ReputationController extends Controller {
             'status' => 1,
             'text' => 'Сохранено',
             'data' => [
-                'dom' => [
+                'html' => [
                     [
                         'replace' => ".user-page__info-block__value--reputation, .forum-message__reputation__number[data-user-id=".$user->id."]",
                         'html' => $reputation_number

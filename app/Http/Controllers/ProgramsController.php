@@ -114,7 +114,7 @@ class ProgramsController extends EntityController {
         return [
             'status' => 1,
             'data' => [
-                'dom' => [
+                'html' => [
                     [
                         'replace' => '.programs-list',
                         'html' => view("blocks.programs.list", ['programs' => $programs])->render()
@@ -182,13 +182,13 @@ class ProgramsController extends EntityController {
 
     public function add() {
         if (!PermissionsHelper::allows('programsown') && !PermissionsHelper::allows('programs')) {
-            return view("pages.errors.403");
+            return redirect('/');
         }
 
         $channel_id = request()->input('channel_id');
         $channel = Channel::findByIdOrUrl($channel_id);
         if (!$channel || !$channel->can_edit) {
-            return view("pages.errors.403");
+            return redirect('/');
         }
         return view("pages.programs.form", [
             'program' => null,
@@ -203,7 +203,7 @@ class ProgramsController extends EntityController {
             return redirect(route('index'));
         }
         if (!$program->can_edit || ($program->channel && !$program->channel->can_edit)) {
-            return view("pages.errors.403");
+            return redirect('/');
         }
         if (request()->has('all_programs')) {
             $all_programs = Program::where('id','!=', $program->id)->get();
@@ -324,7 +324,7 @@ class ProgramsController extends EntityController {
         return [
             'status' => 1,
             'text' => 'Информация о программе обновлена',
-            'redirect_to' => '/programs/'.$program->id.'/edit'
+            'redirect_to' => route('programs.edit', $program->id)
         ];
     }
 
@@ -451,7 +451,7 @@ class ProgramsController extends EntityController {
         return [
             'status' => 1,
             'text' => 'Программа удалена',
-            'redirect_to' => $program->channel->full_url
+            'redirect_to' => $program->channel ? $program->channel->full_url : route('records.video.index')
         ];
     }
 }

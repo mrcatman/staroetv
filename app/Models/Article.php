@@ -6,7 +6,9 @@ use App\Constants\CacheTimes;
 use App\Constants\MaterialTypes;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
+use App\Helpers\RegexHelper;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 class Article extends Model {
@@ -157,6 +159,9 @@ class Article extends Model {
                     $element->parentNode->replaceChild($wrapper_clone, $element);
                     $wrapper_clone->appendChild($element);
                 } elseif ($element->tagName == 'iframe') {
+                    $element->setAttribute('allowfullscreen', '');
+                    $element->setAttribute('frameborder', '0');
+
                     $ratio = 75;
                     $wrapper_clone = $wrapper->cloneNode();
                     $wrapper_clone->setAttribute('style', "padding-top: $ratio%");
@@ -207,8 +212,8 @@ class Article extends Model {
         }
     }
 
-    public function getUrlAttribute() {
-        return route('articles.show', $this->attributes['url']);
+    public function getFullUrlAttribute() {
+        return route('articles.show', $this->attributes['url'] ? $this->attributes['url'] : $this->id);
 
         $day = $this->day;
         $month = $this->month;
@@ -240,6 +245,11 @@ class Article extends Model {
         $this->url = $url;
     }
 
+    public function getIsApprovedAttribute()
+    {
+        return !$this->pending && $this->created_at_original <= time();
+    }
+
     public function user() {
         return $this->belongsTo('App\Models\User', 'user_id', 'id');
     }
@@ -248,7 +258,7 @@ class Article extends Model {
         if (!isset($this->attributes['created_at'])) {
             return "";
         }
-        return DatesHelper::format($this->attributes['created_at']);
+        return DatesHelper::format($this->attributes['created_at'], false);
     }
 
     public function getCreatedAtOriginalAttribute() {
@@ -279,8 +289,12 @@ class Article extends Model {
         });
     }
 
+    public function getSourceWithLinksAttribute() {
+        return RegexHelper::parseLinks($this->source);
+    }
+
     public function crossposts() {
-        return $this->hasMany('App\Models\Crosspost');
+        return $this->hasMany(Crosspost::class);
     }
 
     public function getCommentsCountAttribute() {
@@ -291,15 +305,18 @@ class Article extends Model {
 
 
     public function scopeApproved($query) {
-        if (!PermissionsHelper::allows('viapprove')) {
+        //if (!PermissionsHelper::allows('nwapprove')) {
             $query->where(function($q) {
-                $q->where(['pending' => false]);
+                $q->where(function($subquery) {
+                    $subquery->where(['pending' => false]);
+                    $subquery->whereDate('created_at', '<=', Carbon::now());
+                });
                 $user = auth()->user();
                 if ($user) {
                     $q->orWhere(['user_id' => $user->id]);
                 }
             });
-        }
+        //}
         return $query;
     }
 

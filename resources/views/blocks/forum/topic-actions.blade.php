@@ -4,15 +4,15 @@
         <span class="button--dropdown__icon">
             <i class="fa fa-chevron-down"></i>
         </span>
-        <div class="button--dropdown__list">
+        <div class="menu button--dropdown__list">
             @if ($topic->can_edit)
-                <a class="button--dropdown__list__item" href="{{route('forum.topics.edit', $topic->id)}}">Редактировать тему</a>
+                <a class="menu__item button--dropdown__list__item" href="{{route('forum.topics.edit', $topic->id)}}">Редактировать тему</a>
             @endif
             @if (\App\Helpers\PermissionsHelper::allows('frreplthr'))
-                <a class="button--dropdown__list__item forum-section__move-topic">Переместить</a>
+                <a class="menu__item button-dropdown__list__item forum-section__move-topic">Переместить</a>
             @endif
             @if ($topic->can_delete)
-                <a class="button--dropdown__list__item forum-section__delete-topic">Удалить</a>
+                <a class="menu__item button-dropdown__list__item forum-section__delete-topic">Удалить</a>
             @endif
         </div>
     </span>

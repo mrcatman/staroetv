@@ -10,22 +10,23 @@ use Carbon\Carbon;
 
 class CrosspostController extends Controller {
 
+    public function __construct(
+        private CrossposterManager $manager
+    ) {}
+
     protected function getServicesList() {
-        $resolver = new CrossposterManager();
-        $list = $resolver->getList();
 
         $services = [];
 
-        foreach ($list as $service_name) {
-            $service = new $service_name;
+        foreach ($this->manager->getList() as $service) {
             $services[] = [
-                'id' => $service->id,
-                'name' => $service->public_name,
-                'is_active' => $service->isActive(),
-                'can_auto_connect' => $service->can_auto_connect,
-                'can_edit_posts' => $service->can_edit_posts,
-                'can_delete_posts' => $service->can_delete_posts,
-                'settings' => $service->settings_manager->getSettingsList()
+                'id' => $service->getParam('id'),
+                'name' => $service->getParam('public_name'),
+                'is_active' => true, // $service->isActive(),
+                'can_auto_connect' => $service->getParam('can_auto_connect'),
+                'can_edit_posts' => $service->getParam('can_edit_posts'),
+                'can_delete_posts' => $service->getParam('can_delete_posts'),
+                'settings' => $service->getSettingsList()
             ];
         }
         return $services;
@@ -39,16 +40,16 @@ class CrosspostController extends Controller {
     }
 
     public function autoconnect($name) {
-        $crossposter = (new \App\Crossposting\CrossposterManager())->get($name);
-        if (!$crossposter || !$crossposter->can_auto_connect) {
+        $crossposter = $this->manager->get($name);
+        if (!$crossposter || !$crossposter->getParam('can_auto_connect')) {
             abort(403);
         }
         return redirect($crossposter->getAutoConnectRedirectURI());
     }
 
     public function afterRedirect($name) {
-        $crossposter = (new \App\Crossposting\CrossposterManager())->get($name);
-        if (!$crossposter || !$crossposter->can_auto_connect) {
+        $crossposter = $this->manager->get($name);
+        if (!$crossposter || !$crossposter->getParam('can_auto_connect')) {
             abort(403);
         }
         $crossposter->afterRedirect(request()->all());
@@ -56,11 +57,11 @@ class CrosspostController extends Controller {
     }
 
     public function saveSettings($name) {
-        $crossposter = (new \App\Crossposting\CrossposterManager())->get($name);
+        $crossposter = $this->manager->get($name);
         if (!$crossposter) {
             abort(403);
         }
-        $crossposter->settings_manager->saveSettingsFromRequest(request()->all());
+        $crossposter->saveConfig(request()->all());
         return ['status' => 1, 'text' => 'Сохранено'];
     }
 
@@ -163,17 +164,16 @@ class CrosspostController extends Controller {
             'crosspost_id' => $crosspost->id,
             'service' => $service
         ]);
-        return (new CrossposterManager())->runOne($crosspost, $post_connection);
-
-
+        return $this->manager->publishPost($crosspost, $post_connection);
     }
 
-    public function deletePost($id, $service) {
+    public function deletePost($id, $name) {
         $crosspost = SocialPost::find($id);
         if (!$crosspost) {
             return ['status' => 0, 'text' => 'Пост не найден'];
         }
-        $crossposter = (new CrossposterManager())->get($service);
+
+        $crossposter = $this->manager->get($name);
         if (!$crossposter) {
             return [
                 'status' => 0,
@@ -182,7 +182,7 @@ class CrosspostController extends Controller {
         }
         $post_connection = SocialPostConnection::firstOrNew([
             'crosspost_id' => $crosspost->id,
-            'service' => $service
+            'service' => $name
         ]);
         if ($post_connection->post_ids) {
             $crossposter->deletePost($post_connection->post_ids);

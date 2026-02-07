@@ -41,7 +41,7 @@ class IndexController extends Controller {
             }
             $data['records'] = array_reverse($data['records']);
 
-            $forum_topics_limit = 7;
+            $forum_topics_limit = 8;
             $data['forum_topics'] = ForumTopic::orderBy('last_reply_at', 'DESC')->limit($forum_topics_limit)->get();
 
             $last_viewed_limit = 5;

@@ -2,13 +2,10 @@
 
 namespace App\Crossposting\Services\Facebook;
 
-use App\Crossposting\BasePost;
+use App\Crossposting\Post;
 
-class FacebookPost extends BasePost {
+class FacebookPost extends Post {
 
-    public function setText($text) {
-        $this->text = strip_tags($text);
-        return $this;
-    }
+
 
 }

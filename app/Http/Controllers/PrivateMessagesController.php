@@ -188,7 +188,7 @@ class PrivateMessagesController extends Controller {
         return [
             'status' => 1,
             'data' => [
-                'dom' => [
+                'html' => [
                     [
                         'replace' => ".private-message[data-id=".$message->id."]",
                         'html' => ""
@@ -216,7 +216,7 @@ class PrivateMessagesController extends Controller {
         return [
             'status' => 1,
             'data' => [
-                'dom' => [
+                'html' => [
                     [
                         'replace' => ".private-message[data-id=".$message->id."]",
                         'html' => ""
@@ -236,7 +236,7 @@ class PrivateMessagesController extends Controller {
         return [
             'status' => 1,
             'data' => [
-                'dom' => [
+                'html' => [
                     [
                         'replace' => ".auth-panel__button--pm .auth-panel__button__count, .mobile-menu__item--pm .mobile-menu__item__count",
                         'html' => $user->unreadMessages()

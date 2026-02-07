@@ -144,7 +144,7 @@ interface EditPanelData {
 
 const props = defineProps<{
     defaultgroups: number[];
-    permissionsvalues: { [key: number]: any[] };
+    permissionsValues: { [key: number]: any[] };
     permissions: PermissionSection[];
     groups: Models.UserGroup[];
 }>();
@@ -190,7 +190,6 @@ const deletePanel = ref({
 const loaded = ref<boolean>(false);
 const groupsData = ref<Models.UserGroup[]>([...props.groups]);
 const permissionsData = ref<PermissionSection[]>([...props.permissions]);
-const permissionsValuesData = ref({...props.permissionsvalues});
 
 const savePermissions = () => {
     permissionsPanel.value.loading = true;
@@ -208,9 +207,9 @@ const savePermissions = () => {
     $.post(route('admin.permissions.save'), {permissions: JSON.stringify(data)}).done(res => {
         permissionsPanel.value.loading = false;
         permissionsPanel.value.response = res;
-        if (res.status) {
-            window.location.reload();
-        }
+        //if (res.status) {
+        //    window.location.reload();
+        //}
     }).fail((xhr) => {
         permissionsPanel.value.loading = false;
         const error = xhr.responseJSON;
@@ -249,11 +248,11 @@ const saveGroup = () => {
     editPanel.value.loading = true;
     const isEditing = editPanel.value.editing;
     const data = editPanel.value.data;
-    const url = isEditing 
+    const url = isEditing
         ? route('admin.user-groups.update', {user_group: data.id!.toString()})
         : route('admin.user-groups.store');
     const method = isEditing ? 'PUT' : 'POST';
-    
+
     $.ajax({
         url,
         method,
@@ -308,24 +307,27 @@ const deleteGroup = () => {
 };
 
 onMounted(() => {
-    permissionsData.value.forEach(permissionGroup => {
+    const data = [...permissionsData.value];
+    data.forEach(permissionGroup => {
         permissionGroup.items.forEach(permissionItem => {
             permissionItem.values = {};
-            if (permissionsValuesData.value[permissionItem.id]) {
-                permissionsValuesData.value[permissionItem.id].forEach(groupDataItem => {
+            if (props.permissionsValues[permissionItem.id]) {
+                props.permissionsValues[permissionItem.id].forEach(groupDataItem => {
                     permissionItem.values[groupDataItem.group_id] = {
                         id: groupDataItem.id,
-                        value: groupDataItem.option_value
+                        value: !!groupDataItem.option_value
                     };
                 });
             }
             const groupIds = Object.keys(permissionItem.values).map(item => parseInt(item));
             const groupsWithNoValues = groupsData.value.map(group => group.id).filter(x => !groupIds.includes(x));
             groupsWithNoValues.forEach(groupId => {
-                permissionItem.values[groupId] = {value: 0};
+                permissionItem.values[groupId] = {value: false};
             });
         });
     });
+
+    permissionsData.value = data;
     loaded.value = true;
 });
 </script>

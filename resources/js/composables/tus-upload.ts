@@ -60,6 +60,7 @@ export const useTusUpload = (isRadio?: boolean) => {
                 }
             })
             tusUpload.start();
+            console.log(tusUpload);
         })
     }
 

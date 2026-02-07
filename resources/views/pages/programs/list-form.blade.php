@@ -15,7 +15,7 @@
             </div>
         </div>
         <div class="box__inner">
-            <programs-manager :channel='{{$channel}}' :genres='@json($genres)' :programs='@json($programs)' />
+            <programs-order-manager :channel='{{$channel}}' :genres='@json($genres)' :programs='@json($programs)' />
         </div>
     </form>
 @endsection

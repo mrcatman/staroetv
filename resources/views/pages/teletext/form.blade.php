@@ -37,7 +37,7 @@
                     <label for="year" class="input-container__label">Дата</label>
                     <div class="input-container__inner">
                         <div class="input-container__element-outer">
-                            <date-select :date='@json($teletext ? ['year' => $teletext->year, 'month' => $teletext->month, 'day' => $teletext->day] : null)'></date-select>
+                            <date-select name="date" :date='@json($teletext ? ['year' => $teletext->year, 'month' => $teletext->month, 'day' => $teletext->day] : null)'></date-select>
                         </div>
 
                         <span class="input-container__message"></span>
@@ -47,7 +47,7 @@
 
                 <div class="input-container">
                     <label for="quality" class="input-container__label">Качество оцифровки</label>
-                    <div class="input-container__inner">
+                    <div class="input-container__inner input-container__inner--autowidth">
                         <div class="input-container__element-outer">
                             <div class="radio-buttons radio-buttons--tabs">
                                 @for ($i = 1; $i <= 10;$i++)

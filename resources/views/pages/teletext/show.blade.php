@@ -23,15 +23,15 @@
                         <span class="button--dropdown__icon">
                             <i class="fa fa-chevron-down"></i>
                         </span>
-                        <div class="button--dropdown__list">
+                        <div class="menu button--dropdown__list">
                             @if (\App\Helpers\PermissionsHelper::allows('contentapprove'))
-                                <a class="button--dropdown__list__item" data-approve="teletext"
+                                <a class="menu__item button--dropdown__list__item" data-approve="teletext"
                                    data-approve-id="{{$teletext->id}}">{{$teletext->pending ? "Одобрить" : "Скрыть"}}</a>
                             @endif
                             @if ($teletext->can_edit)
-                                <a class="button--dropdown__list__item"
+                                <a class="menu__item button--dropdown__list__item"
                                    href="{{route('teletext.edit', $teletext)}}">Редактировать</a>
-                                <a class="button--dropdown__list__item"
+                                <a class="menu__item button--dropdown__list__item"
                                    data-confirm-form-input-value="{{$teletext->id}}"
                                    data-confirm-form-text="Вы уверены, что хотите удалить этот телетекст?"
                                    data-confirm-form-url="{{route('teletext.delete')}}">Удалить</a>
