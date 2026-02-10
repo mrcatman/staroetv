@@ -211,32 +211,38 @@ class TeletextController extends EntityController
     public function show($id)
     {
         $teletext = Teletext::find($id);
-        if (!$teletext || !count($teletext->pages)) {
+        if (!$teletext) {
             return redirect(route('index'));
         }
 
-        $page = request()->input('page', $teletext->pages[0]);
-        if (!in_array($page, $teletext->pages)) {
-            $page = $teletext->pages[0];
-        }
-
-        $content = $teletext->getPageContent($page);
-        if (request()->has('ajax')) {
-            return $content;
-        }
-
         ViewsHelper::increment($teletext, 'teletext');
-        $related = Teletext::where('id', '!=', $teletext->id)->inRandomOrder()->limit(10)->get();
-
-        $index = array_search($page, $teletext->pages);
-
         $breadcrumb = $this->getBreadcrumb($teletext);
 
-        $navigation = [
-            'prev' => $index > 0 ? $teletext->pages[$index - 1] : $teletext->pages[count($teletext->pages) - 1],
-            'next' => $index < count($teletext->pages) - 1 ? $teletext->pages[$index + 1] : $teletext->pages[0],
-        ];
+        if (!count($teletext->pages)) {
+            $page = null;
+            $content = '';
+            $navigation = null;
 
+        } else {
+            $page = request()->input('page', $teletext->pages[0]);
+            if (!in_array($page, $teletext->pages)) {
+                $page = $teletext->pages[0];
+            }
+
+            $content = $teletext->getPageContent($page);
+            if (request()->has('ajax')) {
+                return $content;
+            }
+
+            $index = array_search($page, $teletext->pages);
+
+            $navigation = [
+                'prev' => $index > 0 ? $teletext->pages[$index - 1] : $teletext->pages[count($teletext->pages) - 1],
+                'next' => $index < count($teletext->pages) - 1 ? $teletext->pages[$index + 1] : $teletext->pages[0],
+            ];
+        }
+
+        $related = Teletext::where('id', '!=', $teletext->id)->inRandomOrder()->limit(10)->get();
         return view("pages.teletext.show", [
             'teletext' => $teletext,
             'breadcrumb' => $breadcrumb,

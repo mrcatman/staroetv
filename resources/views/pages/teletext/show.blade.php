@@ -46,7 +46,6 @@
             <div class="col col--3 teletext-page__content">
                 <div class="inner-page__content">
                     @include('blocks.teletext.player')
-
                     <div class="box">
                         <div class="box__inner">
                             <div class="record-page__bottom">
