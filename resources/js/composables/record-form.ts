@@ -11,7 +11,7 @@ import { useProgramsStore } from "../stores/programs";
 import { useDesignPackagesStore } from "../stores/design-packages";
 import { useCategoriesStore } from "../stores/categories";
 import { useTusUpload } from "./tus-upload";
-import { findByName as findChannelByName } from "../utils/channels";
+import { findByName as findChannelByName, getNameByDate } from "../utils/channels";
 import {generateInterprogramTitle, generateTitle} from "../utils/records/generate-title";
 import { useUploadConfigStore } from "../stores/upload-config";
 import { storeToRefs } from "pinia";
@@ -383,25 +383,11 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
         }
         const channels = data.value.is_radio ? channelsStore.radioStations : channelsStore.channels;
         const channel = channels.find(channel => channel.id === data.value.channel.id);
-        if (!channel?.names.length) {
-            return;
-        }
-        const date = data.value.date;
-        if (date.year <= 0 && date.year_start <= 0) {
-            return;
-        }
-        const recordDate = new Date(date.year > 0 ? date.year : date.year_start, date.month >= 0 ? date.month - 1 : 0, date.day >= 0 ? date.day - 1 : 0);
-        const name = channel.names.filter(name => !!name.date_start).reverse().find(name => {
-            if (!name.name) {
-                return false;
-            }
-            const nameDate = new Date(name.date_start);
-            return nameDate <= recordDate;
-        })
+        const name = getNameByDate(channel, data.value.date);
         if (!name) {
             return;
         }
-        data.value.channel.name = name.name;
+        data.value.channel.name = name;
     }
 
     watch(() => [

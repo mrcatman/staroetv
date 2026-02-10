@@ -1,14 +1,10 @@
 <template>
     <div class="video-cutter">
-        <div class="form__preloader" v-show="isLoading"><img src="/resources/images/ajax.gif"></div>
-        <snackbar ref="snackbar"></snackbar>
-
+        <preloader v-if="loading"/>
+        <snackbar ref="snackbar"/>
         <modal title="Просмотр видео" ref="previewModal">
             <div class="video-cutter__preview" v-if="recordToPreview">
-                <video controls v-if="recordToPreview.use_own_player">
-                    <source :src="recordToPreview.source_path" />
-                </video>
-                <div v-html="recordToPreview.embed_code" v-else class="video-cutter__preview__iframe-container"></div>
+                <player-embed :record="recordToPreview" />
             </div>
         </modal>
 
@@ -25,75 +21,81 @@
                     :class="{'video-cutter__timespan--active': currentCutIndex === index}"
                     v-for="(item, index) in cutResults"
                 ></div>
-                <vue-slider v-model="currentFrame" @change="setFrame" :min="0" :max="cut.frames" :interval="1" />
+                <vue-slider v-model="currentFrame" @change="setFrame" :min="0" :max="cut.frames" :interval="1"/>
+                <video-cutter-thumbnails :cut="cut" :cutResults="cutResults" :fps="fps" v-model:frame="currentFrame" @seek="onSeek"/>
             </div>
             <div class="video-cutter__controls">
-                <div class="video-cutter__controls__buttons">
-                    <div class="video-cutter__controls__row">
-                        <a
-                            class="video-cutter__button"
-                            :class="{'video-cutter__button--disabled': !cutResults[currentCutIndex]}"
-                            @click="toCutStart()"
-                        >
-                            <span class="video-cutter__button__title">К началу ролика</span>
-                            <i class="fa fa-step-backward"></i>
-                        </a>
-                        <a class="video-cutter__button" @click="changeFrame(-1)">
-                            <span class="video-cutter__button__title">На 1 кадр назад</span>
-                            <i class="fa fa-chevron-left"></i>
-                        </a>
-                        <a class="video-cutter__button" @click="playPause()">
-                            <span class="video-cutter__button__title">Плей/пауза</span>
-                            <i v-if="!isPlaying" class="fa fa-play"></i>
-                            <i v-else class="fa fa-pause"></i>
-                        </a>
-                        <a class="video-cutter__button" @click="changeFrame(1)">
-                            <span class="video-cutter__button__title">На 1 кадр вперед</span>
-                            <i class="fa fa-chevron-right"></i>
-                        </a>
-                        <a
-                            class="video-cutter__button"
-                            :class="{'video-cutter__button--disabled': !cutResults[currentCutIndex]}"
-                            @click="toCutEnd()"
-                        >
-                            <span class="video-cutter__button__title">К концу ролика</span>
-                            <i class="fa fa-step-forward"></i>
-                        </a>
+                <div class="video-cutter__controls__inner">
+                    <div class="video-cutter__controls__buttons">
+                        <div class="video-cutter__controls__row">
+                            <a
+                                class="video-cutter__button"
+                                :class="{'video-cutter__button--disabled': !cutResults[currentCutIndex]}"
+                                @click="toCutStart()"
+                            >
+                                <span class="video-cutter__button__title">К началу ролика</span>
+                                <i class="fa fa-step-backward"></i>
+                            </a>
+                            <a class="video-cutter__button" @click="changeFrame(-1)">
+                                <span class="video-cutter__button__title">На 1 кадр назад</span>
+                                <i class="fa fa-chevron-left"></i>
+                            </a>
+                            <a class="video-cutter__button" @click="playPause()">
+                                <span class="video-cutter__button__title">Плей/пауза</span>
+                                <i v-if="!isPlaying" class="fa fa-play"></i>
+                                <i v-else class="fa fa-pause"></i>
+                            </a>
+                            <a class="video-cutter__button" @click="changeFrame(1)">
+                                <span class="video-cutter__button__title">На 1 кадр вперед</span>
+                                <i class="fa fa-chevron-right"></i>
+                            </a>
+                            <a
+                                class="video-cutter__button"
+                                :class="{'video-cutter__button--disabled': !cutResults[currentCutIndex]}"
+                                @click="toCutEnd()"
+                            >
+                                <span class="video-cutter__button__title">К концу ролика</span>
+                                <i class="fa fa-step-forward"></i>
+                            </a>
+                        </div>
+                        <div class="video-cutter__controls__row">
+                            <a class="video-cutter__button" @click="cutLeft()">
+                                <span class="video-cutter__button__title">Назначить начальный кадр</span>
+                                <i class="fa fa-quote-left"></i>
+                            </a>
+                            <a class="video-cutter__button" @click="newCut()">
+                                <span class="video-cutter__button__title">Новый ролик</span>
+                                <i class="fa fa-cut"></i>
+                            </a>
+                            <a class="video-cutter__button" @click="cutRight()">
+                                <span class="video-cutter__button__title">Назначить конечный кадр</span>
+                                <i class="fa fa-quote-right"></i>
+                            </a>
+                        </div>
+
                     </div>
-                    <div class="video-cutter__controls__row">
-                        <a class="video-cutter__button" @click="cutLeft()">
-                            <span class="video-cutter__button__title">Назначить начальный кадр</span>
-                            <i class="fa fa-quote-left"></i>
-                        </a>
-                        <a class="video-cutter__button" @click="newCut()">
-                            <span class="video-cutter__button__title">Новый ролик</span>
-                            <i class="fa fa-cut"></i>
-                        </a>
-                        <a class="video-cutter__button" @click="cutRight()">
-                            <span class="video-cutter__button__title">Назначить конечный кадр</span>
-                            <i class="fa fa-quote-right"></i>
-                        </a>
+                    <div class="video-cutter__controls__time">
+                        <div class="video-cutter__frames">
+                            {{ currentFrame }} / {{ cut.frames }}
+                        </div>
+                    </div>
+                    <div class="video-cutter__save" v-if="!isFFmpegClientMode || FFmpegClientReady">
+                        <a class="button" @click="save()">Сохранить</a>
                     </div>
                 </div>
-                <div class="video-cutter__controls__time">
-                    <div class="video-cutter__frames">
-                        {{ currentFrame }} / {{ cut.frames }}
-                    </div>
-                </div>
-                <div class="video-cutter__save" v-if="!isFFmpegClientMode || FFmpegClientReady">
-                    <a class="button" @click="save()">Сохранить</a>
-                </div>
+                <a
+                    class="button video-cutter__client-mode"
+                    @click="startFFmpegClient()"
+                    v-if="!isFFmpegClientMode"
+                >Перейти в клиентский режим</a>
             </div>
-            <a
-                class="button video-cutter__client-mode"
-                @click="startFFmpegClient()"
-                v-if="!isFFmpegClientMode"
-            >Перейти в клиентский режим</a>
+
 
             <div class="video-cutter__bottom">
                 <div
+                    v-show="progressPercent > 0"
                     class="video-cutter__percent"
-                    :class="{'video-cutter__percent--loading': isMakingVideos}"
+                    :class="{'video-cutter__percent--loading': inProgress}"
                 >
                     <div
                         class="video-cutter__percent__inner"
@@ -102,96 +104,111 @@
                         <span class="video-cutter__percent__text">{{ Math.floor(progressPercent * 100) }} %</span>
                     </div>
                 </div>
-                <div class="video-cutter__status">
+                <div v-show="statusText != ''" class="video-cutter__status">
                     {{ statusText }}
                 </div>
             </div>
         </div>
 
-        <div class="video-cutter__results">
-            <label class="input-container input-container--checkbox">
-                <input type="checkbox" v-model="setOldDate">
-                <div class="input-container--checkbox__element"></div>
-                <div class="input-container__label" v-if="video">Дата загрузки как у оригинального видео</div>
-                <div class="input-container__label" v-else>Изменить дату загрузки на более старую</div>
-            </label>
-            <div class="video-cutter__video-info" v-if="!video || !video.channel">
-                <div class="row row--with-inputs" v-if="channelsStore.channels.length">
-                    <div class="input-container">
-                        <label class="input-container__label">Канал</label>
-                        <div class="input-container__inner">
-                            <select2 v-model="channelId" :options="channelsOptions" />
-                        </div>
-                    </div>
-                    <div class="input-container" v-if="!video">
-                        <label class="input-container__label">Год</label>
-                        <div class="input-container__inner">
-                            <input type="number" class="input" v-model="year"/>
-                        </div>
-                    </div>
+        <div class="form__content video-cutter__results">
+            <div class="row">
+                <div class="col">
+                    <input-container checkbox
+                                     :label="video ? 'Дата загрузки как у оригинального видео' : 'Изменить дату загрузки на более старую'">
+                        <input type="checkbox" v-model="setOldDate">
+                        <div class="input-container--checkbox__element"></div>
+                    </input-container>
                 </div>
+                <div class="col col--auto">
+                    <input-container vertical label="Автопропуск N кадров между роликами">
+                        <input type="number" class="input" v-model="autoskip"/>
+                    </input-container>
+                </div>
+
             </div>
 
-            <div
-                @click="selectCut(index)"
-                class="video-cutter__result"
-                :class="{
+
+            <template v-if="!video">
+                <div class="row">
+                    <div class="col">
+                        <input-container label="Канал">
+                            <select2 v-model="channelId" :options="channelsOptions"/>
+                        </input-container>
+                    </div>
+                    <div class="col">
+                        <input-container label="Год" v-if="!video">
+                            <input type="number" class="input" v-model="year"/>
+                        </input-container>
+                    </div>
+                </div>
+            </template>
+
+            <div class="video-cutter__results__list">
+                <div
+                    @click="selectCut(index)"
+                    class="video-cutter__result"
+                    :class="{
                     'video-cutter__result--active': currentCutIndex === index,
                     'video-cutter__result--with-error': errors[index]
                 }"
-                v-for="(result, index) in cutResults"
-                :key="index"
-            >
-                <a class="video-cutter__result__delete" @click="deleteCut(index)">Удалить</a>
-
-                <select
-                    v-model="result.data.is_advertising"
-                    class="select-classic"
+                    v-for="(result, index) in cutResults"
+                    :key="index"
                 >
-                    <option :value="true">Реклама</option>
-                    <option :value="false">Другое</option>
-                </select>
-
-                <date-select only-years range v-model="result.data" />
-                <commercials-info-editor :record="result.data" />
-
-
-                <div
-                    class="video-cutter__result__additional"
-                    v-if="result.data.is_advertising && adsByBrand[result.data.advertising_brand || ''] && adsByBrand[result.data.advertising_brand || ''].length > 0"
-                >
-                    <div class="video-cutter__related">
-                        <span class="video-cutter__related__title">Похожие ролики</span>
-                        <span
-                            @click="showRelatedRecord(item)"
-                            class="video-cutter__related__item"
-                            v-for="(item, index) in adsByBrand[result.data.advertising_brand || '']"
-                            :key="index"
-                        >
-                            {{ item.title }}
-                        </span>
+                    <a class="video-cutter__result__delete" @click="deleteCut(index)">Удалить</a>
+                    <div v-if="currentCutIndex !== index" class="video-cutter__result__title">
+                        <span class="video-cutter__result__title__range">{{ result.start }}-{{ result.end }}</span>
+                        {{ result.data.title || 'Название не указано' }}
                     </div>
-                </div>
 
-                <div
-                    class="video-cutter__result__additional"
-                    v-if="!result.data.is_advertising && interprogramByType[getInterprogramSearchKey(result)] && interprogramByType[getInterprogramSearchKey(result)].length > 0"
-                >
-                    <div class="video-cutter__related">
-                        <span class="video-cutter__related__title">Похожие ролики</span>
-                        <span
-                            @click="showRelatedRecord(item)"
-                            class="video-cutter__related__item"
-                            v-for="(item, index) in interprogramByType[getInterprogramSearchKey(result)]"
-                            :key="index"
-                        >
-                            {{ item.title }}
-                        </span>
-                    </div>
-                </div>
+                    <template v-else>
 
-                <div class="video-cutter__result__response-container" v-if="errors[index]">
-                    <div class="response response--light response--error">{{ errors[index] }}</div>
+                        <div class="form__content">
+                            <select
+                                v-model="result.data.is_advertising"
+                                class="select-classic"
+                            >
+                                <option :value="true">Реклама</option>
+                                <option :value="false">Заставка, анонс и т.д.</option>
+                            </select>
+
+                            <div class="row">
+                                <div class="col">
+                                    <date-select only-years :range="result.range" v-model="result.data"/>
+                                </div>
+                                <div class="col col--auto">
+                                    <a class="input-container__toggle-button"
+                                       @click="result.range = !result.range">{{
+                                            result.range ? 'Выбрать год' : 'Выбрать диапазон'
+                                        }}
+                                    </a>
+                                </div>
+                            </div>
+
+                            <commercials-info-editor @change="updateSimilar(index)" v-if="result.data.is_advertising" :record="result.data"
+                                                     auto-update-title hide-additional/>
+                            <interprogram-info-editor v-else @change="updateSimilar(index)" :record="result.data" :channel-id="channelId"
+                                                      auto-update-title/>
+
+                            <div
+                                class="video-cutter__result__additional"
+                                v-if="result.similar?.length"
+                            >
+                                <div class="video-cutter__similar">
+                                    <span class="video-cutter__similar__title">Похожие ролики</span>
+                                    <span
+                                        @click="showSimilarRecord(item)"
+                                        class="video-cutter__similar__item"
+                                        v-for="(item, index) in result.similar"
+                                        :key="index"
+                                    >{{ item.title }}</span>
+                                </div>
+                            </div>
+
+                            <div class="video-cutter__result__response-container" v-if="errors[index]">
+                                <div class="response response--light response--error">{{ errors[index] }}</div>
+                            </div>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>
@@ -204,44 +221,71 @@
     display: flex;
     justify-content: space-between;
     position: relative;
+    gap: var(--col-margin);
+
     &__client-mode {
         margin: .5em 0 1.75em;
     }
+
     &__inner {
         width: 100%;
         max-width: 50%;
+        display: flex;
+        flex-direction: column;
+        gap: var(--col-margin);
     }
+
     &__results {
         flex: 1;
         text-align: left;
-        margin: 0 0 0 2.5em;
-        border-left: 1px solid var(--border-color);
-        padding: 0;
         max-height: 72.5vh;
         overflow: auto;
+        overflow-x: visible;
         font-size: .875em;
+
+        &__list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: var(--col-margin);
+        }
     }
+
     &__element {
         width: 100%;
     }
+
     .vue-slider-process {
         background: var(--primary);
     }
+
     &__controls {
         font-size: .875em;
         user-select: none;
-        margin: .5em auto;
-        border: 1px solid var(--border-color);
+        background: var(--bg-darker);
+        box-shadow: var(--element-box-shadow);
+        border-radius: var(--border-radius-standard);
         padding: 1em;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        &__row {
-            margin: 0 0 .5em;
+        gap: var(--col-margin);
+
+        &__inner {
+            gap: var(--col-margin);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
         }
 
         &__buttons {
-            margin: 0 0 -.5em;
+            display: flex;
+            flex-direction: column;
+            gap: .5em;
+        }
+
+        &__row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5em;
         }
     }
 
@@ -252,21 +296,23 @@
         padding: .25em 0;
         width: 2em;
         display: inline-block;
-        background: var(--bg-darker);
-        margin: 0 .125em;
+        background: var(--bg-darker-2);
+        border-radius: var(--border-radius-small);
+        box-shadow: var(--button-box-shadow);
         cursor: pointer;
         position: relative;
+
         &:hover {
-            z-index: 10;
-            filter: brightness(1.1);
+            color: var(--primary);
         }
+
         &--disabled, &--disabled:hover {
-            filter: brightness(1);
             background: var(--bg-darker);
-            color:  var(--text-lightest);
+            color: var(--text-lightest);
             cursor: default;
             opacity: .5;
         }
+
         &__title {
             font-size: .65em;
             position: absolute;
@@ -284,52 +330,61 @@
             display: inline-block;
         }
     }
+
     &__slider {
         position: relative;
         padding: 0 0 1.25em;
     }
+
     &__timespan {
         background: var(--bg-darker-2);
         height: .5em;
         position: absolute;
         bottom: .25em;
         cursor: pointer;
+
         &--active {
-            background: var(--primary)!important;
+            background: var(--primary) !important;
 
         }
+
         &:nth-of-type(2n) {
             background: var(--bg-darkest);
         }
     }
 
     &__result {
-        padding: 0 1em;
-        border-bottom: 1px solid var(--border-color);
+        padding: 1em;
         position: relative;
-        .input-container__label {
-            font-size: 1em;
-        }
+        background: var(--bg-darker);
+        box-shadow: var(--element-box-shadow);
+
         &--active {
-            background: var(--box-color-hover);
+            background: var(--bg-darker-2);
         }
+
         &--with-error {
             border: 1px solid #f00;
         }
+
+        &__title {
+            cursor: pointer;
+            font-size: 1.3125em;
+            font-weight: 600;
+
+            &__range {
+                opacity: .75;
+                font-weight: normal;
+            }
+        }
+
         &__response-container {
             font-size: 1.25em;
             font-weight: bold;
             padding: .5em .5em 1em;
         }
-        &__additional .row {
-            height: 0;
-            overflow: hidden;
-            transition: all .25s;
-        }
 
-        &--active &__additional .row {
-            height: 4em;
-        }
+
         &__delete {
             position: absolute;
             background: var(--box-color-dark);
@@ -337,21 +392,24 @@
             padding: .25em .5em;
             font-size: 1.125em;
             right: .25em;
-            top: .25em;
+            top: .5em;
             z-index: 100;
             border-radius: var(--border-radius-small);
             cursor: pointer;
         }
 
     }
+
     &__frames {
         font-size: 2em;
     }
+
     &__percent {
         background: var(--bg-darker);
         padding: 0;
         font-size: 1.125em;
         overflow: hidden;
+
         &__inner {
             position: relative;
             font-size: 1.25em;
@@ -362,6 +420,7 @@
             white-space: nowrap;
             transition: all .25s;
         }
+
         &__text {
             z-index: 1;
             position: relative;
@@ -389,7 +448,8 @@
         padding: .5em;
         font-size: 1.125em;
     }
-    &__related {
+
+    &__similar {
         font-size: 1.125em;
         margin: 0 .5em .5em;
 
@@ -403,6 +463,7 @@
             margin: 0 0 0 .5em;
         }
     }
+
     &__preview {
         width: 100%;
         position: relative;
@@ -424,19 +485,24 @@
 }
 </style>
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/antd.css'
 
 import Snackbar from './Snackbar.vue';
 import Modal from './Modal.vue';
+import CommercialsInfoEditor from "../components/records-manager/CommercialsInfoEditor.vue";
+import DateSelect from "../components/DateSelect.vue";
+import InterprogramInfoEditor from "../components/records-manager/InterprogramInfoEditor.vue";
+import Preloader from "../components/Preloader.vue";
 
 import { useChannelsStore } from "../stores/channels";
 import { useCategoriesStore } from "../stores/categories";
 import { useDesignPackagesStore } from "../stores/design-packages";
 import { useFFmpegClient } from "../composables/ffmpeg-client";
-import CommercialsInfoEditor from "@/components/records-manager/CommercialsInfoEditor.vue";
-import DateSelect from "../components/DateSelect.vue";
+import InputContainer from "@/components/InputContainer.vue";
+import VideoCutterThumbnails from "@/components/video-cutter/VideoCutterThumbnails.vue";
+import PlayerEmbed from "@/components/PlayerEmbed.vue";
 
 interface CutData {
     is_advertising: boolean;
@@ -452,18 +518,13 @@ interface CutData {
     year_end?: number;
 }
 
-interface CutResult {
+export interface CutResult {
     start: number;
     end?: number;
     data: CutData;
     video_id?: number;
 }
 
-interface Category {
-    id: number;
-    name: string;
-    type: string;
-}
 
 const props = defineProps<{
     cut: Models.VideoCut;
@@ -478,36 +539,31 @@ const channelsStore = useChannelsStore();
 const categoriesStore = useCategoriesStore();
 const designPackagesStore = useDesignPackagesStore();
 
-
-
 const video = ref<HTMLVideoElement | null>();
 const snackbar = ref<InstanceType<typeof Snackbar>>();
 const previewModal = ref<InstanceType<typeof Modal>>();
 
-// State
-const setOldDate = ref(false);
-const isLoading = ref(false);
+const loading = ref(false);
 
-const isPlaying = ref(false);
 const currentFrame = ref(0);
 const currentCutIndex = ref(-1);
-const cutResults = ref<CutResult[]>([]);
-const isMakingVideos = ref(false);
+const cutResults = ref<CutResult[]>(props.cut.data ?? []);
+
+const statusText = ref("");
+const inProgress = ref(false);
 const progressPercent = ref(0);
-const errors = ref<Record<number, string>>({});
-
-const year = ref(props.cut.year);
-
-
-
-const videos = ref<any[]>([]);
-const adsByBrand = ref<Record<string, Models.Record[]>>({});
-const interprogramByType = ref<Record<string, Models.Record[]>>({});
-const recordToPreview = ref<Models.Record | null>(null);
 const restarted = ref(false);
+const errors = ref<Record<number, string>>({});
+const videos = ref<any[]>([]);
 
+const recordToPreview = ref<Models.Record | null>(null);
+
+const setOldDate = ref(false);
 const channelId = ref<number>(props.channel.id ?? props.cut.channel_id);
+const year = ref(props.cut.year);
+const autoskip = ref(0);
 
+const isPlaying = ref(false);
 
 const getYear = computed(() => {
     if (year.value) {
@@ -520,75 +576,21 @@ const getYear = computed(() => {
 });
 
 const channelsOptions = computed(() => {
-    return channelsStore.channels.value.map(channel => ({
+    return channelsStore.channels.map(channel => ({
         id: channel.id,
         text: channel.name
     }));
 });
 
-const designPackages = computed(() => {
-    return designPackagesStore.packages[channelId.value]
-});
-
-// Watchers
 watch(() => channelId.value, () => {
     designPackagesStore.load(channelId.value);
 });
 
-// Methods
-const showRelatedRecord = (record: Models.Record) => {
+const showSimilarRecord = (record: Models.Record) => {
     recordToPreview.value = record;
     previewModal.value?.show();
 };
 
-const onChangeInterprogramPackageId = (record: CutResult) => {
-    if (!record.data.interprogram_package_id || record.data.interprogram_package_id <= 0) {
-        return;
-    }
-    if (!record.data.year) {
-        const packageItem = designPackagesStore.find(record.data.interprogram_package_id);
-        if (packageItem) {
-            console.log(packageItem);
-        }
-    }
-    loadInterprogramRecords(record);
-};
-
-const getInterprogramSearchKey = (record: CutResult): string => {
-    return record.data.interprogram_package_id
-        ? `${record.data.interprogram_package_id}_${record.data.interprogram_type}`
-        : `${channelId.value}_${record.data.year}_${record.data.interprogram_type}`;
-};
-
-const loadInterprogramRecords = (record: CutResult) => {
-    if (!record.data.interprogram_type || !channelId.value) {
-        return;
-    }
-    const key = getInterprogramSearchKey(record);
-    if (!interprogramByType.value[key]) {
-        const data: any = { is_radio: false, is_interprogram: true };
-        if (record.data.interprogram_package_id) {
-            data.interprogram_package_id = record.data.interprogram_package_id;
-        } else {
-            if (record.data.year) {
-                data.year = record.data.year;
-            }
-        }
-        data.interprogram_type = record.data.interprogram_type;
-        data.channel_id = channelId.value;
-        $.post('/records/search', data).then((res: any) => {
-            interprogramByType.value[key] = res.data.records.data;
-        });
-    }
-};
-
-const loadBrandRecords = (name: string) => {
-    if (!adsByBrand.value[name]) {
-        $.post('/records/search', { is_radio: false, is_advertising: true, search: name }).then((res: any) => {
-            adsByBrand.value[name] = res.data.records.data;
-        });
-    }
-};
 
 const getNextBrand = (): string => {
     if (!props.video) {
@@ -613,15 +615,43 @@ const getNextBrand = (): string => {
     return "";
 };
 
+const updateSimilar = (index) => {
+    const cutResult = cutResults.value[index];
+    const year = cutResult.data.year_start > 0 ? cutResult.data.year_start : cutResult.data.year;
+    const data = cutResult.data.is_advertising ? {
+        type: 'advertising',
+        advertising: {
+            brand: cutResult.data.advertising_brand,
+        },
+        date: {
+            year
+        }
+    } : {
+        type: 'interprogram',
+        channel: {
+            id: channelId.value
+        },
+        interprogram: {
+            type: cutResult.data.interprogram_type,
+        },
+        date: {
+            year
+        }
+    }
+    $.get(route('records.similar', data), (response) => {
+        cutResults.value[index].similar = response.data;
+    });
+}
+
 const deleteCut = (index: number) => {
     if (confirm("Вы уверены?")) {
         cutResults.value.splice(index, 1);
     }
 };
 
-const startMakingVideos = async (convertIndexes: number[]) => {
+const startCutting = async (convertIndexes: number[]) => {
     restarted.value = false;
-    isMakingVideos.value = true;
+    inProgress.value = true;
     progressPercent.value = 0;
 
     const makeVideo = async (index: number, videoIndex: number, dataOnly: boolean = false): Promise<boolean> => {
@@ -629,18 +659,17 @@ const startMakingVideos = async (convertIndexes: number[]) => {
             let converted: Uint8Array | null = null;
             if (!dataOnly) {
                 statusText.value = `Конвертация видео ${videoIndex} из ${indexes.length}`;
+
                 const from = cutResults.value[index].start / fps;
                 const to = (cutResults.value[index].end || frames) / fps;
 
-                await ffmpeg.run(`-i source.mp4 -vcodec libx264 -acodec copy -threads 5 -ss ${from} -to ${to} output_${index}.mp4`);
-                converted = await ffmpeg.read(`output_${index}.mp4`);
-                videos.value[index] = converted;
+                videos.value[index] = await FFMpegClientConvert(from, to, index);
             }
 
             const fd = new FormData();
             if (!dataOnly) {
                 fd.append('set_old_date', setOldDate.value ? '1' : '0');
-                fd.append('video', new Blob([converted], { type: "video/mp4" }));
+                fd.append('video', new Blob([converted], {type: "video/mp4"}));
                 statusText.value = `Загрузка на сервер видео ${videoIndex} из ${indexes.length}`;
             } else {
                 statusText.value = `Обновление информации о видео ${videoIndex} из ${indexes.length}`;
@@ -649,7 +678,7 @@ const startMakingVideos = async (convertIndexes: number[]) => {
             return new Promise<boolean>((resolve) => {
                 $.ajax({
                     type: 'POST',
-                    url: route('cut.make-video', props.cut.id, index),
+                    url: route('cut.make-video', {id: props.cut.id, index}),
                     data: fd,
                     processData: false,
                     contentType: false
@@ -677,7 +706,7 @@ const startMakingVideos = async (convertIndexes: number[]) => {
             }
 
             return new Promise<boolean>((resolve) => {
-                $.post('/cut/' + cut.value.id + '/make-video/' + index, {
+                $.post(route('cut.make-video', {id: props.cut.id, index}), {
                     data_only: dataOnly
                 }).done((res: any) => {
                     if (res.status) {
@@ -698,12 +727,11 @@ const startMakingVideos = async (convertIndexes: number[]) => {
 
     let hasErrors = false;
     let videoIndex = 1;
+
     const indexes: number[] = cutResults.value.map((_, i) => i);
 
-    console.log(indexes, convertIndexes);
-
     for (const i in indexes) {
-        if (isMakingVideos.value) {
+        if (inProgress.value) {
             const index = indexes[i];
             if (!restarted.value) {
                 const dataOnly = convertIndexes.indexOf(index) === -1;
@@ -714,7 +742,7 @@ const startMakingVideos = async (convertIndexes: number[]) => {
                     statusText.value = `Ошибка в видео ${videoIndex}`;
                     hasErrors = true;
                     progressPercent.value = 0;
-                    isMakingVideos.value = false;
+                    inProgress.value = false;
                 }
                 videoIndex++;
             }
@@ -724,7 +752,7 @@ const startMakingVideos = async (convertIndexes: number[]) => {
     if (!hasErrors) {
         statusText.value = `Готово`;
         progressPercent.value = 1;
-        isMakingVideos.value = false;
+        inProgress.value = false;
     }
 };
 
@@ -743,7 +771,7 @@ const toCutEnd = () => {
 };
 
 const save = () => {
-    isLoading.value = true;
+    loading.value = true;
     cutResults.value.forEach(cutResult => {
         if (!cutResult.data.year) {
             if (props.video) {
@@ -754,17 +782,17 @@ const save = () => {
         }
     });
 
-    $.post('/cut/' + cut.value.id, {
+    $.post(route('cut.save', props.cut.id), {
         cuts: cutResults.value,
         year: getYear.value,
         channel_id: channelId.value
     }).done((res: any) => {
         snackbar.value?.show(res);
-        isLoading.value = false;
+        loading.value = false;
         if (res.status) {
             errors.value = {};
             restarted.value = true;
-            startMakingVideos(res.data.indexes);
+            startCutting(res.data.indexes);
         } else {
             errors.value = res.data.errors;
         }
@@ -772,6 +800,12 @@ const save = () => {
 };
 
 const selectCut = (index: number) => {
+    if (!cutResults.value.length) {
+        return;
+    }
+    if (index > cutResults.value.length - 1) {
+        index = cutResults.value.length - 1;
+    }
     if (currentCutIndex.value === index) {
         return;
     }
@@ -782,19 +816,29 @@ const selectCut = (index: number) => {
     }
 };
 
+const onSeek = (time: number) => {
+    if (video.value) {
+        video.value.currentTime = time;
+    }
+}
+
 const getNextData = (): CutData => {
     if (cutResults.value.length === 0 || cutResults.value[cutResults.value.length - 1].data.is_advertising) {
         return {
             is_advertising: true,
             advertising_brand: getNextBrand(),
             year: props.video ? props.video.year : getYear.value,
+            short_description: '',
+            interprogram_package_id: -1,
         };
     } else {
         return {
             is_advertising: false,
             interprogram_type: cutResults.value[cutResults.value.length - 1].data.interprogram_type,
-            interprogram_package_id: cutResults.value[cutResults.value.length - 1].data.interprogram_package_id,
-            year: props.video ? props.video.year : getYear.value
+            interprogram_package_id: cutResults.value[cutResults.value.length - 1].data.interprogram_package_id || -1,
+            year: props.video ? props.video.year : getYear.value,
+            advertising_brand: '',
+            short_description: '',
         };
     }
 };
@@ -806,6 +850,7 @@ const newCut = () => {
             end: currentFrame.value,
             data: getNextData()
         });
+        currentCutIndex.value = cutResults.value.length - 1;
         return;
     }
 
@@ -814,7 +859,7 @@ const newCut = () => {
         .sort((a, b) => (b.end || 0) - (a.end || 0));
 
     if (sortedCuts.length > 0) {
-        const start = sortedCuts[0].end! + 1;
+        const start = sortedCuts[0].end! + autoskip.value + 1;
         cutResults.value.push({
             start,
             end: currentFrame.value,
@@ -871,6 +916,7 @@ const setFrame = (frame: number) => {
     if (video.value) {
         video.value.currentTime = (frame / fps);
     }
+    currentFrame.value = frame;
 };
 
 const changeFrame = (count: number) => {
@@ -896,28 +942,85 @@ const playPause = () => {
 }
 
 onMounted(() => {
-
     if (video.value) {
         video.value.addEventListener('timeupdate', () => {
-            currentFrame.value = Math.floor(video.value!.currentTime * fps);
+            if (isPlaying.value) {
+                currentFrame.value = Math.floor(video.value!.currentTime * fps);
+            }
         });
     }
 
-    if (!props.video) {
-        channelsStore.load();
-    }
+    channelsStore.load();
     categoriesStore.load();
     channelId.value && designPackagesStore.load(channelId.value);
 });
 
+
 const {
     init: initFFmpegClient,
-    statusText: FFmpegClientStatusText,
     ready: FFmpegClientReady,
-} = useFFmpegClient();
+    convert: FFMpegClientConvert,
+} = useFFmpegClient((text: string) => {
+    statusText.value = text;
+});
+
 const isFFmpegClientMode = ref(false);
 const startFFmpegClient = () => {
     isFFmpegClientMode.value = true;
     initFFmpegClient(props.cut.download_path);
 }
+
+let keyInterval: any = null;
+let currentKey = null;
+
+const handleKey = () => {
+    switch (currentKey) {
+        case 'ArrowLeft':
+            if (currentFrame.value > 0) {
+                currentFrame.value--;
+            }
+            break;
+        case 'ArrowRight':
+            if (currentFrame.value < frames - 1) {
+                currentFrame.value++;
+            }
+            break;
+        case 'ArrowDown':
+            currentFrame.value = currentFrame.value + fps < frames ? currentFrame.value + fps : frames;
+            break;
+        case 'ArrowUp':
+            currentFrame.value = currentFrame.value - fps > 0 ? currentFrame.value - fps : 0;
+            break;
+    }
+
+    setFrame(currentFrame.value);
+}
+
+const onKeyDown = (e: KeyboardEvent) => {
+    if (e.target?.classList.contains('input') || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+        return;
+    }
+    currentKey = e.key;
+    if (!keyInterval) {
+        const timeout = ['ArrowLeft', 'ArrowRight'].includes(currentKey) ? 100 : 1000;
+        keyInterval = setInterval(handleKey, timeout);
+        handleKey();
+    }
+
+    e.preventDefault();
+}
+
+const onKeyUp = () => {
+    clearInterval(keyInterval);
+    keyInterval = null;
+}
+
+onMounted(() => {
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+});
+onBeforeUnmount(() => {
+    window.removeEventListener('keydown', onKeyDown);
+    window.removeEventListener('keyup', onKeyUp);
+});
 </script>

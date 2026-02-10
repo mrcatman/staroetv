@@ -321,9 +321,9 @@ class TeletextController extends EntityController
             ]);
         }
 
-        $data['year'] = $data['date']['year'] ?? null;
-        $data['month'] = $data['date']['month'] ?? null;
-        $data['day'] = $data['date']['day'] ?? null;
+        $data['year'] = $data['date']['year'] && $data['date']['year'] > 0 ? $data['date']['year'] : null;
+        $data['month'] = $data['date']['month'] && $data['date']['month'] > 0 ? $data['date']['month'] : null;
+        $data['day'] = $data['date']['day'] && $data['date']['day'] > 0 ? $data['date']['day'] : null;
         unset($data['date']);
 
         $teletext->fill($data);

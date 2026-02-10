@@ -1292,7 +1292,7 @@ class RecordsController extends EntityController
             $q->where('title', 'LIKE', '%' . request()->input('title') . '%');
             switch ($type) {
                 case 'programs':
-                    $q->orWhere(function ($q) {
+                    $q->where(function ($q) {
                         $q->where(['program_id' => request()->input('program.id')]);
                         $q->where(['channel_id' => request()->input('channel.id')]);
                         $q->where(['year' => request()->input('date.year')]);
@@ -1307,8 +1307,17 @@ class RecordsController extends EntityController
                 case 'advertising':
                     $q->where(function ($q) {
                         $q->where(['is_advertising' => true]);
-                        $q->where(['advertising_brand' => request()->input('advertising.brand')]);
-                        $q->where(['year_start' => request()->input('date.year_start')]);
+                        $q->where(function ($q) {
+                            $q->where('advertising_brand', 'LIKE', '%' . request()->input('advertising.brand'). '%');
+                            $q->orWhere('title', 'LIKE', '%' . request()->input('advertising.brand'). '%');
+                        });
+                        if (request()->has('date.year_start') || request()->has('date.year')) {
+                            $q->where(function ($q) {
+                                $year = request()->input('date.year_start', request()->input('date.year'));
+                                $q->where(['year_start' => $year]);
+                                $q->orWhere(['year' => $year]);
+                            });
+                        }
                     });
                     break;
                 default:
@@ -1316,6 +1325,7 @@ class RecordsController extends EntityController
             }
         });
         $similar = $similar->get();
+        $similar->each->append(['source_hls', 'source_telegram']);
         return [
             'status' => 1,
             'data' => $similar

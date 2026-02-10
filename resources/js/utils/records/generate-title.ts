@@ -30,7 +30,7 @@ const generateDate = (data: RecordsUploadData) => {
     return date;
 }
 
-export const generateTitle = (data: RecordsUploadData) => {
+export const generateTitle = (data: RecordsUploadData, interprogram?: boolean) => {
     let title;
     if (data.type === 'advertising') {
         title = data.advertising.brand;
@@ -45,8 +45,8 @@ export const generateTitle = (data: RecordsUploadData) => {
         return title;
     }
 
-    const channel = !data.channel.unknown && data.channel.name?.length ? data.channel.name : 'неизвестный канал';
-    let program = !data.program.unknown && data.program.name?.length ? data.program.name : 'неизвестная программа';
+    const channel = data.channel && !data.channel.unknown && data.channel.name?.length ? data.channel.name : 'неизвестный канал';
+    let program = data.program && !data.program.unknown && data.program.name?.length ? data.program.name : (interprogram ? '?' : 'неизвестная программа');
 
     if (data.type === 'program-design') {
         program = `заставка программы "${program}"`;
@@ -60,12 +60,12 @@ export const generateTitle = (data: RecordsUploadData) => {
 
 export const generateInterprogramTitle = (data: RecordsUploadData, category?: Models.Genre) => {
     if (!category) {
-        return generateTitle(data);
+        return generateTitle(data, true);
     }
 
     let title = category.name!;
 
-    let channelAndYearText = `(${data.channel.name}, ${generateDate(data)})`;
+    let channelAndYearText = `(${data.channel?.name || 'Неизвестный канал'}, ${generateDate(data)})`;
 
     if (category.name_pattern) {
         title = category.name_pattern.replace(/[\[{(].*?[\]})]/g, (property) => {

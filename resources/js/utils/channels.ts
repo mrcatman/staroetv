@@ -105,3 +105,24 @@ export const findByName = (name: string, list: Models.Channel[]): {
         name: null
     };
 }
+
+export const getNameByDate = (channel: Models.Channel, date: Common.Date): string | null => {
+    if (!channel?.names.length) {
+        return null;
+    }
+    if (date.year <= 0 && date.year_start <= 0) {
+        return null;
+    }
+    const recordDate = new Date(date.year > 0 ? date.year : date.year_start, date.month >= 0 ? date.month - 1 : 0, date.day >= 0 ? date.day - 1 : 0);
+    const name = channel.names.filter(name => !!name.date_start).reverse().find(name => {
+        if (!name.name) {
+            return false;
+        }
+        const nameDate = new Date(name.date_start);
+        return nameDate <= recordDate;
+    })
+    if (!name) {
+        return null;
+    }
+    return name.name;
+}

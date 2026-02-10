@@ -328,6 +328,7 @@ class VideoCutController extends Controller {
                 $video->is_advertising = true;
                 $video->advertising_type = isset($data['advertising_type']) && $data['advertising_type'] > 0 ? $data['advertising_type'] : null;
                 $video->advertising_brand = $data['advertising_brand'];
+                $video->advertising_category = $data['advertising_category'];
                 $video->title = $data['advertising_brand'].' ('.$year.')';
                 $video->short_description = isset($data['short_description']) ? $data['short_description'] : "";
                 $video->description = isset($data['short_description']) ? $data['short_description'] : "";

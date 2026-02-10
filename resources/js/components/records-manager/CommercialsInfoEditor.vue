@@ -14,8 +14,9 @@
         vertical
         with-button
     >
-        <input class="input" readonly v-model="data.title"/>
-        <a @click="updateTitle()"
+        <input class="input" :placeholder="autoUpdateTitle ? 'Заголовок сгенерируется автоматически' : 'Заголовок'"
+               readonly v-model="data.title"/>
+        <a @click="updateTitle()" v-if="!autoUpdateTitle"
            class="input-container__button">
             <span class="tooltip">Обновить заголовок</span>
             <i class="fa fa-sync"></i>
@@ -53,41 +54,43 @@
         </template>
     </input-container>
 
-    <div class="horisontal-delimiter"></div>
-    <input-container
-        vertical
-        label="Описание"
-    >
-        <textarea class="input input--textarea" v-model="data.description"/>
-    </input-container>
-    <input-container vertical label="Тип рекламы">
-        <select2
-            theme="default"
-            :options="categoriesStore.advertisingTypes"
-            v-model="data.advertising_type"
-        />
-    </input-container>
-    <div class="row">
-        <div class="col">
-            <input-container vertical label="Город/регион">
-                <select2
-                    theme="default"
-                    :customOptions="regionsAutocompleteOptions"
-                    v-model="data.region"
-                />
-            </input-container>
+    <a class="button" v-if="hideAdditional" @click="hideAdditional = false">Показать доп. поля</a>
+    <template v-else>
+        <div class="horisontal-delimiter"></div>
+        <input-container
+            vertical
+            label="Описание"
+        >
+            <textarea class="input input--textarea" v-model="data.description"/>
+        </input-container>
+        <input-container vertical label="Тип рекламы">
+            <select2
+                theme="default"
+                :options="categoriesStore.advertisingTypes"
+                v-model="data.advertising_type"
+            />
+        </input-container>
+        <div class="row">
+            <div class="col">
+                <input-container vertical label="Город/регион">
+                    <select2
+                        theme="default"
+                        :customOptions="regionsAutocompleteOptions"
+                        v-model="data.region"
+                    />
+                </input-container>
+            </div>
+            <div class="col">
+                <input-container vertical label="Страна">
+                    <select2
+                        theme="default"
+                        :customOptions="countriesAutocompleteOptions"
+                        v-model="data.country"
+                    />
+                </input-container>
+            </div>
         </div>
-        <div class="col">
-            <input-container vertical label="Страна">
-                <select2
-                    theme="default"
-                    :customOptions="countriesAutocompleteOptions"
-                    v-model="data.country"
-                />
-            </input-container>
-        </div>
-    </div>
-
+    </template>
 
 </template>
 <script setup lang="ts">
@@ -96,19 +99,27 @@ import { autocompleteOptions } from "@/utils/autocomplete";
 import { useCategoriesStore } from "@/stores/categories";
 
 import InputContainer from "@/components/InputContainer.vue";
+import { generateTitle } from "@/utils/records/generate-title";
 
 const categoriesStore = useCategoriesStore();
 categoriesStore.load();
 
 const props = defineProps<{
     record: Models.Record,
+    autoUpdateTitle?: boolean,
+    hideAdditional?: boolean,
 }>();
+const hideAdditional = ref(props.hideAdditional);
 
 const model = defineModel<Models.Record>();
 const data = ref<Models.Record>(props.record ?? model.value);
 if (!data.value.advertising_type) {
     data.value.advertising_type = -1;
 }
+
+const emit = defineEmits<{
+    (e: 'change'): void
+}>();
 
 watch(() => data, () => {
     model.value = data.value;
@@ -119,7 +130,19 @@ watch(() => model, () => {
 }, {deep: true})
 
 const updateTitle = () => {
-    data.value.title = `${data.value.advertising_brand} (${data.value.year}) ${data.value.short_description}${data.value.region ? ` (${data.value.region})` : (data.value.country ? ` (${data.value.country})` : '')}`;
+    const date = {
+        year: data.value.year,
+        year_start: data.value.year_start,
+        year_end: data.value.year_end,
+    }
+    data.value.title = generateTitle({
+        type: 'advertising',
+        advertising: {
+            brand: data.value.advertising_brand,
+        },
+        short_description: data.value.short_description,
+        date,
+    })
 }
 
 const regionsAutocompleteOptions = autocompleteOptions(data.value.region, () => {
@@ -133,4 +156,23 @@ const categoriesAutocompleteOptions = autocompleteOptions(data.value.advertising
     return route('records.autocomplete.commercials-categories', {advertising_type: data.value.advertising_type});
 });
 
+watch(() => [
+    data.value.advertising_category,
+    data.value.advertising_brand,
+    data.value.short_description,
+    data.value.region,
+    data.value.country,
+    data.value.year,
+    data.value.year_start,
+    data.value.year_end,
+], () => {
+    emit('change');
+    if (props.autoUpdateTitle) {
+        updateTitle();
+    }
+})
+
+if (props.autoUpdateTitle) {
+    updateTitle();
+}
 </script>

@@ -5,7 +5,7 @@ export const useDesignPackagesStore = defineStore('DesignPackages', () => {
 
     const designPackages = ref<{
         [key: number]: Models.DesignPackage[]
-    }>();
+    }>({});
 
     const load = (channelId: number) => {
         if (designPackages[channelId]) {
@@ -14,12 +14,12 @@ export const useDesignPackagesStore = defineStore('DesignPackages', () => {
 
         // @ts-ignore
         $.get(route('design.channels.ajax', channelId)).done(res => {
-            designPackages[channelId] = res.data.design_packages;
+            designPackages.value[channelId] = res.data.design_packages;
         })
     }
 
     const find = (id: number, channelId: number) => {
-        return designPackages[channelId]?.find((designPackage: Models.DesignPackage) => designPackage.id === id);
+        return designPackages.value[channelId]?.find((designPackage: Models.DesignPackage) => designPackage.id === id);
     }
 
     return {

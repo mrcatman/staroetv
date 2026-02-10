@@ -1,15 +1,14 @@
 import { ref } from "vue";
 
-export const useFFmpegClient = () => {
+export const useFFmpegClient = (onStatusTextChange: (text: string) => void) => {
 
     let ffmpegInstance;
 
-    const statusText = ref<string>('');
     const ready = ref<boolean>(false);
 
     const init = async (url: string) => {
         const script = document.createElement('script');
-        statusText.value = `Загрузка ffmpeg...`;
+        onStatusTextChange(`Загрузка ffmpeg...`);
 
         script.onload = async () => {
             const FFmpeg = (window as any).FFmpeg;
@@ -21,10 +20,10 @@ export const useFFmpegClient = () => {
                 },
             });
 
-            statusText.value = `Инициализация ffmpeg...`;
+            onStatusTextChange(`Инициализация ffmpeg...`);
             await ffmpegInstance.load();
 
-            statusText.value = `Загрузка файла видео...`;
+            onStatusTextChange(`Загрузка файла видео...`);
             const xhr = new XMLHttpRequest();
             xhr.open('GET', url, true);
 
@@ -35,7 +34,7 @@ export const useFFmpegClient = () => {
                     await ffmpegInstance.write("source.mp4", videoData);
 
                     ready.value = true;
-                    statusText.value = `Готово к запуску`;
+                    onStatusTextChange(`Готово к запуску`);
                 }
             };
             xhr.send();
@@ -45,9 +44,14 @@ export const useFFmpegClient = () => {
         document.head.appendChild(script);
     };
 
+    const convert = async (from: number, to: number, index: number) => {
+        await ffmpegInstance.run(`-i source.mp4 -vcodec libx264 -acodec copy -threads 5 -ss ${from} -to ${to} output_${index}.mp4`);
+        return await ffmpegInstance.read(`output_${index}.mp4`);
+    }
+
     return {
         init,
-        statusText,
+        convert,
         ready
     }
 

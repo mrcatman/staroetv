@@ -137,7 +137,7 @@ const onMonthChange = async () => {
         return;
     }
     await nextTick();
-    $(dayRef.value.select2).select2('open');
+    $(dayRef.value?.select2).select2('open');
 }
 
 const onYearChange = async () => {
@@ -146,7 +146,7 @@ const onYearChange = async () => {
         return;
     }
     await nextTick();
-    $(monthRef.value.select2).select2('open');
+    $(monthRef.value?.select2).select2('open');
 }
 
 const onYearStartChange = () => {

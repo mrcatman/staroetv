@@ -61,9 +61,14 @@ export const useCategoriesStore = defineStore('categories', () => {
         return types;
     });
 
+    const findById = (id: number) => {
+        return categories.value.find(category => category.id === id);
+    }
+
     return {
         load,
         categories,
+        findById,
 
         otherTypes,
         interprogramTypes,

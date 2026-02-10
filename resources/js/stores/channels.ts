@@ -45,11 +45,16 @@ export const useChannelsStore = defineStore('channels', () => {
         });
     }
 
+    const findById = (id: number) => {
+        return channels.value.find(channel => channel.id === id);
+    }
+
     return {
         load,
         loading,
         channels,
         radioStations,
+        findById
     }
 
 });
