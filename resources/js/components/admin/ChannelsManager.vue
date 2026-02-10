@@ -258,7 +258,7 @@ const saveChannelPromise = async (data: ChannelWithIndex): Promise<Forms.Respons
         $.post(route('channels.update', data.id), data).done(res => {
             resolve(res);
         }).fail((err) => {
-            resolve({status: 0, text: getErrorMessage(err)};
+            resolve({status: 0, text: getErrorMessage(err)});
         })
     })
 };
