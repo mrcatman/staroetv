@@ -143,6 +143,7 @@ import Response from '../Response.vue';
 import Snackbar from '../Snackbar.vue';
 import { BTable, BPagination } from 'bootstrap-vue-next'
 import Preloader from "@/components/Preloader.vue";
+import { getErrorMessage } from "@/utils/errors";
 
 interface ChannelWithIndex extends Models.Channel {
     _index?: number;
@@ -256,9 +257,8 @@ const saveChannelPromise = async (data: ChannelWithIndex): Promise<Forms.Respons
     return new Promise((resolve) => {
         $.post(route('channels.update', data.id), data).done(res => {
             resolve(res);
-        }).fail((xhr) => {
-            const error = xhr.responseJSON;
-            resolve({status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message});
+        }).fail((err) => {
+            resolve({status: 0, text: getErrorMessage(err)};
         })
     })
 };
@@ -308,16 +308,14 @@ const loadLogo = () => {
                         logoPanel.value.channel.logo = pictureData;
                     }
                 }
-            }).fail((xhr) => {
+            }).fail((err) => {
                 logoPanel.value.loading = false;
-                const error = xhr.responseJSON;
-                logoPanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+                logoPanel.value.response = {status: 0, text: getErrorMessage(err)};
             })
         }
-    }).fail((xhr) => {
+    }).fail((err) => {
         logoPanel.value.loading = false;
-        const error = xhr.responseJSON;
-        logoPanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+        logoPanel.value.response = {status: 0, text: getErrorMessage(err)};
     })
 };
 
@@ -338,10 +336,9 @@ const deleteChannel = () => {
             channelsList.value = channelsList.value.filter(channel => channel.id !== deletePanel.value.channel?.id);
             deleteModalRef.value?.hide();
         }
-    }).fail((xhr) => {
+    }).fail((err) => {
         deletePanel.value.loading = false;
-        const error = xhr.responseJSON;
-        deletePanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+        deletePanel.value.response = {status: 0, text: getErrorMessage(err)};
     })
 };
 
@@ -359,10 +356,9 @@ const mergeChannels = () => {
             mergeModalRef.value?.hide();
             channelsList.value = channelsList.value.filter(channel => channel.id !== mergePanel.value.channel?.id);
         }
-    }).fail((xhr) => {
+    }).fail((err) => {
         mergePanel.value.loading = false;
-        const error = xhr.responseJSON;
-        mergePanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+        mergePanel.value.response = {status: 0, text: getErrorMessage(err)};
     })
 };
 

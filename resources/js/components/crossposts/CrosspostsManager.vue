@@ -198,6 +198,7 @@ import PictureUploader from '../PictureUploader.vue';
 import Response from '../Response.vue';
 import Datepicker from '../Datepicker.vue'
 import InputContainer from "../InputContainer.vue";
+import { getErrorMessage } from "@/utils/errors";
 
 interface CrosspostService {
     id: string,
@@ -275,7 +276,7 @@ const makePost = (service: string, force = false) => {
             dataByService.value[service].data = {};
         }
         dataByService.value[service].data.status = STATUS_ERROR;
-        dataByService.value[service].data.error_log = e.responseJSON?.message ?? 'Неизвестная ошибка'
+        dataByService.value[service].data.error_log = getErrorMessage(e);
     })
 }
 
@@ -306,11 +307,11 @@ const save = () => {
                 window.location.href = res.redirect_to;
             }
         }
-    }).fail((xhr) => {
+    }).fail((err) => {
         window.scrollTo(0, 0);
         response.value = {
             status: 0,
-            text: xhr.responseJSON?.message ?? 'Неизвестная ошибка'
+            text: getErrorMessage(err)
         }
     });
 }

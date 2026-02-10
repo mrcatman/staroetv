@@ -153,6 +153,7 @@ import { ref, reactive, watch, useTemplateRef } from 'vue';
 import Modal from './Modal.vue';
 import Response from './Response.vue';
 import Preloader from "./Preloader.vue";
+import { getErrorMessage } from "@/utils/errors";
 
 const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'];
 
@@ -259,7 +260,7 @@ const onFileInputChange = (e: Event) => {
                 loading.value = false;
             },
             error: (e: any) => {
-                error.value = e.responseJSON.message || 'Ошибка загрузки, попробуйте позже';
+                error.value = getErrorMessage(e);
                 loading.value = false;
             }
         });

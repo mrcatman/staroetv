@@ -111,6 +111,7 @@ import { ref, computed, onMounted, useTemplateRef } from 'vue';
 import PictureUploader from '../PictureUploader.vue';
 import Modal from '../Modal.vue';
 import Response from '../Response.vue';
+import { getErrorMessage } from "@/utils/errors";
 
 interface PermissionValue {
     id?: number;
@@ -210,10 +211,9 @@ const savePermissions = () => {
         //if (res.status) {
         //    window.location.reload();
         //}
-    }).fail((xhr) => {
+    }).fail((err) => {
         permissionsPanel.value.loading = false;
-        const error = xhr.responseJSON;
-        permissionsPanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+        permissionsPanel.value.response = {status: 0, text: getErrorMessage(err)};
     })
 };
 
@@ -273,10 +273,9 @@ const saveGroup = () => {
                 editModalRef.value?.hide();
             }, 2500);
         }
-    }).fail((xhr) => {
+    }).fail((err) => {
         editPanel.value.loading = false;
-        const error = xhr.responseJSON;
-        editPanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+        editPanel.value.response = {status: 0, text: getErrorMessage(err)};
     })
 };
 
@@ -299,10 +298,9 @@ const deleteGroup = () => {
                 deleteModalRef.value?.hide();
             }, 2500);
         }
-    }).fail((xhr) => {
+    }).fail((err) => {
         deletePanel.value.loading = false;
-        const error = xhr.responseJSON;
-        deletePanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+        deletePanel.value.response = {status: 0, text: getErrorMessage(err)};
     })
 };
 

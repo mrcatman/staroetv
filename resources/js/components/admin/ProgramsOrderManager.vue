@@ -128,6 +128,7 @@ import Modal from '../Modal.vue'
 import ProgramsManagerItem from "@/components/programs-manager/ProgramsManagerItem.vue";
 import InputContainer from "@/components/InputContainer.vue";
 import Preloader from "@/components/Preloader.vue";
+import { getErrorMessage } from "@/utils/errors";
 
 const props = defineProps<{
     channel: Models.Channel,
@@ -186,12 +187,11 @@ const merge = () => {
                 );
             }
         }
-    }).fail((xhr) => {
+    }).fail((err) => {
         mergeLoading.value = false;
-        const error = xhr.responseJSON;
         mergeResponse.value = {
             status: 0,
-            text: error.message === "" ? "Неизвестная ошибка" : error.message
+            text: getErrorMessage(err)
         };
     })
 }
@@ -213,10 +213,9 @@ const saveOrder = () => {
     $.post(route('channels.programs.save-list', props.channel.id), {order}).done(res => {
         loading.value = false;
         response.value = res;
-    }).fail((xhr) => {
+    }).fail((err) => {
         loading.value = false;
-        const error = xhr.responseJSON;
-        response.value = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+        response.value = {status: 0, text: getErrorMessage(err)};
     })
 }
 </script>

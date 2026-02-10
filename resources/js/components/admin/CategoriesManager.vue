@@ -58,6 +58,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Response from '../Response.vue';
+import { getErrorMessage } from "@/utils/errors";
 
 const props = defineProps<{
     categories: Models.Genre[];
@@ -76,10 +77,9 @@ const saveCategories = () => {
         if (res.status) {
             categoriesList.value = res.data.categories;
         }
-    }).fail((xhr) => {
+    }).fail((err) => {
         loading.value = false;
-        const error = xhr.responseJSON;
-        response.value = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+        response.value = {status: 0, text: getErrorMessage(err)};
     })
 };
 

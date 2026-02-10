@@ -60,6 +60,7 @@ import draggable from 'vuedraggable';
 import Response from '../Response.vue';
 import Preloader from "../Preloader.vue";
 import { filterChannel, channelCategories } from "@/utils/channels.js";
+import { getErrorMessage } from "@/utils/errors";
 
 const props = defineProps<{
     channels: Models.Channel[];
@@ -80,10 +81,9 @@ const saveOrder = () => {
     $.post(route('admin.channels.order.save'), {order}).done(res => {
         loading.value = false;
         response.value = res;
-    }).fail((xhr) => {
+    }).fail((err) => {
         loading.value = false;
-        const error = xhr.responseJSON;
-        response.value = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+        response.value = {status: 0, text: getErrorMessage(err)};
     })
 };
 

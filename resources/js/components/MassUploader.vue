@@ -98,6 +98,7 @@ import { useChannelsStore } from "@/stores/channels";
 import { getInfo } from "@/utils/records/get-info";
 import { useCategoriesStore } from "@/stores/categories";
 import InputContainer from "@/components/InputContainer.vue";
+import { getErrorMessage } from "@/utils/errors";
 
 const props = defineProps< {
     isRadio: boolean,
@@ -146,9 +147,9 @@ const load = () => {
             response.value = res;
         }
     }).catch((e: JQuery.jqXHR) => {
-        response.value = e.responseJSON.message ? {status: 0, text: e.responseJSON.message} : {
+        response.value = {
             status: 0,
-            text: 'Ошибка, повторите позже'
+            text: getErrorMessage(e)
         };
         loading.value = false;
     });

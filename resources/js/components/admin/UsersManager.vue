@@ -92,6 +92,7 @@ import Response from '../Response.vue';
 import Snackbar from '../Snackbar.vue';
 import Preloader from "../Preloader.vue";
 import InputContainer from "@/components/InputContainer.vue";
+import { getErrorMessage } from "@/utils/errors";
 
 
 interface GroupOption {
@@ -189,12 +190,11 @@ const changePassword = () => {
         if (res.status) {
             changePasswordModalRef.value?.hide();
         }
-    }).fail((xhr) => {
+    }).fail((err) => {
         changePasswordPanel.value.loading = false;
-        const error = xhr.responseJSON;
         changePasswordPanel.value.response = {
             status: 0,
-            text: error.message === "" ? "Неизвестная ошибка" : error.message
+            text: getErrorMessage(err)
         };
     })
 };
@@ -223,10 +223,9 @@ const deleteUser = () => {
             tableRef.value?.refresh();
             deleteModalRef.value?.hide();
         }
-    }).fail((xhr) => {
+    }).fail((err) => {
         deletePanel.value.loading = false;
-        const error = xhr.responseJSON;
-        deletePanel.value.response = {status: 0, text: error.message === "" ? "Неизвестная ошибка" : error.message};
+        deletePanel.value.response = {status: 0, text: getErrorMessage(err)};
     })
 };
 

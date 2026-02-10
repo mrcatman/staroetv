@@ -101,6 +101,7 @@
     import PictureUploader from '../PictureUploader.vue';
     import Modal from '../Modal.vue';
     import Preloader from "../Preloader.vue";
+    import { getErrorMessage } from "@/utils/errors";
 
     const STATUS_LOADING = -2;
     const STATUS_NONE = -1;
@@ -168,11 +169,10 @@
                     statusesByNetwork[networkId] = STATUS_ERROR;
                     reject(res.text);
                 }
-            }).catch(xhr => {
-                let text = xhr.responseJSON?.message || "Неизвестная ошибка";
-                errorsByNetwork[networkId] = text;
+            }).catch(err => {
+                errorsByNetwork[networkId] = getErrorMessage(err);
                 statusesByNetwork[networkId] = STATUS_ERROR;
-                reject(text);
+                reject(errorsByNetwork[networkId]);
             })
         })
     };
@@ -199,8 +199,8 @@
                 errorsByNetwork[networkId] = res.text;
                 statusesByNetwork[networkId] = 0;
             }
-        }).catch(xhr => {
-            errorsByNetwork[networkId] = xhr.responseJSON?.message || "Неизвестная ошибка";
+        }).catch(err => {
+            errorsByNetwork[networkId] = getErrorMessage(err)
             statusesByNetwork[networkId] = 0;
         })
     };

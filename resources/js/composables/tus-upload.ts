@@ -1,5 +1,6 @@
 import * as tus from "tus-js-client";
 import {ref} from "vue";
+import { getError, getErrorMessage } from "../utils/errors";
 
 export const useTusUpload = (isRadio?: boolean) => {
 
@@ -45,17 +46,23 @@ export const useTusUpload = (isRadio?: boolean) => {
                         server_upload_id: uploadId[uploadId.length - 1],
                         is_radio: isRadio
                     }).done(res => {
-                        needUpload.value = false;
                         isUploading.value = false;
+                        if (!res.status) {
+                            uploadError.value = res.text;
+                            reject();
+                            return;
+                        }
+
+                        needUpload.value = false;
                         resolve(res.data);
 
                         url.value = res.data.url;
                         thumbnail.value = res.data.thumbnail;
                     }).fail(e => {
                         isUploading.value = false;
-                        uploadError.value = e.responseJSON ? (e.responseJSON.message && e.responseJSON.message !== "" ? e.responseJSON.message : e.responseJSON.exception) : "Ошибка загрузки";
+                        uploadError.value = getErrorMessage(e);
 
-                        reject(e);
+                        reject();
                     });
                 }
             })
