@@ -309,9 +309,9 @@ class TeletextController extends EntityController
             'channel_id' => 'required|exists:channels,id',
             'quality' => 'numeric|min:1|max:10',
             'description' => 'sometimes',
-            'date.year' => 'sometimes|numeric',
-            'date.month' => 'sometimes|numeric',
-            'date.day' => 'sometimes|numeric',
+            'date.year' => 'sometimes',
+            'date.month' => 'sometimes',
+            'date.day' => 'sometimes',
         ]);
 
         $is_new = !$teletext->id;
@@ -327,9 +327,9 @@ class TeletextController extends EntityController
             ]);
         }
 
-        $data['year'] = $data['date']['year'] && $data['date']['year'] > 0 ? $data['date']['year'] : null;
-        $data['month'] = $data['date']['month'] && $data['date']['month'] > 0 ? $data['date']['month'] : null;
-        $data['day'] = $data['date']['day'] && $data['date']['day'] > 0 ? $data['date']['day'] : null;
+        $data['year'] = $data['date']['year'] && $data['date']['year'] > 0 ? (int)$data['date']['year'] : null;
+        $data['month'] = $data['date']['month'] && $data['date']['month'] > 0 ? (int)$data['date']['month'] : null;
+        $data['day'] = $data['date']['day'] && $data['date']['day'] > 0 ? (int)$data['date']['day'] : null;
         unset($data['date']);
 
         $teletext->fill($data);
