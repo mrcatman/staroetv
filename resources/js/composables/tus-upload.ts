@@ -31,7 +31,7 @@ export const useTusUpload = (isRadio?: boolean) => {
                 retryDelays: [0, 1000, 3000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000],
                 chunkSize: 10 * 1048576,
                 metadata: {
-                    //filename: record.name,
+                    filename: file.value.name,
                 },
                 onError: (error) => {
                     uploadError.value = 'Ошибка загрузки, попробуйте еще раз или напишите администратору'

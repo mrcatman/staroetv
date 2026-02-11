@@ -1,6 +1,6 @@
 <template>
     <div class="form record-form">
-        <Preloader v-if="loading || saving"/>
+        <Preloader v-if="loading || (saving && !isUploadingFile)"/>
         <Response :data="response" v-if="!inModal"/>
 
         <similar-modal ref="similarModal" :similar="similar" @mark="markSimilarAsChecked"/>
@@ -387,7 +387,7 @@
                                 class="button"
                                 :class="{'button--light': inModal}"
                                 @click.prevent="save()"
-                                :disabled="!sourceValid"
+                                :disabled="!sourceValid || saving"
                             >
                                 {{ data.id ? 'Сохранить' : 'Добавить' }}
                             </button>
