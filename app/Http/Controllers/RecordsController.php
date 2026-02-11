@@ -560,7 +560,7 @@ class RecordsController extends EntityController
             $record->program_id = null;
         }
 
-        $has_uploaded_video = request()->input('record.upload', false) && request()->has('record.uploaded_file_id');
+        $has_uploaded_video = request()->input('record.upload', false) && request()->has('record.uploaded_file_url');
         if (request()->input('record.code') == "" && !$has_uploaded_video && !$record->use_own_player) {
             $errors['url'] = "Укажите корректную ссылку";
         } else {
@@ -647,15 +647,12 @@ class RecordsController extends EntityController
             }
         }
 
-        $uploaded_file_id = null;
-        $original_path = null;
         $storage = Storage::disk('media-storage');
 
         if ($has_uploaded_video) {
-            $uploaded_file_id = request()->input('record.uploaded_file_id');
-            $original_path = 'temp-upload/' . $uploaded_file_id;
-            if (!$storage->exists($original_path)) {
-                $errors['uploaded_file_id'] = 'Ошибка загрузки: файл не найден. Повторите загрузку ещё раз';
+            $uploaded_file_url = request()->input('record.uploaded_file_url');
+            if (!$storage->exists($uploaded_file_url)) {
+                $errors['uploaded_file_url'] = 'Ошибка загрузки: файл не найден. Повторите загрузку ещё раз';
             }
         }
 
@@ -666,23 +663,6 @@ class RecordsController extends EntityController
                 'errors' => $errors
             ];
         }
-
-        if ($uploaded_file_id != null) {
-            $new_path = "videos/" . $uploaded_file_id;
-            $storage->move($original_path, $new_path);
-
-            $record->use_own_player = true;
-            $record->source_type = "local";
-            $record->source_path = "/videos/" . $uploaded_file_id;
-
-            $thumbnail = MediaHelper::makeThumbnail($new_path);
-            $cover = Picture::firstOrNew([
-                'url' => $thumbnail
-            ]);
-            $cover->save();
-            $record->cover_id = $cover->id;
-        }
-
         $record->is_radio = $is_radio;
         if ($record->channel && $record->channel->is_radio) {
             $record->is_radio = true;

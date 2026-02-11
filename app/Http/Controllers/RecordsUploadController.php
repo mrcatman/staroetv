@@ -68,7 +68,7 @@ class RecordsUploadController extends Controller
             'status' => 1,
             'text' => 'Запись загружена',
             'data' => [
-                'url' => "/" . $new_path,
+                'url' => "/$new_path",
                 'thumbnail' => $thumbnail,
             ]
         ];

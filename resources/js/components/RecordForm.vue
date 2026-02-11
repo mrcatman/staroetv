@@ -1,6 +1,7 @@
 <template>
     <div class="form record-form">
-        <Preloader v-if="loading || (saving && !isUploadingFile)"/>
+        <Preloader v-if="loading || (saving && !isUploadingFile)
+"/>
         <Response :data="response" v-if="!inModal"/>
 
         <similar-modal ref="similarModal" :similar="similar" @mark="markSimilarAsChecked"/>
@@ -13,7 +14,7 @@
 
                                 <div class="input-container input-container--vertical"
                                      v-show="!data.record.id"
-                                     :class="{'input-container--with-errors': (externalVideoError && !data.record.own_code) ?? (!codeValid && data.record.own_code) ?? errors.uploaded_file_id ?? errors.url ?? errors.code}">
+                                     :class="{'input-container--with-errors': (externalVideoError && !data.record.own_code) ?? (!codeValid && data.record.own_code) ?? errors.uploaded_file_url ?? errors.url ?? errors.code}">
 
                                     <div class="record-form__select-container">
                                         <div class="input-container__inner record-form__select-link"
@@ -46,7 +47,7 @@
                                                     <i class="fa fa-trash"></i>
                                                 </a>
                                                 <span class="input-container__message">
-                                                    {{errors.uploaded_file_id ?? errors.url ?? errors.code ?? externalVideoError}}
+                                                    {{errors.uploaded_file_url ?? errors.url ?? errors.code ?? externalVideoError}}
                                                 </span>
                                                 <div v-if="!data.record.upload" class="input-container__toggle-buttons">
                                                     <a class="input-container__toggle-button"

@@ -45,7 +45,7 @@ export type RecordsUploadData = {
         thumbnails: string[],
 
         upload: boolean,
-        uploaded_file_id?: string,
+        uploaded_file_url?: string,
         storage_file?: string,
         move_to_storage?: boolean,
     }
@@ -87,7 +87,7 @@ const defaultData: RecordsUploadData = {
         thumbnail_url: null,
         thumbnails: [],
         upload: false,
-        uploaded_file_id: null,
+        uploaded_file_url: null,
         move_to_storage: false,
     },
     channel: {
@@ -309,14 +309,18 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
 
         if (parsed?.length === 8) {
             parsed = parsed.map(string => (string ? string.trim() : ''));
-            const program = parsed[4].toLowerCase();
-            if (program.includes("реклам")) {
+            let program = parsed[4].toLowerCase();
+            if (program.startsWith("реклам")) {
                 data.value.type = 'interprogram';
                 data.value.interprogram.type = 22; // рекламный блок
             } else if (program.includes("заставка пр")) {
                 data.value.type = 'program-design';
             } else if (!!interprogramNames.find(name => program.includes(name))) {
                 data.value.type = 'interprogram';
+                const interprogramType = categoriesStore.interprogramTypes.find(type => program.includes(type.text.toLocaleLowerCase()))
+                if (interprogramType) {
+                    data.value.interprogram.type = interprogramType.id;
+                }
             } else {
                 data.value.type = 'programs';
             }
@@ -465,7 +469,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
 
 
         if (tusUpload.url.value) {
-            data.value.record.uploaded_file_id = tusUpload.url.value;
+            data.value.record.uploaded_file_url = tusUpload.url.value;
             if (tusUpload.thumbnail.value) {
                 data.value.record.thumbnail_url = tusUpload.thumbnail.value;
             }

@@ -67,27 +67,40 @@ export const generateInterprogramTitle = (data: RecordsUploadData, category?: Mo
 
     let channelAndYearText = `(${data.channel?.name || 'Неизвестный канал'}, ${generateDate(data)})`;
 
+    let shortDescription = data.short_description || '';
+    if (category.name === 'Другое') {
+        return `${shortDescription} ${channelAndYearText}`.trim();
+    }
+
+    const stringsToRemove = ['Реклама']; // todo перенести куда-нибудь
+    for (const string of stringsToRemove) {
+        if (shortDescription.includes(string)) {
+            shortDescription = shortDescription.replace(string, '').trim();
+        }
+    }
+
     if (category.name_pattern) {
-        title = category.name_pattern.replace(/[\[{(].*?[\]})]/g, (property) => {
-            property = property.replace('{', '');
-            property = property.replace('}', '');
-            if (property === 'data') {
-                return channelAndYearText;
-            } else if (property === "short_description") {
-                if (!data.short_description.length) {
-                    return '';
+        if (shortDescription.includes(category.name)) {
+            title = `${shortDescription} ${channelAndYearText}`.trim();
+        } else {
+            title = category.name_pattern.replace(/[\[{(].*?[\]})]/g, (property) => {
+                property = property.replace('{', '');
+                property = property.replace('}', '');
+                if (property === 'data') {
+                    return channelAndYearText;
+                } else if (property === "short_description") {
+                    return shortDescription;
+                } else if (property === 'program_name') {
+                    return data.program.name;
+                } else {
+                    return data[property];
                 }
-                return data.short_description;
-            } else if (property === 'program_name') {
-                return data.program.name;
-            } else {
-                return data[property];
-            }
-        });
+            });
+        }
     } else {
         title += ` ${channelAndYearText}`;
-        if (data.short_description?.length) {
-            title += ` ${data.short_description}`;
+        if (shortDescription.length) {
+            title += ` ${shortDescription}`;
         }
     }
     return capitalizeFirstLetter(title.trim());

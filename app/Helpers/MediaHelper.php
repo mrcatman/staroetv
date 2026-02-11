@@ -32,10 +32,11 @@ class MediaHelper {
             $time = ($frames / $fps) - 3;
         }
 
-        $thumbnail_path = public_path("video_covers/$filename.jpg");
-        Process::run("ffmpeg -y -ss $time -i '$path' -vframes 1 '$thumbnail_path'");
+        $thumbnail_path = "video_covers/$filename.jpg";
+        $thumbnail_full_path = public_path($thumbnail_path);
+        Process::run("ffmpeg -y -ss $time -i '$path' -vframes 1 '$thumbnail_full_path'");
 
-        return $thumbnail_path;
+        return "/$thumbnail_path";
     }
 
     public function getFps($path): int
