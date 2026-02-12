@@ -655,6 +655,9 @@ class RecordsController extends EntityController
             $uploaded_file_url = request()->input('record.uploaded_file_url');
             if (!$storage->exists($uploaded_file_url)) {
                 $errors['uploaded_file_url'] = 'Ошибка загрузки: файл не найден. Повторите загрузку ещё раз';
+            } else {
+                $record->use_own_player = true;
+                $record->source_path = $uploaded_file_url;
             }
         }
 
