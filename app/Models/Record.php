@@ -437,15 +437,15 @@ class Record extends Model {
     }
 
     public function getSourceAudioAttribute() {
-        return 'https://media.staroetv.su/'.$this->source_path;
+        return config('site.media_server_url').$this->source_path;
     }
 
     public function getSourceHlsAttribute() {
-        return 'https://media.staroetv.su/hls'.$this->source_path.'/index.m3u8';
+        return config('site.media_server_url').'/hls'.$this->source_path.'/index.m3u8';
     }
 
     public function getDownloadUrlAttribute() {
-        return $this->source_path ? 'https://media.staroetv.su'.$this->source_path : null;
+        return $this->source_path ? config('site.media_server_url').$this->source_path : null;
     }
 
     public function getSourceTelegramAttribute() {

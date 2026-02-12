@@ -357,6 +357,7 @@ const startParams: Partial<RecordsUploadData> = {
     description: props.record.description,
     record: {
         url: props.record.player,
+        duration: props.record.duration,
         own_code: true,
         code: props.record.code,
         thumbnails: props.record.thumbnails,

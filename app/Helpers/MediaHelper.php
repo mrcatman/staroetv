@@ -7,28 +7,6 @@ use Illuminate\Support\Facades\Process;
 
 class MediaHelper {
 
-    public static function mediaServerFfprobe($path)
-    {
-        $response = Http::get('https://media.staroetv.su/api/ffprobe?video=' . urlencode($path))->json();
-        if (isset($response->error)) {
-            throw new \Exception($response->error);
-        }
-        return $response;
-    }
-
-    public static function mediaServerDownload($url, $id)
-    {
-        $response = Http::post("https://media.staroetv.su/api/download", [
-            'url' => $url,
-            'id' => $id,
-        ])->json();
-
-        if (isset($response->error)) {
-            throw new \Exception($response->error);
-        }
-        return $response;
-    }
-
 
     public static function makeThumbnail($path, $time = null): string
     {
@@ -85,7 +63,7 @@ class MediaHelper {
 
     public static function updateDuration(Record $record) {
         if ($record->use_own_player) {
-            $response = self::mediaServerFfprobe(str_replace('videos/', '', $record->source_path));
+            $response = MediaServerHelper::ffprobe(str_replace('videos/', '', $record->source_path));
             $record->length = $response->result->streams[0]->duration;
             $record->save();
 

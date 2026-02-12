@@ -100,13 +100,14 @@ import { useCategoriesStore } from "@/stores/categories";
 import InputContainer from "@/components/InputContainer.vue";
 import { getErrorMessage } from "@/utils/errors";
 
-const props = defineProps< {
+defineProps< {
     isRadio: boolean,
 }>();
 
 export type MultipleRecordsResponseItem = {
     title: string,
     description?: string,
+    duration?: number,
     player?: string,
     code?: string,
     thumbnails?: string[]

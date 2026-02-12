@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Constants\Records;
 use App\Helpers\ExternalServicesHelper;
+use App\Helpers\MediaServerHelper;
 use App\Helpers\PermissionsHelper;
-use App\Helpers\RegexHelper;
-use App\Models\VideoCut;
 use App\Models\Record;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -96,6 +96,7 @@ class MassUploadController extends Controller {
                     'title' => $item->title,
                     'description' => $item->description,
                     'player' => $item->player,
+                    'duration' => $item->duration,
                     'code' => str_replace('URL', $item->player, Records::IFRAME_CODE),
                     'thumbnails' => array_values(array_map(function($image) {
                         return $image->url;
@@ -103,28 +104,63 @@ class MassUploadController extends Controller {
                 ];
             })->values();
         } elseif ($youtube_id = ExternalServicesHelper::resolveYoutubeChannelId($owner_id)) {
-            $data = ExternalServicesHelper::youtubeVideoList($youtube_id, $count, $offset);
-
-            $items = collect($data->items);
-            $next_page_token = $data->nextPageToken;
-            foreach ($items as $item) {
-                $item->external_id = $item->snippet->resourceId->videoId;
+            $use_ytdlp_method = Cache::get('use-ytdlp-' . $youtube_id, false);
+            if (!$use_ytdlp_method) {
+                try {
+                    $data = ExternalServicesHelper::youtubeVideoList($youtube_id, $count, $offset);
+                } catch (\Exception $e) {
+                    $use_ytdlp_method = true;
+                    Cache::put('use-ytdlp-' . $youtube_id, 3600);
+                }
             }
-            $already_added = Record::whereIn('external_id', $items->pluck('external_id'))->pluck('external_id');
-            $items = $items->filter(function ($item) use ($already_added) {
-                return !$already_added->contains($item->external_id);
-            });
-            $items = $items->map(function($item) {
-                return [
-                    'title' => $item->snippet->title,
-                    'description' => $item->snippet->description,
-                    'player' => 'https://youtube.com/embed/' . $item->snippet->resourceId->videoId,
-                    'code' => str_replace('URL', 'https://youtube.com/embed/' . $item->snippet->resourceId->videoId, Records::IFRAME_CODE),
-                    'thumbnails' => [
-                        $item->snippet->thumbnails->high->url
-                    ]
-                ];
-            })->values();
+
+            if ($use_ytdlp_method) {
+                $range_start = (int)$offset;
+                $range_end = $range_start + $count;
+                $next_page_token = $range_end;
+                $data = MediaServerHelper::playlist($owner_id, $range_start.'-'.$range_end);
+                $items = collect($data);
+                foreach ($items as $item) {
+                    $item->external_id = $item->id;
+                }
+                $already_added = Record::whereIn('external_id', $items->pluck('external_id'))->pluck('external_id');
+                $items = $items->filter(function ($item) use ($already_added) {
+                    return !$already_added->contains($item->external_id);
+                });
+                $items = $items->map(function ($item) {
+                    return [
+                        'title' => $item->title,
+                        'description' => '',
+                        'duration' => $item->duration,
+                        'player' => 'https://youtube.com/embed/' . $item->id,
+                        'code' => str_replace('URL', 'https://youtube.com/embed/' . $item->id, Records::IFRAME_CODE),
+                        'thumbnails' => array_map(function($thumbnail) {
+                            return $thumbnail->url;
+                         }, $item->thumbnails)
+                    ];
+                })->values();
+            } else {
+                $items = collect($data->items);
+                $next_page_token = $data->nextPageToken;
+                foreach ($items as $item) {
+                    $item->external_id = $item->snippet->resourceId->videoId;
+                }
+                $already_added = Record::whereIn('external_id', $items->pluck('external_id'))->pluck('external_id');
+                $items = $items->filter(function ($item) use ($already_added) {
+                    return !$already_added->contains($item->external_id);
+                });
+                $items = $items->map(function ($item) {
+                    return [
+                        'title' => $item->snippet->title,
+                        'description' => $item->snippet->description,
+                        'player' => 'https://youtube.com/embed/' . $item->snippet->resourceId->videoId,
+                        'code' => str_replace('URL', 'https://youtube.com/embed/' . $item->snippet->resourceId->videoId, Records::IFRAME_CODE),
+                        'thumbnails' => [
+                            $item->snippet->thumbnails->high->url
+                        ]
+                    ];
+                })->values();
+            }
         } else {
             return [
                 'status' => 0,

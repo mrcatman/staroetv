@@ -1,16 +1,14 @@
 <?php
 namespace App\Helpers;
 
-use App\Models\Picture;
 use App\Models\Record;
+use Illuminate\Support\Facades\Http;
 
 class ExternalServicesHelper {
 
     private static function request($url)
     {
-        $data = file_get_contents($url);
-        return json_decode($data);
-        //$data = json_decode(shell_exec(" curl ''"));
+        return Http::get($url)->object();
 
     }
     public static function vkVideo($vk_video_id)
@@ -26,7 +24,7 @@ class ExternalServicesHelper {
 
     public static function resolveYoutubeChannelId($url)
     {
-        preg_match('~(?:https?://)?(?:www\.)?(?:youtube\.com/(?:c/|channel/|user/|@)?|youtu\.be/)([\w@\-]{1,30})~', $url, $matches);
+        preg_match('~(?:https?://)?(?:www\.)?(?:youtube\.com/(?:c/|channel/|user/|@)?|youtu\.be/)([\w@.\-]{1,30})~', $url, $matches);
         if (!isset($matches[1])) {
             return null;
         }
@@ -112,7 +110,6 @@ class ExternalServicesHelper {
             $uploads_playlist_id = $playlist_data->items[0]->contentDetails->relatedPlaylists->uploads ?? null;
         }
 
-
         if (!$uploads_playlist_id) {
             throw new \Exception('Не найден плейлист загрузок');
         }
@@ -120,7 +117,11 @@ class ExternalServicesHelper {
         if ($offset != '') {
             $youtube_url.="&pageToken=".$offset;
         }
-        return self::request($youtube_url);
+        try {
+            return self::request($youtube_url);
+        } catch (\Exception) {
+            throw new \Exception('Плейлист загрузок недоступен');
+        }
     }
 
     public static function getThumbnail(Record $record) {

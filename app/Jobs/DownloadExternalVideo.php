@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Helpers\MediaHelper;
+use App\Helpers\MediaServerHelper;
 use App\Models\Picture;
 use App\Models\Record;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -30,7 +31,7 @@ class DownloadExternalVideo implements ShouldQueue
         $output_path = $storage->path($path);
 
         if (str_contains($url, 'youtu')) {
-            MediaHelper::mediaServerDownload($url, $record->id);
+            MediaServerHelper::download($url, $record->id);
             return;
         }
 
