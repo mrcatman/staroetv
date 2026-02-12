@@ -111,7 +111,7 @@ const initTeletext = () => {
     onResize();
 
     const url = new URL(window.location.href);
-    if (url.searchParams.get('update_cover') && !$('input[name=cover_id]').val()) {
+    if (url.searchParams.get('update_cover')) { // !$('input[name=cover_id]').val()
         updateCover();
     }
 }
