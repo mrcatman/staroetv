@@ -224,9 +224,10 @@ class TeletextController extends EntityController
             $navigation = null;
 
         } else {
-            $page = request()->input('page', $teletext->pages[0]);
+            $default_page = in_array('100', $teletext->pages) ? '100' : $teletext->pages[0];
+            $page = request()->input('page', $default_page);
             if (!in_array($page, $teletext->pages)) {
-                $page = in_array('100', $teletext->pages) ? '100' : $teletext->pages[0];
+               $page = $default_page;
             }
 
             $content = $teletext->getPageContent($page);
@@ -300,6 +301,8 @@ class TeletextController extends EntityController
             ]);
             $teletext->fill($data);
             $teletext->save();
+            Cache::forget('teletext_cover_' . $teletext->id);
+
             return [
                 'status' => 1,
             ];
