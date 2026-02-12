@@ -10,6 +10,7 @@ use App\Models\Picture;
 use App\Models\Record;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class RecordsEditController extends Controller
 {
@@ -295,7 +296,7 @@ class RecordsEditController extends Controller
             if (!$record->source_path) {
                 $thumbnail = ExternalServicesHelper::getThumbnail($record);
             } else {
-                $thumbnail = MediaHelper::makeThumbnail($record->source_path);
+                $thumbnail = MediaHelper::makeThumbnail(Storage::disk('media-storage')->path($record->source_path));
             }
 
             if ($thumbnail) {

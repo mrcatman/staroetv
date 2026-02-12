@@ -1079,7 +1079,7 @@ class RecordsController extends EntityController
                 $seconds = null;
             }
 
-            $thumbnail = MediaHelper::makeThumbnail($record->source_path, $seconds);
+            $thumbnail = MediaHelper::makeThumbnail(Storage::disk('media-storage')->path($record->source_path), $seconds);
         }
 
         $cover = Picture::firstOrNew([

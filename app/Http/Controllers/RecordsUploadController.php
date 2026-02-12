@@ -55,7 +55,7 @@ class RecordsUploadController extends Controller
 
         $thumbnail = null;
         if (!$is_radio) {
-            $thumbnail = MediaHelper::makeThumbnail($upload_path);
+            $thumbnail = MediaHelper::makeThumbnail($storage->path($upload_path));
         }
 
         if ($extension != "mp4" && !$is_radio) {
