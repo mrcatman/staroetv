@@ -34,7 +34,7 @@ class Teletext extends Model {
 
     public function getUrlAttribute()
     {
-        return route('teletext.show', $this->id);
+        return route('teletext.show', $this->id).(!$this->cover_id ? '?update_cover=1' : '');
     }
 
     public function comments() {

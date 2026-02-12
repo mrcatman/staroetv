@@ -132,7 +132,7 @@ class TeletextController extends EntityController
         $channels = Channel::whereIn('id', $other_channel_ids)->get();
         foreach ($channels as $channel) {
             $section = [
-                'name' => 'Телетекст ' . $channel->name,
+                'name' => $channel->name,
                 'url' => $channel->url ?? $channel->id,
                 'channels' => [
                     [
@@ -226,7 +226,7 @@ class TeletextController extends EntityController
         } else {
             $page = request()->input('page', $teletext->pages[0]);
             if (!in_array($page, $teletext->pages)) {
-                $page = $teletext->pages[0];
+                $page = in_array('100', $teletext->pages) ? '100' : $teletext->pages[0];
             }
 
             $content = $teletext->getPageContent($page);
