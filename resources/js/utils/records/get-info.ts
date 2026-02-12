@@ -2,7 +2,7 @@ const YOUTUBE_REGEX = /^.*((m\.)?youtu\.be\/|vi?\/|u\/\w\/|embed\/|\?vi?=|\&vi?=
 const VK_REGEX = /(.*?)\/video(.*?)([0-9-_]+)(.*?)/;
 const VK_REGEX_EMBED = /(.*?)video_ext.php\?oid=(.*?)&id=(.*?)&(.*?)/;
 
-export const getInfo = async (url: string, recordId?: string): Promise<{id: string, player: string, code: string, title: string, thumbnails: string[]}> => {
+export const getInfo = async (url: string, recordId?: string): Promise<{id: string, duration: number, player: string, code: string, title: string, thumbnails: string[]}> => {
     return new Promise((resolve, reject) => {
         let parsedId: string;
         let videoType: 'youtube' | 'vk';

@@ -52,37 +52,12 @@ class SetDuration extends Command
     public function handle()
     {
         $record = Record::findOrFail($this->argument('id'));
-        if ($record->use_own_player) {
-            $response = MediaHelper::mediaServerFfprobe(str_replace('videos/', '', $record->source_path));
-            $record->length = $response->result->streams[0]->duration;
-            $record->save();
-
-            echo 'Duration (got from media server): '.$record->length.PHP_EOL;
+        $duration = MediaHelper::updateDuration($record);
+        if ($duration) {
+            echo "Updated duration to $duration\n";
             return;
         }
 
-        if ($youtube_video_id = ExternalServicesHelper::resolveYoutubeId($record->embed_code)) {
-            $response = ExternalServicesHelper::youtubeVideo($youtube_video_id, 'contentDetails');
-
-            $interval = new \DateInterval($response->items[0]->contentDetails->duration);
-            $reference = new \DateTimeImmutable();
-            $endTime = $reference->add($interval);
-            $record->length = $endTime->getTimestamp() - $reference->getTimestamp();
-            $record->save();
-
-            echo 'Duration (got from Youtube API): '.$record->length.PHP_EOL;
-            return;
-        }
-
-        if ($vk_video_id = ExternalServicesHelper::resolveVkId($record->embed_code)) {
-            $response = ExternalServicesHelper::vkVideo($vk_video_id);
-            $record->length = $response->response->items[0]->duration;
-            $record->save();
-
-            echo 'Duration (got from VK API): '.$record->length.PHP_EOL;
-            return;
-        }
-
-        echo "Cannot resolve duration";
+        echo "Cannot resolve duration\n";
     }
 }

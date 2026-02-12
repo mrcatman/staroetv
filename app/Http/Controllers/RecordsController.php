@@ -391,6 +391,7 @@ class RecordsController extends EntityController
 
         if ($data['video_type'] == 'youtube') {
             $video = (ExternalServicesHelper::youtubeVideo($data['video_id']))->items[0];
+            $duration = ExternalServicesHelper::youtubeVideoDuration($data['video_id']);
             $info = [
                 'id' => $video->id,
                 'title' => $video->snippet->title,
@@ -399,7 +400,8 @@ class RecordsController extends EntityController
                 'code' => str_replace('URL', 'https://youtube.com/embed/' . $video->id, Records::IFRAME_CODE),
                 'thumbnails' => array_map(function ($thumb) use ($video) {
                     return "https://img.youtube.com/vi/" . $video->id . "/" . $thumb . ".jpg";
-                }, ['0', '1', '2', '3', 'hqdefault'])
+                }, ['0', '1', '2', '3', 'hqdefault']),
+                'duration' => $duration
             ];
         } else {
             $video = (ExternalServicesHelper::vkVideo($data['video_id']))->response->items[0];
@@ -411,7 +413,8 @@ class RecordsController extends EntityController
                 'code' => str_replace('URL', $video->player, Records::IFRAME_CODE),
                 'thumbnails' => [
                     $video->image[count($video->image) - 1]->url
-                ]
+                ],
+                'duration' => $video->duration
             ];
         }
 
@@ -573,6 +576,10 @@ class RecordsController extends EntityController
                 $record->embed_code = $code;
                 $record->external_id = ExternalServicesHelper::resolveId($record->embed_code);
             }
+        }
+
+        if (request()->has('record.duration') && request()->input('record.duration') > 0) {
+            $record->length = (int)request()->input('record.duration');
         }
 
         $record->year = null;

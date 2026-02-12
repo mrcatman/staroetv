@@ -48,6 +48,7 @@ export type RecordsUploadData = {
         uploaded_file_url?: string,
         storage_file?: string,
         move_to_storage?: boolean,
+        duration: number,
     }
     date: Common.Date,
     channel: RecordsUploadRelationData,
@@ -89,6 +90,7 @@ const defaultData: RecordsUploadData = {
         upload: false,
         uploaded_file_url: null,
         move_to_storage: false,
+        duration: 0,
     },
     channel: {
         name: '',
@@ -258,11 +260,12 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
         loadingInfo.value = true;
         try {
             const {
-                id, title, description, code, thumbnails
+                id, duration, title, description, code, thumbnails
             } = await getInfo(data.value.record.url, data.value.id);
             if (id) {
                 data.value.title = title;
                 data.value.description = description;
+                data.value.record.duration = duration;
                 data.value.record.original_id = id;
                 data.value.record.code = code;
                 data.value.record.thumbnails = thumbnails;
@@ -477,6 +480,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
             if (tusUpload.thumbnail.value) {
                 data.value.record.thumbnail_url = tusUpload.thumbnail.value;
             }
+            data.value.record.duration = tusUpload.duration.value;
         }
         $.post(record ? route('records.update', record.id) : route('records.save'), data.value).done(res => {
             saving.value = false;

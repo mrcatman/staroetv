@@ -57,6 +57,7 @@ class RecordsUploadController extends Controller
         if (!$is_radio) {
             $thumbnail = MediaHelper::makeThumbnail($storage->path($upload_path));
         }
+        $duration = MediaHelper::getDuration($storage->path($upload_path));
 
         if ($extension != "mp4" && !$is_radio) {
             ConvertVideo::dispatch($upload_path, $new_path);
@@ -70,6 +71,7 @@ class RecordsUploadController extends Controller
             'data' => [
                 'url' => "/$new_path",
                 'thumbnail' => $thumbnail,
+                'duration' => $duration,
             ]
         ];
     }

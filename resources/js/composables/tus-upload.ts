@@ -20,6 +20,7 @@ export const useTusUpload = (isRadio?: boolean) => {
 
     const percent = ref<number>(0);
     const url = ref<string>();
+    const duration = ref<number>();
     const thumbnail = ref<string>();
 
     const upload = () => {
@@ -54,6 +55,7 @@ export const useTusUpload = (isRadio?: boolean) => {
                         resolve(res.data);
 
                         url.value = res.data.url;
+                        duration.value = res.data.duration;
                         thumbnail.value = res.data.thumbnail;
                     }).fail(e => {
                         isUploading.value = false;
@@ -76,6 +78,7 @@ export const useTusUpload = (isRadio?: boolean) => {
 
         upload,
         url,
-        thumbnail
+        duration,
+        thumbnail,
     }
 }

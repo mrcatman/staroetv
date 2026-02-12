@@ -92,6 +92,16 @@ class ExternalServicesHelper {
         return self::request("https://www.googleapis.com/youtube/v3/videos?id=$youtube_video_id&key=$token&part=$part");
     }
 
+    public static function youtubeVideoDuration($youtube_video_id) {
+        $response = self::youtubeVideo($youtube_video_id, 'contentDetails');
+
+        $interval = new \DateInterval($response->items[0]->contentDetails->duration);
+        $reference = new \DateTimeImmutable();
+        $endTime = $reference->add($interval);
+
+        return $endTime->getTimestamp() - $reference->getTimestamp();
+    }
+
     public static function youtubeVideoList($youtube_owner_id, $count = 100, $offset = 0) {
         $token = config('tokens.youtube');
 
