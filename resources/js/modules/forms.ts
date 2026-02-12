@@ -222,7 +222,7 @@ $(body).on('click', '*[data-confirm-form-url]', function() {
     const inputName = $(this).data('confirm-form-input-name') || 'id';
     const inputValue = $(this).data('confirm-form-input-value');
     const disableRedirects = $(this).data('confirm-form-disable-redirects');
-    const formId = 'confirm_form_' + url.split('/').join('_');
+    const formId = 'confirm_form_' + url.split('/').join('_').replaceAll(':', '').replaceAll('.', '');
    $(body).append(`<div id="${formId}">
        <form action="${url}" data-disable-redirects="${disableRedirects ? 1 : 0}" data-auto-close-modal="1" class="form  modal-window__form">
             <div class="form__content">
