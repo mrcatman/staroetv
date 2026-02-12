@@ -116,7 +116,7 @@ class RecordsUploadController extends Controller
         $storage = Storage::disk('media-storage');
         $path = "/videos/$id.mp4";
         if (!$storage->exists($path)) {
-            abort(404);
+            abort(400);
         }
 
         $thumbnail = MediaHelper::makeThumbnail($storage->path($path));
