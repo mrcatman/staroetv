@@ -561,16 +561,18 @@ class RecordsController extends EntityController
         }
 
         $has_uploaded_video = request()->input('record.upload', false) && request()->has('record.uploaded_file_url');
-        if (request()->input('record.code') == "" && !$has_uploaded_video && !$record->use_own_player) {
-            $errors['url'] = "Укажите корректную ссылку";
-        } else {
-            $code = Purifier::clean(request()->input('record.code'), 'embed');
-            $code = str_replace('&amp;', '&', $code);
-            if (empty($code)) {
-                $errors['code'] = "Некорректный код для вставки видео";
+        if (!$has_uploaded_video && !$record->use_own_player) {
+            if (request()->input('record.code') == "") {
+                $errors['url'] = "Укажите корректную ссылку";
+            } else {
+                $code = Purifier::clean(request()->input('record.code'), 'embed');
+                $code = str_replace('&amp;', '&', $code);
+                if (empty($code)) {
+                    $errors['code'] = "Некорректный код для вставки видео";
+                }
+                $record->embed_code = $code;
+                $record->external_id = ExternalServicesHelper::resolveId($record->embed_code);
             }
-            $record->embed_code = $code;
-            $record->external_id = ExternalServicesHelper::resolveId($record->embed_code);
         }
 
         $record->year = null;
