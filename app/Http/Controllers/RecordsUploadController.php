@@ -109,6 +109,7 @@ class RecordsUploadController extends Controller
             abort(403);
         }
         $record = Record::find($id);
+        dd($record, $id);
         if (!$record) {
             abort(404);
         }
