@@ -35,7 +35,7 @@ class MediaHelper {
         $thumbnail_path = "video_covers/$filename.jpg";
         $thumbnail_full_path = public_path($thumbnail_path);
         Process::run("ffmpeg -y -ss $time -i '$path' -vframes 1 '$thumbnail_full_path'");
-
+var_dump("ffmpeg -y -ss $time -i '$path' -vframes 1 '$thumbnail_full_path'");
         return "/$thumbnail_path";
     }
 
