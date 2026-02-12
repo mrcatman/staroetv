@@ -17,11 +17,10 @@ export const useTusUpload = (isRadio?: boolean) => {
     }
 
     const isUploading = ref<boolean>(false);
-    let uploadError = ref<string>();
 
-    let percent = ref<number>(0);
-    let url = ref<string>();
-    let thumbnail = ref<string>();
+    const percent = ref<number>(0);
+    const url = ref<string>();
+    const thumbnail = ref<string>();
 
     const upload = () => {
         isUploading.value = true;
@@ -34,8 +33,7 @@ export const useTusUpload = (isRadio?: boolean) => {
                     filename: file.value.name,
                 },
                 onError: (error) => {
-                    uploadError.value = 'Ошибка загрузки, попробуйте еще раз или напишите администратору'
-                    reject(error);
+                    reject('Ошибка загрузки, попробуйте еще раз или напишите администратору');
                 },
                 onProgress: (bytesUploaded, bytesTotal) => {
                     percent.value = Math.floor((bytesUploaded / bytesTotal) * 10000) / 100;
@@ -48,8 +46,7 @@ export const useTusUpload = (isRadio?: boolean) => {
                     }).done(res => {
                         isUploading.value = false;
                         if (!res.status) {
-                            uploadError.value = res.text;
-                            reject();
+                            reject(res.text);
                             return;
                         }
 
@@ -60,14 +57,11 @@ export const useTusUpload = (isRadio?: boolean) => {
                         thumbnail.value = res.data.thumbnail;
                     }).fail(e => {
                         isUploading.value = false;
-                        uploadError.value = getErrorMessage(e);
-
-                        reject();
+                        reject(getErrorMessage(e));
                     });
                 }
             })
             tusUpload.start();
-            console.log(tusUpload);
         })
     }
 
@@ -81,7 +75,6 @@ export const useTusUpload = (isRadio?: boolean) => {
         percent,
 
         upload,
-        uploadError,
         url,
         thumbnail
     }

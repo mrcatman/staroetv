@@ -462,7 +462,11 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
             tusUpload.setEndpoint(uploadConfigStore.uploadEndpoint);
             try {
                 await tusUpload.upload();
-            } catch (e) {
+            } catch (errorText) {
+                response.value = {
+                    status: 0,
+                    text: errorText
+                }
                 return;
             }
         }

@@ -40,7 +40,7 @@ class RecordsUploadController extends Controller
         if (!$storage->exists($upload_path)) {
             return [
                 'status' => 0,
-                'text' => 'Файл не найден'
+                'text' => 'Ошибка загрузки: файл не найден. Повторите загрузку ещё раз'
             ];
         }
 
