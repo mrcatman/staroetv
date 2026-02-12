@@ -17,3 +17,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::any('api/search', [\App\Http\Controllers\RecordsController::class, 'apiSearch']);
+Route::post('api/records/on-downloaded/{id}', [\App\Http\Controllers\RecordsUploadController::class, 'onDownloaded']);

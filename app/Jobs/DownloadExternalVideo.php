@@ -26,32 +26,36 @@ class DownloadExternalVideo implements ShouldQueue
         $path = "videos/" . $record->id . ".mp4";
         $url = $record->original_url;
 
-
         $temp_path = public_path($path);
         $output_path = $storage->path($path);
 
-        $process = MediaHelper::download($url, $temp_path);
-//        if ($process->errorOutput()) {
-//            throw new \Exception();
-//        }
-        if (file_exists($temp_path)) {
-            $thumbnail = MediaHelper::makeThumbnail($temp_path);
-            $cover = Picture::firstOrNew([
-                'url' => $thumbnail
-            ]);
-            $cover->save();
-
-            Process::run("mv $temp_path $output_path");
-
-            $record->use_own_player = true;
-            $record->source_type = "local";
-            $record->source_path = "/" . $path;
-            $record->cover_id = $cover->id;
-            $record->save();
-
-            Cache::forget('record_' . $record->id);
-            Cache::forget('record_cover_' . $record->id);
+        if (str_contains($url, 'youtu')) {
+            MediaHelper::mediaServerDownload($url, $record->id);
+            return;
         }
 
+        $process = MediaHelper::download($url, $temp_path);
+        if ($process->errorOutput()) {
+            throw new \Exception($process->errorOutput());
+        }
+        if (file_exists($temp_path)) {
+            return;
+        }
+        $thumbnail = MediaHelper::makeThumbnail($temp_path);
+        $cover = Picture::firstOrNew([
+            'url' => $thumbnail
+        ]);
+        $cover->save();
+
+        Process::run("mv $temp_path $output_path");
+
+        $record->use_own_player = true;
+        $record->source_type = "local";
+        $record->source_path = "/" . $path;
+        $record->cover_id = $cover->id;
+        $record->save();
+
+        Cache::forget('record_' . $record->id);
+        Cache::forget('record_cover_' . $record->id);
     }
 }

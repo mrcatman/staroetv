@@ -16,6 +16,20 @@ class MediaHelper {
         return $response;
     }
 
+    public static function mediaServerDownload($url, $id)
+    {
+        $response = Http::post("https://media.staroetv.su/api/download", [
+            'url' => $url,
+            'id' => $id,
+        ])->json();
+
+        if (isset($response->error)) {
+            throw new \Exception($response->error);
+        }
+        return $response;
+    }
+
+
     public static function makeThumbnail($path, $time = null): string
     {
         $filename = pathinfo($path, PATHINFO_FILENAME);
@@ -57,7 +71,7 @@ class MediaHelper {
     }
 
     public static function getDownloadCommand($url, $path) {
-        return "youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' -i '$url' --output $path";
+        return "yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' -i '$url' --output $path";
     }
 
     public static function reencode($path, $output_path) {

@@ -6,7 +6,10 @@ use App\Helpers\MediaHelper;
 use App\Helpers\PermissionsHelper;
 use App\Jobs\ConvertVideo;
 use App\Jobs\DownloadExternalVideo;
+use App\Models\Picture;
 use App\Models\Record;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
 class RecordsUploadController extends Controller
@@ -97,5 +100,40 @@ class RecordsUploadController extends Controller
             'text' => 'Задание на скачивание добавлено в очередь',
             'redirect_to' => $record->url
         ];
+    }
+
+    public function onDownloaded($id)
+    {
+        $ips = explode(',', config('site.media_server_ips'));
+        if (!in_array(request()->ip(), $ips)) {
+            abort(403);
+        }
+        $record = Record::find($id);
+        if (!$record) {
+            abort(404);
+        }
+
+        $storage = Storage::disk('media-storage');
+        $path = "/videos/$id.mp4";
+        if (!$storage->exists($path)) {
+            abort(404);
+        }
+
+        $thumbnail = MediaHelper::makeThumbnail($storage->path($path));
+        $cover = Picture::firstOrNew([
+            'url' => $thumbnail
+        ]);
+        $cover->save();
+
+        $record->use_own_player = true;
+        $record->source_type = "local";
+        $record->source_path = $path;
+        $record->cover_id = $cover->id;
+        $record->save();
+
+        Cache::forget('record_' . $record->id);
+        Cache::forget('record_cover_' . $record->id);
+
+        return ['status' => 1];
     }
 }
