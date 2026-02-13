@@ -450,6 +450,8 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
         //Route::get('new-section', [ForumController::class, 'newSection'])->name('sections.new');
 
+        Route::get('last-topics', [ForumController::class, 'lastTopics'])->name('last-topics');
+
         Route::get('0-{message_id}', [ForumController::class, 'redirectToMessageById'])->name('redirect-to-message-by-id');
 
         Route::get('{forum_id}-{topic_id}-0-17-1', [ForumController::class, 'redirectToLastMessage'])->name('topics.show-last-message');
@@ -473,10 +475,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         Route::post('edit-message', [ForumController::class, 'editMessage'])->name('messages.update');
         Route::post('delete-message', [ForumController::class, 'deleteMessage'])->name('messages.delete');
 
-        Route::get('last-topics', [ForumController::class, 'lastTopics'])->name('last-topics');
         Route::get('user-messages/{user_id}', [ForumController::class, 'userMessages'])->name('user-messages');
-
-
 
     });
 

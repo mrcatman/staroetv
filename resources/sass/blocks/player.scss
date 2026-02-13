@@ -10,11 +10,13 @@
         padding-left: 1.5em;
     }
 
-    &__time + .plyr__time::before {
-        margin: 0 .5em;
-    }
-
-    &__time--duration {
+    &__time + &__time {
+        &::before {
+            margin: 0 .5em;
+        }
+        @include mobile() {
+            display: inline-block!important;
+        }
     }
 
     &__progress {
@@ -67,12 +69,26 @@
         color: #fff;
     }
 
-    &__control--fullscreen .plyr__tooltip {
+    &__control--fullscreen &__tooltip {
         left: calc(50% - 1.25em);
         &:before {
             left: calc(50% + 1.25em);
         }
     }
+
+    &__control--fullscreen &__tooltip, &__control--embed &__tooltip {
+        @include mobile() {
+            top: unset;
+            bottom: calc(-2.75em - 4px);
+            &:before {
+                top: -4px;
+                bottom: unset;
+                border-top: none;
+                border-bottom: var(--plyr-tooltip-arrow-size, 4px) solid var(--plyr-tooltip-background, #fff);
+            }
+        }
+    }
+
 
     &--audio &__controls {
         --plyr-audio-control-color: var(--text-color);
@@ -111,6 +127,23 @@
             position: absolute;
             bottom: .25em;
             left: .5em;
+        }
+    }
+
+    @include mobile() {
+        &--audio &__control--embed {
+            margin-right: -.25em!important;
+        }
+        &--audio &__control--embed &__tooltip:before {
+            left: calc(100% - 1em)!important;
+        }
+
+        &--audio &__control--embed &__tooltip {
+            transform: translate(calc(-100% + 4em)) scale(0)!important;
+        }
+
+        &--audio &__control--embed:hover &__tooltip {
+            transform: translate(calc(-100% + 1em)) scale(1)!important;
         }
     }
 
@@ -224,9 +257,14 @@
     text-align: center;
     color: #fff;
     z-index: 10;
-
+    @include mobile() {
+        font-size: .875em;
+    }
     &__inner {
         max-width: 75%;
+        @include mobile() {
+            max-width: calc(100% - 2em);
+        }
     }
 
     &__copy {
@@ -238,7 +276,9 @@
             font-size: 1.25em;
             opacity: .75;
             transition: opacity .25s;
-
+            @include mobile() {
+                font-size: 1em;
+            }
             &:hover {
                 opacity: 1;
             }
@@ -278,7 +318,7 @@
             margin: .25em 0;
             gap: .5em;
             @include mobile() {
-                margin: .4em 0;
+                margin: .125em 0;
             }
             &__title {
                 white-space: nowrap;

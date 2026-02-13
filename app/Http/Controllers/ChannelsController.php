@@ -73,7 +73,7 @@ class ChannelsController extends EntityController
                 ];
                 $genres->push($no_genre);
             }
-            $popular_programs = $channel->programs()->withCount('records')->orderBy('views', 'desc')->limit(25)->get();
+            $popular_programs = $channel->unorderedPrograms()->withCount('records')->having('records_count', '>', 0)->orderBy('views', 'desc')->limit(25)->get();
 
             $genres->prepend((object)[
                 'id' => -2,

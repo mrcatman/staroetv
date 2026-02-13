@@ -39,11 +39,18 @@
         align-items: center;
         justify-content: center;
         gap: var(--col-margin);
+        margin-top: var(--col-margin);
+        @include mobile() {
+            flex-direction: column;
+        }
         &__list {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             gap: .5em;
+            @include mobile() {
+                font-size: .75em;
+            }
         }
     }
 
@@ -72,6 +79,9 @@
     &__button {
         min-width: 5em;
         text-align: center;
+        @include mobile() {
+            min-width: 3.5em;
+        }
     }
 }
 

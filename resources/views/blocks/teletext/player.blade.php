@@ -25,10 +25,6 @@
                                     @endif value="{{$teletext_page}}">{{$teletext_page}}</option>
                         @endforeach
                     </select>
-                    <div class="teletext-controls__subpages">
-                        <div class="teletext-controls__subpages__title">Подстраницы:</div>
-                        <div class="teletext-controls__subpages__list"></div>
-                    </div>
                 </div>
 
                 <a href="?page={{$navigation['next']}}"
@@ -36,6 +32,11 @@
                     >>
                 </a>
             </div>
+            <div class="teletext-controls__subpages">
+                <div class="teletext-controls__subpages__title">Подстраницы:</div>
+                <div class="teletext-controls__subpages__list"></div>
+            </div>
+
 
         </div>
     </div>

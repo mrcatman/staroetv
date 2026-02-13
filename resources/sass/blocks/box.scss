@@ -132,7 +132,9 @@
             white-space: nowrap;
             position: relative;
             z-index: 2;
-
+            @include mobile() {
+                margin-left: unset;
+            }
             &:empty {
                 display: none;
             }

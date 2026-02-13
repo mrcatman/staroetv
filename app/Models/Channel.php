@@ -29,6 +29,9 @@ class Channel extends Model {
         return $this->records()->where(['is_interprogram' => true]);
     }
 
+    public function unorderedPrograms() {
+        return $this->hasMany(Program::class);
+    }
 
     public function programs() {
         return $this->hasMany(Program::class)->orderBy('order');

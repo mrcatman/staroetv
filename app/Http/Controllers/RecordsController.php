@@ -688,8 +688,7 @@ class RecordsController extends EntityController
             DownloadExternalVideo::dispatch($record);
         }
 
-        Cache::forget('record_' . $record->id);
-        Cache::forget('record_cover_' . $record->id);
+        $record->clearCache();
 
         $text = $record->is_radio ? ($is_new ? 'Радиозапись добавлена' : 'Радиозапись обновлена') : ($is_new ? 'Видео добавлено' : 'Видео обновлено');
         $text .= '<a target=_blank href="' . $record->url . '">Перейти</a>';
@@ -962,8 +961,7 @@ class RecordsController extends EntityController
 
     protected function afterDelete($record)
     {
-        Cache::forget('record_' . $record->id);
-        Cache::forget('record_cover_' . $record->id);
+        $record->clearCache();
         if ($record->use_own_player && str_contains($record->source_path, "videos/")) {
             $source_path = public_path($record->source_path);
             $do_not_delete = Record::where(['source_path' => $source_path])->where('id', '!=', $record->id)->count() > 0;
@@ -1043,7 +1041,7 @@ class RecordsController extends EntityController
             ];
         };
 
-        Cache::forget('record_' . $record->id);
+        $record->clearCache();
 
         $record->use_own_player = true;
         $record->telegram_id = request()->input('telegram_id');

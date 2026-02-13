@@ -56,7 +56,6 @@ class DownloadExternalVideo implements ShouldQueue
         $record->cover_id = $cover->id;
         $record->save();
 
-        Cache::forget('record_' . $record->id);
-        Cache::forget('record_cover_' . $record->id);
+        $record->clearCache();
     }
 }

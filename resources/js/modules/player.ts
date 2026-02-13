@@ -130,8 +130,8 @@ $(body).on('click', '.plyr__control--embed', function() {
     const player = $(this).parents('.plyr');
     const playerEl = $(player).find('.own-player');
     const id = $(playerEl).data('id');
-    const url = 'https://staroetv.su' + $(playerEl).data('url');
-    let code = $(player).hasClass('own-player--radio') ? `<iframe frameborder="0" src="https://staroetv.su/embed/${id}" width="640" height="105" allowfullscreen></iframe>` : `<iframe frameborder="0" src="http://staroetv.su/embed/${id}" width="640" height="480" allowfullscreen></iframe>`;
+    const url = $(playerEl).data('url');
+    let code = $(player).hasClass('own-player--radio') ? `<iframe frameborder="0" src="https://staroetv.su/embed/${id}" width="640" height="105" allowfullscreen></iframe>` : `<iframe frameborder="0" src="https://staroetv.su/embed/${id}" width="640" height="480" allowfullscreen></iframe>`;
     code = code.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
         return '&#' + i.charCodeAt(0) + ';';
     });

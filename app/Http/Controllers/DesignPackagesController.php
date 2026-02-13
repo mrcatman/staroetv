@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Constants\Actions;
+use App\Constants\CacheTimes;
 use App\Helpers\ActionsLogHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\ViewsHelper;
@@ -197,7 +198,7 @@ class DesignPackagesController extends Controller
             $related = [];
             // $related =  InterprogramPackage::where(['channel_id' => $channel->id])->inRandomOrder()->limit(5)->get();
         } else {
-            $types_to_hide = [22];
+
             $conditions = [];
             $package = DesignPackage::where(['channel_id' => $channel->id])->where(function ($q) use ($package_url) {
                 $q->where(['id' => $package_url]);
@@ -211,38 +212,42 @@ class DesignPackagesController extends Controller
             ViewsHelper::increment($package, 'interprogram');
             $related = DesignPackage::where(['channel_id' => $channel->id])->where('id', '!=', $package->id)->inRandomOrder()->limit(5)->get();
 
-            $records = $package->records;
-            if ($hide_unsorted) {
-                $records = $records->filter(function ($record) use ($types_to_hide) {
-                    return !in_array($record->interprogram_type, $types_to_hide);
+            $annotations = Cache::remember('design_package_records_'.$package->id, CacheTimes::RELATION, function () use ($package) {
+                $types_to_hide = [22];
+                $records = $package->records;
+               // if ($hide_unsorted) {
+                    $records = $records->filter(function ($record) use ($types_to_hide) {
+                        return !in_array($record->interprogram_type, $types_to_hide);
+                    });
+              //  }
+
+                $annotations = $package->annotations;
+                $annotations = $annotations->map(function ($annotation, $index) use ($annotations, $records) {
+                    return [
+                        'annotation' => $annotation,
+                        'records' => $records->filter(function ($record) use ($annotations, $annotation, $index) {
+                            return $record->internal_order > $annotation->order && (!isset($annotations[$index + 1]) || $record->internal_order < $annotations[$index + 1]->order);
+                        })
+                    ];
                 });
-            }
 
-            $annotations = $package->annotations;
-            $annotations = $annotations->map(function ($annotation, $index) use ($annotations, $records) {
-                return [
-                    'annotation' => $annotation,
-                    'records' => $records->filter(function($record) use ($annotations, $annotation, $index) {
-                        return $record->internal_order > $annotation->order && (!isset($annotations[$index + 1]) || $record->internal_order < $annotations[$index + 1]->order);
-                    })
-                ];
-            });
+                if (count($annotations) > 0) {
+                    $annotations->push([
+                        'annotation' => null,
+                        'records' => $records->filter(function ($record) use ($annotations) {
+                            return $record->internal_order > $annotations[count($annotations) - 1]['annotation']->order;
+                        })
+                    ]);
+                }
 
-            if (count($annotations) > 0) {
                 $annotations->push([
                     'annotation' => null,
                     'records' => $records->filter(function ($record) use ($annotations) {
-                        return $record->internal_order > $annotations[count($annotations) - 1]['annotation']->order;
+                        return count($annotations) == 0 || $record->internal_order < $annotations[0]['annotation']->order;
                     })
                 ]);
-            }
-
-            $annotations->push([
-                'annotation' => null,
-                'records' => $records->filter(function($record) use ($annotations) {
-                    return count($annotations) == 0 || $record->internal_order < $annotations[0]['annotation']->order;
-                })
-            ]);
+                return $annotations;
+            });
         }
 
         return view('pages.graphics.show', [
@@ -574,6 +579,7 @@ class DesignPackagesController extends Controller
             }
         }
 
+        Cache::forget('design_package_records_'.$package->id);
         Cache::forget('design_package_url_'.$package->id);
         Cache::forget('design_package_random_pictures_'.$package->id);
 

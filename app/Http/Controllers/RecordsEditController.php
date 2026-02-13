@@ -366,8 +366,7 @@ class RecordsEditController extends Controller
     {
         $replacements = [];
         foreach ($records as $record) {
-            Cache::forget('record_' . $record->id);
-            Cache::forget('record_cover_' . $record->id);
+            $record->clearCache();
 
             $class = $record->is_radio ? 'radio-recording' : 'record-item';
 
