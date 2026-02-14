@@ -503,7 +503,7 @@ class Record extends Model {
     public function clearCache()
     {
         Cache::forget('record_'.$this->id);
-        Cache::forget('record_cover_'.$this->original_id);
+        Cache::forget('record_cover_'.$this->id);
         if ($this->interprogram_package_id) {
             Cache::forget('design_package_records_'.$this->interprogram_package_id);
         }
