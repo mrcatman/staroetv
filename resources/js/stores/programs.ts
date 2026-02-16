@@ -32,7 +32,12 @@ export const useProgramsStore = defineStore('programs', () => {
     }
 
     const findByNameAndChannelId = (name: string, channelId: number) => {
-        return programs.value[channelId]?.find((program: Models.Program) => program.name.toLocaleLowerCase().includes(name.toLocaleLowerCase()));
+        const _name = name.toLocaleLowerCase();
+        const program = programs.value[channelId]?.find((program: Models.Program) => program.name.toLocaleLowerCase() === _name);
+        if (program) {
+            return program;
+        }
+        return programs.value[channelId]?.find((program: Models.Program) => program.name.toLocaleLowerCase().includes(_name));
     }
 
     return {

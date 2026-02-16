@@ -369,12 +369,16 @@ class RecordsController extends EntityController
     public function getInfo()
     {
         $data = request()->validate([
-            'record_id' => 'sometimes|numeric',
-            'video_id' => 'string',
-            'video_type' => 'in:youtube,vk'
+            'record_id' => 'sometimes',
+            'video_id' => 'required',
+            'video_type' => 'required|in:youtube,vk'
         ]);
 
-        $existing_records = Record::where('embed_code', 'LIKE', '%' . $data['video_id'] . '%');
+        $existing_records = Record::where(function($q) use($data) {
+            $q->where('embed_code', 'LIKE', '%' . $data['video_id'] . '%');
+            $q->orWhere(['external_id' => $data['video_id']]);
+        });
+
         if (isset($data['record_id'])) {
             $existing_records = $existing_records->where('id', '!=', $data['record_id']);
         }
@@ -390,7 +394,15 @@ class RecordsController extends EntityController
 
 
         if ($data['video_type'] == 'youtube') {
-            $video = (ExternalServicesHelper::youtubeVideo($data['video_id']))->items[0];
+            $data = (ExternalServicesHelper::youtubeVideo($data['video_id']));
+            if (!isset($data->items[0])) {
+                return [
+                    'status' => 0,
+                    'text' => 'Видео не найдено',
+                ];
+            }
+
+            $video = $data->items[0];
             $duration = ExternalServicesHelper::youtubeVideoDuration($data['video_id']);
             $info = [
                 'id' => $video->id,
@@ -404,7 +416,15 @@ class RecordsController extends EntityController
                 'duration' => $duration
             ];
         } else {
-            $video = (ExternalServicesHelper::vkVideo($data['video_id']))->response->items[0];
+            $data = (ExternalServicesHelper::vkVideo($data['video_id']));
+            if (!isset($data->response->items[0])) {
+                return [
+                    'status' => 0,
+                    'text' => 'Видео не найдено',
+                ];
+            }
+
+            $video = $data->response->items[0];
             $info = [
                 'id' => $video->owner_id . ' ' . $video->id,
                 'title' => $video->title,
@@ -1282,7 +1302,7 @@ class RecordsController extends EntityController
             $q->where('title', 'LIKE', '%' . request()->input('title') . '%');
             switch ($type) {
                 case 'programs':
-                    $q->where(function ($q) {
+                    $q->orWhere(function ($q) {
                         $q->where(['program_id' => request()->input('program.id')]);
                         $q->where(['channel_id' => request()->input('channel.id')]);
                         $q->where(['year' => request()->input('date.year')]);
@@ -1295,7 +1315,7 @@ class RecordsController extends EntityController
                     });
                     break;
                 case 'advertising':
-                    $q->where(function ($q) {
+                    $q->orWhere(function ($q) {
                         $q->where(['is_advertising' => true]);
                         $q->where(function ($q) {
                             $q->where('advertising_brand', 'LIKE', '%' . request()->input('advertising.brand'). '%');

@@ -88,6 +88,7 @@
                     </div>
 
                     <input-container
+                        class="record-form__duplicates"
                         v-if="duplicates?.length"
                         vertical
                         label="Дубликаты записи"

@@ -25,7 +25,7 @@
             <div class="mass-uploader__record__top">
                 <div class="form__content mass-uploader__record__top__left">
                     <div class="row mass-uploader__record__top__inner">
-                        <div class="col">
+                        <div class="col col--auto">
                             <input-container vertical label="Тип" :errors="errors.type">
                                 <type-select v-model="data.type"/>
                             </input-container>
@@ -123,7 +123,7 @@
                                  v-model:name="data.program.name" :customOptions="createTagOptions"/>
                         <a v-if="data.program.name.length && data.program.id <= -1 && !data.program.unknown"
                            class="input-container__button input-container__button--select input-container__button--big input-container__button--info">
-                            <span class="tooltip">Будет создан новый канал</span>
+                            <span class="tooltip">Будет создана новая программа</span>
                             <i class="fa fa-exclamation-circle"></i>
                         </a>
                         <template #toggleButtons>

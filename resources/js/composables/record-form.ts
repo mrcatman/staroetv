@@ -341,8 +341,10 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
 
                 if (data.value.channel.id > 0) {
                     await programsStore.load(data.value.channel.id);
-                    const foundProgram = programsStore.findByNameAndChannelId(data.value.program.name, data.value.channel.id);
-                    data.value.program.id = foundProgram?.id;
+                    if (parsed[4]?.trim().length) {
+                        const foundProgram = programsStore.findByNameAndChannelId(parsed[4], data.value.channel.id);
+                        data.value.program.id = foundProgram?.id;
+                    }
                 }
             }
 
