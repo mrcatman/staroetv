@@ -45,8 +45,6 @@ const initPlaylistItem = (data) => {
     replaceHTML(data.html);
     document.title = `${data.record.title} - Старый Телевизор`;
 
-    $('.box--comments').replaceWith(data.comments);
-
     setTimeout(() => {
         window.initOwnPlayer();
     }, 50);

@@ -19,7 +19,7 @@
         {!! $record->embed_code !!}
     @endif
 @else
-    @if (($record->use_own_player && !$record->temp_hide_own_player) || $record->telegram_id)
+    @if (($record->use_own_player) || $record->telegram_id)
         @if ($record->telegram_id && count($record->all_telegram_sources) > 1)
             @for ($i = 0; $i < count($record->all_telegram_sources); $i++)
             <div class="tab-content" data-id="parts" data-tab="part_{{$i}}" @if($i != 0) style="display: none" @endif>
