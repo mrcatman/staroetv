@@ -42,9 +42,7 @@ const initPlaylist = () => {
 }
 
 const initPlaylistItem = (data) => {
-
-    console.log(data.dom);
-    replaceHTML(data.dom);
+    replaceHTML(data.html);
     document.title = `${data.record.title} - Старый Телевизор`;
 
     $('.box--comments').replaceWith(data.comments);
