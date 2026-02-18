@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Constants\Teletexts;
 use App\Helpers\PermissionsHelper;
-use App\Helpers\TeletextHelper;
 use App\Helpers\ViewsHelper;
+use App\Jobs\ProcessTeletext;
 use App\Models\Channel;
 use App\Models\Teletext;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class TeletextController extends EntityController
@@ -220,7 +221,7 @@ class TeletextController extends EntityController
         ViewsHelper::increment($teletext, 'teletext');
         $breadcrumb = $this->getBreadcrumb($teletext);
 
-        if (!count($teletext->pages)) {
+        if (!$teletext->pages || !count($teletext->pages)) {
             $page = null;
             $content = '';
             $navigation = null;
@@ -350,10 +351,12 @@ class TeletextController extends EntityController
             $teletext->pending = !PermissionsHelper::allows('contentapprove');
         }
 
+        $teletext->pages = [];
         $teletext->setSupposedDate();
 
         if ($file) {
-            TeletextHelper::process($teletext, $file);
+            Storage::disk('temp')->putFileAs('teletext', $file, 'temp_'.$teletext->id.'.t42');
+            ProcessTeletext::dispatch($teletext);
         }
 
         Cache::forget('teletext_cover_' . $teletext->id);

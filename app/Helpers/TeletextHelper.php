@@ -4,24 +4,24 @@ namespace App\Helpers;
 
 use App\Models\Picture;
 use App\Models\Teletext;
-use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Browsershot\Browsershot;
 use Spatie\LaravelScreenshot\Facades\Screenshot;
 
 class TeletextHelper {
-    public static function process(Teletext $teletext, UploadedFile $file): void
+    public static function process(Teletext $teletext): void
     {
-        $file_path = $file->getRealPath();
-
         $dir = '/teletext/'.$teletext->id;
         Storage::disk('temp')->makeDirectory($dir);
         Storage::disk('public_data')->makeDirectory($dir);
 
         $output_path = Storage::disk('temp')->path($dir);
-        Process::path(config('site.teletext.cwd'))->run('python3 -m teletext html "'.$output_path.'/" "'.$file_path.'"');
+        $file_path = Storage::disk('temp')->path('teletext/temp_'.$teletext->id.'.t42');
 
+        Process::path(config('site.teletext.cwd'))->run('python3 -m teletext html "'.$output_path.'/" "'.$file_path.'"');
+        Log::info('python3 -m teletext html "'.$output_path.'/" "'.$file_path.'"');
         $pages = Storage::disk('temp')->allFiles($dir);
         $pages = array_map(function($page) {
             $path = explode('/',$page);
@@ -71,6 +71,9 @@ class TeletextHelper {
     }
 
     public static function takeScreenshot(Teletext $teletext): void {
+        if (count($teletext->pages) === 0) {
+            return;
+        }
         $page = in_array('100', $teletext->pages) ? '100' : $teletext->pages[0];
         $thumbnail = '/teletext/'.$teletext->id.'/'.$page.'.png';
         Screenshot::url(config('app.url').'/teletext/'.$teletext->id.'?page='.$page.'&inline=true')
