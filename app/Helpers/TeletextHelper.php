@@ -72,7 +72,7 @@ class TeletextHelper {
     }
 
     public static function takeScreenshot(Teletext $teletext): void {
-        if (count($teletext->pages) === 0) {
+        if (!$teletext->pages || count($teletext->pages) === 0) {
             return;
         }
         $page = in_array('100', $teletext->pages) ? '100' : $teletext->pages[0];
