@@ -16,9 +16,9 @@
                         </div>
                     </div>
                     <div class="box__heading">
-                        <div class="box__heading__inner">
+                        <h1 class="box__heading__inner">
                             {{$channel->all_names_with_main}}
-                        </div>
+                        </h1>
                         <div class="box__heading__right">
                             @if ($channel->can_edit || \App\Helpers\PermissionsHelper::allows('contentapprove'))
                                 <span class="button button--light button--dropdown">

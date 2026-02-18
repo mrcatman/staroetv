@@ -5,9 +5,9 @@
 @section('content')
     <div class="box">
         <div class="box__heading">
-            <div class="box__heading__inner">
+            <h1 class="box__heading__inner">
                 Архив телетекста
-            </div>
+            </h1>
             <div class="box__heading__buttons">
                 @if (\App\Helpers\PermissionsHelper::allows('teletextown'))
                     <a class="button" href="{{route('teletext.add')}}">

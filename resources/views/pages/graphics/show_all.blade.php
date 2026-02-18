@@ -7,7 +7,7 @@
         <div class="row row--align-start">
             <div class="col col--2-5">
                 <div class="breadcrumbs">
-                    <a class="breadcrumbs__item" href="/{{$channel->is_radio ? "radio" : "video"}}">Архив</a>
+                    href="{{typed_route('records.[RECORD].index', $channel->is_radio)}}">Архив</a>
                     <a class="breadcrumbs__item" href="{{$channel->full_url}}">{{$channel->name}}</a>
                     <a class="breadcrumbs__item" href="{{$channel->full_url}}#interprogram">Оформление</a>
                 </div>

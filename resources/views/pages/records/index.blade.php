@@ -8,9 +8,9 @@
 
     <div class="box">
         <div class="box__heading">
-            <div class="box__heading__inner">
+            <h1 class="box__heading__inner">
                 {{$params['is_radio'] ? "Архив старых радиозаписей" : "Архив старых телезаписей"}}
-            </div>
+            </h1>
             <div class="box__heading__right">
                 @if (\App\Helpers\PermissionsHelper::allows('channelsown') || \App\Helpers\PermissionsHelper::allows('viadd'))
                 <div class="buttons-row">

@@ -21,7 +21,7 @@
                 </div>
                 <div class="box__heading">
                     @if ($other)
-                        <div class="box__heading__inner">Заставки канала {{$channel->all_names_with_main}}</div>
+                        <h1 class="box__heading__inner">Заставки канала {{$channel->all_names_with_main}}</h1>
                         <div class="box__heading__right">
                             <a href="{{$base_url}}?hide_unsorted={{$hide_unsorted ? 0 : 1}}"
                                class="input-container input-container--checkbox">
@@ -34,7 +34,7 @@
                 </div>
                 @else
                     <div class="box__heading__inner">
-                        <div>
+                        <h1>
                             {{$package->full_name}}
                             @if ($package->author != "")
 
@@ -42,7 +42,7 @@
                                     Автор:&nbsp;<strong>{{$package->author}}</strong>
                                 </div>
                             @endif
-                        </div>
+                        </h1>
 
                     </div>
                     @if ($package->can_edit)

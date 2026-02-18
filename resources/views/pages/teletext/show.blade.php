@@ -13,9 +13,9 @@
                 @endif
             </div>
             <div class="box__heading">
-                <div class="box__heading__inner">
+                <h1 class="box__heading__inner">
                     {{$teletext->title}}
-                </div>
+                </h1>
                 <div class="box__heading__right">
                     @if ($teletext->can_edit || \App\Helpers\PermissionsHelper::allows('contentapprove'))
                         <span class="button button--light button--dropdown">

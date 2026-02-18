@@ -18,9 +18,9 @@
                         </div>
                     </div>
                     <div class="box__heading">
-                        <div class="box__heading__inner">
+                        <h1 class="box__heading__inner">
                             {{$program->name}}
-                        </div>
+                        </h1>
 
                         <div class="box__heading__right">
                             @if (!$unknown && ($program->can_edit || \App\Helpers\PermissionsHelper::allows('contentapprove')))

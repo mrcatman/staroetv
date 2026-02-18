@@ -43,9 +43,9 @@
                 <div class="inner-page__content user-page__info-container__inner">
                     <div class="box">
                         <div class="box__heading">
-                            <div class="box__heading__inner">
+                            <h1 class="box__heading__inner">
                                 <span>Пользователь <strong>{{$user->username}}</strong></span>
-                            </div>
+                            </h1>
                             @if ((auth()->user() && $user->id == auth()->user()->id) || \App\Helpers\PermissionsHelper::allows('usedita'))
                                 <div class="box__heading__buttons">
                                     <div class="buttons-row">

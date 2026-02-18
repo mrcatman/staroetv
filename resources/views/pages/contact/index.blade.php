@@ -2,12 +2,10 @@
 @section('content')
         <form class="form box form--with-captcha" data-reset="1" method="POST">
             @csrf
-
             <div class="box__heading">
-                <div class="box__heading__inner">
+                <h1 class="box__heading__inner">
                     Обратная связь
-                </div>
-
+                </h1>
             </div>
             <div class="box__inner">
                 <div class="response"></div>

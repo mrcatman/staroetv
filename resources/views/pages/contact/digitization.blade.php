@@ -1,13 +1,10 @@
 @extends('layouts.default')
 @section('content')
     <div class="box">
-
-
         <div class="box__heading">
-            <div class="box__heading__inner">
+            <h1 class="box__heading__inner">
                 Оцифровка кассет
-            </div>
-
+            </h1>
         </div>
         <div class="box__inner">
             <div class="text-content digitization">

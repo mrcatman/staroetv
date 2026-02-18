@@ -17,9 +17,9 @@
             <div class="box">
                 <div class="box__inner">
                     <div class="article-page">
-                        <div class="article-page__title">
+                        <h1 class="article-page__title">
                             {{$article->title}}
-                        </div>
+                        </h1>
                         @if ($article->cover_url != "")
                             <img class="article-page__picture" src="{{$article->cover_url}}">
                         @endif

@@ -44,9 +44,9 @@
                 @endif
             </div>
             <div class="box__heading">
-                <div class="box__heading__inner" id="record_title">
+                <h1 class="box__heading__inner" id="record_title">
                     {{$record->title_without_tags}}
-                </div>
+                </h1>
                 <div class="box__heading__right">
                     @if ($record->can_edit || \App\Helpers\PermissionsHelper::allows('contentapprove'))
                         <span class="button button--light button--dropdown">
