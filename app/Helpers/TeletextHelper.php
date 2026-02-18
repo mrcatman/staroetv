@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Models\Picture;
 use App\Models\Teletext;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
@@ -93,6 +94,8 @@ class TeletextHelper {
 
         $teletext->cover_id = $cover->id;
         $teletext->save();
+
+        Cache::forget('teletext_cover_'.$teletext->id);
     }
 
 }

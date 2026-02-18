@@ -21,7 +21,7 @@ class MakeTeletextThumbnails extends Command
      *
      * @var string
      */
-    protected $description = 'Import teletext from remote URL';
+    protected $description = 'Update teletext thumbnails';
 
     /**
      * Create a new command instance.
@@ -43,7 +43,7 @@ class MakeTeletextThumbnails extends Command
         $teletexts = Teletext::whereNull('cover_id')->get();
         foreach ($teletexts as $teletext) {
             TeletextHelper::takeScreenshot($teletext);
-            Log::info('Teletext '.$teletext->id.': screenshot ready');
+            echo 'Teletext '.$teletext->id.': screenshot ready'.PHP_EOL;
         }
     }
 }
