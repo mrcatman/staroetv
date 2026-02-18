@@ -727,10 +727,7 @@ class RecordsController extends EntityController
         $data = $request->validated();
         $is_commercials_search = $request->isCommercialsSearch();
 
-        $records = Record::approved();
-        if (isset($data['is_radio'])) {
-            $records = $records->where(['is_radio' => $data['is_radio']]);
-        }
+        $records = Record::approved()->where(['is_radio' => isset($data['is_radio']) ? $data['is_radio'] : false]);
 
         $show_programs = false;
 
@@ -820,7 +817,7 @@ class RecordsController extends EntityController
                 $date_end = null;
                 if (isset($data['date']['range']) && $data['date']['range']) {
                     $date_start = Carbon::createFromDate(
-                        isset($data['date']['year_start']) && $data['date']['year_start'] > -1 ? $data['date']['year_start'] : 1950,
+                        isset($data['date']['year_start']) && $data['date']['year_start'] > -1 ? $data['date']['year_start'] : 1951,
                         isset($data['date']['month_start']) && $data['date']['month_start'] > -1 ? $data['date']['month_start'] : 1,
                         isset($data['date']['day_start']) && $data['date']['day_start'] > -1 ? $data['date']['day_start'] : 1,
                     )->startOfDay();
@@ -830,11 +827,8 @@ class RecordsController extends EntityController
                         isset($data['date']['day_end']) && $data['date']['day_end'] > -1 ? $data['date']['day_end'] : 31,
                     )->endOfDay();
                 } else {
-                    //  $q->where(["year" => $data['date']['year']]);
                     if (isset($data['date']['month']) && $data['date']['month'] > -1) {
-                        // $q->where(["month" => $data['date']['month']]);
                         if (isset($data['date']['day']) && $data['date']['day'] > -1) {
-                            //     $q->where(["day" => $data['date']['day']]);
                             $date = Carbon::createFromDate($data['date']['year'], $data['date']['month'], $data['date']['day']);
                             $date_start = $date->copy()->startOfDay();
                             $date_end = $date->copy()->endOfDay();
@@ -881,10 +875,10 @@ class RecordsController extends EntityController
                 $counts['programs'] = $records->clone()->whereIn('channel_id', $data['channels'])->select('program_id', \DB::raw('COUNT(*) as count'))->groupBy('program_id')->get()->pluck('count', 'program_id');
             }
             if (isset($data['type']) && $data['type'] == 'advertising') {
-                $counts['advertising_brands'] = $records->clone()->whereNotNull('advertising_brand')->select('advertising_brand', \DB::raw('COUNT(*) as count'))->groupBy('advertising_brand')->get()->pluck('count', 'advertising_brand');
-                $counts['advertising_categories'] = $records->clone()->whereNotNull('advertising_category')->select('advertising_category', \DB::raw('COUNT(*) as count'))->groupBy('advertising_category')->get()->pluck('count', 'advertising_category');
-                $counts['advertising_regions'] = $records->clone()->whereNotNull('region')->select('region', \DB::raw('COUNT(*) as count'))->groupBy('region')->get()->pluck('count', 'region');
-                $counts['advertising_countries'] = $records->clone()->whereNotNull('country')->select('country', \DB::raw('COUNT(*) as count'))->groupBy('country')->get()->pluck('count', 'country');
+                $counts['advertising_brands'] = $records->clone()->whereNotNull('advertising_brand')->select('advertising_brand', \DB::raw('COUNT(*) as count'))->groupBy('advertising_brand')->get()->pluck('count', 'advertising_brand')->sortDesc();
+                $counts['advertising_categories'] = $records->clone()->whereNotNull('advertising_category')->select('advertising_category', \DB::raw('COUNT(*) as count'))->groupBy('advertising_category')->get()->pluck('count', 'advertising_category')->sortDesc();
+                $counts['advertising_regions'] = $records->clone()->whereNotNull('region')->select('region', \DB::raw('COUNT(*) as count'))->groupBy('region')->get()->pluck('count', 'region')->sortDesc();
+                $counts['advertising_countries'] = $records->clone()->whereNotNull('country')->select('country', \DB::raw('COUNT(*) as count'))->groupBy('country')->get()->pluck('count', 'country')->sortDesc();
             }
         }
 
@@ -1129,7 +1123,7 @@ class RecordsController extends EntityController
 
     public function calendar($is_radio = false)
     {
-        $years = Record::approved()->where(['is_radio' => $is_radio])->whereNotNull('year')->selectRaw('count(*) as count_year, year')->where('year', '>=', 1950)->groupBy('year')->orderBy('year', 'asc')->get();
+        $years = Record::approved()->where(['is_radio' => $is_radio])->whereNotNull('year')->selectRaw('count(*) as count_year, year')->where('year', '>', 1950)->groupBy('year')->orderBy('year', 'asc')->get();
         return view('pages.records.calendar', ['years' => $years, 'is_radio' => $is_radio]);
     }
 

@@ -125,7 +125,9 @@ class TeletextController extends EntityController
                 $used_channel_ids[] = $channel['id'];
             }
 
-            $sections[] = $section;
+            if (count($section['items']) > 0) {
+                $sections[] = $section;
+            }
         }
 
         $other_channel_ids = Teletext::whereNotIn('channel_id', $used_channel_ids)->pluck('channel_id')->unique();
@@ -231,6 +233,12 @@ class TeletextController extends EntityController
             }
 
             $content = $teletext->getPageContent($page);
+            if (request()->has('inline')) {
+                return view("pages.teletext.inline", [
+                    'content' => $content,
+                ]);
+            }
+
             if (request()->has('ajax')) {
                 return $content;
             }

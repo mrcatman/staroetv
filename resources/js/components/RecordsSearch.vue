@@ -260,10 +260,8 @@
                         <div class="records-list__filters">
                             <div class="records-list__sort">
                                 <div class="top-list records-list__sort__items records-search__sort">
-                                    <span class="records-search__total" v-if="results?.total > 0">
-                                         {{
-                                            declination(results.total, ['Найдена [number] запись', 'Найдено [number] записи', 'Найдено [number] записей'])
-                                        }}
+                                    <span class="records-search__total">
+                                         {{declination(results.total, ['Найдена [number] запись', 'Найдено [number] записи', 'Найдено [number] записей']) }}
                                     </span>
                                     <a class="top-list__item"
                                        :class="{'top-list__item--active': form.sort === option.key}"

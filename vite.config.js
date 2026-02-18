@@ -6,7 +6,7 @@ export default defineConfig({
     plugins: [
         vue(),
         laravel({
-            input: ['resources/sass/app.scss', 'resources/js/app.js'],
+            input: ['resources/sass/app.scss', 'resources/sass/teletext-inline.scss',  'resources/js/app.js'],
             refresh: true,
         }),
     ],

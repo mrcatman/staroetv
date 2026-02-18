@@ -18,10 +18,10 @@
                 <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].index', $record->is_radio)}}">Архив</a>
                 @if ($record->is_advertising)
                     <a class="breadcrumbs__item"
-                       href="{{typed_route('records.[RECORD].commercials', $record->is_radio)}}">Реклама</a>
+                       href="{{route('records.commercials', ['is_radio' => $record->is_radio])}}">Реклама</a>
                     @if ($record->advertising_brand != '')
                         <a class="breadcrumbs__item"
-                           href="{{route('records.'.$record->route_prefix.'.commercials.search', ['id' => $record->id])}}">{{$record->advertising_brand}}</a>
+                           href="{{route('records.commercials', ['advertising_brands[]' => $record->advertising_brand, 'is_radio' => $record->is_radio])}}">{{$record->advertising_brand}}</a>
                     @endif
                 @endif
                 @if (!$record->channel && !$record->is_advertising)

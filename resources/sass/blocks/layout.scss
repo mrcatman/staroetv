@@ -55,6 +55,23 @@ body {
     color: var(--text-color);
     background: var(--site-background-color);
     font-family: var(--font-main);
+
+    @media screen and (max-width: 1367px) {
+        font-size: 14px;
+    }
+
+    @media screen and (max-width: 1200px) {
+        font-size: 13px;
+    }
+    @media screen and (max-width: 1100px) {
+        font-size: 12px;
+    }
+    @media screen and (max-width: 960px) {
+        font-size: 11px;
+    }
+    @media screen and (max-width: 780px) {
+        font-size: 14px;
+    }
 }
 
 
@@ -92,13 +109,6 @@ a {
 
 #pjax-container {
     background: none !important;
-}
-
-@media screen and (max-width: 1367px) {
-    body {
-        font-size: 14px;
-    }
-
 }
 
 .row {

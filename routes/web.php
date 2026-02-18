@@ -141,11 +141,15 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
             })->name('other.category');
 
             Route::any('commercials', function () use ($is_radio) {
-                return redirect(route('records.commercials', ['is_radio' => $is_radio]));
+                $data = request()->all();
+                $data['is_radio'] = $is_radio;
+                return redirect(route('records.commercials', $data));
             })->name('commercials');
 
             Route::any('commercials-search', function () use ($is_radio) {
-                return redirect(route('records.commercials', ['is_radio' => $is_radio]));
+                $data = request()->all();
+                $data['is_radio'] = $is_radio;
+                return redirect(route('records.commercials', $data));
             })->name('commercials.search');
 
             Route::get('programs', function () use ($is_radio) {

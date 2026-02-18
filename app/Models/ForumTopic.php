@@ -63,4 +63,9 @@ class ForumTopic extends Model {
 
         return $tracking->timestamp >= $this->last_reply_at_ts;
     }
+
+    public function messages()
+    {
+        return $this->hasMany(ForumMessage::class, 'topic_id', 'id');
+    }
 }

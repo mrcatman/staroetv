@@ -54,7 +54,7 @@ class UsersController extends Controller {
         $user = User::where($conditions)->first();
 
         if (!$user) {
-            return view("pages.errors.404");
+            return redirect('/');
         }
         return $this->profile($user);
     }

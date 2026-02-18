@@ -414,6 +414,9 @@
     gap: var(--col-margin);
     padding: 0;
     width: 100%;
+    @media screen and (max-width: 1200px) {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
     @include mobile() {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }

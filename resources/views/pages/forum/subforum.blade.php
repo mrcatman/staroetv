@@ -91,7 +91,7 @@
                                     <div class="box__heading__inner">Темы форума</div>
                                     <div class="box__heading__buttons">
                                         <div class="buttons-row">
-                                            @if ($forum->can_create_new_topic)
+                                            @if ($forum && $forum->can_create_new_topic)
                                                 <a class="button" href="{{route('forum.topics.new', $forum)}}">
                                                     <i class="fa fa-plus"></i>
                                                     Создать тему
@@ -101,13 +101,13 @@
                                     </div>
                                     <div class="box__heading__right">
                                         <div class="buttons-row">
-                                            @if ($forum->parent_id < 1 && \App\Helpers\PermissionsHelper::allows('fredit'))
+                                            @if ($forum && $forum->parent_id < 1 && \App\Helpers\PermissionsHelper::allows('fredit'))
                                                 <a class="button" href="{{route('forum.subforums.new', $forum)}}">
                                                     <i class="fa fa-plus"></i>
                                                     Новый подфорум
                                                 </a>
                                             @endif
-                                            @if (\App\Helpers\PermissionsHelper::allows('fredit'))
+                                            @if ($forum && \App\Helpers\PermissionsHelper::allows('fredit'))
                                                 <a class="button" href="{{route('forum.subforums.edit', $forum)}}">
                                                     <i class="fa fa-edit"></i>
                                                     Редактировать форум

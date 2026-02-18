@@ -22,6 +22,8 @@
         "mews/captcha": "^3.4",
         "mews/purifier": "^3.4",
         "predis/predis": "^3.3",
+        "spatie/browsershot": "^5.2",
+        "spatie/laravel-screenshot": "^1.0",
         "tightenco/ziggy": "^2.6",
         "ueberdosis/tiptap-php": "^2.0"
     },

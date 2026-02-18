@@ -1,0 +1,14 @@
+@import "mixins";
+@import "blocks/teletext";
+
+body {
+    display: flex;
+    font-size: 30px;
+    margin: 0;
+    padding: 0;
+}
+
+.teletext .subpage:after {
+    background-size: 2px 2px;
+    background-image: var(--gradient-small) !important;
+}
