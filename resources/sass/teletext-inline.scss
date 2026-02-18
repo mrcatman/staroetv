@@ -3,12 +3,17 @@
 
 body {
     display: flex;
-    font-size: 30px;
+    font-size: 19px;
     margin: 0;
     padding: 0;
+}
+
+.phpdebugbar {
+    display: none!important;
 }
 
 .teletext .subpage:after {
     background-size: 2px 2px;
     background-image: var(--gradient-small) !important;
 }
+

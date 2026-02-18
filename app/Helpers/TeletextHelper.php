@@ -2,10 +2,13 @@
 
 namespace App\Helpers;
 
+use App\Models\Picture;
 use App\Models\Teletext;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Browsershot\Browsershot;
+use Spatie\LaravelScreenshot\Facades\Screenshot;
 
 class TeletextHelper {
     public static function process(Teletext $teletext, UploadedFile $file): void
@@ -34,14 +37,15 @@ class TeletextHelper {
 
         $teletext->pages = $pages;
         $teletext->save();
-    }
 
+        self::takeScreenshot($teletext);
+    }
 
     public static function processPage(Teletext $teletext, string $page): void
     {
-        $dir = '/teletext/'.$teletext->id.'/'.$page.'.html';
-        $temp_path = Storage::disk('temp')->path($dir);
-        $file_path = Storage::disk('public_data')->path($dir);
+        $path = '/teletext/'.$teletext->id.'/'.$page.'.html';
+        $temp_path = Storage::disk('temp')->path($path);
+        $file_path = Storage::disk('public_data')->path($path);
 
         $subpages = '';
 
@@ -64,6 +68,28 @@ class TeletextHelper {
         }
 
         file_put_contents($file_path, $subpages);
+    }
+
+    public static function takeScreenshot(Teletext $teletext): void {
+        $page = in_array('100', $teletext->pages) ? '100' : $teletext->pages[0];
+        $thumbnail = '/teletext/'.$teletext->id.'/'.$page.'.png';
+        Screenshot::url(config('app.url').'/teletext/'.$teletext->id.'?page='.$page.'&inline=true')
+            ->withBrowsershot(function (Browsershot $browsershot) {
+                $browsershot->ignoreHttpsErrors();
+                $browsershot->windowSize(640, 480);
+            })
+            ->width(640)
+            ->height(480)
+            ->disk('public_data')
+            ->save($thumbnail);
+
+        $cover = Picture::firstOrNew([
+            'url' => $thumbnail
+        ]);
+        $cover->save();
+
+        $teletext->cover_id = $cover->id;
+        $teletext->save();
     }
 
 }

@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => 'https://staroetv.su',
+    'url' => env('APP_URL'),
 
     'asset_url' => env('ASSET_URL', null),
 
