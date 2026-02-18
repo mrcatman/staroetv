@@ -6,3 +6,10 @@ apps:
     instances: 1
     args:
       - octane:start
+  - name: laravel-queue
+    script: artisan
+    exec_mode: fork
+    interpreter: php
+    instances: 1
+    args:
+      - queue:work
