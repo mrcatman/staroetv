@@ -12,4 +12,5 @@ apps:
     interpreter: php
     instances: 1
     args:
-      - queue:work --timeout=0
+      - queue:work
+      - --timeout=0
