@@ -1,7 +1,7 @@
 <template>
     <canvas ref="canvas" style="position: fixed;visibility: hidden"></canvas>
     <video muted ref="video_thumbnails" style="position: fixed; visibility: hidden">
-        <source :src="cut.download_path">
+        <source :src="cut.download_url">
     </video>
     <div @contextmenu.prevent="() => {}" @mousedown="startRightMouseSeeking" @mouseup="stopRightMouseSeeking" class="video-cutter__thumbnails__container">
         <div class="video-cutter__thumbnails__seek"></div>

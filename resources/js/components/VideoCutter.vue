@@ -10,7 +10,7 @@
 
         <div class="video-cutter__inner">
             <video ref="video" class="video-cutter__element">
-                <source :src="cut.download_path">
+                <source :src="cut.download_url">
             </video>
             <div class="video-cutter__slider">
                 <div
@@ -967,7 +967,7 @@ const {
 const isFFmpegClientMode = ref(false);
 const startFFmpegClient = () => {
     isFFmpegClientMode.value = true;
-    initFFmpegClient(props.cut.download_path);
+    initFFmpegClient(props.cut.download_url);
 }
 
 let keyInterval: any = null;
