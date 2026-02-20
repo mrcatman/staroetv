@@ -75,6 +75,11 @@ class ExternalServicesHelper {
         return $matches[3];
     }
 
+    public static function resolveOriginalUrl($url) {
+        $pattern = '/<iframe[^>]+src=["\']([^"\']+)["\'][^>]*>/i';
+        return preg_match($pattern, $url, $matches) ? $matches[1] : null;
+    }
+
     public static function resolveId($url) {
         if ($youtube_id = self::resolveYoutubeId($url)) {
             return $youtube_id;
@@ -83,6 +88,16 @@ class ExternalServicesHelper {
             return $vk_id;
         }
         return null;
+    }
+
+    public static function resolveDownloadUrl($url) {
+        if ($youtube_id = self::resolveYoutubeId($url)) {
+            return 'https://youtu.be/'.$youtube_id;
+        }
+        if ($vk_id = self::resolveVkId($url)) {
+            return 'https://vkvideo.ru/video'.$vk_id;
+        }
+        return self::resolveOriginalUrl($url);
     }
 
     public static function youtubeVideo($youtube_video_id, $part = 'snippet'){

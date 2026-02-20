@@ -49,7 +49,7 @@ class MediaHelper {
     }
 
     public static function getDownloadCommand($url, $path) {
-        return "yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' -i '$url' --output $path";
+        return "yt-dlp --merge-output-format mp4 -i $url --output $path";
     }
 
     public static function reencode($path, $output_path) {

@@ -2,13 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Helpers\ExternalServicesHelper;
 use App\Helpers\MediaHelper;
 use App\Helpers\MediaServerHelper;
 use App\Models\Picture;
 use App\Models\Record;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,7 +25,7 @@ class DownloadExternalVideo implements ShouldQueue
         $storage = Storage::disk('media-storage');
         $record = $this->record;
         $path = "videos/" . $record->id . ".mp4";
-        $url = $record->original_url;
+        $url = ExternalServicesHelper::resolveDownloadUrl($record->embed_code);
 
         $temp_path = public_path($path);
         $output_path = $storage->path($path);

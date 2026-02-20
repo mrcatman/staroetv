@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ExternalServicesHelper;
 use App\Helpers\MediaHelper;
 use App\Helpers\PermissionsHelper;
 use App\Jobs\ConvertVideo;
@@ -90,9 +91,11 @@ class RecordsUploadController extends Controller
             return ['status' => 0, 'text' => 'Запись уже находится на сервере'];
         }
 
-        if (!$record->original_url) {
+        $download_url = ExternalServicesHelper::resolveDownloadUrl($record->embed_code);
+        if (!$download_url) {
             return ['status' => 0, 'text' => 'Не найден исходный URL видео для скачивания'];
         }
+        dd(MediaHelper::getDownloadCommand($download_url, public_path("videos/" . $record->id . ".mp4")));
         DownloadExternalVideo::dispatch($record);
 
         return [
