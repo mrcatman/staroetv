@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ExternalServicesHelper;
 use App\Helpers\MediaHelper;
 use App\Helpers\PermissionsHelper;
 use App\Jobs\CutVideo;
@@ -131,6 +132,7 @@ class VideoCutController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         }
+        $download_url = null;
         $video = Record::find($id);
         if (!$video) {
             return [
@@ -139,28 +141,17 @@ class VideoCutController extends Controller {
             ];
         }
         if (!$video->use_own_player) {
-            preg_match('/<iframe(.*?)src="(.*?)" /', $video->embed_code, $output);
-            if (count($output) != 3) {
-                preg_match('/<iframe(.*?)src=(.*?) (.*?) /', $video->embed_code, $output);
-                if (isset($output[3])) {
-                    unset($output[3]);
-                }
-            }
-            if (count($output) != 3) {
+            $download_url = ExternalServicesHelper::resolveDownloadUrl($video->embed_code);
+            if (!$download_url) {
                 return [
                     'status' => 0,
                     'text' => 'Не распознан источник видео'
                 ];
             }
-            $url = $output[2];
-            if ($url[0] == "/") {
-                $url = "https:" . $url;
-            }
             $path = "temp_videos/" . $video->id . ".mp4";
         } else {
             $path = $video->download_url;
         }
-
 
         $cut = VideoCut::firstOrNew([
             'video_id' => $video->id
@@ -175,7 +166,7 @@ class VideoCutController extends Controller {
             $this->onDownloaded($cut->id, 1);
         } else {
             $output_path = public_path($path);
-            DownloadExternalVideoForCut::dispatch($cut, $url, $output_path);
+            DownloadExternalVideoForCut::dispatch($cut, $download_url, $output_path);
         }
 
         return [
@@ -374,7 +365,7 @@ class VideoCutController extends Controller {
             $cut->data = [];
             $cut->save();
 
-            DownloadExternalVideoForCut::dispatch($cut->id, $url, $output_path);
+            DownloadExternalVideoForCut::dispatch($cut, $url, $output_path);
 
             return [
                 'status' => 1,

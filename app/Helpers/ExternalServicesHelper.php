@@ -77,7 +77,14 @@ class ExternalServicesHelper {
 
     public static function resolveOriginalUrl($url) {
         $pattern = '/<iframe[^>]+src=["\']([^"\']+)["\'][^>]*>/i';
-        return preg_match($pattern, $url, $matches) ? $matches[1] : null;
+        if (preg_match($pattern, $url, $matches)) {
+            $url = $matches[1];
+            if ($url[0] == "/") {
+                $url = "https:" . $url;
+            }
+            return $url;
+        }
+        return null;
     }
 
     public static function resolveId($url) {
