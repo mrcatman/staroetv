@@ -79,15 +79,17 @@
                             {{ currentFrame }} / {{ cut.frames }}
                         </div>
                     </div>
-                    <div class="video-cutter__save" v-if="!isFFmpegClientMode || FFmpegClientReady">
+                    <div class="video-cutter__save">
                         <a class="button" @click="save()">Сохранить</a>
                     </div>
                 </div>
+                <!--
                 <a
                     class="button video-cutter__client-mode"
                     @click="startFFmpegClient()"
                     v-if="!isFFmpegClientMode"
                 >Перейти в клиентский режим</a>
+                -->
             </div>
 
 
@@ -496,17 +498,22 @@ import DateSelect from "../components/DateSelect.vue";
 import InterprogramInfoEditor from "../components/records-manager/InterprogramInfoEditor.vue";
 import Preloader from "../components/Preloader.vue";
 
-import { useChannelsStore } from "../stores/channels";
-import { useCategoriesStore } from "../stores/categories";
-import { useDesignPackagesStore } from "../stores/design-packages";
-import { useFFmpegClient } from "../composables/ffmpeg-client";
 import InputContainer from "@/components/InputContainer.vue";
 import VideoCutterThumbnails from "@/components/video-cutter/VideoCutterThumbnails.vue";
 import PlayerEmbed from "@/components/PlayerEmbed.vue";
 
+import { useChannelsStore } from "@/stores/channels";
+import { useCategoriesStore } from "@/stores/categories";
+import { useDesignPackagesStore } from "@/stores/design-packages";
+
+import { getErrorMessage } from "@/utils/errors";
+
+//import { useFFmpegClient } from "../composables/ffmpeg-client";
+
 interface CutData {
     is_advertising: boolean;
     advertising_brand?: string;
+    advertising_category?: string;
     year?: number | null;
     interprogram_type?: number | string;
     interprogram_package_id?: number;
@@ -654,75 +661,73 @@ const startCutting = async (convertIndexes: number[]) => {
     inProgress.value = true;
     progressPercent.value = 0;
 
-    const makeVideo = async (index: number, videoIndex: number, dataOnly: boolean = false): Promise<boolean> => {
-        if (isFFmpegClientMode.value) {
-            let converted: Uint8Array | null = null;
-            if (!dataOnly) {
-                statusText.value = `Конвертация видео ${videoIndex} из ${indexes.length}`;
-
-                const from = cutResults.value[index].start / fps;
-                const to = (cutResults.value[index].end || frames) / fps;
-
-                videos.value[index] = await FFMpegClientConvert(from, to, index);
-            }
-
-            const fd = new FormData();
-            if (!dataOnly) {
-                fd.append('set_old_date', setOldDate.value ? '1' : '0');
-                fd.append('video', new Blob([converted], {type: "video/mp4"}));
-                statusText.value = `Загрузка на сервер видео ${videoIndex} из ${indexes.length}`;
-            } else {
-                statusText.value = `Обновление информации о видео ${videoIndex} из ${indexes.length}`;
-            }
-
-            return new Promise<boolean>((resolve) => {
-                $.ajax({
-                    type: 'POST',
-                    url: route('cut.make-video', {id: props.cut.id, index}),
-                    data: fd,
-                    processData: false,
-                    contentType: false
-                }).done((res: any) => {
-                    console.log(res);
-                    if (res.status) {
-                        cutResults.value[index].video_id = res.data.video_id;
-                        resolve(true);
-                    } else {
-                        snackbar.value?.show(res);
-                        resolve(false);
-                    }
-                }).fail((xhr: any) => {
-                    console.log(xhr);
-                    const error = xhr.responseJSON;
-                    snackbar.value?.show(error);
-                    resolve(false);
-                });
-            });
-        } else {
+    const makeVideo = async (index: number, videoIndex: number, dataOnly: boolean = false): Promise<void> => {
+        // if (isFFmpegClientMode.value) {
+        //     let converted: Uint8Array | null = null;
+        //     if (!dataOnly) {
+        //         statusText.value = `Конвертация видео ${videoIndex} из ${indexes.length}`;
+        //
+        //         const from = cutResults.value[index].start / fps;
+        //         const to = (cutResults.value[index].end || frames) / fps;
+        //
+        //         videos.value[index] = await FFMpegClientConvert(from, to, index);
+        //     }
+        //
+        //     const fd = new FormData();
+        //     if (!dataOnly) {
+        //         fd.append('set_old_date', setOldDate.value ? '1' : '0');
+        //         fd.append('video', new Blob([converted], {type: "video/mp4"}));
+        //         statusText.value = `Загрузка на сервер видео ${videoIndex} из ${indexes.length}`;
+        //     } else {
+        //         statusText.value = `Обновление информации о видео ${videoIndex} из ${indexes.length}`;
+        //     }
+        //
+        //     return new Promise((resolve, reject) => {
+        //         $.ajax({
+        //             type: 'POST',
+        //             url: route('cut.make-video', {id: props.cut.id, index}),
+        //             data: fd,
+        //             processData: false,
+        //             contentType: false
+        //         }).done((res: any) => {
+        //             if (res.status) {
+        //                 cutResults.value[index].video_id = res.data.video_id;
+        //                 resolve();
+        //             } else {
+        //                 snackbar.value?.show(res);
+        //                 reject(getErrorMessage(res));
+        //             }
+        //         }).fail((xhr: any) => {
+        //             const error = xhr.responseJSON;
+        //             snackbar.value?.show(error);
+        //             reject(getErrorMessage(xhr));
+        //         });
+        //     });
+        // } else {
             if (!dataOnly) {
                 statusText.value = `Конвертация на сервере видео ${videoIndex} из ${indexes.length}`;
             } else {
                 statusText.value = `Обновление информации о видео ${videoIndex} из ${indexes.length}`;
             }
 
-            return new Promise<boolean>((resolve) => {
+            return new Promise((resolve) => {
                 $.post(route('cut.make-video', {id: props.cut.id, index}), {
                     data_only: dataOnly
                 }).done((res: any) => {
                     if (res.status) {
                         cutResults.value[index].video_id = res.data.video_id;
-                        resolve(true);
+                        resolve();
                     } else {
                         snackbar.value?.show(res);
-                        resolve(false);
+                        reject(getErrorMessage(res));
                     }
                 }).fail((xhr: any) => {
                     const error = xhr.responseJSON;
                     snackbar.value?.show(error);
-                    resolve(false);
+                    reject(getErrorMessage(xhr));
                 });
             });
-        }
+        //}
     };
 
     let hasErrors = false;
@@ -735,11 +740,11 @@ const startCutting = async (convertIndexes: number[]) => {
             const index = indexes[i];
             if (!restarted.value) {
                 const dataOnly = convertIndexes.indexOf(index) === -1;
-                const status = await makeVideo(index, videoIndex, dataOnly);
-                if (status) {
+                try {
+                    await makeVideo(index, videoIndex, dataOnly);
                     progressPercent.value += 1 / indexes.length;
-                } else {
-                    statusText.value = `Ошибка в видео ${videoIndex}`;
+                } catch (e) {
+                    statusText.value = `Ошибка в видео ${videoIndex}: ${e}`;
                     hasErrors = true;
                     progressPercent.value = 0;
                     inProgress.value = false;
@@ -827,6 +832,7 @@ const getNextData = (): CutData => {
         return {
             is_advertising: true,
             advertising_brand: getNextBrand(),
+            advertising_category: '',
             year: props.video ? props.video.year : getYear.value,
             short_description: '',
             interprogram_package_id: -1,
@@ -837,6 +843,7 @@ const getNextData = (): CutData => {
             interprogram_type: cutResults.value[cutResults.value.length - 1].data.interprogram_type,
             interprogram_package_id: cutResults.value[cutResults.value.length - 1].data.interprogram_package_id || -1,
             year: props.video ? props.video.year : getYear.value,
+            advertising_category: '',
             advertising_brand: '',
             short_description: '',
         };
@@ -956,19 +963,19 @@ onMounted(() => {
 });
 
 
-const {
-    init: initFFmpegClient,
-    ready: FFmpegClientReady,
-    convert: FFMpegClientConvert,
-} = useFFmpegClient((text: string) => {
-    statusText.value = text;
-});
+// const {
+//     init: initFFmpegClient,
+//     ready: FFmpegClientReady,
+//     convert: FFMpegClientConvert,
+// } = useFFmpegClient((text: string) => {
+//     statusText.value = text;
+// });
 
-const isFFmpegClientMode = ref(false);
-const startFFmpegClient = () => {
-    isFFmpegClientMode.value = true;
-    initFFmpegClient(props.cut.download_url);
-}
+//const isFFmpegClientMode = ref(false);
+// const startFFmpegClient = () => {
+//     isFFmpegClientMode.value = true;
+//     initFFmpegClient(props.cut.download_url);
+// }
 
 let keyInterval: any = null;
 let currentKey = null;

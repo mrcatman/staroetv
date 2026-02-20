@@ -133,8 +133,8 @@ const seekVideo = (time: number) => {
 }
 
 const makeThumbnails = async () => {
-    for (let i = currentThumbnailIndex.value + halfItemsCount.value; i < currentThumbnailIndex.value + halfItemsCount.value + visibleItemsCount; i++) {
-        if (thumbnails.value[i].thumbnail || thumbnails.value[i].time < 0) {
+    for (let i = currentThumbnailIndex.value - halfItemsCount.value; i < currentThumbnailIndex.value + halfItemsCount.value + visibleItemsCount; i++) {
+        if (i < 0 || thumbnails.value[i].thumbnail || thumbnails.value[i].time < 0) {
             continue;
         }
 
@@ -223,7 +223,7 @@ const startRightMouseSeeking = (e) => {
     clearInterval(rightMouseSeekInterval);
     rightMouseSeekInterval = setInterval(() => {
         currentFrame.value += speed > 0 ? (currentFrame.value < framesCount * props.fps ? 1 : 0) : (currentFrame.value > 0 ? -1 : -0);
-        emit('seek', currentFrame.value / framesInSecond / props.fps);
+        emit('seek', currentFrame.value / props.fps);
     }, (.5 - Math.abs(speed)) * 100);
 }
 

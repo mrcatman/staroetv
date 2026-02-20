@@ -193,6 +193,8 @@ class VideoCutController extends Controller {
         };
         $cut_results = $cut->data ? $cut->data : [];
         $data_only = request()->input('data_only', false) === true || request()->input('data_only', false) == 1;
+        $storage = Storage::disk('media-storage');
+
         if (isset($cut_results[$index])) {
             $user = auth()->user();
 
@@ -211,7 +213,7 @@ class VideoCutController extends Controller {
             if (isset($cut_result['video_id'])) {
                 $video = Record::find($cut_result['video_id']);
                 if (!$data_only) {
-                    unlink(public_path($video->source_path));
+                    $storage->delete($video->source_path);
                 }
             }
             if (!$video && $data_only) {
@@ -221,14 +223,12 @@ class VideoCutController extends Controller {
                 ];
             }
 
-
             if (!$data_only) {
                 if (request()->hasFile('video')) {
                     $file = request()->file('video');
-                    $file->move(public_path("videos"), $filename . ".mp4");
+                    $file->move($storage->path("videos"), $filename . ".mp4");
                 } else {
-                    $output_path = public_path("videos/$filename.mp4");
-                    CutVideo::dispatch($path, $output_path, $start, $end);
+                    CutVideo::dispatchSync($path, $filename, $start, $end);
                 }
             }
             $original_video = $cut->video;
@@ -297,10 +297,10 @@ class VideoCutController extends Controller {
                 $video->is_advertising = true;
                 $video->advertising_type = isset($data['advertising_type']) && $data['advertising_type'] > 0 ? $data['advertising_type'] : null;
                 $video->advertising_brand = $data['advertising_brand'];
-                $video->advertising_category = $data['advertising_category'];
+                $video->advertising_category = $data['advertising_category'] ?? "";
                 $video->title = $data['advertising_brand'].' ('.$year.')';
-                $video->short_description = isset($data['short_description']) ? $data['short_description'] : "";
-                $video->description = isset($data['short_description']) ? $data['short_description'] : "";
+                $video->short_description = $data['short_description'] ?? "";
+                $video->description = $data['description'] ?? "";
                 if (isset($data['region'])) {
                     $video->region = $data['region'];
                 }
@@ -311,7 +311,8 @@ class VideoCutController extends Controller {
                 $video->is_interprogram = true;
                 $video->interprogram_type = $data['interprogram_type'];
                 $video->interprogram_package_id = isset($data['interprogram_package_id']) && $data['interprogram_package_id'] > 0 ? $data['interprogram_package_id'] : null;
-                $video->short_description = isset($data['short_description']) ? $data['short_description'] : "";
+                $video->short_description = $data['short_description'] ?? "";
+                $video->description = $data['description'] ?? "";
                 if (!$original_video) {
                     $channel = Channel::find($video->channel_id);
                     if (!$channel) {

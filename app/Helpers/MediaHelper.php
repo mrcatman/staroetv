@@ -28,6 +28,10 @@ class MediaHelper {
         return "/$thumbnail_path";
     }
 
+    public static function cutVideo($path, $start, $end, $output_path) {
+        return Process::forever()->run("ffmpeg -y -i $path -c:v libx264 -acodec copy -ss $start -to $end $output_path");
+    }
+
     public static function getDuration($path): int {
         return (int)Process::run("ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 $path")->output();
     }
