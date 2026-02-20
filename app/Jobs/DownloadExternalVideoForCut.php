@@ -34,7 +34,9 @@ class DownloadExternalVideoForCut implements ShouldQueue
                     $mkv_path = str_replace(".mp4", ".mkv", $this->output_path);
                     MediaHelper::reencode($mkv_path, $this->output_path);
                 }
-
+                if (!file_exists($this->output_path)) {
+                    throw new \Exception("Downloaded file not found");
+                }
                 $this->cut->updateMediaParams();
                 $this->cut->download_status = VideoCut::STATUS_SUCCESS;
                 $this->cut->error = null;

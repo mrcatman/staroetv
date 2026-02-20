@@ -33,7 +33,7 @@ class MediaHelper {
         return (int)Process::run("ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 $path")->output();
     }
 
-    public function getFps($path): int
+    public static function getFps($path): int
     {
         $fps = Process::run("ffprobe -v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate $path")->output();
         $fps_data = explode("/", $fps);

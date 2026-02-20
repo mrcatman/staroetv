@@ -12,7 +12,7 @@
         <div class="box__inner">
             @if ($cut)
                 @if ($cut->download_status === \App\Models\VideoCut::STATUS_PENDING)
-                    <p class="page-text">Идет скачивание файла для обрезки, подождите... </p>
+                    Идет скачивание файла для обрезки, подождите... <br/>
                     <button class="button">Попробовать скачать еще раз</button>
                 @elseif ($cut->download_status === \App\Models\VideoCut::STATUS_SUCCESS)
                     <video-cutter
@@ -21,16 +21,14 @@
                         :video='@json($video)'
                     ></video-cutter>
                 @elseif ($cut->download_status === \App\Models\VideoCut::STATUS_ERROR)
-                    <p class="page-text">Скачивание файла не удалось: <strong>{{$cut->error}}</strong></p>
+                    Скачивание файла не удалось: <strong>{{$cut->error}}</strong><br/>
                     <button class="button">Попробовать скачать еще раз</button>
                 @endif
             @else
                 <div class="response"></div>
+                Нажмите на кнопку ниже, чтобы перейти в редактор видео.
                 @if ($video && $video->use_own_player)
-                    <p class="page-text">Нажмите на кнопку ниже, чтобы перейти в редактор видео.<br></p>
-                @else
-                    <p class="page-text">Нажмите на кнопку ниже, чтобы перейти в редактор видео. Видео будет скачиваться
-                        с видеохостинга, поэтому придется немного подождать.<br></p>
+                    Видео будет скачиватьсяс видеохостинга, поэтому придется немного подождать.
                 @endif
                 <br>
                 <button class="button">Начать обрезку</button>
