@@ -30,6 +30,10 @@ class DownloadExternalVideoForCut implements ShouldQueue
                 MediaServerHelper::download($this->url, 'cut_' . $this->cut->id);
             } else {
                 $process = MediaHelper::download($this->url, $this->output_path);
+                if ($process->errorOutput()) {
+                    throw new \Exception($process->errorOutput());
+                }
+
                 if (str_contains($process->output(), ".mkv")) {
                     $mkv_path = str_replace(".mp4", ".mkv", $this->output_path);
                     MediaHelper::reencode($mkv_path, $this->output_path);
