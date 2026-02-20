@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Helpers\GeolocationHelper;
+use App\Models\User;
+use Illuminate\Console\Command;
+
+class RemoveSpammers extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'users:remove-spammers {--confirm}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Remove spammers';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct(
+        private GeolocationHelper $geolocation
+    )
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        $forbidden_countries = explode(',',config('site.geoip_forbidden_countries'));
+        $confirm = $this->option('confirm');
+        User::orderBy('id', 'desc')->chunk(100, function ($users) use ($confirm, $forbidden_countries) {
+            $users->each(function ($user) use ($confirm, $forbidden_countries) {
+                $country = $this->geolocation->country($user);
+                if (in_array($country, $forbidden_countries)) {
+                    echo 'User '.$user->username.' is a spammer from '.$country.PHP_EOL;
+                    if ($confirm) {
+                        $user->delete();
+                    }
+                }
+            });
+        });
+    }
+}

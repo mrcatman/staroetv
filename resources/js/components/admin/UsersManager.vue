@@ -134,6 +134,11 @@ const table = ref({
             label: 'IP',
             sortable: true
         },
+        {
+            key: 'country',
+            label: 'Страна',
+            sortable: false
+        },
         // {
         //     key: 'group_id',
         //     label: 'Группа',

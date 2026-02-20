@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Helpers\CaptchaHelper;
+use App\Helpers\GeolocationHelper;
 use App\Mail\VerifyAccount;
 use App\Models\User;
 use App\Http\Controllers\Controller;
@@ -21,7 +22,9 @@ class RegisterController extends Controller
         return view('pages.auth.register');
     }
 
-    public function register()
+    public function register(
+        GeolocationHelper $geolocation
+    )
     {
         if (!CaptchaHelper::verify()) {
             return [
@@ -36,6 +39,7 @@ class RegisterController extends Controller
                 'text' => 'Почитайте правила сайта, пожалуйста!',
             ];
         }
+
         $data = request()->validate([
             'username' => ['required', 'string', 'max:255', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -51,7 +55,18 @@ class RegisterController extends Controller
             $user->name = request()->input('name');
         }
         $user->group_id = 2;
+
         $user->ip_address_reg = request()->header('x-real-ip');
+        $country = $geolocation->country($user);
+        $forbidden_countries = explode(',',config('site.geoip_forbidden_countries'));
+
+        if (in_array($country, $forbidden_countries)) {
+            return [
+                'status' => 0,
+                'text' => 'Скорее всего вы спамер и вам тут будут не рады :(',
+            ];
+        }
+
         $user->verify_code = bin2hex(random_bytes(8));
         $user->is_verified = false;
         if (!$user->name || $user->name == "") {

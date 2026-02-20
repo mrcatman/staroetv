@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\DatesHelper;
+use App\Helpers\GeolocationHelper;
 use App\Helpers\PermissionsHelper;
 use App\Models\Record;
 use App\Models\User;
@@ -59,7 +60,9 @@ class UsersController extends Controller {
         return $this->profile($user);
     }
 
-    public function index() {
+    public function index(
+        GeolocationHelper $geolocation
+    ) {
         $on_page = request()->input('on_page', 50);
         if ($on_page <= 10 || $on_page >= 101) {
             $on_page = 10;
@@ -95,8 +98,15 @@ class UsersController extends Controller {
             }
 
             $total = $users->count();
-            $users = $users->paginate($on_page);
-            $users = $users->appends(request()->except('page'));
+
+            $users = $users->paginate($on_page)->appends(request()->except('page'));
+
+            if ($is_moderator) {
+                $users->getCollection()->each(function($user) use ($geolocation) {
+                    $user->country = $geolocation->country($user);
+                });
+            }
+
             return view("pages.users.list", [
                 'is_moderator' => $is_moderator,
                 'sort_by' => $sort_by,

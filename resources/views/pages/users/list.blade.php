@@ -69,6 +69,7 @@
                         <td>Никнейм</td>
                         @if ($is_moderator)
                             <td>IP-адрес</td>
+                            <td>Страна</td>
                         @endif
                         <td>Группа</td>
                         <td>Дата входа</td>
@@ -90,6 +91,10 @@
                                 <td>
                                     <span class="users-list__table__label">IP-адрес:&nbsp;</span>
                                     {{$user->ip_address}}
+                                </td>
+                                <td>
+                                    <span class="users-list__table__label">Страна:&nbsp;</span>
+                                    {{$user->country}}
                                 </td>
                             @endif
                             <td>

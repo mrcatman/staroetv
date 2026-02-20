@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Constants\Actions;
 use App\Constants\Permissions;
 use App\Helpers\ActionsLogHelper;
+use App\Helpers\GeolocationHelper;
 use App\Helpers\PermissionsHelper;
 use App\Http\Controllers\ArticlesController;
 use App\Http\Controllers\Controller;
@@ -31,7 +32,9 @@ class UsersController extends Controller {
         ]);
     }
 
-    public function list() {
+    public function list(
+        GeolocationHelper $geolocation
+    ) {
         $users = User::query();
         if (request()->has('sort.0.key')) {
             $users = $users->orderBy(request()->input('sort.0.key'), request()->input('sort.0.order'));
@@ -48,6 +51,7 @@ class UsersController extends Controller {
             ...$user->toArray(),
             'ip_address_reg' => $user->ip_address_reg,
             'email' => $user->email,
+            'country' => $geolocation->country($user),
         ]);
 
         return $users;

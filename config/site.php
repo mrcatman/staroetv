@@ -9,4 +9,6 @@ return [
     'upload_endpoint' => env('UPLOAD_ENDPOINT'),
     'media_server_ips' => env('MEDIA_SERVER_IPS'),
     'media_server_url' => env('MEDIA_SERVER_URL'),
+    'geoip_db_path' => env('GEOIP_DB_PATH'),
+    'geoip_forbidden_countries' => env('GEOIP_FORBIDDEN_COUNTRIES'),
 ];
