@@ -9,8 +9,6 @@ use App\Jobs\ConvertVideo;
 use App\Jobs\DownloadExternalVideo;
 use App\Models\Picture;
 use App\Models\Record;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
 class RecordsUploadController extends Controller
@@ -95,7 +93,6 @@ class RecordsUploadController extends Controller
         if (!$download_url) {
             return ['status' => 0, 'text' => 'Не найден исходный URL видео для скачивания'];
         }
-        dd(MediaHelper::getDownloadCommand($download_url, public_path("videos/" . $record->id . ".mp4")));
         DownloadExternalVideo::dispatch($record);
 
         return [
