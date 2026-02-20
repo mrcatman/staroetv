@@ -176,8 +176,8 @@ class VideoCutController extends Controller {
         } else {
             $output_path = public_path($path);
             DownloadExternalVideoForCut::dispatch($cut, $url, $output_path);
-
         }
+
         return [
             'status' => 1,
             'text' => $video->use_own_player ? 'Перенаправление...' : 'Видео поставлено в очередь загрузки',
@@ -185,28 +185,6 @@ class VideoCutController extends Controller {
         ];
     }
 
-    public function onDownloaded($id, $status = 0) {
-        $cut = VideoCut::find($id);
-        if ($cut) {
-            $path = public_path($cut->download_path);
-
-            $cut->fps = MediaHelper::getFps($path);
-            $cut->frames = MediaHelper::getFrames($path);
-            $cut->download_status = request()->input('status', $status);
-            $cut->save();
-
-            return [
-                'status' => 1,
-                'data' => [
-                    'cut' => $cut
-                ]
-            ];
-        } else {
-            return [
-                'status' => 0
-            ];
-        }
-    }
 
     public function makeVideo($id, $index) {
         if (!PermissionsHelper::allows('viadd')) {

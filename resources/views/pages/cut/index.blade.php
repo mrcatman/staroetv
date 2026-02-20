@@ -11,18 +11,17 @@
         </div>
         <div class="box__inner">
             @if ($cut)
-                @if ($cut->download_status === -1)
+                @if ($cut->download_status === \App\Models\VideoCut::STATUS_PENDING)
                     <p class="page-text">Идет скачивание файла для обрезки, подождите... </p>
                     <button class="button">Попробовать скачать еще раз</button>
-                @elseif ($cut->download_status === 1)
-
+                @elseif ($cut->download_status === \App\Models\VideoCut::STATUS_SUCCESS)
                     <video-cutter
                         :cut='@json($cut)'
                         :channel='@json($channel)'
                         :video='@json($video)'
                     ></video-cutter>
-                @elseif ($cut->download_status === 0)
-                    <p class="page-text">Скачивание файла не удалось</p>
+                @elseif ($cut->download_status === \App\Models\VideoCut::STATUS_ERROR)
+                    <p class="page-text">Скачивание файла не удалось: <strong>{{$cut->error}}</strong></p>
                     <button class="button">Попробовать скачать еще раз</button>
                 @endif
             @else

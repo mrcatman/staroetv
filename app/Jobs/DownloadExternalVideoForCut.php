@@ -3,13 +3,13 @@
 namespace App\Jobs;
 
 use App\Helpers\MediaHelper;
+use App\Helpers\MediaServerHelper;
 use App\Models\VideoCut;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Http;
 
 class DownloadExternalVideoForCut implements ShouldQueue
 {
@@ -25,13 +25,25 @@ class DownloadExternalVideoForCut implements ShouldQueue
 
     public function handle(): void
     {
-        $process = MediaHelper::download($this->url, $this->output_path);
-        if (strpos($process->output(), ".mkv") !== false) {
-            $mkv_path = str_replace(".mp4", ".mkv", $this->output_path);
-            MediaHelper::reencode($mkv_path, $this->output_path);
-        }
+        try {
+            if (str_contains($this->url, 'youtu')) {
+                MediaServerHelper::download($this->url, 'cut_' . $this->cut->id);
+            } else {
+                $process = MediaHelper::download($this->url, $this->output_path);
+                if (str_contains($process->output(), ".mkv")) {
+                    $mkv_path = str_replace(".mp4", ".mkv", $this->output_path);
+                    MediaHelper::reencode($mkv_path, $this->output_path);
+                }
 
-        $url = config('app.url').route('cut.on-downloaded', ['id' => $this->cut->id, 'status' => $process->successful() ? '1' : '0']);
-        Http::get($url);
+                $this->cut->updateMediaParams();
+                $this->cut->download_status = VideoCut::STATUS_SUCCESS;
+                $this->cut->error = null;
+                $this->cut->save();
+            }
+        } catch (\Exception $e) {
+            $this->cut->download_status = VideoCut::STATUS_ERROR;
+            $this->cut->error = $e->getMessage();
+            $this->cut->save();
+        }
     }
 }

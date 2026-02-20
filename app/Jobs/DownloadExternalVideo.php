@@ -40,8 +40,9 @@ class DownloadExternalVideo implements ShouldQueue
         if ($process->errorOutput()) {
             throw new \Exception($process->errorOutput());
         }
-        if (file_exists($temp_path)) {
-            return;
+
+        if (!file_exists($temp_path)) {
+            throw new \Exception("Downloaded file not found");
         }
         $thumbnail = MediaHelper::makeThumbnail($temp_path);
         $cover = Picture::firstOrNew([
@@ -49,7 +50,7 @@ class DownloadExternalVideo implements ShouldQueue
         ]);
         $cover->save();
 
-        Process::run("mv $temp_path $output_path");
+        Process::forever()->run("mv $temp_path $output_path");
 
         $record->use_own_player = true;
         $record->source_type = "local";

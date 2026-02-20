@@ -9,6 +9,7 @@ use App\Jobs\ConvertVideo;
 use App\Jobs\DownloadExternalVideo;
 use App\Models\Picture;
 use App\Models\Record;
+use App\Models\VideoCut;
 use Illuminate\Support\Facades\Storage;
 
 class RecordsUploadController extends Controller
@@ -108,6 +109,24 @@ class RecordsUploadController extends Controller
         if (!in_array(request()->ip(), $ips)) {
             abort(403);
         }
+        if (str_starts_with($id, "cut_")) {
+            $id = explode("_", $id)[1];
+            $cut = VideoCut::find($id);
+            if (!$cut) {
+                abort(404);
+            }
+
+            $cut->download_status = request()->input('status', VideoCut::STATUS_SUCCESS);
+            if ($cut->download_status == VideoCut::STATUS_SUCCESS) {
+                $cut->error = null;
+                $cut->updateMediaParams();
+            } else {
+                $cut->error = request()->input('error');
+            }
+            $cut->save();
+            return ['status' => 1];
+        }
+
         $record = Record::find($id);
         if (!$record) {
             abort(404);
