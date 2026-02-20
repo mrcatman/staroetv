@@ -2,7 +2,6 @@
 namespace App\Helpers;
 
 use App\Models\Record;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 
 class MediaHelper {
@@ -37,7 +36,7 @@ class MediaHelper {
     {
         $fps = Process::run("ffprobe -v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate $path")->output();
         $fps_data = explode("/", $fps);
-        if (count($fps) === 2) {
+        if (count($fps_data) === 2) {
             return round((int)$fps_data[0] / (int)$fps_data[1]);
         } else {
             return (int)$fps_data[0];
