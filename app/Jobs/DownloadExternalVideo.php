@@ -23,11 +23,12 @@ class DownloadExternalVideo implements ShouldQueue
     public function handle(): void
     {
         $storage = Storage::disk('media-storage');
+        $temp = Storage::disk('temp');
         $record = $this->record;
         $path = "videos/" . $record->id . ".mp4";
         $url = ExternalServicesHelper::resolveDownloadUrl($record->embed_code);
 
-        $temp_path = public_path($path);
+        $temp_path = $temp->path($path);
         $output_path = $storage->path($path);
 
         if (str_contains($url, 'youtu')) {
