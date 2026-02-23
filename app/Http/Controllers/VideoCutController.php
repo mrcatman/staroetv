@@ -216,10 +216,7 @@ class VideoCutController extends Controller {
                 }
             }
             if (!$video && $data_only) {
-                return [
-                    'status' => 0,
-                    'text' => 'Видео не найдено'
-                ];
+                $data_only = false; 
             }
 
             if (!$data_only) {
