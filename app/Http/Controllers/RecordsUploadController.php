@@ -10,6 +10,7 @@ use App\Jobs\DownloadExternalVideo;
 use App\Models\Picture;
 use App\Models\Record;
 use App\Models\VideoCut;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
 class RecordsUploadController extends Controller
@@ -118,8 +119,18 @@ class RecordsUploadController extends Controller
 
             $cut->download_status = request()->input('status', VideoCut::STATUS_SUCCESS);
             if ($cut->download_status == VideoCut::STATUS_SUCCESS) {
-                $cut->error = null;
-                $cut->updateMediaParams();
+                $storage_path = Storage::disk('media-storage')->path(request()->input('path'));
+                if (!file_exists($storage_path)) {
+                    $cut->download_status = VideoCut::STATUS_ERROR;
+                    $cut->error = "Файл не найден";
+                    $cut->save();
+                } else {
+                    $output_path = public_path($cut->download_path);
+                    Process::forever()->run("mv $storage_path $output_path");
+
+                    $cut->error = null;
+                    $cut->updateMediaParams();
+                }
             } else {
                 $cut->error = request()->input('error');
             }

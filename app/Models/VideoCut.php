@@ -18,6 +18,13 @@ class VideoCut extends Model {
         'data' => 'array',
     ];
 
+    public function getDownloadPathAttribute() {
+        if (!$this->attributes['download_path']) {
+            return "temp_videos/cut_" . $this->id . ".mp4";
+        }
+        return $this->attributes['download_path'];
+    }
+
     public function getDownloadUrlAttribute() {
         if (!str_starts_with($this->download_path, '/')) {
             return '/' . $this->download_path;

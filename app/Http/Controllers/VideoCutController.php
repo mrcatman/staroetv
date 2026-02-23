@@ -150,11 +150,7 @@ class VideoCutController extends Controller {
         $cut->data = [];
         $cut->save();
 
-        $path = "temp_videos/cut_" . $cut->id . ".mp4";
-        $cut->download_path = $path;
-        $cut->save();
-
-        $output_path = public_path($path);
+        $output_path = public_path($cut->download_path);
 
         if ($video->use_own_player) {
             $storage_path = Storage::disk('media-storage')->path($video->source_path);
@@ -366,6 +362,10 @@ class VideoCutController extends Controller {
         }
 
         ActionsLogHelper::create($cut, Actions::Delete);
+        $output_path = public_path($cut->download_path);
+        if (file_exists($output_path)) {
+            unlink($output_path);
+        }
 
         return [
             'status' => 1,
@@ -380,19 +380,17 @@ class VideoCutController extends Controller {
                 'url' => 'required|min:1',
             ]);
             $url = request()->input('url');
-            $path = "temp_videos/" .time().".mp4";
-            $output_path = public_path($path);
 
             $cut = new VideoCut();
-            $cut->download_path = $path;
             $cut->data = [];
             $cut->save();
 
+            $output_path = public_path($cut->download_path);
             DownloadExternalVideoForCut::dispatch($cut, $url, $output_path);
 
             return [
                 'status' => 1,
-                'text' => 'Видео загружено',
+                'text' => 'Видео поставлено в очередь загрузки',
                 'redirect_to' => route('cut.show', $cut->id)
             ];
         }
