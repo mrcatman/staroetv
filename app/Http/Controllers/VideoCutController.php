@@ -216,7 +216,7 @@ class VideoCutController extends Controller {
                 }
             }
             if (!$video && $data_only) {
-                $data_only = false; 
+                $data_only = false;
             }
 
             if (!$data_only) {

@@ -156,21 +156,33 @@ const categoriesAutocompleteOptions = autocompleteOptions(data.value.advertising
     return route('records.autocomplete.commercials-categories', {advertising_type: data.value.advertising_type});
 });
 
+let changeTimeout;
+
 watch(() => [
     data.value.advertising_category,
     data.value.advertising_brand,
-    data.value.short_description,
-    data.value.region,
-    data.value.country,
     data.value.year,
     data.value.year_start,
     data.value.year_end,
 ], () => {
-    emit('change');
+    changeTimeout = setTimeout(() => {
+        emit('change');
+    }, 500);
+
     if (props.autoUpdateTitle) {
         updateTitle();
     }
 })
+
+watch(() => [
+    data.value.short_description,
+    data.value.region,
+    data.value.country,
+], () => {
+    if (props.autoUpdateTitle) {
+        updateTitle();
+    }
+});
 
 if (props.autoUpdateTitle) {
     updateTitle();
