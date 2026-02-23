@@ -481,7 +481,7 @@ class DesignPackagesController extends Controller
 
     public function delete()
     {
-        $package = DesignPackage::find(request()->input('package_id'));
+        $package = DesignPackage::find(request()->input('id'));
         if (!$package || !$package->can_edit) {
             return [
                 'status' => 0,

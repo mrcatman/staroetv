@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Models\UserAward;
 use App\Models\UserReputation;
 use App\Models\UserWarning;
+use App\Models\VideoCut;
 
 class MaterialTypes
 {
@@ -52,6 +53,8 @@ class MaterialTypes
 
     const TYPE_GENRES = 104;
 
+    const TYPE_VIDEO_CUTS = 105;
+
     const LIST = [
         self::TYPE_CHANNELS => Channel::class,
         self::TYPE_ARTICLES => Article::class,
@@ -73,6 +76,7 @@ class MaterialTypes
         self::TYPE_FORUMS => Forum::class,
         self::TYPE_FORUM_MESSAGES => ForumMessage::class,
         self::TYPE_GENRES => Genre::class,
+        self::TYPE_VIDEO_CUTS => VideoCut::class,
     ];
 
 

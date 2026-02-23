@@ -51,6 +51,7 @@ class ActionsLog extends Model {
             MaterialTypes::TYPE_AWARDS, MaterialTypes::TYPE_REPUTATION, MaterialTypes::TYPE_WARNINGS => $material->comment,
             MaterialTypes::TYPE_COMMENTS, MaterialTypes::TYPE_SMILES => $material->text,
             MaterialTypes::TYPE_FORUM_MESSAGES => $material->content,
+            MaterialTypes::TYPE_VIDEO_CUTS => $material->video ? $material->video->title : '-',
             default => $material->name,
         };
     }
@@ -77,6 +78,7 @@ class ActionsLog extends Model {
             MaterialTypes::TYPE_FORUM_TOPICS => 'тему на форуме',
             MaterialTypes::TYPE_FORUMS => 'форум',
             MaterialTypes::TYPE_FORUM_MESSAGES => 'сообщение на форуме',
+            MaterialTypes::TYPE_VIDEO_CUTS => 'обрезку',
             default => 'неизвестно что',
         };
     }

@@ -11,6 +11,8 @@
     min-width: 4em;
     min-height: 2.5em;
     &__item {
+        font: inherit;
+        border: none;
         text-decoration: none;
         color: var(--links-color)!important;
         padding: .5em 1em;

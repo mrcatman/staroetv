@@ -686,6 +686,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
     Route::name('cut.')->prefix('cut')->group(function() {
         Route::any('download-external', [VideoCutController::class, 'downloadExternal'])->name('download-external');
+        Route::post('delete', [VideoCutController::class, 'delete'])->name('delete');
         Route::get('{id}', [VideoCutController::class, 'show'])->name('show');
         Route::post('{id}', [VideoCutController::class, 'save'])->name('save');
         Route::any('{id}/make-video/{index}', [VideoCutController::class, 'makeVideo'])->name('make-video');

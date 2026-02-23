@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Actions;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\ExternalServicesHelper;
 use App\Helpers\MediaHelper;
 use App\Helpers\PermissionsHelper;
 use App\Jobs\CutVideo;
 use App\Jobs\DownloadExternalVideoForCut;
 use App\Models\Channel;
+use App\Models\DesignPackage;
 use App\Models\Genre;
 use App\Models\Picture;
 use App\Models\Record;
@@ -94,7 +97,7 @@ class VideoCutController extends Controller {
                  (!isset($old_cuts[$index]['end']) && isset($cut_result['end'])) ||
                  (isset($old_cuts[$index]['end']) && $old_cuts[$index]['end'] != $cut_result['end'])
             );
-            //$need_edit = true;
+
             if ($need_edit) {
                 $indexes[] = $index;
                 $data = $cut_result['data'];
@@ -132,7 +135,7 @@ class VideoCutController extends Controller {
                 'text' => 'Ошибка доступа'
             ];
         }
-        $download_url = null;
+
         $video = Record::find($id);
         if (!$video) {
             return [
@@ -140,7 +143,24 @@ class VideoCutController extends Controller {
                 'text' => 'Видео не найдено'
             ];
         }
-        if (!$video->use_own_player) {
+
+        $cut = VideoCut::firstOrNew([
+            'video_id' => $video->id
+        ]);
+        $cut->data = [];
+        $cut->save();
+
+        $path = "temp_videos/cut_" . $cut->id . ".mp4";
+        $cut->download_path = $path;
+        $cut->save();
+
+        $output_path = public_path($path);
+
+        if ($video->use_own_player) {
+            $storage_path = Storage::disk('media-storage')->path($video->source_path);
+            Process::forever()->run("cp $storage_path $output_path");
+            $this->onDownloaded($cut->id, 1);
+        } else {
             $download_url = ExternalServicesHelper::resolveDownloadUrl($video->embed_code);
             if (!$download_url) {
                 return [
@@ -148,24 +168,7 @@ class VideoCutController extends Controller {
                     'text' => 'Не распознан источник видео'
                 ];
             }
-            $path = "temp_videos/" . $video->id . ".mp4";
-        } else {
-            $path = $video->download_url;
-        }
 
-        $cut = VideoCut::firstOrNew([
-            'video_id' => $video->id
-        ]);
-        $cut->download_path = $path;
-        $cut->data = [];
-        $cut->save();
-
-        if ($video->use_own_player) {
-            $storage_path = Storage::disk('media-storage')->path($video->source_path);
-            Process::forever()->run("cp $storage_path $path");
-            $this->onDownloaded($cut->id, 1);
-        } else {
-            $output_path = public_path($path);
             DownloadExternalVideoForCut::dispatch($cut, $download_url, $output_path);
         }
 
@@ -350,6 +353,25 @@ class VideoCutController extends Controller {
                 'text' => 'Данные обрезки не найдены'
             ];
         }
+    }
+
+    public function delete()
+    {
+        $cut = VideoCut::find(request()->input('id'));
+        if (!PermissionsHelper::allows('viadd') || !$cut) {
+            return [
+                'status' => 0,
+                'text' => 'Ошибка доступа'
+            ];
+        }
+
+        ActionsLogHelper::create($cut, Actions::Delete);
+
+        return [
+            'status' => 1,
+            'text' => 'Запись удалена',
+            'redirect_to' => $cut->video ? route('records.'.$cut->video->route_prefix.'.show', $cut->video->slug) : route('records.videos.index')
+        ];
     }
 
     public function downloadExternal() {
