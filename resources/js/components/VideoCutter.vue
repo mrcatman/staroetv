@@ -833,7 +833,7 @@ const getNextData = (): CutData => {
             is_advertising: true,
             advertising_brand: getNextBrand(),
             advertising_category: '',
-            year: props.video ? props.video.year : getYear.value,
+            year: props.video?.year ?? getYear.value,
             short_description: '',
             interprogram_package_id: -1,
         };
@@ -842,7 +842,7 @@ const getNextData = (): CutData => {
             is_advertising: false,
             interprogram_type: cutResults.value[cutResults.value.length - 1].data.interprogram_type,
             interprogram_package_id: cutResults.value[cutResults.value.length - 1].data.interprogram_package_id || -1,
-            year: props.video ? props.video.year : getYear.value,
+            year: props.video?.year ?? getYear.value,
             advertising_category: '',
             advertising_brand: '',
             short_description: '',
