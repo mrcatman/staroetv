@@ -12,7 +12,8 @@
 @endif
 @if ($record->is_radio)
     @if ($record->use_own_player)
-        <audio @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif  data-title="{{$record->title}}" data-url="{{$record->url}}"  data-id="{{$record->id}}" class="own-player own-player--radio" controls>
+        <audio @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif  data-title="{{$record->title}}"
+               data-url="{{$record->url}}" data-id="{{$record->id}}" class="own-player own-player--radio" controls>
             <source src="{{$record->source_audio}}">
         </audio>
     @else
@@ -22,21 +23,29 @@
     @if (($record->use_own_player) || $record->telegram_id)
         @if ($record->telegram_id && count($record->all_telegram_sources) > 1)
             @for ($i = 0; $i < count($record->all_telegram_sources); $i++)
-            <div class="tab-content" data-id="parts" data-tab="part_{{$i}}" @if($i != 0) style="display: none" @endif>
-                <video @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif data-title="{{$record->title}} (часть {{$i}}" data-url="{{$record->url}}#part_{{$i}}" data-id="{{$record->id}}" poster="{{$record->all_telegram_thumbs[$i]}}"  class="own-player" controls>
-                    <source src="{{$record->all_telegram_sources[$i]}}" type="video/mp4">
-                </video>
-            </div>
+                <div class="tab-content" data-id="parts" data-tab="part_{{$i}}"
+                     @if($i != 0) style="display: none" @endif>
+                    <video @if (isset($autoplay) && $autoplay) autoplay="autoplay"
+                           @endif data-title="{{$record->title}} (часть {{$i}}" data-url="{{$record->url}}#part_{{$i}}"
+                           data-id="{{$record->id}}" poster="{{$record->all_telegram_thumbs[$i]}}" class="own-player"
+                           controls>
+                        <source src="{{$record->all_telegram_sources[$i]}}" type="video/mp4">
+                    </video>
+                </div>
             @endfor
         @else
-            <video @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif data-title="{{$record->title}}" data-url="{{$record->url}}" data-id="{{$record->id}}" poster="{{$record->cover}}?{{$record->updated_at}}"  class="own-player" controls>
-                <source src="{{$record->source_path ? $record->source_hls : $record->source_telegram}}" type="{{$record->source_path ? 'application/vnd.apple.mpegurl' : 'video/mp4' }}">
+            <video @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif data-title="{{$record->title}}"
+                   data-url="{{$record->url}}" data-id="{{$record->id}}"
+                   poster="{{$record->cover}}?{{$record->updated_at}}" class="own-player" controls>
+                <source src="{{$record->source_path ? $record->source_hls : $record->source_telegram}}"
+                        type="{{$record->source_path ? 'application/vnd.apple.mpegurl' : 'video/mp4' }}">
             </video>
         @endif
     @elseif (strpos($record->embed_code, "youtu") !== false && !request()->has('original_player') && false)
-        <div class="plyr__video-embed own-player" data-title="{{$record->title}}" data-url="{{$record->url}}" data-id="{{$record->id}}" >
+        <div class="plyr__video-embed own-player" data-title="{{$record->title}}" data-url="{{$record->url}}"
+             data-id="{{$record->id}}">
             <iframe
-                src="https://www.youtube.com/embed/{{$record->embed_youtube_id}}?origin=https://plyr.io&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1"
+                src="https://www.youtube.com/embed/{{$record->embed_youtube_id}}?iv_load_policy=3&modestbranding=1&playsinline=1&showinfo=0&rel=0&enablejsapi=1"
                 allowfullscreen
                 allowtransparency
                 allow="autoplay"
@@ -45,6 +54,21 @@
     @else
         <div class="record-page__player-container">
             {!! $record->embed_code !!}
+            @if(strpos($record->embed_code, "youtu") !== false)
+                <div class="record-page__download-overlay" data-id="{{$record->id}}" data-title="{{$record->title}}"
+                     data-url="{{$record->url}}" data-poster="{{$record->cover}}" style="display: none">
+                    <div class="record-page__download-overlay__background" style="background-image: url('{{$record->cover}}')"></div>
+                    <a class="record-page__download-overlay__button">
+                        <i class="fa fa-play"></i>
+                    </a>
+                    <div style="display: none" class="record-page__download-overlay__error">
+                        <div class="record-page__download-overlay__error__heading">
+                            Ошибка загрузки видео
+                        </div>
+                        Уже работаем над решением проблемы
+                    </div>
+                </div>
+            @endif
         </div>
     @endif
 @endif

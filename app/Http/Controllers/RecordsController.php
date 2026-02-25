@@ -12,7 +12,6 @@ use App\Helpers\ExternalServicesHelper;
 use App\Helpers\MediaHelper;
 use App\Helpers\PermissionsHelper;
 use App\Helpers\RecordsHelper;
-use App\Helpers\RegexHelper;
 use App\Helpers\ViewsHelper;
 use App\Http\Requests\RecordsSearchRequest;
 use App\Jobs\DownloadExternalVideo;
@@ -916,6 +915,9 @@ class RecordsController extends EntityController
                     }
                 });
             }
+        }
+        if (isset($data['type']) && $data['type'] == 'interprogram' && isset($data['interprogram_type'])) {
+            $records = $records->where(['interprogram_type' => $data['interprogram_type']]);
         }
 
         if (isset($data['channels']) && count($data['channels']) > 0) {

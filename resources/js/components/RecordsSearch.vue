@@ -110,6 +110,29 @@
                                 </records-search-filter>
 
                                 <records-search-filter
+                                    v-show="form.type === 'interprogram'"
+                                    title="Тип ролика"
+                                    v-model:opened="opened.interprogram_type"
+                                    :show-reset="form.interprogram_type !== null"
+                                    @reset="() => form.interprogram_type = null"
+                                >
+                                    <div class="radio-buttons">
+                                        <label class="radio-button">
+                                            <input type="radio" v-model="form.interprogram_type" name="interprogram_type"
+                                                   :value="null">
+                                            <div class="radio-button__circle"></div>
+                                            <div class="radio-button__text">Любой</div>
+                                        </label>
+                                        <label class="radio-button" v-for="type in categoriesStore.interprogramTypes">
+                                            <input type="radio" v-model="form.interprogram_type" name="interprogram_type"
+                                                   :value="type.id">
+                                            <div class="radio-button__circle"></div>
+                                            <div class="radio-button__text">{{ type.text }}</div>
+                                        </label>
+                                    </div>
+                                </records-search-filter>
+
+                                <records-search-filter
                                     title="Дата выхода"
                                     v-model:opened="opened.date"
                                     :show-reset="form.date.year > 0 || form.date.year_start > 0 || form.date.year_end > 0"
@@ -467,6 +490,7 @@ export interface SearchForm {
     sort_order: 'asc' | 'desc'
     date: Common.Date,
 
+    interprogram_type?: number,
     advertising_type?: number,
     advertising_brands?: string[]
     advertising_countries?: string[]
@@ -514,6 +538,7 @@ const form = ref<SearchForm>({
     programs: [],
     sort: 'created_at',
     sort_order: 'desc',
+    interprogram_type: null,
     advertising_type: null,
     advertising_brands: [],
     advertising_countries: [],
@@ -588,6 +613,7 @@ watch(() => [
     form.value.date.year, form.value.date.month, form.value.date.day,
     form.value.date.year_start, form.value.date.month_start, form.value.date.day_start,
     form.value.date.year_end, form.value.date.month_end, form.value.date.day_end,
+    form.value.interprogram_type,
     form.value.advertising_brands, form.value.advertising_countries, form.value.advertising_regions, form.value.advertising_categories
 ], reload);
 
@@ -598,6 +624,9 @@ watch(() => form.value.type, (type) => {
         form.value.advertising_countries = [];
         form.value.advertising_regions = [];
         form.value.advertising_categories = [];
+    }
+    if (type !== 'interprogram') {
+        form.value.interprogram_type = null;
     }
 
     if (type === 'advertising' || type === 'other') {
@@ -687,6 +716,7 @@ const opened = ref({
     date: true,
     channels: false,
     programs: false,
+    interprogram_type: false,
     advertising_type: true,
     advertising_brands: false,
     advertising_countries: false,
@@ -703,7 +733,7 @@ watch(() => opened.value.programs, (programsOpened) => {
 
 if (props.params.channels?.length) opened.value.channels = true;
 if (props.params.programs?.length) opened.value.programs = true;
-if (props.params.type === 'advertising' || props.commercials) categoriesStore.load();
+if (['interprogram', 'advertising'].includes(props.params.type)|| props.commercials) categoriesStore.load();
 
 const getMultiselectItems = (_route: string, page: number, term: string): Promise<MultiselectItem[]> => {
     return new Promise(resolve => {

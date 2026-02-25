@@ -1,4 +1,5 @@
-import { replaceHTML} from './replace-html';
+import { replaceHTML } from './replace-html';
+import { initPlayer } from './player'
 
 window.playlistLastIds = [];
 window.playlistRecordsCache = {};
@@ -46,7 +47,7 @@ const initPlaylistItem = (data) => {
     document.title = `${data.record.title} - Старый Телевизор`;
 
     setTimeout(() => {
-        window.initOwnPlayer();
+        initPlayer();
     }, 50);
 
     history.pushState(null, null, data.record.url);

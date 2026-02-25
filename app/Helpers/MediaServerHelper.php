@@ -50,5 +50,17 @@ class MediaServerHelper {
         return $response->data->playlist;
     }
 
+    public static function getDownloadUrl($id, $url) {
+        $response = Http::get(self::url('download-url'), [
+            'id' => $id,
+            'url' => $url,
+        ])->object();
+        if (isset($response->error)) {
+            throw new \Exception($response->error);
+        }
+
+        return $response->data->url;
+    }
+
 
 }

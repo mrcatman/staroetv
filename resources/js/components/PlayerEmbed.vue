@@ -16,6 +16,7 @@
     <div v-else v-html="record.embed_code" />
 </template>
 <script lang="ts" setup>
+import { initPlayer } from '../modules/player'
 import { nextTick, onMounted, watch } from "vue";
 
 const props = defineProps<{
@@ -26,7 +27,7 @@ const onPlayerChange = async() => {
     await nextTick();
 
     if (props.record?.use_own_player) {
-        window.initOwnPlayer();
+        initPlayer();
     }
 }
 

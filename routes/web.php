@@ -218,6 +218,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
 
         Route::get('similar', [RecordsController::class, 'similar'])->name('similar');
         Route::post('complaint', [RecordsController::class, 'complaint'])->name('complaint');
+        Route::post('download-url', [RecordsUploadController::class, 'downloadUrl'])->name('download-url');
 
         Route::name('edit.')->prefix('edit')->group(function () {
             Route::get('menu', [RecordsEditController::class, 'menu'])->name('menu');
@@ -234,8 +235,6 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
             Route::post('upload-to-server', [RecordsEditController::class, 'uploadToServer'])->name('upload-to-server');
             Route::post('approve', [RecordsEditController::class, 'approve'])->name('approve');
             Route::post('unapprove', [RecordsEditController::class, 'unapprove'])->name('unapprove');
-
-
         });
     });
 

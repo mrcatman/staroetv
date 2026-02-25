@@ -29,6 +29,8 @@ class RecordsSearchRequest extends FormRequest
             'exclude_ids.*' => 'numeric',
             'type' => 'nullable|in:programs,advertising,interprogram,program-design,other,clips',
 
+            'interprogram_type' => 'nullable',
+
             'advertising_type' => 'nullable',
             'advertising_brands' => 'nullable|array',
             'advertising_brands.*' => 'string',

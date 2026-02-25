@@ -72,7 +72,7 @@ class ExternalServicesHelper {
         if (!isset($matches[3])) {
             return null;
         }
-        return $matches[3];
+        return substr($matches[3], 0, 11);
     }
 
     public static function resolveOriginalUrl($url) {

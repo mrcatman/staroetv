@@ -259,7 +259,8 @@ class VideoCutController extends Controller {
 
             $middle = ($start_frame + (($end_frame - $start_frame) / 2)) / $cut->fps;
 
-            $thumbnail = MediaHelper::makeThumbnail($path, $middle);
+            $video_path = "/videos/$filename.mp4";
+            $thumbnail = MediaHelper::makeThumbnail($storage->path($video_path), $middle);
             $cover = new Picture([
                 'url' => $thumbnail
             ]);
@@ -267,7 +268,7 @@ class VideoCutController extends Controller {
             $video->cover_id = $cover->id;
 
             $video->source_type = "local";
-            $video->source_path = "/videos/$filename.mp4";
+            $video->source_path = $video_path;
             if ($original_video) {
                 $video->cut_from_id = $original_video->id;
             }

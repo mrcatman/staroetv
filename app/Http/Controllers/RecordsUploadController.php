@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ExternalServicesHelper;
 use App\Helpers\MediaHelper;
+use App\Helpers\MediaServerHelper;
 use App\Helpers\PermissionsHelper;
 use App\Jobs\ConvertVideo;
 use App\Jobs\DownloadExternalVideo;
@@ -101,6 +102,26 @@ class RecordsUploadController extends Controller
             'status' => 1,
             'text' => 'Задание на скачивание добавлено в очередь',
             'redirect_to' => $record->url
+        ];
+    }
+
+    public function downloadUrl()
+    {
+        $record = Record::find(request()->input('id'));
+        if (!$record || $record->use_own_player) {
+            return ['status' => 0, 'text' => 'Некорректный ID записи'];
+        }
+        $download_url = ExternalServicesHelper::resolveDownloadUrl($record->embed_code);
+        if (!$download_url) {
+            return ['status' => 0, 'text' => 'Не найден исходный URL видео для скачивания'];
+        }
+
+        $url = MediaServerHelper::getDownloadUrl($record->id, $download_url);
+        return [
+            'status' => 1,
+            'data' => [
+                'url' => $url,
+            ]
         ];
     }
 

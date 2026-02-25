@@ -10,7 +10,7 @@
                 <i class="fa records-search__filter__arrow" :class="opened ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
             </label>
             <div class="horisontal-delimiter records-search__delimiter"></div>
-            <div class="input-container__inner" v-show="opened">
+            <div class="input-container__inner" v-if="opened">
                 <div class="input-container__element-outer">
                     <slot></slot>
                 </div>

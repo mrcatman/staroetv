@@ -165,13 +165,22 @@
                     <template v-else>
 
                         <div class="form__content">
-                            <select
-                                v-model="result.data.is_advertising"
-                                class="select-classic"
-                            >
-                                <option :value="true">Реклама</option>
-                                <option :value="false">Заставка, анонс и т.д.</option>
-                            </select>
+                            <div class="row">
+                                <div v-if="result.video_id" class="col col--auto">
+                                    <a class="video-cutter__show-result" target="_blank" :href="_route('records.video.show', result.video_id)">
+                                        К видео <i class="fa fa-external-link-alt"/>
+                                    </a>
+                                </div>
+                                <div class="col">
+                                    <select
+                                        v-model="result.data.is_advertising"
+                                        class="select-classic"
+                                    >
+                                        <option :value="true">Реклама</option>
+                                        <option :value="false">Заставка, анонс и т.д.</option>
+                                    </select>
+                                </div>
+                            </div>
 
                             <div class="row">
                                 <div class="col">
@@ -179,9 +188,7 @@
                                 </div>
                                 <div class="col col--auto">
                                     <a class="input-container__toggle-button"
-                                       @click="result.range = !result.range">{{
-                                            result.range ? 'Выбрать год' : 'Выбрать диапазон'
-                                        }}
+                                       @click="result.range = !result.range">{{ result.range ? 'Выбрать год' : 'Выбрать диапазон'   }}
                                     </a>
                                 </div>
                             </div>
@@ -217,6 +224,8 @@
     </div>
 </template>
 <style lang="scss">
+@use "../../sass/mixins" as *;
+
 .video-cutter {
     text-align: center;
     margin: 1em 0;
@@ -228,7 +237,11 @@
     &__client-mode {
         margin: .5em 0 1.75em;
     }
-
+    &__show-result {
+        text-decoration: none;
+        font-size: 1.125em;
+        @include hover(true);
+    }
     &__inner {
         width: 100%;
         max-width: 50%;
@@ -530,6 +543,8 @@ export interface CutResult {
     end?: number;
     data: CutData;
     video_id?: number;
+    range?: boolean;
+    similar?: Models.Record[];
 }
 
 
@@ -561,7 +576,6 @@ const inProgress = ref(false);
 const progressPercent = ref(0);
 const restarted = ref(false);
 const errors = ref<Record<number, string>>({});
-const videos = ref<any[]>([]);
 
 const recordToPreview = ref<Models.Record | null>(null);
 
@@ -1002,6 +1016,8 @@ const handleKey = () => {
 
     setFrame(currentFrame.value);
 }
+
+const _route = route;
 
 const onKeyDown = (e: KeyboardEvent) => {
     if (e.target?.classList.contains('input') || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {

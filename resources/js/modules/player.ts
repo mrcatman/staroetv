@@ -1,5 +1,7 @@
 import Plyr from 'plyr';
 import 'plyr/dist/plyr.css';
+import { FORM_PRELOADER_CLASS, FORM_PRELOADER_HTML } from "./preloader";
+
 const body = $('body');
 
 const generateControls = (title: string = null, isRadio: boolean = false) => {
@@ -55,8 +57,8 @@ const generateControls = (title: string = null, isRadio: boolean = false) => {
     `;
 }
 
-window.initOwnPlayer = () => {
-    $('.own-player').each(function() {
+export const initPlayer = () => {
+    $('.own-player').each(function () {
         const playerEl = this;
         const title = $(playerEl).data('title');
         const id = $(playerEl).data('id');
@@ -65,7 +67,7 @@ window.initOwnPlayer = () => {
             controls: generateControls(title, isRadio)
         });
         window.player = player;
-        player.on('ready',  async(event) => {
+        player.on('ready', async (event) => {
             const instance = event.detail.plyr;
             let hlsSource = null;
             const sources = instance.media.querySelectorAll('source');
@@ -85,7 +87,7 @@ window.initOwnPlayer = () => {
                     sendError(id, data.error.toString());
                 });
             } else {
-                const response = await fetch(sources[0].src, { method: 'HEAD' });
+                const response = await fetch(sources[0].src, {method: 'HEAD'});
                 if (!response.ok) {
                     sendError(id, response.status);
                 }
@@ -122,17 +124,18 @@ window.initOwnPlayer = () => {
     });
 };
 
-window.execOnMounted.push(function() {
-    window.initOwnPlayer();
+window.execOnMounted.push(function () {
+    initPlayer();
+    checkYoutubeAvailability();
 });
 
-$(body).on('click', '.plyr__control--embed', function() {
+$(body).on('click', '.plyr__control--embed', function () {
     const player = $(this).parents('.plyr');
     const playerEl = $(player).find('.own-player');
     const id = $(playerEl).data('id');
     const url = $(playerEl).data('url');
     let code = $(player).hasClass('own-player--radio') ? `<iframe frameborder="0" src="https://staroetv.su/embed/${id}" width="640" height="105" allowfullscreen></iframe>` : `<iframe frameborder="0" src="https://staroetv.su/embed/${id}" width="640" height="480" allowfullscreen></iframe>`;
-    code = code.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+    code = code.replace(/[\u00A0-\u9999<>\&]/gim, function (i) {
         return '&#' + i.charCodeAt(0) + ';';
     });
     $('.plyr').append(`<div class="embed">
@@ -149,11 +152,11 @@ $(body).on('click', '.plyr__control--embed', function() {
         </div>
     </div>`);
 });
-$(body).on('click', '.embed', function(e) {
+$(body).on('click', '.embed', function (e) {
     $(this).remove();
 });
 
-$(body).on('click', '.embed__copy__text', function(e) {
+$(body).on('click', '.embed__copy__text', function (e) {
     window.getSelection().selectAllChildren(
         $(this)[0]
     );
@@ -169,3 +172,57 @@ const sendError = (recordId: number, description: string) => {
     }
     $.post(route('records.complaint'), data);
 }
+
+let youtubeAvailabilityState = -1;
+const checkYoutubeAvailability = () => {
+    const src = $('.record-page__player-container iframe').attr('src');
+    if (!src?.includes('youtu')) {
+        return;
+    }
+    if (youtubeAvailabilityState === -1) {
+        const xhr = $.get('https://youtube.com');
+        setTimeout(() => {
+            youtubeAvailabilityState = xhr.readyState === 1 ? 0 : 1;
+            onYoutubeAvailabilityStateReady();
+        }, 5000);
+    } else {
+        onYoutubeAvailabilityStateReady();
+    }
+}
+
+const onYoutubeAvailabilityStateReady = () => {
+    if (youtubeAvailabilityState === 0) {
+        $('.record-page__download-overlay').css('display', '');
+    }
+}
+
+$(body).on('click', '.record-page__download-overlay__button', function () {
+    const overlay = $(this).parents('.record-page__download-overlay');
+    const error = $(overlay).find('.record-page__download-overlay__error');
+    $(overlay).append(FORM_PRELOADER_HTML);
+    $(error).hide();
+    $(this).hide();
+
+    $.post(route('records.download-url'), {id: $(overlay).data('id')}, function (response) {
+        const url = response.data.url;
+        const type = url.includes('m3u8') ? 'application/x-mpegURL' : 'video/mp4';
+        const playerCode = `<video
+            data-title="${$(overlay).data('title')}"
+            data-url="${$(overlay).data('url')}"
+            data-id="${$(overlay).data('id')}"
+            poster="${$(overlay).data('poster')}"
+            class="own-player"
+            autoplay
+            controls
+        >
+            <source src="${url}" type="${type}">
+       </video>`;
+        $('.record-page__player').html(playerCode);
+
+        initPlayer();
+    }).catch(() => {
+        $(error).css('display', '');
+    }).always(() => {
+        $(overlay).find(`.${FORM_PRELOADER_CLASS}`).remove();
+    })
+});
