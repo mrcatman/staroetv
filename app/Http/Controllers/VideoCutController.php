@@ -260,12 +260,15 @@ class VideoCutController extends Controller {
             $middle = ($start_frame + (($end_frame - $start_frame) / 2)) / $cut->fps;
 
             $video_path = "/videos/$filename.mp4";
-            $thumbnail = MediaHelper::makeThumbnail($storage->path($video_path), $middle);
-            $cover = new Picture([
-                'url' => $thumbnail
-            ]);
-            $cover->save();
-            $video->cover_id = $cover->id;
+
+            if (!$data_only) {
+                $thumbnail = MediaHelper::makeThumbnail($storage->path($video_path), $middle);
+                $cover = new Picture([
+                    'url' => $thumbnail
+                ]);
+                $cover->save();
+                $video->cover_id = $cover->id;
+            }
 
             $video->source_type = "local";
             $video->source_path = $video_path;
@@ -291,6 +294,7 @@ class VideoCutController extends Controller {
             $video->length = (int)(($end_frame - $start_frame) / $cut->fps);
 
             if ($data['is_advertising']) {
+                $video->is_interprogram = false;
                 $video->is_advertising = true;
                 $video->advertising_type = isset($data['advertising_type']) && $data['advertising_type'] > 0 ? $data['advertising_type'] : null;
                 $video->advertising_brand = $data['advertising_brand'];
@@ -305,6 +309,7 @@ class VideoCutController extends Controller {
                     $video->region = $data['country'];
                 }
             } else {
+                $video->is_advertising = false;
                 $video->is_interprogram = true;
                 $video->interprogram_type = $data['interprogram_type'];
                 $video->interprogram_package_id = isset($data['interprogram_package_id']) && $data['interprogram_package_id'] > 0 ? $data['interprogram_package_id'] : null;
