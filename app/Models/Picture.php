@@ -24,6 +24,14 @@ class Picture extends Model {
     }
 
     public function loadFromURL($url, $filename = null, $find_extension = false, $folder = "imported") {
+        if (str_contains($url, 'https://i.ytimg.com/vi/')) { // proxy from YT
+            $url = str_replace('https://i.ytimg.com/vi/', 'https://media.staroetv.su/ytimg/', $url);
+            $filename_data = explode('/', $url);
+            if (count($filename_data) > 5) {
+                $filename = $filename_data[4] . '-' . pathinfo($filename_data[5], PATHINFO_FILENAME);
+            }
+        }
+
         $domain = parse_url($url, PHP_URL_HOST);
         if ($domain) {
             $path = parse_url($url, PHP_URL_PATH);
@@ -44,6 +52,9 @@ class Picture extends Model {
             }
             if (!file_exists(public_path("/pictures/$folder/"))) {
                 mkdir(public_path("/pictures/$folder/"), 0777, true);
+            }
+            if (file_exists(public_path($name))) {
+                $name = "/pictures/$folder/" . ($filename ?? $basename) . '-'.sha1($url). "." . $extension;
             }
             try {
                 file_put_contents(public_path($name), fopen($url, 'r'));

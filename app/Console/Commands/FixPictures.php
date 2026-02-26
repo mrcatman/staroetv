@@ -152,7 +152,7 @@ class FixPictures extends Command
                     continue;
                 }
                 try {
-                    $image = Image::read($storage->path($picture['path'])); 
+                    $image = Image::read($storage->path($picture['path']));
 
                     echo $picture['path'] . ' Width: ' . $image->width() . ', Height: ' . $image->height() . PHP_EOL;
                     if ($image->width() > 900) {
