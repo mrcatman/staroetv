@@ -56,7 +56,9 @@ class FixPictures extends Command
         $pictures_by_hash = [];
         foreach ($this->folders as $folder) {
             $pictures = $storage->allFiles("pictures/$folder");
-            $filesWithTimestamp = collect($pictures)->map(function ($file) use ($storage) {
+            $filesWithTimestamp = collect($pictures)->filter(function ($file) {
+                return !str_contains($file, '.svg');
+            })->map(function ($file) use ($storage) {
                 return [
                     'path' => $file,
                     'timestamp' => $storage->lastModified($file),
