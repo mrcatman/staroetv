@@ -41,6 +41,9 @@ class Picture extends Model {
             } else {
                 $extension = pathinfo($path, PATHINFO_EXTENSION);
             }
+            if (!$extension) {
+                $extension = "png";
+            }
             if ($extension === "svg" && strpos($url, "scale-to-width-down") !== false) {
                 $extension = "png";
             }
