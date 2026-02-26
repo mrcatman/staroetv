@@ -653,7 +653,7 @@ class RecordsController extends EntityController
                     $record->cover_id = $cover->id;
                 } else {
                     $cover = new Picture();
-                    $cover->loadFromURL($cover_url, md5($cover_url));
+                    $cover->loadFromURL($cover_url, sha1($cover_url), "imported/".date("dmY"));
                     $cover->save();
                     $record->cover_id = $cover->id;
                 }

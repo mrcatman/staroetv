@@ -263,7 +263,7 @@ class VideoCutController extends Controller {
 
             if (!$data_only) {
                 $thumbnail = MediaHelper::makeThumbnail($storage->path($video_path), $middle);
-                $cover = new Picture([
+                $cover = Picture::firstOrNew([
                     'url' => $thumbnail
                 ]);
                 $cover->save();
@@ -284,7 +284,7 @@ class VideoCutController extends Controller {
             } else {
                 $year = $data['year'];
             }
-            if (!$year || empty($year))  {
+            if (empty($year))  {
                 return [
                     'status' => 0,
                     'text' => 'Укажите год'

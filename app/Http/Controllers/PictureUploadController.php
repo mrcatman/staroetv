@@ -46,7 +46,7 @@ class PictureUploadController extends Controller
                 $already_loaded = true;
             }
             if (!$already_loaded) {
-                $picture_item->loadFromURL($url, md5($url), true, "uploads/" . date("dmY"));
+                $picture_item->loadFromURL($url, sha1($url), true, "uploads/" . date("dmY"));
                 if (request()->has('tag')) {
                     $picture_item->tag = request()->input('tag');
                 }
@@ -90,15 +90,16 @@ class PictureUploadController extends Controller
                             $picture->scale(900);
                         }
 
-                        $mime = explode("/", $picture->origin()->mediaType())[1];
-                        if ($mime == "jpeg") {
-                            $mime = "jpg";
-                        }
+                        //$mime = explode("/", $picture->origin()->mediaType())[1];
+//                        if ($mime == "jpeg") {
+//                            $mime = "jpg";
+//                        }
 
-                        $filename = $id . "-" . uniqid() . "." . $mime;
+                        $filename = $id . "-" . uniqid() . ".webp";
                         $full_path = $full_folder . "/" . $filename;
 
-                        $picture->save(public_path("pictures/" . $full_path), 75);
+                        $encoded = $picture->toWebp(quality: 90);
+                        $encoded->save(public_path("pictures/" . $full_path));
                     } else {
 
                         $filename = $id . "-" . uniqid() . ".svg";
