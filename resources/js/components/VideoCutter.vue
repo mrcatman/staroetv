@@ -744,9 +744,8 @@ const startCutting = async (convertIndexes: number[]) => {
                         reject(getErrorMessage(res));
                     }
                 }).fail((xhr: any) => {
-                    const error = xhr.responseJSON;
-                    snackbar.value?.show(error);
-                    reject(getErrorMessage(xhr));
+                    const error = getErrorMessage(xhr);
+                    snackbar.value?.show({status: 0, text: error});
                 });
             });
         //}

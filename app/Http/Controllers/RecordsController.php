@@ -1295,7 +1295,9 @@ class RecordsController extends EntityController
             $similar = $similar->where('id', '!=', request()->input('id'));
         }
         $similar = $similar->where(function ($q) use ($type) {
-            $q->where('title', 'LIKE', '%' . request()->input('title') . '%');
+            if (request()->has('title')) {
+                $q->where('title', 'LIKE', '%' . request()->input('title') . '%');
+            }
             switch ($type) {
                 case 'programs':
                     $q->orWhere(function ($q) {

@@ -58,6 +58,9 @@ type Message = {
 const messages = ref<Message[]>([]);
 
 const show = (data: Message) => {
+    if (!data) {
+        return;
+    }
     data._key = Math.floor(Math.random() * 10000);
     messages.value.unshift(data);
     setTimeout(() => {
