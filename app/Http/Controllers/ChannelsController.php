@@ -379,6 +379,8 @@ class ChannelsController extends EntityController
         Cache::forget('channel_programs_' . $channel->id);
         Cache::forget('channel_global_' . $channel->id);
         Cache::forget('channel_interprogram_' . $channel->id);
+        Cache::forget('channel_logo_' . $channel->id);
+        Cache::forget('channel_random_logo_' . $channel->id);
     }
 
     protected function afterDelete(Model $entity)

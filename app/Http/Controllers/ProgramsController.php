@@ -318,14 +318,18 @@ class ProgramsController extends EntityController {
             $program->records()->doesntHave('channel')->update(['channel_id' => $program->channel_id]);
         }
 
-        Cache::forget('program_random_pictures_'.$program->id);
-        Cache::forget('program_cover_'.$program->id);
-        Cache::forget('programs_channels_names_'.$program->id);
+        $this->clearCache($program);
         return [
             'status' => 1,
             'text' => 'Информация о программе обновлена',
             'redirect_to' => route('programs.edit', $program->id)
         ];
+    }
+
+    private function clearCache($program) {
+        Cache::forget('program_random_pictures_'.$program->id);
+        Cache::forget('program_cover_'.$program->id);
+        Cache::forget('programs_channels_names_'.$program->id);
     }
 
     public function merge() {
