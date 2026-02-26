@@ -60,7 +60,8 @@ class ExternalServicesHelper {
     }
 
     public static function resolveRutubeId($url) {
-        preg_match('/https:\/\/rutube.ru\/play\/embed\/(.*)\//', $url, $output);
+        preg_match('/https:\/\/rutube.ru\/play\/embed\/([a-zA-Z0-9]+)/', $url, $output);
+
         if (isset($output[1])) {
             return $output[1];
         }
