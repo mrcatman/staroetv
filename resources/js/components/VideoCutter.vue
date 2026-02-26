@@ -844,6 +844,7 @@ const selectCut = (index: number) => {
 };
 
 const onSeek = (time: number) => {
+    changeSceneDirection = null;
     if (video.value) {
         video.value.currentTime = time;
     }
@@ -1028,12 +1029,11 @@ const handleKey = () => {
     setFrame(currentFrame.value);
 }
 
-const sleep = (ms: number) => {
-    return new Promise(resolve => {
-        setTimeout(resolve, ms);
-    });
-}
+let changeSceneDirection: number;
+
 const changeScene = async(direction: number) => {
+    changeSceneDirection = direction;
+
     const width = 320;
     const height = 240;
     const threshold = 10000;
@@ -1044,7 +1044,7 @@ const changeScene = async(direction: number) => {
     let newImg: ImageData;
     let lastThreshold = 0;
 
-    while (lastThreshold < threshold && currentFrame.value < frames - 1 && currentFrame.value >= 0) {
+    while (lastThreshold < threshold && currentFrame.value < frames - 1 && currentFrame.value >= 0 && direction === changeSceneDirection) {
 
         oldImg = ctx.getImageData(0, 0, 320, 240);
 
@@ -1052,8 +1052,6 @@ const changeScene = async(direction: number) => {
         await updateFrame();
 
         ctx.drawImage(video.value, 0, 0, width, height);
-        await sleep(50);
-
         newImg = ctx.getImageData(0, 0, 320, 240);
 
         lastThreshold = pixelmatch(oldImg.data, newImg.data, null, width, height, {threshold: 0.1});
@@ -1091,7 +1089,7 @@ const onKeyUp = () => {
 }
 
 onMounted(() => {
-    ctx = canvasRef.value.getContext('2d');
+    ctx = canvasRef.value.getContext('2d', { willReadFrequently: true });
 
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);

@@ -200,8 +200,8 @@ class VideoCutController extends Controller {
             $path = public_path($cut->download_path);
 
             $cut_result = $cut_results[$index];
-            $start_frame = $cut_result['start'] ? $cut_result['start'] : 0;
-            $end_frame = $cut_result['end'] ? $cut_result['end'] : $cut->frames - 1;
+            $start_frame = $cut_result['start'] ? $cut_result['start'] + 1 : 0;
+            $end_frame = $cut_result['end'] ? $cut_result['end'] + 1 : $cut->frames - 1;
             $start = $start_frame / $cut->fps;
             $end = $end_frame / $cut->fps;
 
