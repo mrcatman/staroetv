@@ -2,7 +2,9 @@
 
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\Laravel\Facades\Image;
 
 class Picture extends Model {
 
@@ -68,6 +70,27 @@ class Picture extends Model {
         } else {
             $this->url = $url;
         }
+    }
 
+    public function compress(): string | null{
+        if (str_starts_with($this->url, 'http') || str_ends_with($this->url, '.svg')) {
+            return null;
+        }
+        $storage = Storage::disk('public_data');
+
+        $image = Image::read($storage->path($this->url));
+        if ($image->width() > 900) {
+            $image->scale(900);
+        }
+        $encoded = $image->toWebp(quality: 90);
+
+        $pathinfo = pathinfo($this->url);
+        $new_url = $pathinfo['dirname'].'/'.$pathinfo['filename'].'.webp';
+
+        $encoded->save($storage->path($new_url));
+        $storage->delete($this->url);
+
+        $this->url = $new_url;
+        return $new_url;
     }
 }

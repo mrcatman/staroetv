@@ -305,6 +305,7 @@ class RecordsEditController extends Controller
                 ]);
                 if ($external) {
                     $cover->loadFromURL($thumbnail, sha1($thumbnail), false, "uploads/" . date("dmY"));
+                    $cover->compress();
                 }
                 $cover->save();
 

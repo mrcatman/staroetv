@@ -154,22 +154,9 @@ class FixPictures extends Command
                     continue;
                 }
                 try {
-                    $image = Image::read($storage->path($picture['path']));
-
-                    echo $picture['path'] . ' Width: ' . $image->width() . ', Height: ' . $image->height() . PHP_EOL;
-                    if ($image->width() > 900) {
-                        $image->scale(900);
-                    }
-                    $encoded = $image->toWebp(quality: 90);
-
-                    $pathinfo = pathinfo($picture['path']);
-                    $new_path = '/'.$pathinfo['dirname'].'/'.$pathinfo['filename'].'.webp';
-
-                    $encoded->save($storage->path($new_path));
-                    $picture_entity->url = $new_path;
+                    $new_path = $picture_entity->compress();
                     $picture_entity->save();
 
-                    $storage->delete($picture['path']);
                     echo 'Reencoded '.$picture['path'].' to ' . $new_path . PHP_EOL;
                 } catch (\Exception $e) {
                     echo 'Error while compressing image: ' . $e->getMessage() . PHP_EOL;
