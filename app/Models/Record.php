@@ -57,6 +57,9 @@ class Record extends Model {
     }
 
     public function getEmbedCodeAttribute() {
+        if (!$this->attributes['embed_code']) {
+            return "";
+        }
         return str_replace("&autoplay=1", "", $this->attributes['embed_code']);
     }
 

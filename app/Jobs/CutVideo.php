@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 class CutVideo implements ShouldQueue
 {
     use Queueable;
-
+    public $timeout = 120;
     public function __construct(
         private readonly string $path,
         private readonly string $filename,

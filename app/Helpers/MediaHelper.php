@@ -29,7 +29,7 @@ class MediaHelper {
     }
 
     public static function cutVideo($path, $start, $end, $output_path) {
-        return Process::forever()->run("ffmpeg -y -i $path -c:v libx264 -acodec copy -ss $start -to $end $output_path");
+        return Process::forever()->run("ffmpeg -y -i $path -c:v libx265 -acodec copy -tag:v hvc1 -ss $start -to $end $output_path");
     }
 
     public static function getDuration($path): int {
