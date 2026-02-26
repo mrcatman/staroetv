@@ -59,6 +59,14 @@ class ExternalServicesHelper {
         return null;
     }
 
+    public static function resolveRutubeId($url) {
+        preg_match('/https:\/\/rutube.ru\/play\/embed\/(.*)\//', $url, $output);
+        if (isset($output[1])) {
+            return $output[1];
+        }
+        return null;
+    }
+
     public static function resolveVkId($url) {
         preg_match('/(.*)oid=(.*)&id=(.*)&hash(.*)/', $url, $output);
         if (!isset($output[2]) || !isset($output[3])) {
@@ -88,16 +96,23 @@ class ExternalServicesHelper {
     }
 
     public static function resolveId($url) {
-        if ($youtube_id = self::resolveYoutubeId($url)) {
-            return $youtube_id;
+        if ($rutube_id = self::resolveRutubeId($url)) {
+            return $rutube_id;
         }
         if ($vk_id = self::resolveVkId($url)) {
             return $vk_id;
         }
+        if ($youtube_id = self::resolveYoutubeId($url)) {
+            return $youtube_id;
+        }
+
         return null;
     }
 
     public static function resolveDownloadUrl($url) {
+        if ($rutube_id = self::resolveRutubeId($url)) {
+            return 'https://rutube.ru/video/'.$rutube_id.'/';
+        }
         if ($youtube_id = self::resolveYoutubeId($url)) {
             return 'https://youtu.be/'.$youtube_id;
         }
@@ -159,6 +174,8 @@ class ExternalServicesHelper {
                 $video = $data->response->items[0];
                 return $video->image[count($video->image) - 2]->url;
             }
+        } elseif ($rutube_id = self::resolveRutubeId($record->original_url)) {
+            return 'https://rutube.ru/api/video/'.$rutube_id.'/thumbnail/?redirect=1';
         } elseif ($youtube_id = self::resolveYoutubeId($record->original_url)) {
             return 'https://i.ytimg.com/vi/' . $youtube_id . '/hqdefault.jpg';
         }

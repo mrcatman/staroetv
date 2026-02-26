@@ -298,7 +298,6 @@ class RecordsEditController extends Controller
             } else {
                 $thumbnail = MediaHelper::makeThumbnail(Storage::disk('media-storage')->path($record->source_path));
             }
-
             if ($thumbnail) {
                 $cover = Picture::firstOrNew([
                     'url' => $thumbnail
