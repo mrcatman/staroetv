@@ -112,6 +112,7 @@ let timeout: any;
 
 const canvasRef = useTemplateRef<HTMLCanvasElement>('canvas');
 const videoThumbnailsRef = useTemplateRef<typeof HTMLVideoElement>('video_thumbnails');
+let ctx: CanvasRenderingContext2D;
 
 watch(() => currentFrame.value, (frame) => {
     if (mouseDown) {
@@ -142,7 +143,6 @@ const makeThumbnails = async () => {
         canvasRef.value.width = videoThumbnailsRef.value.videoWidth;
         canvasRef.value.height = videoThumbnailsRef.value.videoHeight;
 
-        const ctx = canvasRef.value.getContext('2d');
         ctx.drawImage(videoThumbnailsRef.value, 0, 0, canvasRef.value.width, canvasRef.value.height);
 
         thumbnails.value[i].thumbnail = canvasRef.value.toDataURL('image/jpeg', 0.8);
@@ -156,6 +156,7 @@ onMounted(() => {
     }
     videoThumbnailsRef.value.addEventListener('seeked', onLoaded);
     videoThumbnailsRef.value.currentTime = 1;
+    ctx = canvasRef.value.getContext('2d');
 })
 
 const remakeThumbnails = () => {

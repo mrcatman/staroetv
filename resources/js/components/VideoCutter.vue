@@ -2,6 +2,8 @@
     <div class="video-cutter">
         <preloader v-if="loading"/>
         <snackbar ref="snackbar"/>
+        <canvas ref="canvas" style="width:320px;height:240px;position: fixed;visibility: hidden"></canvas>
+
         <modal title="Просмотр видео" ref="previewModal">
             <div class="video-cutter__preview" v-if="recordToPreview">
                 <player-embed :record="recordToPreview" />
@@ -500,7 +502,9 @@
 }
 </style>
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount, useTemplateRef } from 'vue';
+import pixelmatch from 'pixelmatch';
+
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/antd.css'
 
@@ -547,12 +551,13 @@ export interface CutResult {
     similar?: Models.Record[];
 }
 
-
 const props = defineProps<{
     cut: Models.VideoCut;
     channel?: Models.Channel;
     video?: Models.Record;
 }>();
+
+const _route = route;
 
 const fps = props.cut.fps > 60 ? 60 : props.cut.fps;
 const frames = props.cut.frames;
@@ -585,6 +590,9 @@ const year = ref(props.cut.year);
 const autoskip = ref(0);
 
 const isPlaying = ref(false);
+
+const canvasRef = useTemplateRef<HTMLCanvasElement>('canvas');
+let ctx: CanvasRenderingContext2D;
 
 const getYear = computed(() => {
     if (year.value) {
@@ -994,6 +1002,7 @@ onMounted(() => {
 let keyInterval: any = null;
 let currentKey = null;
 
+
 const handleKey = () => {
     switch (currentKey) {
         case 'ArrowLeft':
@@ -1007,17 +1016,61 @@ const handleKey = () => {
             }
             break;
         case 'ArrowDown':
-            currentFrame.value = currentFrame.value + fps < frames ? currentFrame.value + fps : frames;
+            changeScene(1);
+            //currentFrame.value = currentFrame.value + fps < frames ? currentFrame.value + fps : frames;
             break;
         case 'ArrowUp':
-            currentFrame.value = currentFrame.value - fps > 0 ? currentFrame.value - fps : 0;
+            changeScene(-1);
+            //currentFrame.value = currentFrame.value - fps > 0 ? currentFrame.value - fps : 0;
             break;
     }
 
     setFrame(currentFrame.value);
 }
 
-const _route = route;
+const sleep = (ms: number) => {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms);
+    });
+}
+const changeScene = async(direction: number) => {
+    const width = 320;
+    const height = 240;
+    const threshold = 10000;
+
+    ctx.drawImage(video.value, 0, 0, width, height);
+
+    let oldImg: ImageData;
+    let newImg: ImageData;
+    let lastThreshold = 0;
+
+    while (lastThreshold < threshold && currentFrame.value < frames - 1 && currentFrame.value >= 0) {
+
+        oldImg = ctx.getImageData(0, 0, 320, 240);
+
+        currentFrame.value+= direction;
+        await updateFrame();
+
+        ctx.drawImage(video.value, 0, 0, width, height);
+        await sleep(50);
+
+        newImg = ctx.getImageData(0, 0, 320, 240);
+
+        lastThreshold = pixelmatch(oldImg.data, newImg.data, null, width, height, {threshold: 0.1});
+    }
+}
+
+const updateFrame = async () => {
+    return new Promise<void>((resolve) => {
+        const onVideoTimeUpdate = () => {
+            video.value.removeEventListener('timeupdate', onVideoTimeUpdate);
+            resolve();
+        }
+
+        setFrame(currentFrame.value);
+        video.value.addEventListener('timeupdate', onVideoTimeUpdate);
+    })
+}
 
 const onKeyDown = (e: KeyboardEvent) => {
     if (e.target?.classList.contains('input') || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
@@ -1025,8 +1078,7 @@ const onKeyDown = (e: KeyboardEvent) => {
     }
     currentKey = e.key;
     if (!keyInterval) {
-        const timeout = ['ArrowLeft', 'ArrowRight'].includes(currentKey) ? 100 : 1000;
-        keyInterval = setInterval(handleKey, timeout);
+        keyInterval = setInterval(handleKey, 200);
         handleKey();
     }
 
@@ -1039,8 +1091,11 @@ const onKeyUp = () => {
 }
 
 onMounted(() => {
+    ctx = canvasRef.value.getContext('2d');
+
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
+
 });
 onBeforeUnmount(() => {
     window.removeEventListener('keydown', onKeyDown);
