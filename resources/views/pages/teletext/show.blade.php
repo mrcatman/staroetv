@@ -72,10 +72,11 @@
                         </div>
                         <div class="box__inner">
                             <div class="record-page__related">
-                                @foreach ($related as $teletext)
-                                    @include('blocks.teletext.item', $teletext)
-                                @endforeach
-
+                                <div class="records-list">
+                                    @foreach ($related as $teletext)
+                                        @include('blocks.teletext.item', $teletext)
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
                     </div>
