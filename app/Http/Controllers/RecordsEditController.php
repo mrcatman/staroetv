@@ -293,7 +293,8 @@ class RecordsEditController extends Controller
     {
         $records = Record::whereIn('id', request()->input('ids'))->get();
         foreach ($records as $record) {
-            if (!$record->source_path) {
+            $external = !$record->source_path;
+            if ($external) {
                 $thumbnail = ExternalServicesHelper::getThumbnail($record);
             } else {
                 $thumbnail = MediaHelper::makeThumbnail(Storage::disk('media-storage')->path($record->source_path));
@@ -302,6 +303,9 @@ class RecordsEditController extends Controller
                 $cover = Picture::firstOrNew([
                     'url' => $thumbnail
                 ]);
+                if ($external) {
+                    $cover->loadFromURL($thumbnail, sha1($thumbnail), false, "uploads/" . date("dmY"));
+                }
                 $cover->save();
 
                 $record->cover_id = $cover->id;
