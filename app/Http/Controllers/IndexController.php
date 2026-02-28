@@ -69,15 +69,4 @@ class IndexController extends Controller {
         return view('pages.index', $data);
     }
 
-    public function promo()
-    {
-        $channels = Channel::where(['is_federal' => true, 'is_radio' => false])->orderBy('order', 'ASC')->get();
-        $programs = Program::where(['channel_id' => 35])->orderBy('views', 'desc')->limit(20)->get();
-
-        return view ('dev', [
-            'channels' => $channels,
-            'programs' => $programs
-        ]);
-    }
-
 }
