@@ -30,7 +30,7 @@
                     <div class="input-container">
                         <label class="input-container__label">Дата публикации</label>
                         <div class="input-container__inner">
-                            <input class="input" type="date" name="created_at" value="{{$article ? \Carbon\Carbon::createFromTimestamp($article->created_at_original)->format('Y-m-d') : '' }}"/>
+                            <input class="input" type="datetime-local" name="created_at" value="{{$article ? \Carbon\Carbon::createFromTimestamp($article->created_at_original)->format('Y-m-d H:i') : '' }}"/>
                             <div class="input-container__description">Если дата больше текущей, то статья автоматически станет доступной в указанное время</div>
                             <span class="input-container__message"></span>
                         </div>
@@ -82,7 +82,7 @@
                         <tags-editor
                             name="tags"
                             :tags="{{$article ? $article->tags : '[]'}}"
-                            :all-tags="{{\App\Models\Tag::all()}}"
+                            :all-tags="{{$tags}}"
 
                         />
                         <span class="input-container__message"></span>

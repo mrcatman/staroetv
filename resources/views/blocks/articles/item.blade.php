@@ -1,16 +1,5 @@
 <div class="news @if ($article->pending) news--pending @endif @if ($article->cover_url != "") news--with-picture @else news--without-picture @endif @if (isset($full_width) && $full_width) news--full-width @endif @if (isset($fill) && $fill) news--fill @endif @if (isset($before_fill) && $before_fill) news--before-fill @endif @if (isset($first) && $first) news--first @endif @if (isset($last) && $last) news--last @endif @if (isset($before_last) && $before_last) news--before-last @endif">
     <div class="news__content">
-        @if (isset($show_actions_panel) && $show_actions_panel)
-        <div class="news__actions">
-             <span data-id="{{$article->id}}" class="button button--dropdown button--small button--light button--article-menu">
-                 <span class="button--dropdown__text">Действия</span>
-                 <span class="button--dropdown__icon">
-                     <i class="fa fa-chevron-down"></i>
-                 </span>
-                 <div class="menu button--dropdown__list" id="actions_list_{{$article->id}}"></div>
-             </span>
-        </div>
-        @endif
         <div class="news__top">
             @if (isset($search))
                 <a href="{{$article->full_url}}" class="news__title">{!! \App\Helpers\HighlightHelper::highlight($article->title, $search) !!}</a>

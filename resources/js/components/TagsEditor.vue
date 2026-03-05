@@ -11,27 +11,54 @@
 </template>
 <style lang="scss">
 .tags-editor {
-    width: 100%;
     .vue-tags-input {
-        max-width: unset!important;
+        max-width: unset !important;
         width: 100%;
+        background: var(--inputs-color);
     }
+    .ti-autocomplete {
+        background: var(--inputs-color);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--input-box-shadow);
+        top: 100%;
+        left: 0;
+        max-height: 10em;
+        overflow: auto;
+    }
+    .ti-selected-item {
+        background-color: var(--primary) !important;
+    }
+    .ti-item>div {
+        padding: .5em!important;
+    }
+
     .ti-new-tag-input {
         font: inherit;
         background: none;
     }
+
     .ti-input {
-        background: var(--bg-darker);
-        border: 1px solid var(--border-color);
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+        font: inherit;
+        margin: -.35em;
+
         &:focus {
             border-bottom: 3px solid var(--primary);
         }
     }
+
     .ti-new-tag-input-wrapper {
         background: none;
+        padding: 0 !important;
+        margin: 2px;
+        font-size: 1em !important;
     }
+
     .ti-tag {
-        background: var(--primary)!important;
+        background: var(--primary) !important;
+        font-size: 1em !important;
     }
 }
 </style>

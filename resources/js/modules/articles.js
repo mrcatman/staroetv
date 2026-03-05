@@ -16,16 +16,16 @@ $(body).on('click', '.button--approve-article', function() {
     showModal('#approve_article');
 });
 
-$(body).on('click', '.button--article-menu', function() {
-    let id = $(this).data('id');
-    $.post(route('articles.get-actions'), {id}).done(res => {
-        if (res.status) {
-            replaceHTML(res.data.html);
-        } else {
-            alert(res.text);
-        }
-    })
-});
+// $(body).on('click', '.button--article-menu', function() {
+//     let id = $(this).data('id');
+//     $.post(route('articles.get-actions'), {id}).done(res => {
+//         if (res.status) {
+//             replaceHTML(res.data.html);
+//         } else {
+//             alert(res.text);
+//         }
+//     })
+// });
 
 $(body).on('click', '*[data-change-article-type]', function () {
     $.post(route('articles.change-type'), {type_id: $(this).data('change-article-type'), id: $(this).data('change-article-type-id')}).done(res => {

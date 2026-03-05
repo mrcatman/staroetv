@@ -93,6 +93,19 @@ class ArticlesController extends EntityController {
         $this->redirect_after_delete = route('articles.index');
     }
 
+    private function getTags() {
+        return Cache::remember('articles_tags1', CacheTimes::RELATION, function() {
+            $all_ids = Article::approved()->where('type_id', '!=', MaterialTypes::TYPE_BLOG)->pluck('id');
+            return Tag::all()->map(function($tag) use ($all_ids) {
+                $count = TagMaterial::where(['tag_id' => $tag->id, 'material_type' => 'articles'])->whereIn('material_id', $all_ids)->count();
+                $tag->count = $count;
+                return $tag;
+            })->filter(function ($tag) {
+                return $tag->count > 0;
+            })->sortByDesc('count')->values();
+        });
+    }
+
     public function redirect($conditions) {
         $article = Article::where($conditions)->first();
         if (!$article) {
@@ -132,12 +145,22 @@ class ArticlesController extends EntityController {
         $see_also = $data['see_also'];
 
         ViewsHelper::increment($article, 'articles');
+
         $show_actions_panel = auth()->user() && auth()->user()->group_id > 2 && auth()->user()->group_id < 255;
+        $can_edit = false;
+        $can_approve = false;
+
+        if ($show_actions_panel) {
+            $can_edit = $article->can_edit;
+            $can_approve = PermissionsHelper::allows('nwapprove');
+        }
 
         return view("pages.articles.show", [
             'show_actions_panel' => $show_actions_panel,
             'article' => $article,
-            'see_also' => $see_also
+            'see_also' => $see_also,
+            'can_edit' => $can_edit,
+            'can_approve' => $can_approve
         ]);
     }
 
@@ -180,17 +203,7 @@ class ArticlesController extends EntityController {
         }
         $articles = $articles->paginate(20);
 
-        $tags = Cache::remember('articles_tags', CacheTimes::RELATION, function() {
-            $all_ids = Article::approved()->where('type_id', '!=', MaterialTypes::TYPE_BLOG)->pluck('id');
-            return Tag::all()->map(function($tag) use ($all_ids) {
-                $count = TagMaterial::where(['tag_id' => $tag->id, 'material_type' => 'articles'])->whereIn('material_id', $all_ids)->count();
-                $tag->count = $count;
-                return $tag;
-            })->filter(function ($tag) {
-                return $tag->count > 0;
-            })->sortByDesc('count');
-        });
-
+        $tags = $this->getTags();
 
         $can_add = PermissionsHelper::allows('nwadd');
 
@@ -212,6 +225,7 @@ class ArticlesController extends EntityController {
             $can_edit_all = PermissionsHelper::allows('nwedit');
             return view("pages.articles.form", [
                 'article' => null,
+                'tags' => $this->getTags(),
                 'can_edit_all' => $can_edit_all
             ]);
         } else {
@@ -262,6 +276,7 @@ class ArticlesController extends EntityController {
             'services' => $services,
             'crossposts' => $crossposts,
             'article' => $article,
+            'tags' => $this->getTags(),
             'can_edit_all' => $can_edit_all
         ]);
     }
@@ -450,7 +465,6 @@ class ArticlesController extends EntityController {
         }
         $data = request()->validate($rules);
         $article->fill($data);
-
         $article->content = Purifier::clean($article->content);
         $article->source = strip_tags($article->source);
 
@@ -527,35 +541,6 @@ class ArticlesController extends EntityController {
                 $q->whereNotIn('channel_id', $channel_ids);
             })->delete();
         }
-    }
-
-    public function getActions() {
-        $article = Article::find(request()->input('id'));
-        if (!$article) {
-            return [
-                'status' => 0,
-                'text' => 'Не найдено'
-            ];
-        }
-
-        $can_edit = $article->can_edit;
-        $can_approve = PermissionsHelper::allows('nwapprove');
-        $selector = "#actions_list_".$article->id;
-        return [
-            'status' => 1,
-            'data' => [
-                'html' => [
-                    [
-                        'replace' => $selector,
-                        'html' => view("blocks.articles.actions", [
-                            'article' => $article,
-                            'can_edit' => $can_edit,
-                            'can_approve' => $can_approve,
-                        ])->render()
-                    ]
-                ]
-            ]
-        ];
     }
 
     public function changeType(){

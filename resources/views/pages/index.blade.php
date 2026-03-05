@@ -166,7 +166,7 @@
                         <div class="articles-list">
                             <div class="articles-list__block articles-list__block--big">
                                 @foreach ($first_news as $first_news_item)
-                                    <a href="{{$first_news_item->url}}"
+                                    <a href="{{$first_news_item->full_url}}"
                                        style="background-image:url({{$first_news_item->cover_url}})"
                                        class="article article--big">
                                         <div class="article__texts">

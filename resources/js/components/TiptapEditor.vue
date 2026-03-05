@@ -113,6 +113,7 @@ import { onMounted, onUnmounted, useTemplateRef } from "vue";
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
 import TextAlign from '@tiptap/extension-text-align'
 import { TextStyleKit } from '@tiptap/extension-text-style'
 import Typography from '@tiptap/extension-typography'
@@ -129,6 +130,7 @@ const editor = useEditor({
     content: props.content,
     extensions: [
         StarterKit,
+        Link,
         Image.configure({
             resize: {
                 enabled: true,

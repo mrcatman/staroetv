@@ -108,7 +108,7 @@ class Article extends Model {
 
     public function getFixedContentAttribute()
     {
-        return Cache::remember('article_fixed_content_' . $this->id, CacheTimes::RELATION, function () {
+       return Cache::remember('article_fixed_content_' . $this->id, CacheTimes::RELATION, function () {
             libxml_use_internal_errors(true);
             $content = $this->attributes['content'];
             $content = str_replace("&nbsp;", " ", $content);
@@ -117,6 +117,7 @@ class Article extends Model {
             $content = str_replace("<br><br>", "<br>", $content);
             $content = str_replace("<br /><br><br /><br>", "<br>", $content);
             $content = trim($content);
+            $content = '<div>'.$content.'</div>';
             $dom = new \DOMDocument;
             $dom->loadHTML('<?xml encoding="utf-8" ?>' . $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
@@ -171,7 +172,7 @@ class Article extends Model {
             }
 
             return html_entity_decode($dom->saveHTML());
-        });
+       });
     }
 
     public function comments() {

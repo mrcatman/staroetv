@@ -371,40 +371,6 @@
     }
 }
 
-.vue-tags-input {
-    max-width: unset !important;
-    width: 100%;
-
-    .ti-new-tag-input {
-        font: inherit;
-        background: none;
-    }
-
-    .ti-input {
-        background: none !important;
-        border: none !important;
-        padding: 0 !important;
-        font: inherit;
-        margin: -.35em;
-
-        &:focus {
-            border-bottom: 3px solid var(--primary);
-        }
-    }
-
-    .ti-new-tag-input-wrapper {
-        background: none;
-        padding: 0 !important;
-        margin: 2px;
-        font-size: 1em !important;
-    }
-
-    .ti-tag {
-        background: var(--primary) !important;
-        font-size: 1em !important;
-    }
-}
-
 
 .box--dark, .forum__top-panel {
     .input, .vdp-datepicker input, .select-classic {
