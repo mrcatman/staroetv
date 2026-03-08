@@ -26,7 +26,7 @@
         width: 100%;
         height: 100%;
         pointer-events: none;
-        opacity: .4;
+        opacity: .32;
         border-radius: var(--border-radius-big);
     }
 
@@ -35,6 +35,10 @@
         color: var(--box-text-color-dark);
         --box-color-hover: var(--box-color-hover-dark);
         --links-color: var(--box-text-color-dark);
+        &:before {
+            filter: invert(1);
+            opacity: .4;
+        }
     }
 
     &--stretch {
