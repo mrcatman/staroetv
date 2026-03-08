@@ -4,12 +4,12 @@ body {
     font-size: 14px;
     --primary: #ff6a00;
     --primary-highlight: #ff8313;
-    --border-color: #ddd;
+    --border-color: #00000014;
     --border-color-second: #fff;
     --box-color: #fff;
-    --box-color-hover: rgba(0,0, 0,.075);
-    --inputs-color: #fdfdfd;
-    --bg-darker: #efefef;
+    --box-color-hover: rgba(0, 0, 0, .075);
+    --inputs-color: linear-gradient(#f7f7f7, #ffffff);
+    --bg-darker: #00000005;
     --bg-darkest: #777;
     --bg-darkest-2: #333;
     --box-color-dark: #111;
@@ -28,17 +28,17 @@ body {
     --site-background-color: #ebe2da;
     --bg-darker-2: #e6e6e6;
     --bg-darker-3: #dddd;
-    --modal-header-background-color: rgba(0,0,0,.05);
+    --modal-header-background-color: rgba(0, 0, 0, .05);
     --modal-header-color: #555;
     --modal-color: #333;
     --modal-background-color: #eee;
     --big-texts-shadow: 2px 2px 5px #ccc, -2px -2px 5px #fff;
     --big-texts-shadow-dark: 1px 1px 1px #333;
     --block-box-shadow: 0 1em 4em -1em inset rgba(185, 168, 156, 0.4), 0 .5em 5em -1.25em rgba(96, 88, 82, 0.66);
-    --input-box-shadow: 0 0 .25em inset rgba(194, 173, 160, 0.1), 0 .5em 1.75em -.5em rgba(84, 78, 73, 0.26);
-    --element-box-shadow: 0 .5em 1em -1em inset #17161529, 0 1em 1.75em -.25em #69524042;
-    --button-box-shadow: 0 .5em 1.75em -.75em #ff6b02;
-    --button-text-shadow: 0 .125em .75em rgba(38, 29, 23, 0.25);
+    --input-box-shadow: 0 1px 0 rgba(0, 0, 0, .025), 0 2px 2px inset rgba(0, 0, 0, .05);
+    --element-box-shadow: 0 1px 0 rgba(0, 0, 0, .05), 0 2px 2px inset rgba(0, 0, 0, .1), 0 .5em 1.75em -.5em inset #a97b5a47;
+    --button-box-shadow: 0 1.5em .5em inset #ffbb8a40, 0 2px 4px rgba(0, 0, 0, .1);
+    --button-text-shadow: 0 2px 4px rgb(0 0 0 / 25%);
     --border-radius-small: .25em;
     --border-radius-standard: .5em;
     --border-radius-big: .75em;
@@ -46,11 +46,9 @@ body {
     --overlay-darken-2: transparent;
     --overlay-margin: 0;
     --overlay-padding: 0;
-
     --font-main: "Raleway", sans-serif;
     --font-texts: "Merriweather", serif;
     font-variant-numeric: lining-nums;
-
     overflow-x: hidden;
     color: var(--text-color);
     background: var(--site-background-color);

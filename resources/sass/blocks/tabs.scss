@@ -11,6 +11,7 @@
     border: none;
     border-radius: 0;
     margin: 0 0 -1px;
+    transition: all .2s;
     @include mobile {
         flex: 1;
         font-size: .875em;
@@ -21,9 +22,8 @@
         border-bottom: 2px solid var(--border-color);
     }
     &--active {
+        box-shadow: var(--element-box-shadow);
         border-bottom: 2px solid var(--primary);
-
-
         &:hover {
             border-bottom: 2px solid var(--primary);
         }

@@ -23,6 +23,7 @@
     border-top-left-radius: .5em;
     border-bottom-left-radius: .5em;
     flex-wrap: wrap;
+    box-shadow: var(--input-box-shadow);
     &:hover {
         background: var(--bg-darker-2);
     }
@@ -54,6 +55,7 @@
     }
 
     &__city {
+        box-shadow: var(--input-box-shadow);
         cursor: pointer;
         font-size: 1.125em;
         background: var(--bg-darker);

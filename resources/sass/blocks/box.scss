@@ -16,8 +16,8 @@
 
     &:before {
         z-index: 0;
-        background-image: url("/resources/images/fabric.png");
-        background-size: 200px;
+        background-image: url("/resources/images/fabric2.png");
+        background-size: 320px;
         content: '';
         display: block;
         position: absolute;
@@ -26,8 +26,7 @@
         width: 100%;
         height: 100%;
         pointer-events: none;
-        opacity: .16;
-        filter: contrast(1.4) brightness(7);
+        opacity: .4;
         border-radius: var(--border-radius-big);
     }
 
