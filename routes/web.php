@@ -27,7 +27,9 @@ use App\Http\Controllers\IndexController;
 use App\Http\Controllers\DesignPackagesController;
 use App\Http\Controllers\MassUploadController;
 use App\Http\Controllers\PagesController;
+use App\Http\Controllers\PictureUploadController;
 use App\Http\Controllers\PrivateMessagesController;
+use App\Http\Controllers\PromoController;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\RecordsController;
 use App\Http\Controllers\RecordsAutocompleteController;
@@ -37,7 +39,6 @@ use App\Http\Controllers\ReputationController;
 use App\Http\Controllers\SiteSearchController;
 use App\Http\Controllers\TeletextController;
 use App\Http\Controllers\TopListController;
-use App\Http\Controllers\PictureUploadController;
 use App\Http\Controllers\SmilesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\VideoCutController;
@@ -105,7 +106,7 @@ if (!function_exists('defineCrudRoutes')) {
 
 Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], function () {
     Route::get('/', [IndexController::class, 'index'])->name('index');
-    Route::get('/promo', [IndexController::class, 'promo']);
+    Route::get('/promo', [PromoController::class, 'index'])->name('promo.index');
 
     Route::get('/new-design', function () {
         return view('new-design');
@@ -392,10 +393,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         Route::get('crosspost', [ArticlesController::class, 'getCrosspostParameters'])->name('get-crosspost-parameters');
         Route::post('crosspost', [ArticlesController::class, 'crosspost'])->name('crosspost');
 
-
-        Route::post('actions', [ArticlesController::class, 'getActions'])->name('get-actions');
         Route::post('change-type', [ArticlesController::class, 'changeType'])->name('change-type');
-
     });
 
     Route::get('/blog', function () {

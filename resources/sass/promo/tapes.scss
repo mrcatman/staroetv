@@ -1,0 +1,98 @@
+
+.tapes {
+    position: absolute;
+    z-index: 3;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0 2.5em;
+    gap: .125em;
+    height: 100vh;
+    overflow: auto;
+    right: 6em;
+}
+
+
+.tape {
+    width: 36em;
+    height: 2.75em;
+    border-radius: .2em;
+    position: relative;
+    background: linear-gradient(90deg, #050505, #222 1%, #050505 10%, #111 95%, #222 97%, #050505);
+    padding: .75em;
+
+    &:before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: calc(50% - .125em);
+        height: .25em;
+        left: 0;
+        width: 100%;
+        background: linear-gradient(to bottom, #000 0%, transparent 90%, #444);
+    }
+
+    &:nth-of-type(5n - 1) {
+        transform: translateX(.25em);
+    }
+
+    &:nth-of-type(5n - 2) {
+        transform: translateX(.125em);
+    }
+
+    &:nth-of-type(5n - 3) {
+        transform: translateX(.5em);
+    }
+
+    &:nth-of-type(5n - 4) {
+        transform: translateX(-.25em);
+    }
+
+    &__sticker {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, #111, #222);
+        position: relative;
+        border-radius: var(--border-radius-small);
+        border-top: 1px solid #333;
+        border-left: 1px solid #222;
+        display: flex;
+        justify-content: center;
+
+        &__content {
+            width: 90%;
+            background: #fff;
+            border-radius: var(--border-radius-small);
+            padding: .5em;
+            font-family: "Lumios Typewriter Used";
+            font-size: 1.125em;
+            line-height: 1.4;
+            display: flex;
+            gap: 1em;
+            overflow: hidden;
+        }
+
+        &__cover {
+            width: 4em;
+            height: 2.5em;
+            margin: -.5em;
+            background-size: cover;
+            background-position: center;
+        }
+    }
+
+    &:nth-of-type(4n - 2) &__sticker {
+        transform: rotate(-.5deg);
+    }
+
+    &:nth-of-type(4n - 1) &__sticker {
+        transform: rotate(.25deg);
+    }
+
+    &:nth-of-type(4n) &__sticker {
+        transform: rotate(.5deg);
+    }
+
+
+}
+

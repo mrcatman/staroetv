@@ -18,3 +18,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 Route::any('search', [\App\Http\Controllers\RecordsController::class, 'apiSearch']);
 Route::post('records/on-downloaded/{id}', [\App\Http\Controllers\RecordsUploadController::class, 'onDownloaded']);
+
+Route::get('promo/video', [\App\Http\Controllers\PromoController::class, 'randomVideo'])->name('promo.video');

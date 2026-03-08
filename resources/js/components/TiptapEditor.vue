@@ -207,6 +207,7 @@ onUnmounted(() => {
         }
     }
     &__content {
+        border-radius: var(--border-radius-small);
         max-height: 30em;
         overflow: auto;
         padding: .75em;

@@ -228,13 +228,16 @@ class Record extends Model {
         if (!$url || $url == "") {
             preg_match('/<iframe(.*?)src="(.*?)"(.*?)/', $this->embed_code, $matches);
             if (isset($matches[2])) {
-                return $matches[2];
+                $url = $matches[2];
             }
-            preg_match('/<iframe(.*?)src=(.*?) (.*?)/', $this->embed_code, $matches);
-            if (isset($matches[2])) {
-                return $matches[2];
+            if (!$url) {
+                preg_match('/<iframe(.*?)src=(.*?) (.*?)/', $this->embed_code, $matches);
+                if (isset($matches[2])) {
+                   $url = $matches[2];
+                }
             }
         }
+        $url = str_replace("http://", "https://", $url);
         return $url;
     }
 
