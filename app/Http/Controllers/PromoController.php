@@ -11,12 +11,15 @@ class PromoController extends Controller {
     public function index()
     {
         $channels = Channel::where(['is_federal' => true, 'is_radio' => false])->orderBy('order', 'ASC')->get();
-        $programs = Program::where('views', '>', 1000)->whereIn('channel_id', $channels->pluck('id'))->inRandomOrder()->limit(12)->get();
 
         return view ('promo', [
             'channels' => $channels,
-            'programs' => $programs
         ]);
+    }
+
+    public function randomPrograms() {
+        $programs = Program::where('views', '>', 1000)->has('records', '>=', 5)->inRandomOrder()->limit(12)->get();
+        return $programs;
     }
 
     public function randomVideo() {

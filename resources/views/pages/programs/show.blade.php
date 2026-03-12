@@ -142,10 +142,11 @@
                         </div>
                     </div>
                 @endif
-
+                @if (!$unknown)
                 <div class="row">
                     @include('blocks.comments.list', ['class' => 'program-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_PROGRAMS, 'material_id' => $program->id]])
                 </div>
+                @endif
             </div>
             <div class="col col--sidebar">
                 @if (count($related_programs) > 0)

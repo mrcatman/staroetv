@@ -2,80 +2,100 @@
 .tapes {
     position: absolute;
     z-index: 3;
-    bottom: 0;
+    top: 9.125em;
     display: flex;
     flex-direction: column;
     padding: 0 2.5em;
-    gap: .125em;
-    height: 100vh;
-    overflow: auto;
-    right: 6em;
+    gap: 2.5em;
+    left: calc(50vw + 29.25em);
+    perspective: 152em;
 }
 
 
 .tape {
-    width: 36em;
-    height: 2.75em;
-    border-radius: .2em;
+    width: 43em;
+    height: 3.625em;
     position: relative;
-    background: linear-gradient(90deg, #050505, #222 1%, #050505 10%, #111 95%, #222 97%, #050505);
-    padding: .75em;
-
-    &:before {
-        content: '';
-        display: block;
-        position: absolute;
-        top: calc(50% - .125em);
-        height: .25em;
-        left: 0;
-        width: 100%;
-        background: linear-gradient(to bottom, #000 0%, transparent 90%, #444);
+    mix-blend-mode: overlay;
+    border-radius: .5em;
+    transition: all .2s;
+    cursor: pointer;
+    &:hover {
+        background: rgba(0,0,0,.1);
     }
-
-    &:nth-of-type(5n - 1) {
-        transform: translateX(.25em);
+    &:nth-of-type(1) {
+        width: 42em;
+        transform: translateX(.5em) rotateY(-20deg);
     }
-
-    &:nth-of-type(5n - 2) {
-        transform: translateX(.125em);
+    &:nth-of-type(2) {
+        width: 42em;
+        transform: rotateY(-25deg) translateX(-3.625em) translateY(-.25em);
     }
-
-    &:nth-of-type(5n - 3) {
-        transform: translateX(.5em);
+    &:nth-of-type(3) {
+        width: 44em;
+        transform: rotateY(-28.5deg) translateX(-5em) translateY(-.5em);
     }
-
-    &:nth-of-type(5n - 4) {
-        transform: translateX(-.25em);
+    &:nth-of-type(4) {
+        width: 44.5em;
+        transform: rotateY(-26deg) rotateZ(.5deg) translateX(-.25em) translateY(.25em);
+    }
+    &:nth-of-type(5) {
+        width: 43.5em;
+        transform: rotateY(-25.5deg) translateY(.25em);
+    }
+    &:nth-of-type(6) {
+        width: 43.75em;
+        transform: rotateY(-25.5deg) translateX(-3.5em) translateY(.25em);
+    }
+    &:nth-of-type(7) {
+        width: 42.75em;
+        transform: rotateY(-22.5deg) translateX(-2.5em) translateY(.625em);
+    }
+    &:nth-of-type(8) {
+        width: 39em;
+        transform: rotateY(-14.5deg) rotateZ(.75deg) translateX(.125em) translateY(.75em);
+    }
+    &:nth-of-type(9) {
+        transform: rotateY(-23.5deg) translateX(-2.5em) translateY(1em);
+    }
+    &:nth-of-type(10) {
+        width: 42.5em;
+        transform: rotateY(-20.5deg) translateX(-1.25em) translateY(1em);
+    }
+    &:nth-of-type(11) {
+        width: 42.25em;
+        transform: rotateY(-22.5deg) translateX(-.75em) translateY(1.25em);
+    }
+    &:nth-of-type(12) {
+        width: 41.75em;
+        transform: rotateY(-18.5deg) translateX(.5em) translateY(1em);
     }
 
     &__sticker {
         width: 100%;
         height: 100%;
-        background: linear-gradient(45deg, #111, #222);
         position: relative;
-        border-radius: var(--border-radius-small);
-        border-top: 1px solid #333;
-        border-left: 1px solid #222;
+        border-radius: .5em;
         display: flex;
+        align-items: center;
         justify-content: center;
 
         &__content {
-            width: 90%;
-            background: #fff;
-            border-radius: var(--border-radius-small);
+            width: 100%;
+            border-radius: .5em;
             padding: .5em;
             font-family: "Lumios Typewriter Used";
             font-size: 1.125em;
             line-height: 1.4;
             display: flex;
-            gap: 1em;
-            overflow: hidden;
+            align-items: center;
+            gap: .5em;
         }
 
         &__cover {
+            background: #ccc;
             width: 4em;
             height: 2.5em;
-            margin: -.5em;
             background-size: cover;
             background-position: center;
         }

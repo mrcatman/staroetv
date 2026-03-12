@@ -1,39 +1,50 @@
 .tv {
-    filter: drop-shadow(-4em -2em 2em rgba(0, 0, 0, .5));
-    position: absolute;
-    bottom: 5em;
-    width: 50vw;
-    left: 25vw;
-    z-index: 1;
 
     &__picture {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        left: 0;
         width: 100%;
+        height: 100%;
+        background: url('/resources/images/promo/overlay.webp') no-repeat center center;
+        background-size: cover;
+        pointer-events: none;
     }
 
+    &__outer {
+        background: #000;
+        position: absolute;
+        top: 11em;
+        left: calc(50vw - 33.5em);
+        width: 60em;
+        height: 46.5em;
+    }
     &__inner {
         position: relative;
         width: 100%;
         height: 100%;
     }
+
     &__noise {
         opacity: .8;
         position: absolute;
-        top: 2vw;
-        left: 2.5vw;
-        width: 45vw;
-        height: 38vw;
-        z-index: -1;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 4;
         background: url('/resources/images/promo/noise.gif');
         background-size: cover;
     }
     &__player {
+        pointer-events: none;
         position: absolute;
-        top: 2vw;
-        left: 2.5vw;
-        width: 45vw;
-        height: 38vw;
-        background: radial-gradient(#fff, #000);
-        z-index: -2;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
 
         iframe, video {
             width: 100%;
@@ -42,10 +53,13 @@
     }
     &__overlay {
         position: absolute;
-        top: 6vw;
-        left: 4.5vw;
-        width: 40.5vw;
-        height: 38vw;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+        padding: 2em 2.5em;
+        box-sizing: border-box;
         font-family: 'PF Videotext Pro', sans-serif;
         color: #0f0;
         font-size: 1.75em;

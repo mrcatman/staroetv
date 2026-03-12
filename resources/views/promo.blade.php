@@ -17,8 +17,9 @@
                 <div class="remote__channels">
                     @foreach($channels as $channel)
                         <div class="remote__channel" data-id="{{$channel->id}}">
-                            <div class="remote__channel__logo" @if ($channel->logo) style="background-image:url(https://staroetv.su/{{$channel->logo->url}})"  @endif></div>
-                            <span class="remote__channel__name" >{{$channel->name}}</span>
+                            <div class="remote__channel__logo"
+                                 @if ($channel->logo) style="background-image:url(https://staroetv.su/{{$channel->logo->url}})" @endif></div>
+                            <span class="remote__channel__name">{{$channel->name}}</span>
                         </div>
                     @endforeach
                 </div>
@@ -26,37 +27,23 @@
         </div>
     </div>
 
+
     <div class="tv">
-        <div class="tv__inner">
-            <div class="tv__overlay" id="overlay">
-                <div class="tv__overlay__channel" id="channel"></div>
-                <div class="tv__overlay__program" id="program"></div>
-            </div>
-            <img src="/pictures/tv.png?1" class="tv__picture" />
-            <div class="tv__noise" id="noise"></div>
-            <div id="player" class="tv__player"></div>
-        </div>
-    </div>
-    <div class="floor">
-        <div class="floor__inner">
-            <img class="floor__picture" src="/pictures/floor.png" />
-        </div>
-
-    </div>
-    <div class="tapes">
-        @foreach($programs as $program)
-            <div class="tape">
-                <div class="tape__sticker">
-                    <div class="tape__sticker__content">
-                        @if ($program->cover) <div class="tape__sticker__cover" style="background-image:url({{$program->cover}})" ></div>@endif
-
-                        {{$program->name}}
-                    </div>
+        <div class="tv__picture"></div>
+        <div class="tv__outer">
+            <div class="tv__inner">
+                <div class="tv__overlay" id="overlay">
+                    <div class="tv__overlay__channel" id="channel"></div>
+                    <div class="tv__overlay__program" id="program"></div>
                 </div>
-            </div>
-        @endforeach
 
+                <div class="tv__noise" id="noise"></div>
+                <div id="player" class="tv__player"></div>
+            </div>
+        </div>
     </div>
+    <div class="tapes" id="tapes"></div>
+    <button class="button button--reload-programs" id="reload_programs">Загрузить ещё передачи</div>
 </div>
 </body>
 @routes
