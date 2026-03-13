@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Hash;
 class ChannelsController extends Controller {
 
     public function index() {
-        $channels = Channel::with('logo')->get();
+        $channels = Channel::with('logo')->withCount('records')->get();
         return view("pages.admin.channels", [
             'channels' => $channels
         ]);

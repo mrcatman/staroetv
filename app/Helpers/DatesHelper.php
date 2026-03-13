@@ -17,6 +17,9 @@ class DatesHelper {
 
     public static function format($date, $time = true) {
         $ts = strtotime($date);
+        if (!$ts) {
+            return null;
+        }
         return self::formatTS($ts, $time);
     }
 

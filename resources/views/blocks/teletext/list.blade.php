@@ -9,14 +9,14 @@
                 </a>
                 @foreach ($years as $year => $count)
                     <a class="top-list__item @if ($selected_year == $year) top-list__item--active @endif"
-                       href="{{request()->url()}}?year={{$year}}">
+                       href="/{{request()->path()}}?year={{$year}}">
                         <span class="top-list__item__name">{{$year}}</span>
                         <span class="top-list__item__count">{{$count}}</span>
                     </a>
                 @endforeach
             </div>
         </div>
-        <div class="records-list  records-list--thumbs">
+        <div class="records-list records-list--thumbs teletext-list">
             @foreach($items as $teletext)
                 @include('blocks.teletext.item')
             @endforeach

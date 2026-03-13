@@ -1,4 +1,4 @@
-.old-page--rules {
+.static-page--rules {
     padding: 1em;
 
     .top {
@@ -28,7 +28,7 @@
     }
 }
 
-.old-page--about {
+.static-page--about {
     h3 {
         font-size: 1.5em;
         border-top: 1px solid var(--border-color);
@@ -39,7 +39,7 @@
         }
     }
 }
-.old-page {
+.static-page {
     h1,h2,h3,h4,h5,h6 {
         font-family: var(--font-main);
     }

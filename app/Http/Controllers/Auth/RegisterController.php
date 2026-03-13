@@ -41,19 +41,17 @@ class RegisterController extends Controller
         }
 
         $data = request()->validate([
-            'username' => ['required', 'string', 'max:255', 'unique:users'],
+            'username' => ['required', 'string', 'max:32', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'rules' => ['accepted']
+            'rules' => ['accepted'],
+            'name' => ['sometimes', 'string', 'max:64']
         ]);
 
         $user = new User();
         $user->username = $data['username'];
         $user->email = $data['email'];
         $user->password = Hash::make($data['password']);
-        if (request()->has('name')) {
-            $user->name = request()->input('name');
-        }
         $user->group_id = 2;
 
         $user->ip_address_reg = request()->header('x-real-ip');

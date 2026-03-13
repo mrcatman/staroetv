@@ -14,7 +14,20 @@ class Page extends Model {
         return $content;
     }
 
+    public function getFixedContentAttribute() {
+         $content = str_replace('social-links', view('blocks.global.social')->render(), $this->content);
+         $content = preg_replace_callback(
+             '/team\|\d+/',
+             function ($matches) {
+                $group_id = explode("|", $matches[0])[1];
+                $users = User::where(['group_id' => $group_id])->get();
+                return view('blocks.global.group-users-list', ['users' => $users]);
+             }, $content
+         );
+         return $content;
+    }
+
     public function getFullUrlAttribute() {
-        return $this->id == 128 ? route('pages.team') : route('pages.show', $this);
+        return route('pages.show', $this);
     }
 }

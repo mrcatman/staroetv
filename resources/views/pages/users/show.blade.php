@@ -105,10 +105,12 @@
                                             сайте: </strong>{{$user->was_online ? $user->was_online : 'никогда'}}
                                     </div>
                                     <div class="user-info__buttons">
+                                        @if ($user->forum_messages_count > 0)
                                         <a href="{{route('forum.user-messages', $user)}}" class="button">
                                             <i class="fa fa-comment"></i>
                                             Посты на форуме ({{$user->forum_messages_count}})
                                         </a>
+                                        @endif
                                         @if (auth()->user() && auth()->user()->id != $user->id)
                                             <a href="{{route('pm.add', ['user_id' => $user->id])}}" class="button">
                                                 <i class="fa fa-envelope"></i>

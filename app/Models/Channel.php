@@ -15,7 +15,17 @@ class Channel extends Model {
     protected $with = ['logo'];
     protected $appends = ['full_url'];
 
+    public function getIsFederalAttribute() {
+        return (bool)$this->attributes['is_federal'];
+    }
 
+    public function getIsRegionalAttribute() {
+        return (bool)$this->attributes['is_regional'];
+    }
+
+    public function getIsAbroadAttribute() {
+        return (bool)$this->attributes['is_abroad'];
+    }
 
     public function comments() {
         return $this->hasMany(Comment::class, 'material_id', 'original_id')->where(['material_type' => MaterialTypes::TYPE_CHANNELS]);

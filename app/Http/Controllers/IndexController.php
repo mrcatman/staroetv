@@ -20,7 +20,7 @@ class IndexController extends Controller {
 
 
     public function index() {
-        $data = Cache::remember('index', CacheTimes::PAGE_SHORT, function () {
+        $data = Cache::remember('index1', CacheTimes::PAGE_SHORT, function () {
             $data = [];
             $data['users_on_site'] = User::where('was_online', '>', Carbon::now()->subMinutes(15))->orderBy('was_online', 'desc')->get();
 
@@ -28,7 +28,7 @@ class IndexController extends Controller {
             //HistoryEvent::where(['pending' => false])->orderBy('created_at', 'desc')->limit(8)->get();
 
             $data['first_news'] = Article::where(['pending' => false])->whereNotNull('cover_id')->orderBy('created_at', 'desc')->limit(2)->get();
-            $data['news'] = Article::where(['pending' => false])->orderBy('created_at', 'desc')->whereNotIn('id', $data['first_news']->pluck('id'))->limit(4)->get();
+            $data['news'] = Article::where(['pending' => false])->orderBy('created_at', 'desc')->whereNotIn('id', $data['first_news']->pluck('id'))->limit(5)->get();
             $data['records'] = [];
 
             $records_period_limit = 8;

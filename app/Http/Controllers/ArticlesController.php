@@ -26,67 +26,6 @@ class ArticlesController extends EntityController {
         'approve' => 'nwapprove'
     ];
 
-
-    public $types_data = [
-        MaterialTypes::TYPE_NEWS => [
-            'title' => "Новости",
-            'add_title' => "Предложить новость",
-            'edit_title' => "Изменить новость",
-            'approve_title' => 'Одобрить новость',
-            'unapprove_title' => 'Скрыть новость',
-            'delete_title' => 'Удалить',
-            'base_url' => '/news',
-            'add_link' => "/news/add",
-            'edit_link' => "/news/edit",
-            'permission_add' => 'nwadd',
-            'permission_edit' => 'nwoedit',
-            'permission_edit_all' => 'nwedit',
-            'permission_delete' => 'nwodel',
-            'permission_delete_all' => 'nwdel',
-            'permission_crosspost' => 'nwcrosspost',
-            'permission_premod' => 'nwpremod',
-            'permission_approve' => 'nwapprove',
-        ],
-        MaterialTypes::TYPE_ARTICLES => [
-            'title' => "Статьи",
-            'add_title' => "Предложить статью",
-            'edit_title' => "Изменить статью",
-            'approve_title' => 'Одобрить статью',
-            'unapprove_title' => 'Скрыть статью',
-            'delete_title' => 'Удалить',
-            'base_url' => '/articles',
-            'add_link' => "/articles/add",
-            'edit_link' => "/articles/edit",
-            'permission_add' => 'sfadd',
-            'permission_edit' => 'sfoedit',
-            'permission_edit_all' => 'sfedit',
-            'permission_delete' => 'sfodel',
-            'permission_delete_all' => 'sfdel',
-            'permission_crosspost' => 'sfcrosspost',
-            'permission_premod' => 'sfpremod',
-            'permission_approve' => 'sfapprove',
-        ],
-        MaterialTypes::TYPE_BLOG => [
-            'title' => "Блог",
-            'add_title' => "Сделать запись в блоге",
-            'edit_title' => "Изменить запись в блоге",
-            'approve_title' => 'Одобрить запись',
-            'unapprove_title' => 'Скрыть запись',
-            'delete_title' => 'Удалить',
-            'base_url' => '/blog',
-            'add_link' => "/blog/add",
-            'edit_link' => "/blog/edit",
-            'permission_add' => 'bladd',
-            'permission_edit' => 'bloedit',
-            'permission_edit_all' => 'bledit',
-            'permission_delete' => 'blodel',
-            'permission_delete_all' => 'bldel',
-            'permission_crosspost' => 'blcrosspost',
-            'permission_premod' => 'blpremod',
-            'permission_approve' => 'blapprove',
-        ]
-    ];
-
     public function __construct(
         private CrossposterManager $crossposterManager
     ) {
@@ -94,11 +33,10 @@ class ArticlesController extends EntityController {
     }
 
     private function getTags() {
-        return Cache::remember('articles_tags1', CacheTimes::RELATION, function() {
-            $all_ids = Article::approved()->where('type_id', '!=', MaterialTypes::TYPE_BLOG)->pluck('id');
-            return Tag::all()->map(function($tag) use ($all_ids) {
-                $count = TagMaterial::where(['tag_id' => $tag->id, 'material_type' => 'articles'])->whereIn('material_id', $all_ids)->count();
-                $tag->count = $count;
+        return Cache::remember('articles_tags', CacheTimes::RELATION, function() {
+             return Tag::all()->map(function($tag) {
+                $article_ids = TagMaterial::where(['tag_id' => $tag->id, 'material_type' => 'articles'])->pluck('material_id');
+                $tag->count = Article::approved()->whereIn('id', $article_ids)->count();
                 return $tag;
             })->filter(function ($tag) {
                 return $tag->count > 0;

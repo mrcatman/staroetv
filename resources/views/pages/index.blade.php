@@ -26,13 +26,19 @@
                 <div class="main-page__site-description">
                     Наш сайт создан для тех, кто любит телевидение прошлого и интересуется телевидением настоящего. <br>
                     В нашем архиве вы можете найти записи старых телепередач <a
-                        href="{{route('records.search', ['is_radio' => false, 'date' => ['range' => true, 'year_end' => 1984]])}}">времён раннего СССР</a>, <a
-                        href="{{route('records.search', ['is_radio' => false, 'date' => ['range' => true, 'year_start' => 1985, 'year_end' => 1991]])}}">перестроечных лет</a>,
-                    <a href="{{route('records.search', ['is_radio' => false, 'date' => ['range' => true, 'year_start' => 1992, 'year_end' => 1999]])}}">девяностых</a> и <a
-                        href="{{route('records.search', ['is_radio' => false, 'date' => ['range' => true, 'year_start' => 2000, 'year_end' => 2010]])}}">2000-х</a> годов.<br>
-                    Отдельное внимание уделено теме <a href="{{route('design.channels.index')}}">телевизионного дизайна</a> и <a
+                        href="{{route('records.search', ['is_radio' => false, 'date' => ['range' => true, 'year_end' => 1984]])}}">времён
+                        раннего СССР</a>, <a
+                        href="{{route('records.search', ['is_radio' => false, 'date' => ['range' => true, 'year_start' => 1985, 'year_end' => 1991]])}}">перестроечных
+                        лет</a>,
+                    <a href="{{route('records.search', ['is_radio' => false, 'date' => ['range' => true, 'year_start' => 1992, 'year_end' => 1999]])}}">девяностых</a>
+                    и <a
+                        href="{{route('records.search', ['is_radio' => false, 'date' => ['range' => true, 'year_start' => 2000, 'year_end' => 2010]])}}">2000-х</a>
+                    годов.<br>
+                    Отдельное внимание уделено теме <a href="{{route('design.channels.index')}}">телевизионного
+                        дизайна</a> и <a
                         href="{{route('records.commercials')}}">рекламы</a>.<br><br>
-                    Материалы сайта собираются силами <a href="{{route('top-list.videos')}}">сообщества</a>: как с просторов
+                    Материалы сайта собираются силами <a href="{{route('top-list.videos')}}">сообщества</a>: как с
+                    просторов
                     Интернета, так и благодаря собственным коллекциям.
                 </div>
             </div>
@@ -68,6 +74,7 @@
                 <!--
                 <div class="box  @if ($in_this_day && count($in_this_day) > 0) @else
                     box--stretch
+
 
 
                 @endif">
@@ -170,8 +177,23 @@
                                        style="background-image:url({{$first_news_item->cover_url}})"
                                        class="article article--big">
                                         <div class="article__texts">
+                                            <div class="icon-blocks">
+                                                <span class="icon-block">
+                                                    <i class="fa fa-clock"></i>
+                                                    <span class="icon-block__text">{{$first_news_item->created_at}}</span>
+                                                </span>
+                                                                                    <span class="icon-block">
+                                                    <i class="fa fa-eye"></i>
+                                                    <span class="icon-block__text">{{$first_news_item->views}}</span>
+                                                </span>
+                                                                                    <span class="icon-block">
+                                                    <i class="fa fa-comment"></i>
+                                                    <span class="icon-block__text">{{$first_news_item->comments_count}}</span>
+                                                </span>
+                                            </div>
                                             <div class="article__title">{{$first_news_item->title}}</div>
-                                            <div class="article__short-content">{{$first_news_item->short_content}}</div>
+                                            <div
+                                                class="article__short-content">{{$first_news_item->short_content}}</div>
                                         </div>
                                     </a>
                                 @endforeach

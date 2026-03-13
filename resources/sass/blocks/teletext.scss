@@ -86,21 +86,17 @@
     }
 }
 
-.teletext-list {
+.teletext-sections {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: 2.75em;
 }
 
-.teletext-item {
+.teletext-section {
     text-align: center;
     display: flex;
     flex-direction: column;
     gap: var(--col-margin);
-
-    &__cover {
-        image-rendering: pixelated;
-    }
 
     &__title {
         font-size: 1.5em;
@@ -109,6 +105,18 @@
     }
 
     &__latest-additions {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+}
+
+.teletext-item {
+    &__cover {
+        image-rendering: pixelated;
+    }
+}
+
+.teletext-list {
+    @include mobile() {
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     }
 }

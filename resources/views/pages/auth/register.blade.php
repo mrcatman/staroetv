@@ -13,7 +13,7 @@
                 <div class="input-container">
                     <label class="input-container__label">Ник<span class="input-container__required">*</span></label>
                     <div class="input-container__inner">
-                        <input class="input" name="username" required value=""/>
+                        <input maxlength="32" class="input" name="username" required value=""/>
                         <span class="input-container__message"></span>
                     </div>
                 </div>
@@ -44,7 +44,7 @@
                 <div class="input-container">
                     <label class="input-container__label">Ваше имя</label>
                     <div class="input-container__inner">
-                        <input class="input" name="name" value=""/>
+                        <input maxlength="64" class="input" name="name" value=""/>
                         <span class="input-container__message"></span>
                     </div>
                 </div>

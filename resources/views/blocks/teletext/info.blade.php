@@ -5,13 +5,11 @@
             <span class="icon-block__text">{{$teletext->channel_name}}</span>
         </a>
     @endif
-        @if ($teletext->user) <a href="{{$teletext->user->url}}"
-        @else <span @endif class="icon-block">
+        @if ($teletext->user)
+        <a href="{{$teletext->user->url}}" class="icon-block">
             <i class="fa fa-user"></i>
-            <span class="icon-block__text">{{$teletext->user ? $teletext->user->username : $teletext->author_username}}</span>
-            @if ($teletext->user) </a>
-            @else
-        </span>
+            <span class="icon-block__text">{{$teletext->user->username}}</span>
+        </a>
         @endif
     <span class="icon-block">
         <i class="fa fa-eye"></i>

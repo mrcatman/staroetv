@@ -14,7 +14,7 @@
         gap: calc(var(--col-margin) * .5);
 
         @include mobile() {
-            font-size: 1em;
+            font-size: 1.125em;
             flex-direction: row;
             flex-wrap: wrap;
         }

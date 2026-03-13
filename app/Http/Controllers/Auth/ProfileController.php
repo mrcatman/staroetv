@@ -82,8 +82,8 @@ class ProfileController extends Controller
 
         $rules = [
             'avatar_id' => 'sometimes',
-            'username' => 'required|unique:users,username,' . $user->id,
-            'name' => 'sometimes',
+            'username' => 'required|max:32|unique:users,username,' . $user->id,
+            'name' => 'sometimes|max:64',
             'date_of_birth' => 'sometimes',
             'country' => 'sometimes',
             'city' => 'sometimes',
@@ -110,7 +110,7 @@ class ProfileController extends Controller
             $value = trim($value);
             if (in_array($field, $meta_fields)) {
                 if ($field === "date_of_birth") {
-                    $value = Carbon::parse($value);
+                    $value = $value != '' ? Carbon::parse($value) : null;
                 }
                 $meta->{$field} = $value;
             } else {
@@ -228,7 +228,7 @@ class ProfileController extends Controller
                     return null;
                 }
                 $text = "<strong>" . $data['comment_username'] . "</strong> ответил вам в комментариях:";
-                $short_content = Str::limit(strip_tags($data['comment_text']), 160, '...');
+                $short_content = Str::limit($data['comment_text'], 160, '...');
                 $text .= "<div class='notification__quote'  data-full-text='" . $data['comment_text'] . "'>" . $short_content . "</div>";
                 $link = $comment->url;
                 $picture = $data['comment_avatar'];
@@ -249,7 +249,7 @@ class ProfileController extends Controller
                 }
                 $text = "<strong>" . $data['message_username'] . "</strong> ответил вам на форуме:";
                 //$short_reply_to = Str::limit($data['message_reply_to'], 100, '...');
-                $short_content = Str::limit(strip_tags($data['message_content']), 160, '...');
+                $short_content = Str::limit($data['message_content'], 160, '...');
                 $text .= "<div class='notification__quote'  data-full-text='" . $data['message_content'] . "'>" . $short_content . "</div>";
                 $link = "/forum/0-" . $data['message_id'] . '#' . $data['message_id'];
                 $picture = $data['message_avatar'];
@@ -271,7 +271,7 @@ class ProfileController extends Controller
 
                 $picture = $data['comment_avatar'];
                 $text = "<strong>" . $data['comment_username'] . "</strong> оставил комментарий к вашему материалу:";
-                $short_content = Str::limit(strip_tags($data['comment_text']), 160, '...');
+                $short_content = Str::limit($data['comment_text'], 160, '...');
                 $text .= "<div class='notification__quote'  data-full-text='" . $data['comment_text'] . "'>" . $short_content . "</div>";
                 $link = $comment->url;
 

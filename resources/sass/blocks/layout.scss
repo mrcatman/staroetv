@@ -150,11 +150,7 @@ a {
 .col {
     flex: 1;
     min-width: 0;
-    @include mobile() {
-        max-width: 100%;
-        width: 100%;
-        margin: 0 !important;
-    }
+
 
     &--1-5 {
         flex: 1.5;
@@ -181,6 +177,14 @@ a {
     }
     &--sidebar .box:first-of-type {
         margin-top: 0;
+    }
+}
+
+.row:not(.row--mobile) > .col {
+    @include mobile() {
+        max-width: 100%;
+        width: 100%;
+        margin: 0 !important;
     }
 }
 

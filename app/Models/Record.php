@@ -205,6 +205,9 @@ class Record extends Model {
             preg_match('/(.*?)\((.*?)\)(.*)/', $this->title, $matches);
             $description = isset($matches[3]) && $matches[3] != '' ?  trim($matches[3]) : null;
         }
+        if (str_starts_with($description, ', ')) {
+            $description = substr($description, 2);
+        }
 
         if ($description) {
             return $this->removeExcludes($description);

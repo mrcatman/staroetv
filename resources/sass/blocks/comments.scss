@@ -183,7 +183,6 @@
         width: 100%;
         font-size: 1.25em;
         text-decoration: none;
-        @include hover;
     }
 
     &__material-link {
@@ -219,6 +218,10 @@
         cursor: pointer;
         color: #bf2b2b;
     }
+}
+
+a.comment__username {
+    @include hover;
 }
 
 .box .comments {

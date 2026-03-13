@@ -185,6 +185,11 @@ const table = ref({
             sortable: true
         },
         {
+            key: 'records_count',
+            label: 'Записей',
+            sortable: true
+        },
+        {
             key: 'is_federal',
             label: 'Федеральный?',
             sortable: true

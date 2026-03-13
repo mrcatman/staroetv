@@ -57,7 +57,7 @@
                     <label class="input-container__label">Ник<span
                             class="input-container__required">*</span></label>
                     <div class="input-container__inner">
-                        <input class="input" name="username" value="{{$user->username}}"/>
+                        <input maxlength="32" class="input" name="username" value="{{$user->username}}"/>
                         <span class="input-container__message"></span>
                     </div>
                 </div>
@@ -75,7 +75,7 @@
                 <div class="input-container">
                     <label class="input-container__label">Ваше имя</label>
                     <div class="input-container__inner">
-                        <input class="input" name="name" value="{{$user->name}}"/>
+                        <input maxlength="64" class="input" name="name" value="{{$user->name}}"/>
                         <span class="input-container__message"></span>
                     </div>
                 </div>

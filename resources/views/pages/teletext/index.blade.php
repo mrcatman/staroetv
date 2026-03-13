@@ -40,13 +40,13 @@
 
     <div class="box">
         <div class="box__inner">
-            <div class="teletext-list">
+            <div class="teletext-sections">
                 @foreach ($sections as $section)
-                    <div class="teletext-item">
-                        <a href="{{route('teletext.channel', $section['url'])}}" class="teletext-item__title">
+                    <div class="teletext-section">
+                        <a href="{{route('teletext.channel', $section['url'])}}" class="teletext-section__title">
                             {{$section['name']}}
                         </a>
-                        <div class="program__channels teletext-item__channels">
+                        <div class="program__channels teletext-section__channels">
                             @foreach ($section['channels'] as $channel)
                                 <a href="{{$channel['url']}}" class="program__channel__name">
                                     @if ($channel['logo'])
@@ -56,7 +56,7 @@
                                 </a>
                             @endforeach
                         </div>
-                        <div class="records-list records-list--thumbs teletext-item__latest-additions">
+                        <div class="records-list records-list--thumbs teletext-section__latest-additions">
                             @foreach($section['items'] as $teletext)
                                 @include('blocks.records.item', ['record' => $teletext, 'title' => $teletext->date_formatted])
                             @endforeach

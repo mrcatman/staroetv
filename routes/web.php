@@ -540,8 +540,8 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         defineCrudRoutes(PagesController::class, ['approve' => false]);
         Route::get('{url}', [PagesController::class, 'showByURL'])->name('show-by-url');
     });
+
     Route::get('/index/0-{id}', [\App\Http\Controllers\PagesController::class, 'show'])->name('pages.show');
-    Route::get('/team', [PagesController::class, 'team'])->name('pages.team');
 
 
     //USERS
@@ -821,4 +821,5 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         return view('blocks.global.garland');
     });
 
+    Route::get('{url}', [PagesController::class, 'showByURL'])->name('show-by-url');
 });

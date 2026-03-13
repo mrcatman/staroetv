@@ -6,7 +6,6 @@
     background: none;
     color: unset;
     border: none;
-    box-shadow: var(--input-box-shadow);
     @include mobile() {
         overflow: hidden;
         overflow-x: auto;
@@ -65,6 +64,8 @@ ul.pagination::-webkit-scrollbar {
     margin: 0;
     background: var(--bg-darker);
     @include hover(true);
+    overflow: hidden;
+    box-shadow: var(--input-box-shadow);
     &:first-of-type {
         border-top-left-radius: .25em;
         border-bottom-left-radius: .25em;

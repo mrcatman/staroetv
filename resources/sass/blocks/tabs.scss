@@ -13,6 +13,7 @@
     margin: 0 0 -1px;
     transition: all .2s;
     @include mobile {
+        padding: .875em;
         flex: 1;
         font-size: .875em;
     }

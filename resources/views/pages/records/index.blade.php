@@ -47,7 +47,7 @@
                     <div class="box__inner">
                         <form class="channels-list-page__search" method="GET" action="{{route('records.search')}}">
                             <input type="hidden" name="is_radio" value="{{$params['is_radio'] ? 1 : 0}}" />
-                            <div class="row">
+                            <div class="row row--mobile">
                                 <div class="col">
                                     <div class="input-container ">
                                         <div class="input-container__inner">
@@ -67,7 +67,9 @@
                                 <a class="tab tab--active" data-content="federal">Федеральные</a>
                                 <a class="tab" data-content="regional">Местные</a>
                                 <a class="tab" data-content="abroad">Зарубежные</a>
+                                @if (count($other) > 0)
                                 <a class="tab" data-content="other">Другие</a>
+                                @endif
                             </div>
 
                         </div>

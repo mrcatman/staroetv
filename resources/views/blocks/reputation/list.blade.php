@@ -1,5 +1,8 @@
 <div class="reputation-history">
     @php($can_edit_reputation = \App\Helpers\PermissionsHelper::allows('editrep'))
+    @if (count($reputation) == 0)
+        <div class="modal-window__nothing-found">Ничего не найдено</div>
+    @endif
     @foreach ($reputation as $reputation_item)
         @php($can_reply = $can_edit_reputation || (auth()->user() && $reputation_item->to_id == auth()->user()->id))
         <div class="modal-window__list-item reputation-history__item" data-id="{{$reputation_item->id}}">

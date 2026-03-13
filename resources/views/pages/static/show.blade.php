@@ -31,8 +31,8 @@
                 @endif
             </div>
             <div class="box__inner">
-                <div class="text-content">
-                    {!! $page->content !!}
+                <div class="text-content static-page @if ($page->url) static-page--{{$page->url}} @endif">
+                    {!! $page->fixed_content !!}
                 </div>
             </div>
 

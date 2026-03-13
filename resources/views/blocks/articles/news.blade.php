@@ -16,7 +16,20 @@
         </div>
         @endif
         <a href="{{$news_item->full_url}}" class="news-block__title">{{$news_item->title}}</a>
-        <a href="{{$news_item->full_url}}" class="news-block__time">{{$news_item->created_at}}</a>
+        <a href="{{$news_item->full_url}}" class="news-block__info icon-blocks">
+            <span class="icon-block">
+                <i class="fa fa-clock"></i>
+                <span class="icon-block__text">{{$news_item->created_at}}</span>
+            </span>
+            <span class="icon-block">
+                <i class="fa fa-eye"></i>
+                <span class="icon-block__text">{{$news_item->views}}</span>
+            </span>
+            <span class="icon-block">
+                <i class="fa fa-comment"></i>
+                <span class="icon-block__text">{{$news_item->comments_count}}</span>
+            </span>
+        </a>
         <a href="{{$news_item->full_url}}" class="news-block__short-content">
             {!! $news_item->short_content !!}
         </a>

@@ -26,8 +26,11 @@
         width: 100%;
         height: 100%;
         pointer-events: none;
-        opacity: .32;
+        opacity: .05;
         border-radius: var(--border-radius-big);
+        @include light() {
+            opacity: .32;
+        }
     }
 
     &--dark {

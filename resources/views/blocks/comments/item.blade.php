@@ -1,14 +1,17 @@
+@php ($enable_links = !request()->routeIs('users.show', ['id' => $comment->user_id]))
+@php($start_tag = $enable_links ? 'a '.($comment->user ? 'href="'.$comment->user->url.'"' : '') : 'span')
+@php($end_tag = $enable_links ? 'a' : 'span')
 <div class="comment" data-id="{{$comment->id}}">
     <div class="comment__inner">
         <div class="comment__texts">
             <div class="comment__top-container">
                 @if ($comment->user && $comment->user->avatar)
-                    <a href="{{$comment->user->url}}">
+                    <{!! $start_tag !!}>
                         <img class="comment__avatar" src="{{$comment->user->avatar->url}}" />
-                    </a>
+                    </{!! $end_tag !!}>
                 @endif
                 <div class="comment__top">
-                    <a @if ($comment->user) href="{{$comment->user->url}}" @endif class="comment__username">{{$comment->username}}</a>
+                    <{!! $start_tag !!} class="comment__username">{{$comment->username}}</{!! $end_tag !!}>
                     <span class="comment__date">{{$comment->created_at}}</span>
                     @if (isset($show_link) && $show_link && $comment->url)<a target="_blank" href="{{$comment->url}}" class="comment__material-link">[Материал]</a>@endif
                     @if (!isset($show_link) || !$show_link)

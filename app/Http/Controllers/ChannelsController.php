@@ -85,7 +85,7 @@ class ChannelsController extends EntityController
             return $genres;
         });
 
-        $global_programs = Cache::remember('channel_global_' . $channel->id, CacheTimes::PAGE, function () use ($channel) {
+       $global_programs = Cache::remember('channel_global_' . $channel->id, CacheTimes::PAGE, function () use ($channel) {
             $global_programs = Program::whereNull('channel_id')->whereHas('records', function ($q) use ($channel) {
                 $q->where(['channel_id' => $channel->id]);
             })->get();

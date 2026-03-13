@@ -2,7 +2,7 @@
     @php($records_data = \App\Helpers\RecordsHelper::get($conditions))
 @endif
 @php($new_titles = isset($conditions['new_titles']) ? $conditions['new_titles'] : false)
-
+@php($show_advanced_filters = count($records_data['records']) >= 5)
 @php($hide_if_zero = isset($hide_if_zero) ? $hide_if_zero : false)
 @php($block_title = isset($block_title) ? $block_title : "Записи")
 @php($is_radio = isset($conditions['is_radio']) && $conditions['is_radio'])
@@ -21,6 +21,7 @@
             <div class="box__inner">
                 <div class="records-list__filters">
                     <div class="records-list__sort">
+                        @if ($show_advanced_filters)
                         <div class="top-list records-list__sort__items">
                             <a data-sort="newer" class="top-list__item @if ($records_data['sort'] == "newer") top-list__item--active @endif"
                                href="{{$records_data['base_url']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'sort']), ['sort' => 'newer']))}}">От
@@ -43,6 +44,7 @@
                                 добавленные
                             </option>
                         </select>
+                        @endif
                         <div class="input-container records-list__sort__search">
                             <div class="input-container__inner input-container__inner--with-icon">
                                 <i class="fa fa-search input-container__icon"></i>
@@ -51,6 +53,7 @@
                             </div>
                         </div>
                     </div>
+                    @if ($show_advanced_filters)
                     @if ($records_data['years'])
                         <div class="top-list records-list__years">
                             <a class="top-list__item top-list__item--all @if (!$records_data['selected_year']) top-list__item--active @endif"
@@ -84,7 +87,7 @@
                             @endforeach
                         </div>
                     @endif
-
+                    @endif
                 </div>
 
                 @php($nothing_found = isset($search) && $search != '' && count($records_data['records']) === 0)

@@ -353,6 +353,7 @@
 
                         <template v-if="canEditAll && record">
                             <div class="horisontal-delimiter"></div>
+                            <!--
                             <input-container
                                 vertical
                                 label="Дата добавления"
@@ -360,6 +361,7 @@
                             >
                                 <input class="input" type="date" v-model="data.original_added_at"/>
                             </input-container>
+                            -->
                             <input-container
                                 vertical
                                 label="Изменить автора на"

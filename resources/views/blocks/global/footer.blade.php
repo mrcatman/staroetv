@@ -3,7 +3,7 @@
         <div class="container">
             <div class="footer__menu__inner">
                 <a class="footer__menu__link" href="{{route('pages.show', 127)}}">О проекте</a>
-                <a class="footer__menu__link" href="{{route('pages.team')}}">Команда сайта</a>
+                <a class="footer__menu__link" href="{{route('pages.show', 128)}}">Команда сайта</a>
                 <a class="footer__menu__link" href="{{route('pages.show', 141)}}">Помочь сайту</a>
                 <a class="footer__menu__link" href="{{route('pages.show', 133)}}">Правила</a>
                 <a class="footer__menu__link" href="{{route('contact.index')}}">Обратная связь</a>

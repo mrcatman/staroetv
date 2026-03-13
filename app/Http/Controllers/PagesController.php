@@ -124,24 +124,4 @@ class PagesController extends EntityController {
         ];
     }
 
-    public function team() {
-        $page = Page::find(128);
-        if (PermissionsHelper::checkGroupAccess("can_read", $page)) {
-            ViewsHelper::increment($page,'pages');
-            $page->content = preg_replace_callback(
-                '/team\|\d+/',
-                function ($matches) {
-                    $group_id = explode("|", $matches[0])[1];
-                    $users = User::where(['group_id' => $group_id])->get();
-                    return view('blocks.global.group-users-list', ['users' => $users]);
-                },
-                $page->content
-            );
-            return view("pages.static.show", [
-                'page' => $page,
-            ]);
-        } else {
-            return redirect('/');
-        }
-    }
 }
