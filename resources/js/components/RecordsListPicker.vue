@@ -409,9 +409,9 @@ const loadSearch = (page?: number) => {
     }
     $.post('/records/search', params).done(async (res) => {
         searchResults.value = res.data.results;
-        searchLoading.value = false;
-        await nextTick();
-        searchRecordsModalRef.value.centerY();
+        // searchLoading.value = false;
+        // await nextTick();
+        // searchRecordsModalRef.value.centerY();
     })
 }
 const showSearch = () => {

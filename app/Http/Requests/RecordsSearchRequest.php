@@ -22,7 +22,7 @@ class RecordsSearchRequest extends FormRequest
             'programs' => 'nullable|array',
             'programs.*' => 'numeric',
             'search' => 'sometimes',
-            'sort' => 'sometimes|in:supposed_date,created_at',
+            'sort' => 'sometimes|in:relevance,supposed_date,created_at',
             'sort_order' => 'sometimes|in:asc,desc',
             'page' => 'sometimes|numeric',
             'exclude_ids' => 'sometimes|array',

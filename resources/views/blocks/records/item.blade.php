@@ -44,7 +44,7 @@
             <div class="record-item__info">
                 <span class="record-item__date"><i class="fa fa-calendar"></i>{{$record->created_at}}</span>
                 <span class="record-item__views"><i class="fa fa-eye"></i>{{$record->views}}</span>
-                <span class="record-item__comments"><i class="fa fa-comment"></i>{{count($record->comments)}}</span>
+                @if (count($record->comments) > 0)<span class="record-item__comments"><i class="fa fa-comment"></i>{{count($record->comments)}}</span>@endif
                 <div class="record-item__tags">
                     @if ($record->is_advertising)
                         <span class="record-item__tag">Рекламный ролик</span>

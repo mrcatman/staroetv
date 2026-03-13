@@ -10,7 +10,7 @@ declare global {
 
         showModal: (selector: string, title?: string, onClose?: () => void, params?: ModalParams) => void
         closeModal: (modal: JQuery<HTMLElement>) => void
-        centerY: (modal: JQuery<HTMLElement>) => void
+        //centerY: (modal: JQuery<HTMLElement>) => void
     }
 }
 
@@ -19,13 +19,13 @@ const openedModals: ModalData[] = [];
 window.openedModals = openedModals;
 
 const body = $('body');
-const width = 800;
+//const width = 800;
 
 export interface ModalParams {
     backdrop?: boolean
 }
 
-const showModal = (selector: string, title: string = null, onClose: () => void = null, params?: ModalParams) => {
+const showModal = (selector: string, title: string = null, onClose: () => void = null, params?: ModalParams = {backdrop: true}) => {
     const name = selector.substring(1);
     openedModals.push({
         name,
@@ -38,7 +38,12 @@ const showModal = (selector: string, title: string = null, onClose: () => void =
 
     const existingModal = $(`.modal-window[data-name="${name}"]`);
     if (!$(existingModal).length) {
-        $(body).append(`
+        if (!$($('.modals-container')).length) {
+            $(body).append('<div class="modals-container"></div>');
+        }
+
+        const container = $('.modals-container');
+        $(container).append(`
             <div class="modal-window" data-name="${name}" data-selector="${selector}">
                     <div class="modal-window__inner">
                         <div class="modal-window__top">
@@ -57,30 +62,30 @@ const showModal = (selector: string, title: string = null, onClose: () => void =
         $('.modal-window').removeClass('modal-window--top');
         $(modal).addClass('modal-window--top');
 
-        const modalInner = $(modal).find('.modal-window__inner');
+        //const modalInner = $(modal).find('.modal-window__inner');
         const modalContent = $(modal).find('.modal-window__content');
         //let width = $(elementName).width()  > 800 ? 800 :  $(elementName).width();
         // let height = $(elementName).height() > 600 ? 600 :  $(elementName).height();
 
-        const windowWidth = $(window).width();
+        //const windowWidth = $(window).width();
 
         if (!$(selector).length) {
             $(body).append(`<div id="${name}" style="display:none"></div>`);
         }
         $(selector).show().appendTo(modalContent);
 
-        const modalWidth = Math.min(width, $(window).width() - 16);
-        $(modal).css({
-            width: `${modalWidth}px`,
-            left: `${(windowWidth - modalWidth) / 2}px`,
-        });
-        centerY(modal);
+        // const modalWidth = Math.min(width, $(window).width() - 16);
+        // $(modal).css({
+        //     width: `${modalWidth}px`,
+        //     left: `${(windowWidth - modalWidth) / 2}px`,
+        // });
+        // centerY(modal);
 
-        $(modal).draggable({ cancel: '.modal-window__content, .modal-window__content *' });
-        $(modalInner).resizable();
+        //$(modal).draggable({ cancel: '.modal-window__content, .modal-window__content *' });
+        //$(modalInner).resizable();
 
-        if (params?.backdrop && !$('.modal-backdrop').length) {
-            $(body).append('<div class="modal-backdrop"></div>');
+        if (params?.backdrop && !$('.modals-backdrop').length) {
+            $(body).append('<div class="modals-backdrop"></div>');
         }
         return modal;
     }
@@ -100,7 +105,7 @@ function showModalAjax(ajaxCall: JQuery.jqXHR, selector: string, title: string =
                 if (res.data.title) {
                     $(content).parents('.modal-window').find('.modal-window__title').html(res.data.title);
                 }
-                centerY(modal);
+                //centerY(modal);
             } else {
                 $(content).html(res);
             }
@@ -129,7 +134,7 @@ const closeModal = (element: JQuery<HTMLElement>) => {
     $(element).remove();
 
     if (openedModals.filter(modal => modal.params?.backdrop)) {
-        $('.modal-backdrop').remove();
+        $('.modals-backdrop').remove();
     }
 
     modal.onClose && modal.onClose();
@@ -139,26 +144,32 @@ $(body).on('click', '.modal-window__close, .modal-window__close-button', functio
     closeModal($(this).parents('.modal-window'));
 });
 
-const centerY = (modal: JQuery<HTMLElement>) => {
-    const windowHeight = $(window).height();
-    let totalHeight = 0;
-    $(modal).find('.modal-window__content').children().each(function(){
-        totalHeight += $(this).outerHeight(true);
-    });
-    const maxHeight = windowHeight / 4 * 3;
-    const height = totalHeight > maxHeight ? maxHeight : totalHeight;
-    $(modal).css({
-        top: `${(windowHeight - height) / 2}px`,
-    });
-}
+$(body).on('click', '.modals-backdrop', function() {
+    if (openedModals.length) {
+        closeModal($(`.modal-window[data-name="${openedModals[openedModals.length - 1].name}"]`));
+    }
+})
+
+// const centerY = (modal: JQuery<HTMLElement>) => {
+//     const windowHeight = $(window).height();
+//     let totalHeight = 0;
+//     $(modal).find('.modal-window__content').children().each(function(){
+//         totalHeight += $(this).outerHeight(true);
+//     });
+//     const maxHeight = windowHeight / 4 * 3;
+//     const height = totalHeight > maxHeight ? maxHeight : totalHeight;
+//     $(modal).css({
+//         top: `${(windowHeight - height) / 2}px`,
+//     });
+// }
 
 window.showModal = showModal;
 window.closeModal = closeModal;
-window.centerY = centerY;
+//window.centerY = centerY;
 
 export {
     showModal,
     showModalAjax,
     closeModal,
-    centerY
+    //centerY
 };

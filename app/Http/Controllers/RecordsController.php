@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Actions;
 use App\Constants\CacheTimes;
 use App\Constants\MaterialTypes;
 use App\Constants\Periods;
 use App\Constants\RecordComplaintTypes;
 use App\Constants\Records;
+use App\Helpers\ActionsLogHelper;
 use App\Helpers\DatesHelper;
 use App\Helpers\ExternalServicesHelper;
 use App\Helpers\MediaHelper;
@@ -157,6 +159,8 @@ class RecordsController extends EntityController
 
     public function show($id)
     {
+        $id = explode('-', (string)$id)[0];
+
         $data = Cache::remember('record_' . $id, CacheTimes::PAGE, function () use ($id) {
             $record = Record::approved()->where(['id' => $id])->firstOrFail();
             $playlist = null;
@@ -702,7 +706,7 @@ class RecordsController extends EntityController
         }
         $is_new = !$record->id;
 
-        $record->save();
+        ActionsLogHelper::create($record, $is_new ? Actions::Create : Actions::Update);
         $record->setSupposedDate();
 
         if (!$record->use_own_player && request()->input('record.move_to_storage')) {
@@ -778,7 +782,8 @@ class RecordsController extends EntityController
         if (isset($data['search'])) {
             $show_programs = !isset($data['type']) || $data['type'] == 'programs';
 
-            $records->search($data['search']);
+            $need_sort = !isset($data['sort']) || $data['sort'] == 'relevance';
+            $records->search($data['search'], $need_sort);
             // $records->where(function ($q) use ($data) {
             //    $q->whereFullText(['title', 'short_description', 'description'], $data['search']);
 //                $q->where('title', 'LIKE', '%' . $data['search'] . '%');
@@ -854,7 +859,9 @@ class RecordsController extends EntityController
             });
         }
 
-        if (isset($data['sort'])) {
+        if (isset($data['search']) && isset($data['sort']) && $data['sort'] == 'relevance') {
+
+        }  elseif (isset($data['sort']) && $data['sort'] != 'relevance') {
             $records = $records->orderBy($data['sort'], isset($data['sort_order']) ? $data['sort_order'] : 'desc');
             $params['sort'] = $data['sort'];
         } else {

@@ -483,7 +483,7 @@ class Record extends Model {
         }, $this->all_telegram_sources);
     }
 
-    public function scopeSearch($query, $search)
+    public function scopeSearch($query, $search, $need_sort = true)
     {
         $initial_search = $search;
         $search = preg_replace('/[,<>;(){}\[\]]/', '', $search);
@@ -495,17 +495,34 @@ class Record extends Model {
                 }
                 return implode(' ', array_map(function ($term) {
                     return "+{$term}*";
-                }, array_filter($normalized, function ($term) {return mb_strlen($term) > 2;})));
+                }, array_filter($normalized, function ($term) {return mb_strlen($term) > 2 || is_numeric($term);})));
             })
             ->implode(' ');
 
-
         $query->where(function($q) use ($words, $initial_search) {
-            $q->whereRaw("MATCH(title, short_description, description) AGAINST(? IN BOOLEAN MODE)", [$words]);
-            $q->orWhere('title', 'like', "%{$initial_search}%");
+            $q->where('title', 'like', "%{$initial_search}%");
+            $q->orWhereRaw("MATCH(title, short_description, description) AGAINST(? IN BOOLEAN MODE)", [$words]);
             $q->orWhere('short_description', 'like', "%{$initial_search}%");
             $q->orWhere('description', 'like', "%{$initial_search}%");
         });
+
+        if ($need_sort) {
+            $query->orderByRaw("
+            CASE
+                WHEN title LIKE ? THEN 0
+                WHEN short_description LIKE ? THEN 1
+                WHEN MATCH(title, short_description, description) AGAINST(? IN BOOLEAN MODE) THEN 2
+                ELSE 3
+            END,
+            MATCH(title, short_description, description) AGAINST(? IN BOOLEAN MODE) DESC
+        ", [
+                "%{$initial_search}%",
+                "%{$initial_search}%",
+                $words,
+                $words,
+            ]);
+        }
+
         return $query;
     }
 

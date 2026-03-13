@@ -3,7 +3,7 @@
         <picture-uploader ref="picture-uploader" @change="addPicture" style="display: none" />
         <div class="editor__buttons">
             <button
-               type="button" class="editor__button"
+               type="button" :disabled="source" class="editor__button"
                 @click="editor.chain().focus().toggleBold().run()"
                 :class="{ 'editor__button--active': editor?.isActive('bold') }"
                 title="Жирный"
@@ -11,7 +11,7 @@
                 <strong>B</strong>
             </button>
             <button
-                type="button" class="editor__button"
+                type="button" :disabled="source" class="editor__button"
                 @click="editor.chain().focus().toggleItalic().run()"
                 :class="{ 'editor__button--active': editor?.isActive('italic') }"
                 title="Курсив"
@@ -19,7 +19,7 @@
                 <em>I</em>
             </button>
             <button
-               type="button" class="editor__button"
+               type="button" :disabled="source" class="editor__button"
                 @click="editor.chain().focus().toggleStrike().run()"
                 :class="{ 'editor__button--active': editor?.isActive('strike') }"
                 title="Перечеркнутый"
@@ -31,7 +31,7 @@
 
             <button
                 v-for="i in 5"
-               type="button" class="editor__button"
+               type="button" :disabled="source" class="editor__button"
                 @click="editor.chain().focus().toggleHeading({ level: i }).run()"
                 :class="{ 'editor__button--active': editor?.isActive('heading', { level: i }) }"
                 :title="`Заголовок ${i}`"
@@ -42,7 +42,7 @@
             <span class="editor__divider"></span>
 
             <button
-               type="button" class="editor__button"
+               type="button" :disabled="source" class="editor__button"
                 @click="editor.chain().focus().toggleBulletList().run()"
                 :class="{ 'editor__button--active': editor?.isActive('bulletList') }"
                 title="Список"
@@ -50,7 +50,7 @@
                 <i class="fa fa-list-ul"></i>
             </button>
             <button
-               type="button" class="editor__button"
+               type="button" :disabled="source" class="editor__button"
                 @click="editor.chain().focus().toggleOrderedList().run()"
                 :class="{ 'editor__button--active': editor?.isActive('orderedList') }"
                 title="Числовой список"
@@ -61,7 +61,7 @@
             <span class="editor__divider"></span>
 
             <button
-               type="button" class="editor__button"
+               type="button" :disabled="source" class="editor__button"
                 @click="editor.chain().focus().toggleBlockquote().run()"
                 :class="{ 'editor__button--active': editor?.isActive('blockquote') }"
                 title="Цитата"
@@ -69,7 +69,7 @@
                 "
             </button>
             <button
-               type="button" class="editor__button"
+               type="button" :disabled="source" class="editor__button"
                 @click="editor.chain().focus().setHorizontalRule().run()"
                 title="Разделитель"
             >
@@ -79,21 +79,21 @@
             <span class="editor__divider"></span>
 
             <button
-               type="button" class="editor__button"
+               type="button" :disabled="source" class="editor__button"
                 @click="pictureUploader?.loadFile()"
                 title="Загрузить картинку"
             >
                 <i class="fa fa-upload"></i>
             </button>
             <button
-               type="button" class="editor__button"
+               type="button" :disabled="source" class="editor__button"
                 @click="pictureUploader?.loadFromURL()"
                 title="Загрузить картинку по URL"
             >
                 <i class="fa fa-image"></i>
             </button>
             <button
-               type="button" class="editor__button"
+               type="button" :disabled="source" class="editor__button"
                 @click="addVideo()"
                 title="Добавить видео"
             >
@@ -109,10 +109,10 @@
             </button>
             <response class="editor__error" :light="true" v-if="pictureUploader?.error" :data="{status: 0, text: pictureUploader.error}" />
         </div>
-        <div class="editor__content">
-            <editor-content :editor="editor" v-if="!source" />
-            <textarea v-else class="input editor__textarea" v-model="sourceHTML"></textarea>
+        <div v-if="!source"  class="editor__content">
+            <editor-content :editor="editor" />
         </div>
+        <textarea v-else class="input editor__textarea" v-model="sourceHTML"></textarea>
     </div>
 
 </template>
@@ -160,10 +160,10 @@ const sourceHTML = ref<string>(props.content);
 
 const toggleSource = () => {
     if (source.value) {
-        sourceHTML.value = editor.value.getHTML();
+        editor.value.commands.setContent(sourceHTML.value);
         source.value = false;
     } else {
-        editor.value.commands.setContent(sourceHTML.value);
+        sourceHTML.value = editor.value.getHTML();
         source.value = true;
     }
 }
@@ -220,6 +220,13 @@ onUnmounted(() => {
         transition: all .2s;
         &:hover {
             background: var(--bg-darker);
+        }
+        &:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            &:hover {
+                background: var(--inputs-color);
+            }
         }
 
         &--active {

@@ -290,7 +290,7 @@
                                        :class="{'top-list__item--active': form.sort === option.key}"
                                        @click="setSort(option)" :key="$index" v-for="(option, $index) in sortOptions">
                                         {{ option.title }}
-                                        <template v-if="form.sort === option.key">
+                                        <template v-if="form.sort === option.key && option.key !== 'relevance'">
                                             {{ form.sort_order === 'asc' ? '↑' : '↓' }}
                                         </template>
                                     </a>
@@ -577,7 +577,14 @@ const load = (loadMobile: boolean = false) => {
 
     const data = form.value;
     if (data.search.length) {
+        if (!search.value.length) {
+            data.sort = 'relevance';
+        }
         search.value = data.search;
+    } else {
+        if (data.sort === 'relevance') {
+            data.sort = 'created_at';
+        }
     }
     loading.value = true;
 
@@ -599,6 +606,7 @@ const load = (loadMobile: boolean = false) => {
 
 const reload = () => {
     form.value.page = 1;
+    //if (form.valur)
     load();
 }
 
@@ -653,17 +661,25 @@ interface SortOption {
     key: string
 }
 
-const sortOptions: SortOption[] = [
-    {
-        title: 'Дата эфира', key: 'supposed_date'
-    },
-    {
-        title: 'Дата заливки', key: 'created_at'
-    }
-];
+const sortOptions = computed<SortOption[]>(() => {
+    return [
+        search.value?.length ? {
+            title: 'Релевантность', key: 'relevance'
+        } : null,
+        {
+            title: 'Дата эфира', key: 'supposed_date'
+        },
+        {
+            title: 'Дата заливки', key: 'created_at'
+        }
+    ].filter(option => !!option);
+});
+
 const setSort = (sort: SortOption) => {
     if (form.value.sort === sort.key) {
-        form.value.sort_order = form.value.sort_order === 'desc' ? 'asc' : 'desc';
+        if (sort.key != 'relevance') {
+            form.value.sort_order = form.value.sort_order === 'desc' ? 'asc' : 'desc';
+        }
     } else {
         form.value.sort = sort.key;
         form.value.sort_order = 'desc';

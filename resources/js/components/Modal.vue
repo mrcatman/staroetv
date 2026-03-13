@@ -28,13 +28,13 @@ const show = async (params?: ModalParams) => {
 const hide = () => {
     window.closeModal(modal);
 }
-const centerY = () => {
-    window.centerY(modal);
-}
+// const centerY = () => {
+//     window.centerY(modal);
+// }
 
 defineExpose({
     show,
     hide,
-    centerY
+    //centerY
 });
 </script>

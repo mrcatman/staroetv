@@ -1,6 +1,6 @@
 import './init.js'
 import 'jquery-pjax';
-import './jquery-ui.min'
+//import './jquery-ui.min'
 
 import './bbcodes'
 import './uVideoPlayer'
