@@ -75,12 +75,14 @@ class ChannelsController extends EntityController
             }
             $popular_programs = $channel->unorderedPrograms()->withCount('records')->having('records_count', '>', 0)->orderBy('views', 'desc')->limit(25)->get();
 
-            $genres->prepend((object)[
-                'id' => -2,
-                'url' => 'popular',
-                'name' => 'Популярные',
-                'programs' => $popular_programs
-            ]);
+            if (count($popular_programs) > 1) {
+                $genres->prepend((object)[
+                    'id' => -2,
+                    'url' => 'popular',
+                    'name' => 'Популярные',
+                    'programs' => $popular_programs
+                ]);
+            }
 
             return $genres;
         });

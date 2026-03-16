@@ -4,24 +4,22 @@
 @endsection
 @section('content')
     <div class="col">
-        <div class="row row--align-start">
-            <div class="col col--2-5">
 
-                <div class="box">
-                    <div class="box__breadcrumbs">
-                        <div class="breadcrumbs">
-                            <a class="breadcrumbs__item"
-                               href="{{typed_route('records.[RECORD].index', $channel->is_radio)}}">Архив</a>
-                            <a class="breadcrumbs__item breadcrumbs__item--current">{{$channel->name}}</a>
-                        </div>
-                    </div>
-                    <div class="box__heading">
-                        <h1 class="box__heading__inner">
-                            {{$channel->all_names_with_main}}
-                        </h1>
-                        <div class="box__heading__right">
-                            @if ($channel->can_edit || \App\Helpers\PermissionsHelper::allows('contentapprove'))
-                                <span class="button button--light button--dropdown">
+        <div class="box">
+            <div class="box__breadcrumbs">
+                <div class="breadcrumbs">
+                    <a class="breadcrumbs__item"
+                       href="{{typed_route('records.[RECORD].index', $channel->is_radio)}}">Архив</a>
+                    <a class="breadcrumbs__item breadcrumbs__item--current">{{$channel->name}}</a>
+                </div>
+            </div>
+            <div class="box__heading">
+                <h1 class="box__heading__inner">
+                    {{$channel->all_names_with_main}}
+                </h1>
+                <div class="box__heading__right">
+                    @if ($channel->can_edit || \App\Helpers\PermissionsHelper::allows('contentapprove'))
+                        <span class="button button--light button--dropdown">
                                     <span class="button--dropdown__text">Действия</span>
                                     <span class="button--dropdown__icon">
                                         <i class="fa fa-chevron-down"></i>
@@ -43,92 +41,86 @@
                                         @endif
                                     </span>
                                 </span>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="box__inner">
-                        <div class="channel-page__top">
-                            @if (count($channel->names_with_logos) > 0 || $channel->logo)
-                                <div class="channel-page__logos">
-                                    @if (count($channel->names_with_logos) > 0)
-                                        <div class="channel-page__selected-logo">
-                                            <div class="channel-page__selected-logo__picture__container">
-                                                <div class="channel-page__selected-logo__picture"
-                                                     style="background-image: url({{$channel->names[0]->logo && $channel->names[0]->logo->url ? $channel->names[0]->logo->url : ''}})"></div>
-                                                <!--
+                    @endif
+                </div>
+            </div>
+            <div class="box__inner">
+                <div class="channel-page__top">
+                    @if (count($channel->names_with_logos) > 0 || $channel->logo)
+                        <div class="channel-page__logos">
+                            @if (count($channel->names_with_logos) > 0)
+                                <div class="channel-page__selected-logo">
+                                    <div class="channel-page__selected-logo__picture__container">
+                                        <div class="channel-page__selected-logo__picture"
+                                             style="background-image: url({{$channel->names[0]->logo && $channel->names[0]->logo->url ? $channel->names[0]->logo->url : ''}})"></div>
+                                        <!--
                                     <div class="channel-page__selected-logo__picture channel-page__selected-logo__picture--shadow"  style="background-image: url({{$channel->names[0]->logo && $channel->names[0]->logo->url ? $channel->names[0]->logo->url : ''}})"></div>
                                     -->
-                                            </div>
-                                            <!--
+                                    </div>
+                                    <!--
                                 <div class="channel-page__selected-logo__name">{{$channel->names[0]->name}} </div>
                                 -->
-                                            <div
-                                                class="channel-page__selected-logo__years">{{$channel->names[0]->years_range}} </div>
-                                            <div
-                                                class="channel-page__selected-logo__description">{{$channel->names[0]->comment}}</div>
-                                        </div>
-                                        <div class="channel-page__logos__list">
-                                            <div class="channel-page__logos__list__inner">
-                                                @foreach($channel->names as $index => $name)
-                                                    @if ($name->logo)
-                                                        <a class="channel-page__logos__list__item @if ($index == 0) channel-page__logos__list__item--selected @endif"
-                                                           data-info="{{$name}}"
-                                                           style="background-image: url({{$name->logo && $name->logo->url ? $name->logo->url : ''}})"></a>
-                                                    @endif
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    @elseif ($channel->logo)
-                                        <div class="channel-page__selected-logo">
-                                            <div class="channel-page__selected-logo__picture__container">
-                                                <div class="channel-page__selected-logo__picture"
-                                                     style="background-image: url({{$channel->logo->url}})"></div>
-                                                <!--
+                                    <div
+                                        class="channel-page__selected-logo__years">{{$channel->names[0]->years_range}} </div>
+                                    <div
+                                        class="channel-page__selected-logo__description">{{$channel->names[0]->comment}}</div>
+                                </div>
+                                <div class="channel-page__logos__list">
+                                    <div class="channel-page__logos__list__inner">
+                                        @foreach($channel->names as $index => $name)
+                                            @if ($name->logo)
+                                                <a class="channel-page__logos__list__item @if ($index == 0) channel-page__logos__list__item--selected @endif"
+                                                   data-info="{{$name}}"
+                                                   style="background-image: url({{$name->logo && $name->logo->url ? $name->logo->url : ''}})"></a>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @elseif ($channel->logo)
+                                <div class="channel-page__selected-logo">
+                                    <div class="channel-page__selected-logo__picture__container">
+                                        <div class="channel-page__selected-logo__picture"
+                                             style="background-image: url({{$channel->logo->url}})"></div>
+                                        <!--
                                         <div class="channel-page__selected-logo__picture channel-page__selected-logo__picture--shadow" style="background-image: url({{$channel->logo->url}})"></div>
                                    -->
-                                            </div>
-                                        </div>
-                                    @endif
+                                    </div>
                                 </div>
                             @endif
-                            <div class="channel-page__description">
-                                @if ($channel->description != "")
-                                    <div class="text-content">{!! $channel->description !!}</div>
-                                @else
-                                    <div class="channel-page__no-description">Описание канала еще не заполнено</div>
-                                @endif
+                        </div>
+                    @endif
+                    <div class="channel-page__description">
+                        @if ($channel->description != "")
+                            <div class="text-content">{!! $channel->description !!}</div>
+                        @else
+                            <div class="channel-page__no-description">
+                                Описание {{$channel->is_radio ? 'радиостанции' : 'канала'}} еще не заполнено
+                            </div>
+                        @endif
 
-                                @if ($channel->is_regional || $channel->is_abroad)
-                                    <div class="channel-page__description__params">
-                                        <!--
+                        @if ($channel->is_regional || $channel->is_abroad)
+                            <div class="channel-page__description__params">
+                                <!--
                                     @if (count($channel->unique_names) > 0)
-                                            <div class="page__description__param">Также известен как:
-                                                <strong>{{$channel->unique_names_list}}</strong></div>
-
-                                        @endif
-                                        -->
-                                        @if ($channel->is_regional)
-                                            <div class="page__description__param">Город/регион:
-                                                <strong>{{$channel->city}}</strong></div>
-                                        @endif
-                                        @if ($channel->is_abroad)
-                                            <div class="page__description__param">Страна:
-                                                <strong>{{$channel->country}}</strong></div>
-                                        @endif
-                                    </div>
+                                    <div class="page__description__param">Также известен как:
+                                        <strong>{{$channel->unique_names_list}}</strong></div>
+                                @endif
+                                -->
+                                @if ($channel->is_regional)
+                                    <div class="page__description__param">Город/регион:
+                                        <strong>{{$channel->city}}</strong></div>
+                                @endif
+                                @if ($channel->is_abroad)
+                                    <div class="page__description__param">Страна:
+                                        <strong>{{$channel->country}}</strong></div>
                                 @endif
                             </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
-
             </div>
-            <!--
-            <div class="col col--sidebar">
-                @include('blocks.global.generic-sidebar', ['is_radio' => $channel->is_radio, 'hide_articles' => true, 'count' => 12, 'articles_count' => $channel->page_random_videos_count])
-            </div>
-            -->
         </div>
+
         @php($programs_edit = \App\Helpers\PermissionsHelper::allows('programs'))
         @php($programs_edit_own = \App\Helpers\PermissionsHelper::allows('programsown'))
         @if (count($programs) > 0 || $programs_edit || $programs_edit_own)
@@ -159,15 +151,19 @@
                         <div class="categories-list">
                             @foreach($programs as $index => $genre)
                                 <a data-selector=".category" data-toggle-class="category--active"
-                                   data-show-block-selector=".programs-list__container" data-show-block-id="{{$genre->id}}"
+                                   data-show-block-selector=".programs-list__container"
+                                   data-show-block-id="{{$genre->id}}"
                                    class="category @if ($index == 0) category--active @endif">{{$genre->name}}</a>
                             @endforeach
                         </div>
+                    @else
+                        @include('blocks.global.no-records', ['is_radio' => $channel->is_radio])
                     @endif
                     <div class="channel-page__programs">
 
                         @foreach($programs as $index => $genre)
-                            <div class="programs-list__container" data-block-id="{{$genre->id}}" @if ($index != 0) style="display: none" @endif>
+                            <div class="programs-list__container" data-block-id="{{$genre->id}}"
+                                 @if ($index != 0) style="display: none" @endif>
                                 <div class="programs-list">
                                     @foreach ($genre->programs as $program)
                                         @include('blocks.programs.item', ['url' => $program->full_url.'?from='.$channel->id])
@@ -188,60 +184,61 @@
                             @endforeach
                         </div>
                     </div>
-                    @endif
+
                 </div>
             @endif
+        @endif
 
-            @php($can_edit_interprogram = \App\Helpers\PermissionsHelper::allows('additionalown'))
-            @if ($channel->is_radio)
-                @include('blocks.records.list', ['hide_if_zero' => true, 'conditions' => $records_conditions_interprogram, 'block_title' => 'Заставки, отбивки, джинглы ('.$channel->name.')'])
-            @else
-                @if (count($interprogram_packages) > 0 || $can_edit_interprogram)
-                    <div class="box" id="interprogram">
-                        <div class="box__heading">
-                            <div class="box__heading__inner">Оформление канала ({{$channel->name}})</div>
-                            @if ($can_edit_interprogram)
-                                <div class="box__heading__right">
-                                    <a href="{{route('design.channels.add', $channel->url ?? $channel->id)}}"
-                                       class="button button--light">Добавить</a>
-                                </div>
-                            @endif
-                        </div>
-
-                        @if (count($interprogram_packages) > 0)
-                            <div class="box__inner">
-                                <div class="interprogram-packages-list">
-                                    @foreach($interprogram_packages as $package)
-                                        @include('blocks.design.package', ['package' => $package])
-                                    @endforeach
-                                </div>
+        @php($can_edit_interprogram = \App\Helpers\PermissionsHelper::allows('additionalown'))
+        @if ($channel->is_radio)
+            @include('blocks.records.list', ['hide_if_zero' => true, 'conditions' => $records_conditions_interprogram, 'block_title' => 'Заставки, отбивки, джинглы ('.$channel->name.')'])
+        @else
+            @if (count($interprogram_packages) > 0 || $can_edit_interprogram)
+                <div class="box" id="interprogram">
+                    <div class="box__heading">
+                        <div class="box__heading__inner">Оформление канала ({{$channel->name}})</div>
+                        @if ($can_edit_interprogram)
+                            <div class="box__heading__right">
+                                <a href="{{route('design.channels.add', $channel->url ?? $channel->id)}}"
+                                   class="button button--light">Добавить</a>
                             </div>
                         @endif
                     </div>
-                @endif
-            @endif
-            <div class="row">
-                @include('blocks.records.list', ['conditions' => $records_conditions])
-            </div>
-            @if (count($channel->articles) > 0)
-                <div class="box">
-                    <div class="box__heading">
-                        <div class="box__heading__inner">
-                            Статьи
+
+                    @if (count($interprogram_packages) > 0)
+                        <div class="box__inner">
+                            <div class="interprogram-packages-list">
+                                @foreach($interprogram_packages as $package)
+                                    @include('blocks.design.package', ['package' => $package])
+                                @endforeach
+                            </div>
                         </div>
-                    </div>
-                    <div class="box__inner">
-                        <div class="news-blocks-list">
-                            @foreach ($channel->articles as $news_item)
-                                @include('blocks.articles.news', ['class' => 'news-block--card news-block--for-channel', 'show_cover' => true, 'news_item' => $news_item])
-                            @endforeach
-                        </div>
-                    </div>
+                    @endif
                 </div>
             @endif
-            <div class="row row--align-start">
-                @include('blocks.comments.list', ['class' => 'channel-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_CHANNELS, 'material_id' => $channel->id]])
+        @endif
+        <div class="row">
+            @include('blocks.records.list', ['conditions' => $records_conditions])
+        </div>
+        @if (count($channel->articles) > 0)
+            <div class="box">
+                <div class="box__heading">
+                    <div class="box__heading__inner">
+                        Статьи
+                    </div>
+                </div>
+                <div class="box__inner">
+                    <div class="news-blocks-list">
+                        @foreach ($channel->articles as $news_item)
+                            @include('blocks.articles.news', ['class' => 'news-block--card news-block--for-channel', 'show_cover' => true, 'news_item' => $news_item])
+                        @endforeach
+                    </div>
+                </div>
             </div>
+        @endif
+        <div class="row row--align-start">
+            @include('blocks.comments.list', ['class' => 'channel-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_CHANNELS, 'material_id' => $channel->id]])
+        </div>
     </div>
     </div>
 @endsection

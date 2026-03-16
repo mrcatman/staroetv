@@ -19,9 +19,9 @@
                 </div>
             </div>
             <div class="box__inner">
+                @if ($show_advanced_filters)
                 <div class="records-list__filters">
                     <div class="records-list__sort">
-                        @if ($show_advanced_filters)
                         <div class="top-list records-list__sort__items">
                             <a data-sort="newer" class="top-list__item @if ($records_data['sort'] == "newer") top-list__item--active @endif"
                                href="{{$records_data['base_url']}}?{{http_build_query(array_merge(\App\Helpers\ArraysHelper::diffAssoc($records_data['query_params'], ['conditions', 'sort']), ['sort' => 'newer']))}}">От
@@ -52,9 +52,8 @@
                                        placeholder="Поиск по разделу..."/>
                             </div>
                         </div>
-                        @endif
                     </div>
-                    @if ($show_advanced_filters)
+
                     @if ($records_data['years'])
                         <div class="top-list records-list__years">
                             <a class="top-list__item top-list__item--all @if (!$records_data['selected_year']) top-list__item--active @endif"
@@ -88,15 +87,22 @@
                             @endforeach
                         </div>
                     @endif
-                    @endif
                 </div>
+                @endif
 
-                @php($nothing_found = isset($search) && $search != '' && count($records_data['records']) === 0)
+                @php($nothing_found = count($records_data['records']) === 0)
                 <div class="records-list @if(!$is_radio && !$nothing_found) records-list--thumbs records-list--thumbs-only-desktop @endif">
                     @if ($nothing_found)
-                        <div class="records-list__nothing-found">По запросу <strong>"{{$search}}"</strong> ничего не
+                        @if (isset($search) && $search != '')
+                        <div class="nothing-found">По запросу <strong>"{{$search}}"</strong> ничего не
                             найдено
                         </div>
+                        @else
+                            <div class="nothing-found">
+                                В данный момент записей нет. Вы можете помочь сайту, <a href="{{typed_route('records.[RECORD].add', $is_radio)}}">добавив свои записи</a>
+                            </div>
+
+                        @endif
                     @endif
                     @foreach($records_data['records'] as $record)
                         @php($data = ['record' => $record])

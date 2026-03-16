@@ -1,28 +1,26 @@
 .records {
-  display: flex;
-  flex-wrap: wrap;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .form .records {
-  margin: 0 -1em -1em;
+    margin: 0 -1em -1em;
 }
 
 .records-list {
     display: flex;
     flex-wrap: wrap;
     gap: var(--col-margin);
+
     &__empty {
         font-weight: bold;
         padding: .25em;
     }
+
     &__outer {
         position: relative;
     }
 
-    &__nothing-found {
-        font-size: 1.25em;
-        opacity: .75;
-    }
 
     &__filters {
         display: flex;
@@ -33,7 +31,7 @@
 
     &__months {
         margin-top: .5em;
-       font-size: .9375em;
+        font-size: .9375em;
     }
 
     &__sort {
@@ -46,6 +44,7 @@
             flex-direction: column;
             align-items: flex-start;
         }
+
         &__items {
             flex: 1;
             font-size: 1.25em;
@@ -88,15 +87,18 @@
     color: unset;
     transition: all .25s;
     width: 100%;
+
     &:not(&--unselectable) {
         cursor: pointer;
         @include hover;
     }
+
     &--pending {
         opacity: .5;
     }
+
     &--selected, &.selected {
-        background: var(--box-color-hover)!important;
+        background: var(--box-color-hover) !important;
         color: var(--primary);
     }
 
@@ -142,7 +144,6 @@
     }
 
 
-
     &__stars {
         position: absolute;
         bottom: .5em;
@@ -157,6 +158,7 @@
         opacity: .75;
         font-size: .75em;
         display: none;
+
         &__inner {
             position: relative;
             width: 100%;
@@ -194,13 +196,14 @@
         @include light {
             font-weight: normal;
         }
+
         &__logo {
             min-width: 1.5em;
             width: 1.5em;
             height: 1.5em;
             object-fit: contain;
             margin: .3125em .5em -.3125em 0;
-            filter: drop-shadow(1px 1px 0 rgba(255,255,255,.25)) drop-shadow(-1px -1px 0 rgba(255,255,255,.25));
+            filter: drop-shadow(1px 1px 0 rgba(255, 255, 255, .25)) drop-shadow(-1px -1px 0 rgba(255, 255, 255, .25));
         }
     }
 
@@ -239,6 +242,7 @@
         font-size: .875em;
         display: flex;
         gap: 1em;
+
         i {
             margin: 0 .3125em 0 0;
         }
@@ -247,6 +251,7 @@
             white-space: nowrap;
         }
     }
+
     &__timecodes {
         font-size: .875em;
         opacity: .8;
@@ -254,9 +259,11 @@
         display: flex;
         flex-direction: column;
         gap: .25em;
+
         &__line {
             text-decoration: none;
             transition: color .2s;
+
             &:hover {
                 color: var(--primary);
             }
@@ -272,6 +279,7 @@
         text-decoration: none;
         padding: 1em 12em 1em 1em;
         transition: all .25s;
+
         &__logo {
             width: 5em;
             height: 5em;
@@ -295,6 +303,7 @@
         align-items: center;
         justify-content: space-between;
         color: var(--text-lighter);
+
         &__inner {
             display: flex;
             flex-direction: column;
@@ -313,20 +322,25 @@
     &__description {
         margin: 1em 0 0;
         font-size: 1rem;
+
         &:empty {
             display: none;
         }
     }
+
     .plyr {
         width: 100%;
+
         &--video {
             aspect-ratio: 4 / 3;
         }
     }
+
     &__player {
         width: 100%;
         margin: 0 0 var(--col-margin);
     }
+
     &__player-container {
         position: relative;
         width: 100%;
@@ -340,6 +354,7 @@
             height: 100%;
         }
     }
+
     &__download-overlay {
         position: absolute;
         top: 0;
@@ -348,6 +363,7 @@
         height: 100%;
         background: #000;
         color: #fff;
+
         &__background {
             position: absolute;
             top: 0;
@@ -373,6 +389,7 @@
             cursor: pointer;
             @include hover();
         }
+
         &__error {
             position: absolute;
             top: 0;
@@ -391,13 +408,16 @@
             }
         }
     }
+
     &__content {
         margin: 1em 0 0;
     }
 }
+
 .main-page .record-item__tags {
     display: none;
 }
+
 .small-videos-list {
     display: flex;
     flex-wrap: wrap;
@@ -413,9 +433,11 @@
     @media screen and (max-width: 1366px) {
         width: calc(100% / 2);
     }
+
     &:hover {
         transform: translateY(-.5em);
     }
+
     &:after {
         transform: translateY(-.5em);
         background: rgba(0, 0, 0, 0.1);
@@ -429,14 +451,17 @@
         opacity: 0;
         transition: all .35s;
     }
+
     &:hover:after {
         opacity: 1;
     }
+
     &__texts {
         position: relative;
         z-index: 1;
         width: calc(100% - 1em);
     }
+
     &__cover {
         z-index: 1;
         position: relative;
@@ -467,6 +492,7 @@
         }
     }
 }
+
 .records-list--thumbs {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
@@ -558,10 +584,11 @@
 .records-list--small {
     display: flex;
     flex-wrap: wrap;
+
     .record-item {
         width: calc(50% - .5em);
         @include mobile() {
-            width: 100%!important;
+            width: 100% !important;
         }
     }
 }
@@ -585,9 +612,11 @@
         }
         text-decoration: none;
         @include hover;
+
         &--active {
             color: var(--primary);
         }
+
         &__count {
             font-weight: bold;
             color: var(--primary);
@@ -600,11 +629,11 @@
     height: 50em;
     overflow: hidden;
     @include mobile() {
-        height: unset!important;
+        height: unset !important;
     }
 
     &__items {
-        padding: 0!important;
+        padding: 0 !important;
         overflow: auto;
         overflow-x: hidden;
         height: 100%;
@@ -625,16 +654,20 @@
         display: flex;
         flex-direction: column;
         margin-bottom: .5em;
+
         &:first-of-type {
             border-top: none;
         }
+
         &__title {
             font-size: 1.25em;
             text-transform: uppercase;
             font-weight: bold;
         }
+
         &__text {
             margin-top: .5em;
+
             &:empty {
                 display: none;
             }
@@ -664,10 +697,10 @@
 }
 
 
-
 .records-period {
     display: flex;
     flex-direction: column;
+
     &__name {
         border-bottom: 1px solid var(--border-c);
         font-size: 1.3125em;
