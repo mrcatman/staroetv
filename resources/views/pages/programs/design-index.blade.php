@@ -4,19 +4,19 @@
     {{$title}}
 @endsection
 @section('content')
-        <div class="row row--align-start">
-            <div class="col col--2-5">
-                <div class="box">
+<div class="col">
+    <div class="box">
+                    <div class="box__breadcrumbs">
+                                <div class="breadcrumbs">
+                                    <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].index', $is_radio)}}">Архив</a>
+                                </div>
+                            </div>
                     <div class="box__heading">
                         <div class="box__heading__inner">
                             {{$title}}
                         </div>
                     </div>
                 </div>
-                <div class="inner-page__header">
-                    <div class="inner-page__header__title"></div>
-                </div>
-                <div class="inner-page__content inner-page__content--no-padding">
                     @foreach($programs as $programs_list)
                     <div class="box">
                         <div class="box__heading">
@@ -34,12 +34,7 @@
                         </div>
                     </div>
                     @endforeach
-                </div>
             </div>
-            <!--
-            <div class="col col--sidebar">
-            </div>
-            -->
-        </div>
+
 
 @endsection

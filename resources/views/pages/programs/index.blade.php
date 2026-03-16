@@ -1,5 +1,6 @@
 @extends('layouts.default')
 @section('content')
+<div class="col">
     <div class="box">
         <div class="box__heading">
             <h1 class="box__heading__inner">{{$page_title}}</h1>

@@ -1,5 +1,4 @@
 .box {
-    margin: 0 0 var(--col-margin);
     display: flex;
     flex-direction: column;
     background: var(--box-color);
@@ -8,11 +7,6 @@
     border-radius: var(--border-radius-big);
     position: relative;
     box-sizing: border-box;
-    flex: 1;
-
-    @include mobile() {
-        margin: .5em 0;
-    }
 
     &:before {
         z-index: 0;
@@ -49,10 +43,10 @@
     }
 
     &__breadcrumbs {
-        padding: 1em;
+        padding: 1rem;
         background: var(--overlay-darken-2);
         @include light() {
-            padding: 1em 1em 0;
+            padding: 1rem 1rem 0;
         }
     }
 

@@ -6,6 +6,7 @@
     @php($route_prefix = route_prefix_records($params['is_radio']))
     @php($route_prefix_channels = route_prefix_channels($params['is_radio']))
 
+    <div class="col">
     <div class="box">
         <div class="box__heading">
             <h1 class="box__heading__inner">
@@ -132,7 +133,7 @@
                     </div>
                     <div class="box__inner">
                         @if(!$params['is_radio'])
-                            <div class="records-list  records-list--thumbs">
+                            <div class="records-list records-list--thumbs records-list--thumbs-only-desktop">
                                 @foreach($last_records as $record)
                                     @include('blocks.records.item', ['record' => $record])
                                 @endforeach
@@ -160,5 +161,5 @@
                 @include('blocks.global.generic-sidebar', ['is_radio' => $params['is_radio']])
             </div>
         </div>
-
+    </div>
 @endsection

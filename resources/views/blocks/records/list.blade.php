@@ -44,7 +44,7 @@
                                 добавленные
                             </option>
                         </select>
-                        @endif
+
                         <div class="input-container records-list__sort__search">
                             <div class="input-container__inner input-container__inner--with-icon">
                                 <i class="fa fa-search input-container__icon"></i>
@@ -52,6 +52,7 @@
                                        placeholder="Поиск по разделу..."/>
                             </div>
                         </div>
+                        @endif
                     </div>
                     @if ($show_advanced_filters)
                     @if ($records_data['years'])
@@ -91,7 +92,7 @@
                 </div>
 
                 @php($nothing_found = isset($search) && $search != '' && count($records_data['records']) === 0)
-                <div class="records-list @if(!$is_radio && !$nothing_found) records-list--thumbs @endif">
+                <div class="records-list @if(!$is_radio && !$nothing_found) records-list--thumbs records-list--thumbs-only-desktop @endif">
                     @if ($nothing_found)
                         <div class="records-list__nothing-found">По запросу <strong>"{{$search}}"</strong> ничего не
                             найдено

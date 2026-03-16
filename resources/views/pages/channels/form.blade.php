@@ -1,5 +1,6 @@
 @extends('layouts.default', ['vue' => true])
 @section('content')
+<div class="col">
     <form class="form box" method="POST">
         @csrf
         <div class="box__breadcrumbs">
@@ -152,4 +153,5 @@
             @csrf
         </form>
     @endif
+</div>
 @endsection

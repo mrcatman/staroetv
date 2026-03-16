@@ -102,18 +102,16 @@
 
     &__cover {
         margin: 0;
-        width: 8em;
-        height: 6em;
+        width: 9em;
+        height: 6.75em;
+        min-width: 9em;
         padding: 0;
         background-color: #000;
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;
         position: relative;
-        @include mobile {
-            width: 8em;
-            height: 5em;
-        }
+
     }
 
     &__preview {
@@ -459,7 +457,16 @@
     }
 }
 
-
+@mixin recordsListThumbsItemStyle {
+    @media screen and (min-width: 961px) {
+        @content;
+    }
+    @include mobile() {
+        &:not(.records-list--thumbs-only-desktop) {
+            @content;
+        }
+    }
+}
 .records-list--thumbs {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
@@ -472,78 +479,80 @@
     @include mobile() {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
-    .record-item {
-        width: 100%;
-        flex-direction: column;
-        align-items: flex-start;
-        border: none;
-        padding: 0;
-        @include hover;
-
-        @include mobile {
-            font-size: .875em;
-        }
-
-        &__info {
-            > span {
-                display: none;
-            }
-        }
-
-        &__description {
-            display: block;
-            font-size: .875em;
-            opacity: .75;
-            &__topic {
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-        }
-
-        &__duration {
-            font-size: 1.25em;
-        }
-
-        &__texts {
+    @include recordsListThumbsItemStyle() {
+        .record-item {
             width: 100%;
-            max-width: unset;
-            font-size: 1.125em;
-        }
+            flex-direction: column;
+            align-items: flex-start;
+            border: none;
+            padding: 0;
+            @include hover;
 
-        &__cover {
-            z-index: 1;
-            width: 100%;
-            margin: 0;
-            padding-top: 75%;
-            background-color: #111;
-            height: auto;
-        }
+            @include mobile {
+                font-size: .875em;
+            }
 
-        &__stars {
-            display: block;
-        }
+            &__info {
+                opacity: .7;
+                font-size: .75em;
+            }
 
-        &__title {
-            font-size: 1em;
-            max-height: 4.5em;
-            line-height: 1.25;
-            @include mobile() {
-                font-size: 1.125em;
+            &__description {
+                display: block;
+                font-size: .875em;
+                opacity: .75;
+
+                &__topic {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+
+            &__duration {
+                font-size: 1.25em;
+            }
+
+            &__texts {
                 width: 100%;
+                max-width: unset;
+                font-size: 1.125em;
             }
-        }
-        &__tags {
-            position: absolute;
-            top: .5em;
-            right: .5em;
-            z-index: 10;
-            opacity: .875;
-            font-size: .875em;
-            color: var(--box-text-color-dark);
+
+            &__cover {
+                z-index: 1;
+                width: 100%;
+                margin: 0;
+                padding-top: 75%;
+                background-color: #111;
+                height: auto;
+            }
+
+            &__stars {
+                display: block;
+            }
+
+            &__title {
+                font-size: 1em;
+                max-height: 4.5em;
+                line-height: 1.25;
+                @include mobile() {
+                    font-size: 1.125em;
+                    width: 100%;
+                }
+            }
+
+            &__tags {
+                position: absolute;
+                top: .5em;
+                right: .5em;
+                z-index: 10;
+                opacity: .875;
+                font-size: .875em;
+                color: var(--box-text-color-dark);
+            }
         }
     }
-
 }
 
 .records-list--small {
@@ -586,59 +595,6 @@
 
     }
 }
-
-.commercials-list-page {
-    &__bottom {
-        position: relative;
-    }
-    &__brands {
-        z-index: 10;
-        position: absolute;
-        top: 1.5em;
-        right: 1.5em;
-        font-size: 1em;
-        @include mobile() {
-            top: 1em;
-            right: 1em;
-            font-size: .875em;
-        }
-    }
-}
-
-
-.commercials-brands {
-    display: flex;
-    flex-wrap: wrap;
-
-    &__item {
-        display: flex;
-        width: 50%;
-        align-items: center;
-        font-size: 1.5em;
-        text-decoration: none;
-        margin: 0 0 1em;
-        color: var(--text-color);
-
-        &:hover {
-            color: var(--links-color);
-        }
-
-        &__cover {
-            width: 8em;
-            height: 5em;
-            background-size: cover;
-            background-position: center;
-            margin: 0 1em 0 0;
-
-        }
-
-        &:hover &__cover {
-            filter: brightness(1.1);
-        }
-    }
-}
-
-
 
 .playlist {
     height: 50em;

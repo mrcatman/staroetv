@@ -2,100 +2,100 @@
 .tapes {
     position: absolute;
     z-index: 3;
-    top: 9.125em;
+    top: 14vh;
     display: flex;
     flex-direction: column;
-    padding: 0 2.5em;
-    gap: 2.5em;
-    left: calc(50vw + 29.25em);
-    perspective: 152em;
+    gap: 1.9vh;
+    left: calc(50vw + 39.5vh);
+    perspective: 152vh;
 }
 
 
 .tape {
-    width: 43em;
-    height: 3.625em;
+    width: 44vh;
+    height: 4.5vh;
     position: relative;
     mix-blend-mode: overlay;
-    border-radius: .5em;
+    border-radius: .5vh;
     transition: all .2s;
     cursor: pointer;
+    box-sizing: border-box;
+    transform-origin: 0 0;
     &:hover {
         background: rgba(0,0,0,.1);
     }
     &:nth-of-type(1) {
-        width: 42em;
-        transform: translateX(.5em) rotateY(-20deg);
+        transform: translateX(-.125vh) rotateY(-17deg);
     }
     &:nth-of-type(2) {
-        width: 42em;
-        transform: rotateY(-25deg) translateX(-3.625em) translateY(-.25em);
+        width: 44.75vh;
+        transform: rotateY(-10deg) translateX(-.3vh) translateY(-.9vh);
     }
     &:nth-of-type(3) {
-        width: 44em;
-        transform: rotateY(-28.5deg) translateX(-5em) translateY(-.5em);
+        width: 43.25vh;
+        transform: rotateY(-17.5deg) translateX(-2.25vh) translateY(.25vh);
     }
     &:nth-of-type(4) {
-        width: 44.5em;
-        transform: rotateY(-26deg) rotateZ(.5deg) translateX(-.25em) translateY(.25em);
+        width: 44.5vh;
+        transform: rotateY(-14deg) translateX(1.5vh) translateY(.125vh);
     }
     &:nth-of-type(5) {
-        width: 43.5em;
-        transform: rotateY(-25.5deg) translateY(.25em);
+        width: 43.75vh;
+        transform: rotateY(-21.5deg) translateX(-3vh) translateY(.5vh);
     }
     &:nth-of-type(6) {
-        width: 43.75em;
-        transform: rotateY(-25.5deg) translateX(-3.5em) translateY(.25em);
+        width: 45vh;
+        transform: rotateY(-19.5deg) rotateZ(.5deg) translateX(-.125vh) translateY(.4vh);
     }
     &:nth-of-type(7) {
-        width: 42.75em;
-        transform: rotateY(-22.5deg) translateX(-2.5em) translateY(.625em);
+        width: 42.75vh;
+        transform: rotateY(-22.5deg) translateX(-2.75vh) translateY(.625vh);
     }
     &:nth-of-type(8) {
-        width: 39em;
-        transform: rotateY(-14.5deg) rotateZ(.75deg) translateX(.125em) translateY(.75em);
+        width: 41.25vh;
+        transform: rotateY(-23.5deg) rotateZ(.75deg) translateX(-1.125vh) translateY(.5vh);
     }
     &:nth-of-type(9) {
-        transform: rotateY(-23.5deg) translateX(-2.5em) translateY(1em);
+        transform: rotateY(-21.5deg) translateX(.125vh) translateY(.5vh);
     }
     &:nth-of-type(10) {
-        width: 42.5em;
-        transform: rotateY(-20.5deg) translateX(-1.25em) translateY(1em);
+        width: 43.75vh;
+        transform: rotateY(-28.5deg) translateX(-1.5vh) translateY(1vh);
     }
     &:nth-of-type(11) {
-        width: 42.25em;
-        transform: rotateY(-22.5deg) translateX(-.75em) translateY(1.25em);
+        width: 45vh;
+        transform: rotateY(-16.5deg) translateX(-1vh) translateY(2vh);
     }
     &:nth-of-type(12) {
-        width: 41.75em;
-        transform: rotateY(-18.5deg) translateX(.5em) translateY(1em);
+        width: 44vh;
+        transform: rotateY(-13.5deg) translateX(-.25vh) translateY(1.5vh);
     }
 
     &__sticker {
         width: 100%;
         height: 100%;
         position: relative;
-        border-radius: .5em;
+        border-radius: .5vh;
         display: flex;
         align-items: center;
         justify-content: center;
 
         &__content {
             width: 100%;
-            border-radius: .5em;
-            padding: .5em;
+            border-radius: .5vh;
+            padding: .5vh;
             font-family: "Lumios Typewriter Used";
-            font-size: 1.125em;
+            font-size: 1.4vh;
             line-height: 1.4;
             display: flex;
             align-items: center;
-            gap: .5em;
+            gap: .5vh;
         }
 
         &__cover {
             background: #ccc;
-            width: 4em;
-            height: 2.5em;
+            width: 5vh;
+            height: 3vh;
             background-size: cover;
             background-position: center;
         }

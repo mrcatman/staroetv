@@ -3,7 +3,7 @@
     {{$channel->name}}
 @endsection
 @section('content')
-    <div class="channel-page">
+    <div class="col">
         <div class="row row--align-start">
             <div class="col col--2-5">
 

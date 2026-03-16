@@ -4,7 +4,7 @@
     <input type="hidden" v-if="name" :name="name" :value="dataJson">
     <modal ref="searchRecordsModal" title="Поиск записей" >
         <form class="records-list-picker__search">
-            <Preloader v-if="searchLoading" />
+            <preloader v-if="searchLoading" />
             <input placeholder="Поиск" class="input" v-model="search"/>
             <div class="tabs">
                 <a class="tab" :class="{'tab--active': searchType === 'filtered'}" @click="searchType = 'filtered'">Рекомендуемые</a>
@@ -409,7 +409,7 @@ const loadSearch = (page?: number) => {
     }
     $.post('/records/search', params).done(async (res) => {
         searchResults.value = res.data.results;
-        // searchLoading.value = false;
+        searchLoading.value = false;
         // await nextTick();
         // searchRecordsModalRef.value.centerY();
     })

@@ -34,7 +34,7 @@
                 </div>
                 @else
                     <div class="box__heading__inner">
-                        <h1>
+                        <div>
                             {{$package->full_name}}
                             @if ($package->author != "")
 
@@ -42,7 +42,7 @@
                                     Автор:&nbsp;<strong>{{$package->author}}</strong>
                                 </div>
                             @endif
-                        </h1>
+                        </div>
 
                     </div>
                     @if ($package->can_edit)

@@ -118,6 +118,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
     // VIDEOS + RADIO
 
     Route::any('/video/design', [DesignPackagesController::class, 'index'])->name('design.channels.index');
+
     Route::any('/radio/design', function () {
         return (new \App\Http\Controllers\DesignPackagesController())->catalog(['is_radio' => true]);
     })->name('design.radio-stations.index');

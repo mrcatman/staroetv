@@ -3,7 +3,6 @@
     {{$page->title}}
 @endsection
 @section('content')
-    <div class="inner-page">
         <div class="box">
             <div class="box__heading">
                 <div class="box__heading__inner">
@@ -37,7 +36,7 @@
             </div>
 
         </div>
-    </div>
+    
     @if (\App\Helpers\PermissionsHelper::allows('sipdel'))
         <div id="delete_page" data-title="Удалить страницу" style="display:none">
             <form action="{{route('pages.delete')}}" class="form modal-window__form" data-auto-close-modal="1">

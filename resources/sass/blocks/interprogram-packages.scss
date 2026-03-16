@@ -7,18 +7,15 @@
         flex-wrap: wrap;
         justify-content: stretch;
         background-color: #111;
-        min-height: 16em;
+        aspect-ratio: 4/3;
+
         background-image: url('/img/noise.jpg') no-repeat center center;
         background-size: cover;
         border-radius: var(--border-radius-standard);
         overflow: hidden;
-        @include mobile() {
-            min-height: 10em;
-        }
+
         &__picture {
             /* flex: 1; */
-
-            padding-top: 8em;
             max-width: 50%;
             width: 100%;
             background-size: cover;
@@ -29,10 +26,7 @@
             }
             &--big {
                 max-width: 100%;
-                padding-top: 16em;
-                @include mobile() {
-                    padding-top: 10em;
-                }
+                height: 100%;
             }
         }
         &[data-pictures-count='3'] &__picture:nth-of-type(3n) {

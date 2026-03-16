@@ -3,6 +3,7 @@
     Архив телетекста
 @endsection
 @section('content')
+<div class="col">
     <div class="box">
         <div class="box__heading">
             <h1 class="box__heading__inner">
@@ -76,5 +77,5 @@
             @include('blocks.global.digitization')
         </div>
     </div>
-
+</div>
 @endsection

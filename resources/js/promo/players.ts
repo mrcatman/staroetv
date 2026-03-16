@@ -3,6 +3,7 @@ import { EventEmitter, getRandomDurationPoint } from "./utils";
 
 class VKPlayer extends EventEmitter implements Promo.Player  {
     private instance;
+    private isEnded: boolean = false;
 
     load(video: Promo.Video, container: HTMLDivElement)  {
         return new Promise<void>((resolve, reject) => {
@@ -16,7 +17,16 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
 
             this.instance.on('started', () => this.emit('started'));
             this.instance.on('error', () => this.emit('error'));
-            this.instance.on('ended', () => this.emit('ended'));
+            this.instance.on('timeupdate', () => {
+                if (this.isEnded) {
+                    return;
+                }
+                const percent = this.instance.getCurrentTime() / this.instance.getDuration();
+                if (percent > .999) {
+                    this.isEnded = true;
+                    this.emit('ended');
+                }
+            });
         });
     }
 

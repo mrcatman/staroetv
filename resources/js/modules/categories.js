@@ -1,7 +1,9 @@
+import {isMobile} from "@/utils/mobile";
+
 const body = $('body');
 window.execOnMounted.push(function() {
     $('.categories-list').each(function () {
-        if ($(this).hasClass('categories-list--multiline') && !$(this).hasClass('categories-list--multiline-opened')) {
+        if ($(this).hasClass('categories-list--multiline') && !$(this).hasClass('categories-list--multiline-opened') && isMobile()) {
             initMultiline($(this));
             return;
         }

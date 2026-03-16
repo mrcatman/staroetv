@@ -3,7 +3,13 @@
     Графическое оформление телеканалов
 @endsection
 @section('content')
+<div class="col">
     <div class="box">
+        <div class="box__breadcrumbs">
+            <div class="breadcrumbs">
+                <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].index', false)}}">Архив</a>
+            </div>
+        </div>
         <div class="box__heading">
             <div class="box__heading__inner">
                 Графическое оформление телеканалов
@@ -30,5 +36,5 @@
             </div>
         </div>
     @endforeach
-
+</div>
 @endsection

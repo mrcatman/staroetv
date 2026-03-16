@@ -1,5 +1,5 @@
 .pagination {
-     display: flex;
+    display: flex;
     list-style-type: none;
     padding: 1em 0;
     margin: 0;
@@ -14,6 +14,7 @@
         font-size: .875em;
     }
 }
+
 ul.pagination::-webkit-scrollbar {
     height: 3px;
 }
@@ -26,9 +27,11 @@ ul.pagination::-webkit-scrollbar {
 
 .box--dark .pagination, .theme-dark .forum-section__pager .pagination {
     border-top: 1px solid var(--border-color-dark);
+
     .page-item {
         background: var(--clickable-block-color-dark);
     }
+
     .page-item a {
         color: var(--box-text-color-dark);
     }
@@ -39,6 +42,7 @@ ul.pagination::-webkit-scrollbar {
     &:empty {
         display: none;
     }
+
     @include mobile() {
         max-width: calc(100vw - 2em);
         overflow: auto;
@@ -66,10 +70,18 @@ ul.pagination::-webkit-scrollbar {
     @include hover(true);
     overflow: hidden;
     box-shadow: var(--input-box-shadow);
+
+    @include mobile() {
+        &:not(.page-item-mobile-visible) {
+            display: none;
+        }
+    }
+
     &:first-of-type {
         border-top-left-radius: .25em;
         border-bottom-left-radius: .25em;
     }
+
     &:last-of-type {
         border-top-right-radius: .25em;
         border-bottom-right-radius: .25em;
@@ -81,11 +93,11 @@ ul.pagination::-webkit-scrollbar {
         font: inherit;
         background: none;
         border: none;
-
     }
 
     &.active {
         background: var(--primary) !important;
+
         .page-link {
             color: var(--button-active-text);
         }
@@ -94,6 +106,7 @@ ul.pagination::-webkit-scrollbar {
 
     &.disabled {
         cursor: default;
+
         &:before {
             display: none;
         }

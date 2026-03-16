@@ -1,1 +1,1 @@
-export const isMobile = () => $(window).width() < 768;
+export const isMobile = () => $(window).width() <= 960;

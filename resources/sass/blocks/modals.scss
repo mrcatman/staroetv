@@ -4,7 +4,7 @@
     z-index: 10000 !important;
     max-width: calc(100vw - 1em);
     pointer-events: all;
-
+    width: 800px;
     @include mobile {
         font-size: .875em;
         max-height: calc(100vh - 4em);

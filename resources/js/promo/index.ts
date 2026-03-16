@@ -40,12 +40,7 @@ const getRandomVideo = async (): Promise<Promo.Video> => {
 
 const loadVideo = async () => {
     console.log('loadVideo');
-    //{
-    //     "id": 12468,
-    //     "title": "Shit-\u041f\u0430\u0440\u0430\u0434 V.Z.O.P.A. (MTV, 2003) \u041a\u0440\u0430\u0441\u043a\u0438, \u041f\u043b\u0430\u043d\u043a\u0430, \u041e\u043b\u0435\u0433 \u041b\u0430\u0432\u0440\u043e\u0432, \u0413\u0430\u0440\u0440\u0438 \u041f\u043e\u0442\u0442\u042d\u0440, Blue feat. Elton John",
-    //     "channel_name": "MTV \u0420\u043e\u0441\u0441\u0438\u044f",
-    //     "url": "\/\/vk.com\/video_ext.php?oid=200690671&id=171090248&hash=68d3b038e2e1f452&hd=2&wmode=transparent"
-    // }
+
     overlay.style.display = 'none';
     noise.style.display = 'block';
 
@@ -56,8 +51,14 @@ const loadVideo = async () => {
     player.seekToRandomTime();
     player.play();
 
-    player.on('error', () => loadVideo);
-    player.on('ended', () => loadVideo);
+    player.on('error', () => {
+        console.log('error');
+        loadVideo();
+    });
+    player.on('ended', () => {
+        console.log('ended');
+        loadVideo();
+    });
     player.on('started', () => {
         updateTitle(video);
         noise.style.display = 'none';

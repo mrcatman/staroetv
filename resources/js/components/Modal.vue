@@ -1,5 +1,5 @@
 <template>
-    <div class="modal-window__content__inner" :id="randomId" v-if="visible">
+    <div :id="randomId" v-if="visible">
         <slot :hide="hide"></slot>
     </div>
 </template>
