@@ -15,7 +15,7 @@
                 </div>
             </div>
             <b-table ref="tableRef" class="admin-panel__table" show-empty stacked="md" :filter="table.filter" :provider="programs" :debounce="500"
-                     :fields="table.fields" :current-page="table.currentPage" :per-page="table.perPage">
+                     :fields="table.fields" :current-page="table.currentPage" :per-page="table.perPage" empty-filtered-text="По вашему запросу не найдено программ">
                 <template v-slot:cell(name)="data">
                     <a target="_blank" :href="_route('programs.show', data.item.id)">
                         {{data.item.name}}

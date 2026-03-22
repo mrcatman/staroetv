@@ -39,9 +39,11 @@
             <{{$tag}} @if (isset($go_to) && $go_to) href="{{$comment->url}}?comment_id={{$comment->id}}#comments_block" @endif class="comment__text @if($comment->rating < -5) comment__text--negative @endif">
                 {!! $comment->text !!}
             </{{$tag}}>
+            @if ($comment->can_edit)
             <div class="comment__original-text" style="display: none">
                 {!! $comment->original_text !!}
             </div>
+            @endif
             @if (!isset($show_link) || !$show_link)
             @if (\App\Helpers\PermissionsHelper::allows("comreply"))
                 <a class="comment__reply">Ответить</a>

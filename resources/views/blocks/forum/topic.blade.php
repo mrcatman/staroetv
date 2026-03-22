@@ -38,11 +38,17 @@
         </div>
         <div class="forum__numbers">
             <div class="forum__number__container forum__number__container--topics">
-                <div class="forum__number">{{$topic->answers_count}}</div>
+                <div class="forum__number">
+                    <span class="forum__number__icon"><i class="fa-regular fa-comments"></i></span>
+                    {{$topic->answers_count}}
+                </div>
                 <div class="forum__number__description">ответов</div>
             </div>
             <div class="forum__number__container forum__number__container--topics">
-                <div class="forum__number">{{$topic->views_count}}</div>
+                <div class="forum__number">
+                    <span class="forum__number__icon"><i class="fa-regular fa-eye"></i></span>
+                    {{$topic->views_count}}
+                </div>
                 <div class="forum__number__description">просмотров</div>
             </div>
         </div>
@@ -52,11 +58,11 @@
             Последнее обновление:
         </span>
         <div class="forum__last-topic__info">
-            <a href="{{route('forum.topics.show-last-message', [$topic->forum_id, $topic->id])}}" class="forum__last-topic__date">
-                {{$topic->last_reply_at}} >>
+            <a href="{{route('forum.topics.show-last-message', [$topic->forum_id, $topic->id])}}" class="forum__last-topic__date forum__last-topic__message">
+                <i class="fa fa-clock"></i>&nbsp;{{$topic->last_reply_at}} <i class="fa fa-chevron-right"></i>
             </a>
             <span class="forum__last-topic__username">
-                Сообщение от: <a href="{{route('users.show-by-username', $topic->topic_last_username)}}" class="forum__last-topic__username__text">{{$topic->topic_last_username}}</a>
+                <a href="{{route('users.show-by-username', $topic->topic_last_username)}}" class="forum__last-topic__username__text"><i class="fa fa-user"></i>&nbsp;{{$topic->topic_last_username}}</a>
             </span>
         </div>
     </div>

@@ -5,6 +5,11 @@ const body = $('body');
 let telegramUserData;
 $(body).on('click', '.button--telegram', function(e) {
     e.preventDefault();
+    if (!window.Telegram?.Login) {
+        alert('Не удалось подключиться к Telegram, включите VPN или иной способ обхода блокировок');
+        return;
+    }
+
     window.Telegram.Login.auth(
         { bot_id: import.meta.env.VITE_TELEGRAM_BOT_ID },
         (data) => {

@@ -397,15 +397,15 @@ class RecordsController extends EntityController
 
 
         if ($data['video_type'] == 'youtube') {
-            $data = (ExternalServicesHelper::youtubeVideo($data['video_id']));
-            if (!isset($data->items[0])) {
+            $response = (ExternalServicesHelper::youtubeVideo($data['video_id']));
+            if (!isset($response->items[0])) {
                 return [
                     'status' => 0,
                     'text' => 'Видео не найдено',
                 ];
             }
 
-            $video = $data->items[0];
+            $video = $response->items[0];
             $duration = ExternalServicesHelper::youtubeVideoDuration($data['video_id']);
             $info = [
                 'id' => $video->id,
@@ -419,15 +419,15 @@ class RecordsController extends EntityController
                 'duration' => $duration
             ];
         } else {
-            $data = (ExternalServicesHelper::vkVideo($data['video_id']));
-            if (!isset($data->response->items[0])) {
+            $response = (ExternalServicesHelper::vkVideo($data['video_id']));
+            if (!isset($response->response->items[0])) {
                 return [
                     'status' => 0,
                     'text' => 'Видео не найдено',
                 ];
             }
 
-            $video = $data->response->items[0];
+            $video = $response->response->items[0];
             $info = [
                 'id' => $video->owner_id . ' ' . $video->id,
                 'title' => $video->title,

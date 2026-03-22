@@ -1,8 +1,7 @@
 @extends('layouts.default')
 @section('content')
+<div class="col">
     <div class="user-page" data-user-id="{{$user->id}}">
-
-
         <div class="user-page__top">
             <div class="user-page__left">
                 @if ($user->avatar)
@@ -222,4 +221,5 @@
             </div>
         </div>
     @endif
+</div>
 @endsection

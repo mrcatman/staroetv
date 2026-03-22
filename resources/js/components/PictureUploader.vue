@@ -47,8 +47,8 @@
     box-shadow: var(--element-box-shadow);
 
     @include mobile {
+        box-sizing: border-box;
         width: 100%;
-        margin: .5em 0 0;
     }
 
     &__empty {

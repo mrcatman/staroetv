@@ -31,7 +31,7 @@
             </div>
             <div class="forum__number__container forum__number__container--topics">
                 <div class="forum__number">{{$subforum->replies_count}}</div>
-                <div class="forum__number__description">ответов</div>
+                <div class="forum__number__description">сообщений</div>
             </div>
         </div>
     </div>
@@ -41,15 +41,19 @@
             Последнее обновление:
         </a>
         <div class="forum__last-topic__info">
-            <a href="{{route('forum.topics.show-last-message', [$subforum->id, $subforum->last_topic_id])}}" class="forum__last-topic__date">
-                {{$subforum->last_reply_at}}
-            </a>
+
             <a href="{{route('forum.topics.show-last-message', [$subforum->id, $subforum->last_topic_id])}}" class="forum__last-topic__name">
+                <i class="fa-regular fa-message"></i>
                 {{$subforum->last_topic_name}}
             </a>
             <span class="forum__last-topic__username">
-                Сообщение от: <a href="{{route('users.show-by-username', $subforum->last_username)}}" class="forum__last-topic__username__text">
-                    {{$subforum->last_username}}
+                <span class="forum__last-topic__date">
+                  <i class="fa-regular fa-clock"></i>
+                    {{$subforum->last_reply_at}}
+                </span>
+                 <a href="{{route('users.show-by-username', $subforum->last_username)}}" class="forum__last-topic__username__text">
+                    <i class="fa-regular fa-user"></i>
+                     {{$subforum->last_username}}
                 </a>
             </span>
         </div>

@@ -33,6 +33,7 @@
             gap: .5em;
         }
         &__icon {
+            box-shadow: var(--element-box-shadow);
             background: var(--box-color-dark);
             border-radius: var(--border-radius-small);
             font-size: 1.25em;
@@ -103,10 +104,6 @@
 
         &__inner {
             flex: 1;
-
-            .box {
-                height: calc(100% - 1em);
-            }
         }
 
         @include mobile {

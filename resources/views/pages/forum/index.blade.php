@@ -3,7 +3,7 @@
     Форум
 @endsection
 @section('content')
-    <div class="forum-page">
+    <div class="col forum-page">
         <div class="forum-section">
             <div class="forum__top-panel__outer">
                 <div class="forum__top-panel">

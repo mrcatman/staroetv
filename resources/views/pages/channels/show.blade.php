@@ -123,7 +123,7 @@
 
         @php($programs_edit = \App\Helpers\PermissionsHelper::allows('programs'))
         @php($programs_edit_own = \App\Helpers\PermissionsHelper::allows('programsown'))
-        @if (count($programs) > 0 || $programs_edit || $programs_edit_own)
+
             <div class="box">
                 <div class="box__heading">
                     <div class="box__heading__inner">Программы ({{$channel->name}})</div>
@@ -187,7 +187,7 @@
 
                 </div>
             @endif
-        @endif
+
 
         @php($can_edit_interprogram = \App\Helpers\PermissionsHelper::allows('additionalown'))
         @if ($channel->is_radio)

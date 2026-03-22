@@ -102,6 +102,7 @@
                         <div class="horisontal-delimiter"></div>
 
                         <input-container
+                            autowidth
                             vertical
                             label="Тип записи"
                             :errors="errors.type"
@@ -421,7 +422,7 @@
                     </div>
                 </div>
                 <div class="record-form__tutorial">
-                    <h3 class="record-form__tutorial__heading">Советы по добавлению видео</h3>
+                    <h3 class="record-form__tutorial__heading">Советы по добавлению роликов</h3>
                     <ul class="record-form__tutorial__main">
                         <li>
                             Если материал не принадлежит вам, перезалейте на собственный аккаунт в соцсети или скачайте
@@ -429,7 +430,7 @@
                             Желательно уточнить у загрузившего согласие на перезаливку материала на сайт.
                         </li>
                         <li>
-                            Загрузка видео в плохом качестве, с ватермарками и т.д. допускается только в случае
+                            Загрузка роликов в плохом качестве, с ватермарками и т.д. допускается только в случае
                             отсутствия материала в лучшем виде.
                         </li>
                         <li>
@@ -473,6 +474,13 @@
         border-left: 1px solid var(--border-color);
         margin-left: var(--col-margin);
         padding-left: var(--col-margin);
+        @include mobile() {
+            padding-top: var(--col-margin);
+            padding-left: 0;
+            border: none;
+            position: unset;
+            font-size: .9375em;
+        }
     }
 
 
@@ -481,6 +489,9 @@
         width: 100%;
         align-items: flex-start;
         gap: var(--col-margin);
+        @include mobile() {
+            flex-direction: column;
+        }
     }
 
     &__select-file {

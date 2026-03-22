@@ -54,7 +54,7 @@
                     <input class="input" placeholder="Поиск" v-model="table.filter"/>
                 </div>
             </div>
-            <b-table class="admin-panel__table" show-empty stacked="md" :filter="table.filter" :items="channelsList" :fields="table.fields" :current-page="table.currentPage" :per-page="table.perPage">
+            <b-table class="admin-panel__table" show-empty stacked="md" :filter="table.filter" :items="channelsList" :fields="table.fields" :current-page="table.currentPage" :per-page="table.perPage" empty-filtered-text="По вашему запросу не найдено каналов">
                 <template v-slot:cell(name)="data">
                     <div class="channels-manager__first-col">
                         <div class="admin-panel__table__row-loading" v-if="data.item._loading"></div>
@@ -87,13 +87,13 @@
                 <template v-slot:cell(_options)="data">
                     <div class="buttons-row buttons-row--nowrap">
                         <a title="Логотип" @click="showLogoModal(data.item)" class="button button--icon-only button--light">
-                            <i class="fas fa-eye"></i>
+                            <i class="fa-regular fa-image"></i>
                         </a>
                         <a title="Объединить" @click="showMergeModal(data.item)" target="_blank" class="button button--icon-only button--light">
-                            <i class="fas fa-object-group"></i>
+                            <i class="fa-regular fa-object-group"></i>
                         </a>
                         <a title="Удалить" @click="showDeleteModal(data.item)" class="button button--icon-only button--light">
-                            <i class="fas fa-times"></i>
+                            <i class="fa fa-times"></i>
                         </a>
                     </div>
                 </template>
@@ -117,6 +117,7 @@
             font-size: 1.25em;
         }
         &__logo {
+            min-width: 2em;
             width: 2em;
             height: 2em;
             margin-right: .5em;

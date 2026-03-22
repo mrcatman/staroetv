@@ -98,7 +98,9 @@ body {
 
 
 a {
+    cursor: pointer;
     color: var(--links-color);
+    text-decoration: underline;
 }
 
 .container {
@@ -227,6 +229,7 @@ a {
 }
 
 .warning-alert {
+    box-shadow: var(--element-box-shadow);
     background: var(--primary);
     padding: .5em 1em;
     color: var(--box-text-color-dark);
@@ -262,7 +265,6 @@ hr {
 
 .picture-link {
     display: block;
-    margin: 0 0 var(--col-margin);
     border-radius: var(--border-radius-big);
     overflow: hidden;
     &__img {

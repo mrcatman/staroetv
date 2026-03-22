@@ -156,7 +156,7 @@
 
     &__label {
         min-width: 10em;
-        font-size: 1.25em;
+        font-size: 1.125em;
         font-weight: 500;
 
         &--small {
@@ -200,6 +200,10 @@
             flex: unset;
             width: 100%;
         }
+    }
+
+    &--autowidth &__element-outer {
+        flex: unset;
     }
 
     &__preloader {
@@ -610,7 +614,9 @@ textarea.input {
             transition: background .2s;
             width: 100%;
             text-align: center;
-
+            @include mobile() {
+                border-radius: var(--border-radius-standard);
+            }
             &:hover {
                 background: var(--bg-darker);
             }
@@ -646,7 +652,13 @@ textarea.input {
         border: 1px solid var(--border-color);
         border-radius: var(--border-radius-standard);
         overflow: hidden;
-
+        @include mobile() {
+            border-width: 0;
+            box-shadow: none;
+            background: none;
+            gap: .25em;
+            border-radius: 0;
+        }
         &-wide {
             display: flex;
             width: 100%;

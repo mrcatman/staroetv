@@ -8,7 +8,7 @@
 @endsection
 @section('content')
     <div class="forum-page">
-        <div class="forum-section">
+        <div class="col forum-section">
             <div class="forum__top-panel__outer">
                 <div class="forum__top-panel">
                     <div class="forum__top-panel__inner">
@@ -41,7 +41,7 @@
                     </div>
                 </div>
             @endif
-            <div class="forum-section__children">
+            <div class="col forum-section__children">
                 @if ($forum && count($forum->subforums) > 0 && (!$search || $search == ""))
                     <div class="box">
                         <div class="box__heading">

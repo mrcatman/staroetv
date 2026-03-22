@@ -4,6 +4,7 @@
     <input type="hidden" v-if="type === 'other'" name="other_category_id" v-model="otherCategoryId"/>
 
     <input-container
+        autowidth
         vertical
         label="Тип"
     >

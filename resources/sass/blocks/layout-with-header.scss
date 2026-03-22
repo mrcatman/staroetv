@@ -9,7 +9,7 @@
         @include mobile() {
             margin-top: 3em;
             @include light() {
-                margin: 4em .5em 0 !important;
+                margin: 3.5em .5em 0 !important;
                 width: calc(100% - 1em) !important;
             }
         }

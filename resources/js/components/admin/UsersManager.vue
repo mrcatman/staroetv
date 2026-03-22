@@ -40,7 +40,7 @@
                 </div>
             </div>
             <b-table ref="tableRef" class="admin-panel__table" show-empty stacked="md" :filter="table.filter" :provider="users" :debounce="500"
-                     :fields="table.fields" :current-page="table.currentPage" :per-page="table.perPage">
+                     :fields="table.fields" :current-page="table.currentPage" :per-page="table.perPage" empty-filtered-text="По вашему запросу не найдено пользователей">
                 <template v-slot:cell(username)="data">
                     <a target="_blank" :href="_route('users.show', data.item.id)">
                         {{data.item.username}}

@@ -22,14 +22,20 @@ class DesignPackagesController extends Controller
 {
 
     public function index() {
-        $channel_ids = $this->getChannelsInternalOrder();
-        $packages = DesignPackage::whereIn('channel_id', $channel_ids)->orderByRaw('FIELD(channel_id, '.implode(',', $channel_ids->toArray()).' )')->get()->groupBy('channel_id');
-        $new_list = [];
-        foreach ($packages as &$packages_list) {
-            $new_list[] = $packages_list->sortBy('date_start');
-        }
+        $packages = Cache::remember('design_packages', CacheTimes::PAGE, function () {
+            $channel_ids = $this->getChannelsInternalOrder();
+            $packages = DesignPackage::whereIn('channel_id', $channel_ids)
+                ->whereHas('records')
+                ->orderByRaw('FIELD(channel_id, ' . implode(',', $channel_ids->toArray()) . ' )')
+                ->get()->groupBy('channel_id');
+            $new_list = [];
+            foreach ($packages as &$packages_list) {
+                $new_list[] = $packages_list->sortBy('date_start');
+            }
+            return $new_list;
+        });
         return view("pages.records.graphics-v2", [
-            'packages' => $new_list,
+            'packages' => $packages,
         ]);
     }
 

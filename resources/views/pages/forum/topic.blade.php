@@ -4,8 +4,8 @@
 @endsection
 @section('content')
     @php($can_reply = !$topic->is_closed && (\App\Helpers\PermissionsHelper::allows("frreply") || \App\Helpers\PermissionsHelper::allows("frcloset")))
-    <div class="forum-page">
-        <div class="forum-section" data-forum-id="{{$topic->forum_id}}" data-topic-id="{{$topic->id}}">
+    <div class="col forum-page">
+        <div class="col forum-section" data-forum-id="{{$topic->forum_id}}" data-topic-id="{{$topic->id}}">
             <div class="forum__top-panel__outer">
                 <div class="forum__top-panel">
                     <div class="forum__top-panel__inner">

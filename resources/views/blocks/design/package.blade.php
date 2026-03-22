@@ -8,6 +8,12 @@
             @endforeach
         @endif
     </div>
-    <div class="interprogram-package__name">{{$package->name}}</div>
+
+    <div class="interprogram-package__name">
+         @if ($package->name != '' && $package->name != str_replace(' ', '',$package->years_range))
+        {{$package->name}}
+        @endif
+    </div>
+
     <div class="interprogram-package__years">{{$package->years_range}}</div>
 </a>

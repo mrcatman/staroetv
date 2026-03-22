@@ -2,9 +2,6 @@
     position: relative;
     margin: 0 auto;
     z-index: 10;
-    @include light() {
-        margin-top: 1em;
-    }
     &__menu {
         position: relative;
         padding: .5em .5em .5em 1em;

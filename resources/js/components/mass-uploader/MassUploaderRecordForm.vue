@@ -26,7 +26,7 @@
                 <div class="form__content mass-uploader__record__top__left">
                     <div class="row mass-uploader__record__top__inner">
                         <div class="col col--auto">
-                            <input-container vertical label="Тип" :errors="errors.type">
+                            <input-container autowidth vertical label="Тип" :errors="errors.type">
                                 <type-select v-model="data.type"/>
                             </input-container>
                         </div>

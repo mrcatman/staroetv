@@ -84,6 +84,13 @@ class Teletext extends Model {
         $this->save();
     }
 
+    public function getCreatedAtAttribute() {
+        if (!isset($this->attributes['created_at'])) {
+            return "";
+        }
+        return DatesHelper::format($this->attributes['created_at']);
+    }
+
     public function getDateFormattedAttribute()
     {
         $date = $this->year;

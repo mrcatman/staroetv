@@ -1,9 +1,4 @@
 .forum-section {
-    margin: 1em 0 0;
-    box-shadow: var(--block-box-shadow);
-    @include light() {
-        box-shadow: none;
-    }
 
     &__title {
         text-align: left;
@@ -335,6 +330,7 @@
         align-items: flex-start;
         justify-content: center;
         transition: color .2s;
+        padding: .25em 0;
         &:hover {
             color: var(--primary);
         }
@@ -350,6 +346,7 @@
             font-weight: 400;
         }
         @include mobile() {
+            padding: 0;
             @include light() {
                 font-size: 1.3125em;
             }
@@ -375,14 +372,11 @@
         background: none;
         z-index: 1;
         @include mobile() {
-            padding: .5em 1em;
+            padding: .5em 0 0;
             gap: .5em;
             font-size: .875em;
             border-bottom: none;
             border-right: none;
-            @include light() {
-                padding: 0;
-            }
         }
     }
 
@@ -396,22 +390,41 @@
         display: flex;
         align-items: center;
         text-align: center;
+        @include mobile() {
+            font-size: 1em;
+            opacity: .75;
+            font-weight: 400;
+            gap: .5em;
+        }
     }
 
 
     &__number {
         color: var(--primary);
         font-size: 1.25em;
-
+        @include mobile() {
+            color: inherit;
+            font-size: 1em;
+            display: inline-block;
+        }
+        &__icon {
+            display: none;
+            @include mobile() {
+                display: inline-block;
+            }
+        }
         &__container {
             margin: .5em 1em;
             @include mobile() {
-                margin: .25em;
+                margin: 0;
             }
         }
 
         &__description {
-            font-weight: 500;
+            font-weight: 400;
+            @include mobile() {
+                display: none;
+            }
         }
     }
 
@@ -422,18 +435,21 @@
         align-items: center;
         justify-content: space-between;
         flex: .75;
-        padding: .5em 1em;
+        padding: .75em 1em;
         position: relative;
         z-index: 1;
         text-align: right;
         text-decoration: none;
         border-bottom: 1px solid var(--border-color);
+        width: 25%;
+        overflow: hidden;
         @include mobile() {
+            width: 100%;
             font-size: .875em;
             flex-direction: column;
             align-items: flex-start;
             @include light() {
-                padding: .875em 0;
+                padding: .75em 0;
             }
         }
 
@@ -454,6 +470,13 @@
             @include mobile() {
                 order: 0;
                 font-size: .9375em;
+            }
+        }
+
+        &__message {
+            transition: color .2s;
+            &:hover {
+                color: var(--primary);
             }
         }
 
@@ -487,24 +510,33 @@
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 22em;
-            font-weight: 500;
+            font-weight: 600;
+            transition: color .2s;
             @include mobile() {
                 width: 100%;
-                order: 2;
-                font-size: 1.25em;
+                white-space: unset;
+                flex-wrap: wrap;
+                order: 0;
+                font-size: 1.3125em;
+                min-width: 100%;
+                max-width: unset;
+            }
+            &:hover {
+                color: var(--primary);
             }
         }
 
         &__username {
-            font-weight: 300;
             font-size: .875em;
+            display: flex;
+            align-items: center;
+            gap: .75em;
             @include mobile() {
                 order: 1;
                 font-size: 1em;
             }
             &__text {
-                font-weight: bold;
-                color: var(--primary);
+                font-weight: 400;
             }
         }
     }
@@ -529,6 +561,7 @@
         text-align: center;
         line-height: 1.5;
         border-radius: var(--border-radius-small);
+        box-shadow: var(--element-box-shadow);
         &--dark {
             background: var(--bg-darkest);
         }
@@ -602,8 +635,8 @@
         @include mobile() {
             position: unset;
             height: unset;
-            padding: 0 1em;
-            width: calc(100% - 2em);
+            padding: 0 1.25em;
+            width: calc(100% - 2.5em);
         }
 
         &:before {
@@ -623,7 +656,7 @@
             height: 6em;
             @include mobile() {
                 height: unset;
-                margin: -2em -1em 0;
+                margin: -.5em -1em 0;
             }
         }
 

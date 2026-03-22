@@ -201,12 +201,12 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .editor {
-    margin: 1em 0;
     &__buttons {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
         margin-bottom: .5em;
+        gap: .25em 0;
     }
     &__button {
         padding: .5em 1em;

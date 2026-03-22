@@ -106,6 +106,9 @@
 
     &__latest-additions {
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        .record-item__info {
+            display: none;
+        }
     }
 }
 

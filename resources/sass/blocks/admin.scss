@@ -103,6 +103,10 @@
             cursor: pointer;
             text-decoration: underline;
         }
+        .b-table-empty-row div[role=alert] {
+            padding: 1em;
+            font-size: 1.125em;
+        }
 
         .input {
             margin: 0!important;
@@ -130,7 +134,6 @@
             text-overflow: ellipsis;
             text-align: center;
             padding: .5em;
-
         }
 
         &__first-col {
@@ -145,6 +148,7 @@
         }
 
         tbody td {
+            padding: 0 .25em;
             text-align: center;
         }
 

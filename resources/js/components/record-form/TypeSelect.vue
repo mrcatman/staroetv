@@ -1,5 +1,5 @@
 <template>
-    <div class="radio-buttons radio-buttons--tabs radio-buttons--tabs-wide">
+    <div class="radio-buttons radio-buttons--tabs">
         <label class="radio-button radio-button--tabs">
             <input type="radio" v-model="type" value="programs"/>
             <div class="radio-button--tabs__variant">Передача</div>

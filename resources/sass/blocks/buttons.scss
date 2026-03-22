@@ -145,7 +145,6 @@
         @include mobile() {
             padding-left: .75em;
             padding-right: .75em;
-            flex: 1;
             text-align: center;
         }
         &--light {
