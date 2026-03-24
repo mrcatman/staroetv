@@ -203,6 +203,7 @@
     }
 
     &--autowidth &__element-outer {
+        display: block;
         flex: unset;
     }
 
@@ -240,6 +241,7 @@
         cursor: pointer;
         color: var(--text-lighter);
         border-bottom: 1px dashed;
+        text-decoration: none;
         font-size: 1.125em;
 
         &--active {
@@ -840,12 +842,11 @@ textarea.input {
 .autocomplete {
     display: flex;
     flex-direction: column;
-
+    gap: var(--col-margin);
     &__items {
         display: flex;
         flex-wrap: wrap;
         gap: 1em 2em;
-        margin-top: var(--col-margin);
         @include mobile() {
             font-size: .875em;
         }
@@ -863,7 +864,7 @@ textarea.input {
         gap: .5em;
         @include hover();
         width: auto;
-
+        text-decoration: none;
         &--vertical {
             text-align: center;
             flex-direction: column;

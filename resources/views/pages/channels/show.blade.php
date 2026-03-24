@@ -104,6 +104,8 @@
                                     @if (count($channel->unique_names) > 0)
                                     <div class="page__description__param">Также известен как:
                                         <strong>{{$channel->unique_names_list}}</strong></div>
+
+
                                 @endif
                                 -->
                                 @if ($channel->is_regional)
@@ -124,69 +126,69 @@
         @php($programs_edit = \App\Helpers\PermissionsHelper::allows('programs'))
         @php($programs_edit_own = \App\Helpers\PermissionsHelper::allows('programsown'))
 
-            <div class="box">
-                <div class="box__heading">
-                    <div class="box__heading__inner">Программы ({{$channel->name}})</div>
-                    <div class="box__heading__right">
-                        <div class="buttons-row">
-                            @if ($programs_edit_own)
-                                <a href="{{route('programs.add', ['channel_id' => $channel->id])}}" class="button">
-                                    <i class="fa fa-edit"></i>
-                                    Добавить
-                                </a>
-                            @endif
-                            @if ($programs_edit)
-                                <a href="{{typed_route('[CHANNEL].programs.edit-list', $channel->is_radio, $channel->url ?? $channel->id)}}"
-                                   class="button">
-                                    <i class="fa fa-list"></i>
-                                    Редактировать список
-                                </a>
-                            @endif
-                        </div>
-
+        <div class="box">
+            <div class="box__heading">
+                <div class="box__heading__inner">Программы ({{$channel->name}})</div>
+                <div class="box__heading__right">
+                    <div class="buttons-row">
+                        @if ($programs_edit_own)
+                            <a href="{{route('programs.add', ['channel_id' => $channel->id])}}" class="button">
+                                <i class="fa fa-edit"></i>
+                                Добавить
+                            </a>
+                        @endif
+                        @if ($programs_edit)
+                            <a href="{{typed_route('[CHANNEL].programs.edit-list', $channel->is_radio, $channel->url ?? $channel->id)}}"
+                               class="button">
+                                <i class="fa fa-list"></i>
+                                Редактировать список
+                            </a>
+                        @endif
                     </div>
+
                 </div>
-                <div class="box__inner">
-                    @if(count($programs) > 0)
-                        <div class="categories-list">
-                            @foreach($programs as $index => $genre)
-                                <a data-selector=".category" data-toggle-class="category--active"
-                                   data-show-block-selector=".programs-list__container"
-                                   data-show-block-id="{{$genre->id}}"
-                                   class="category @if ($index == 0) category--active @endif">{{$genre->name}}</a>
-                            @endforeach
-                        </div>
-                    @else
-                        @include('blocks.global.no-records', ['is_radio' => $channel->is_radio])
-                    @endif
-                    <div class="channel-page__programs">
-
+            </div>
+            <div class="box__inner">
+                @if(count($programs) > 0)
+                    <div class="categories-list">
                         @foreach($programs as $index => $genre)
-                            <div class="programs-list__container" data-block-id="{{$genre->id}}"
-                                 @if ($index != 0) style="display: none" @endif>
-                                <div class="programs-list">
-                                    @foreach ($genre->programs as $program)
-                                        @include('blocks.programs.item', ['url' => $program->full_url.'?from='.$channel->id])
-                                    @endforeach
-                                </div>
-                            </div>
+                            <a data-selector=".category" data-toggle-class="category--active"
+                               data-show-block-selector=".programs-list__container"
+                               data-show-block-id="{{$genre->id}}"
+                               class="category @if ($index == 0) category--active @endif">{{$genre->name}}</a>
+                        @endforeach
+                    </div>
+                @else
+                    @include('blocks.global.no-records', ['is_radio' => $channel->is_radio])
+                @endif
+                <div class="channel-page__programs">
 
+                    @foreach($programs as $index => $genre)
+                        <div class="programs-list__container" data-block-id="{{$genre->id}}"
+                             @if ($index != 0) style="display: none" @endif>
+                            <div class="programs-list @if ($channel->is_radio) programs-list--radio @endif">
+                                @foreach ($genre->programs as $program)
+                                    @include('blocks.programs.item', ['url' => $program->full_url.'?from='.$channel->id, 'is_radio' => $channel->is_radio])
+                                @endforeach
+                            </div>
+                        </div>
+
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        @if (count($global_programs) > 0)
+            <div class="box">
+                <div class="box__inner">
+                    <div class="programs-list @if ($channel->is_radio) programs-list--radio @endif">
+                        @foreach ($global_programs as $program)
+                            @include('blocks.programs.item', ['url' => $program->full_url.'?from='.$channel->id, 'is_radio' => $channel->is_radio])
                         @endforeach
                     </div>
                 </div>
-            </div>
-            @if (count($global_programs) > 0)
-                <div class="box">
-                    <div class="box__inner">
-                        <div class="programs-list">
-                            @foreach ($global_programs as $program)
-                                @include('blocks.programs.item', ['url' => $program->full_url.'?from='.$channel->id])
-                            @endforeach
-                        </div>
-                    </div>
 
-                </div>
-            @endif
+            </div>
+        @endif
 
 
         @php($can_edit_interprogram = \App\Helpers\PermissionsHelper::allows('additionalown'))

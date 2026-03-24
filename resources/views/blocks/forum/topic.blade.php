@@ -42,7 +42,7 @@
                     <span class="forum__number__icon"><i class="fa-regular fa-comments"></i></span>
                     {{$topic->answers_count}}
                 </div>
-                <div class="forum__number__description">ответов</div>
+                <div class="forum__number__description">сообщений</div>
             </div>
             <div class="forum__number__container forum__number__container--topics">
                 <div class="forum__number">

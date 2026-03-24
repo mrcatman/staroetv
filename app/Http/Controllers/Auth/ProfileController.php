@@ -88,7 +88,7 @@ class ProfileController extends Controller
             'country' => 'sometimes',
             'city' => 'sometimes',
             'avatar' => 'sometimes',
-            'signature' => 'sometimes',
+            'signature' => 'sometimes|max:256',
             'vk' => 'sometimes',
             'youtube' => 'sometimes',
             'yandex_video' => 'sometimes',

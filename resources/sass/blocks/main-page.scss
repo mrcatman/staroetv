@@ -9,7 +9,6 @@
         height: unset;
         padding-top: 41.66%;
         @include mobile() {
-            margin: -.875em -1em 1em;
             background-size: 150%;
             padding-top: 70%;
             background-position: 55% 50%;
@@ -38,9 +37,9 @@
                 right: 22.5vw;
             }
             @include mobile() {
-                width: 40vw;
-                height: 29.5vw;
-                top: 10vw;
+                width: calc(44vw - 2em);
+                height: 30.5vw;
+                top: 11vw;
                 right: 11.25vw;
             }
         }

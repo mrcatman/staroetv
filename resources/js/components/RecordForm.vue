@@ -49,7 +49,7 @@
                                                 <span class="input-container__message">
                                                     {{errors.uploaded_file_url ?? errors.url ?? errors.code ?? externalVideoError}}
                                                 </span>
-                                                <div v-if="!data.record.upload" class="input-container__toggle-buttons">
+                                                <div v-if="!data.record.upload && !isRadio" class="input-container__toggle-buttons">
                                                     <a class="input-container__toggle-button"
                                                        v-if="!data.record.own_code"
                                                        @click="data.record.own_code = true">Ввести код плеера вручную
@@ -417,7 +417,7 @@
                         <img class="record-form__thumbnail" v-for="(thumbnail, $index) in data.record.thumbnails"
                              :key="$index"
                              :class="{'record-form__thumbnail--active': thumbnail === data.record.thumbnail_url}"
-                             @click="data.record.thumbnail_url = thumbnail"
+                             @click="data.record.thumbnail_url = thumbnail; data.record.thumbnail_id = null"
                              :src="thumbnail"/>
                     </div>
                 </div>
@@ -605,9 +605,10 @@ const props = defineProps<{
     canEditAll?: boolean,
     inModal?: boolean,
     record?: Models.Record,
-    isRadio?: boolean,
     startParams?: Partial<RecordsUploadData>
 }>();
+
+const isRadio = props.startParams?.is_radio ?? false;
 
 const emit = defineEmits<{ (e: 'save', record: Models.Record): void }>();
 

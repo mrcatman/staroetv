@@ -77,6 +77,9 @@ body {
     min-height: 85vh;
     width: 100%;
     background: none;
+    @include mobile() {
+        min-height: unset;
+    }
 }
 
 

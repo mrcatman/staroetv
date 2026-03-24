@@ -50,8 +50,8 @@
                     <div class="box__inner">
                         <div class="row">
 
-                            @if(!$unknown && $program->cover_without_empty)
-                                <img class="program-page__logo" src="{{$program->cover_without_empty}}">
+                            @if(!$unknown && $cover)
+                                <img class="program-page__logo" src="{{$cover}}">
                             @endif
                             <div class="program-page__texts">
                                 @if (!$unknown && count($program->unique_names) > 0)

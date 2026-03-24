@@ -26,12 +26,11 @@
         </div>
         <div class="forum__numbers">
             <div class="forum__number__container forum__number__container--topics">
-                <div class="forum__number">{{$subforum->topics_count}}</div>
+                <div class="forum__number">
+                    <span class="forum__number__icon"><i class="fa-regular fa-comments"></i></span>
+                    {{$subforum->topics_count}}
+                </div>
                 <div class="forum__number__description">тем</div>
-            </div>
-            <div class="forum__number__container forum__number__container--topics">
-                <div class="forum__number">{{$subforum->replies_count}}</div>
-                <div class="forum__number__description">сообщений</div>
             </div>
         </div>
     </div>

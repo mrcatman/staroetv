@@ -468,21 +468,12 @@ class ForumController extends Controller
         ];
     }
 
-    private function recalculateLastMessage($topic, $forum)
+    private function updateLastMessage(Forum $forum, ForumTopic $topic = null)
     {
         if ($topic) {
-            $last_message = ForumMessage::where(['topic_id' => $topic->id])->orderBy('id', 'desc')->first();
-            $topic->topic_last_username = $last_message->username;
-            $topic->last_reply_at = Carbon::createFromTimestamp($last_message->created_at_ts);
-            $topic->save();
+            $topic->updateLastMessage();
         }
-        $topic_ids = ForumTopic::where(['forum_id' => $forum->id])->pluck('id');
-        $last_message = ForumMessage::whereIn('topic_id', $topic_ids)->orderBy('id', 'desc')->first();
-        $forum->last_username = $last_message->username;
-        $forum->last_topic_id = $last_message->topic->id;
-        $forum->last_topic_name = $last_message->topic->title;
-        $forum->last_reply_at = Carbon::createFromTimestamp($last_message->created_at_ts);
-        $forum->save();
+        $forum->updateLastTopic();
     }
 
     public function deleteMessage()
@@ -507,7 +498,7 @@ class ForumController extends Controller
         $this->deleteCache($message->topic_id, $page);
 
         if ($message_id == $last_message_id) {
-            $this->recalculateLastMessage($message->topic, $message->topic->forum);
+            $this->updateLastMessage($message->topic->forum, $message->topic);
         }
         return [
             'status' => 1,
@@ -813,7 +804,7 @@ class ForumController extends Controller
                 return ['status' => 0, 'text' => $e->getMessage()];
             }
         }
-        $this->recalculateLastMessage(null, $topic->forum);
+        $this->updateLastMessage($topic->forum);
         $this->updateTracking($topic);
 
 
@@ -881,7 +872,7 @@ class ForumController extends Controller
 
         ForumMessage::where(['topic_id' => $topic->id])->delete();
 
-        $this->recalculateLastMessage(null, $topic->forum);
+        $this->updateLastMessage($topic->forum);
         return [
             'status' => 1,
             'text' => 'Тема удалена',

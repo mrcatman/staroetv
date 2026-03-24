@@ -111,6 +111,18 @@
             display: flex;
             flex-wrap: wrap;
         }
+
+        &--programs &__results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: var(--col-margin);
+        }
+
+        &--video &__results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: var(--col-margin);
+        }
     }
 
     &__result {

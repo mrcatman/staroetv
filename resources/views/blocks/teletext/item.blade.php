@@ -22,5 +22,10 @@
             @endif
             {{$teletext->date_formatted}}
         </span>
+        <div class="record-item__info">
+            <span class="record-item__date"><i class="fa fa-calendar"></i>{{$teletext->created_at}}</span>
+            <span class="record-item__views"><i class="fa fa-eye"></i>{{$teletext->views}}</span>
+            @if (count($teletext->comments) > 0)<span class="record-item__comments"><i class="fa fa-comment"></i>{{count($teletext->comments)}}</span>@endif
+        </div>
     </div>
 </a>

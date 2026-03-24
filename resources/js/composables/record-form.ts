@@ -145,6 +145,9 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
             ...JSON.parse(JSON.stringify(defaultData)),
             ...startParams
         } as RecordsUploadData;
+
+        data.value.is_radio = !!startParams.is_radio;
+        data.value.record.own_code = !!startParams?.is_radio;
     }
 
     const load = async () => {
@@ -269,6 +272,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
                 data.value.record.original_id = id;
                 data.value.record.code = code;
                 data.value.record.thumbnails = thumbnails;
+                data.value.record.thumbnail_id = null;
                 if (thumbnails?.length) {
                     data.value.record.thumbnail_url = thumbnails[0];
                 }

@@ -47,7 +47,7 @@
 
             <div class="col col--2">
                 <div class="box">
-                    <a href="{{route('records.video.index')}}" class="box__heading">
+                    <a href="{{route('records.video.index')}}#latest_records" class="box__heading box__heading--no-border">
                         <div class="box__heading__inner">
                             <i class="fa fa-film"></i>
                             Последние пополнения телеархива

@@ -60,7 +60,10 @@ class Record extends Model {
         if (!$this->attributes['embed_code']) {
             return "";
         }
-        return str_replace("&autoplay=1", "", $this->attributes['embed_code']);
+        $code =  str_replace("&autoplay=1", "", $this->attributes['embed_code']);
+        $iframe_end = '</iframe>';
+        $iframe_end_position = strpos($code, $iframe_end);
+        return mb_strlen($code) > $iframe_end_position ? mb_substr($code, 0, $iframe_end_position + mb_strlen($iframe_end)) : $code;
     }
 
     public function user() {

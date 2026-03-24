@@ -1,4 +1,5 @@
-<a href="{{$record->url}}" data-id="{{$record->id}}" class="radio-recording @if ($record->pending) radio-recording--pending @endif">
+<a href="{{$record->url}}" data-id="{{$record->id}}"
+   class="radio-recording @if ($record->pending) radio-recording--pending @endif">
     <div class="radio-recording__button">
         <i class="fa fa-play"></i>
     </div>
@@ -10,14 +11,16 @@
                 @if (isset($title) && $title)
                     {!!  $title !!}
                 @else
-                {!!  $record->title  !!}
+                    {!!  $record->title  !!}
                 @endif
             @endif
         </span>
         <div class="radio-recording__info">
             <span class="radio-recording__date"><i class="fa fa-calendar"></i>{{$record->created_at}}</span>
             <span class="radio-recording__listens"><i class="fa fa-headphones-alt"></i>{{$record->views}}</span>
-            <span class="radio-recording__comments"><i class="fa fa-comment"></i>{{count($record->comments)}}</span>
+            @if (count($record->comments) > 0)
+                <span class="radio-recording__comments"><i class="fa fa-comment"></i>{{count($record->comments)}}</span>
+            @endif
         </div>
     </div>
 </a>

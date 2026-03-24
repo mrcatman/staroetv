@@ -18,7 +18,7 @@
                      :class="{'region--last':Object.keys(region.cities).length <= 1, 'region--active': selectedRegion === regionName, 'region--parent-active': selectedRegion === regionName && !selectedCity}"
                      v-if="region.channels.length || Object.keys(region.cities).length">
                     <div class="region__name">
-                        {{ regionName }}
+                        {{ shortenName(regionName) }}
                         <span class="region__count" v-if="region.count > 0">{{ region.count }}</span>
                     </div>
                 </div>
@@ -65,6 +65,10 @@ const selectedRegion = ref('');
 const selectedCity = ref('');
 const search = ref('');
 const listRef = useTemplateRef<HTMLDivElement>('channels_list')
+
+const shortenName = (name: string) => {
+    return name.replace('область', 'обл.').replace('автономный округ', 'АО')
+}
 
 const list = computed(() => {
     if (search.value.length) {

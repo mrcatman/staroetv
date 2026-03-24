@@ -88,7 +88,7 @@ class ProgramsController extends EntityController {
         ]);
     }
 
-    public function showAll($params) {
+    public function showMore($params) {
         $is_radio = $params['is_radio'];
         $channel_ids  = Channel::where(['is_radio' => $is_radio])->where(['is_regional' => false])->where(['is_abroad' => false])->pluck('id');
         $programs = Program::where(['pending' => false])->withCount('records')->whereIn('channel_id', $channel_ids);
@@ -109,21 +109,29 @@ class ProgramsController extends EntityController {
             }
         }
 
-        $programs = $programs->orderBy('views', 'desc')->get();
-        //$programs = $programs->slice(20);
+        $limit = 20;
+
+        $page = (int)request()->input('page', 1);
+
+        $has_next_page = count($programs->clone()->limit($limit)->offset(($page) * $limit)->get()) > 0;
+
+        $programs = $programs->limit($limit)->offset(($page - 1) * $limit)->orderBy('views', 'desc')->get();
+
+        $html_replacements = [
+            [
+                'append_to' => '.programs-list',
+                'html' => view("blocks.programs.list", ['programs' => $programs, 'is_radio' => $params['is_radio']])->render()
+            ],
+        ];
+
+        if (!$has_next_page) {
+            $html_replacements[] = ['replace' => '.programs-list__show-more', 'html' => ''];
+        }
+
         return [
             'status' => 1,
             'data' => [
-                'html' => [
-                    [
-                        'replace' => '.programs-list',
-                        'html' => view("blocks.programs.list", ['programs' => $programs])->render()
-                    ],
-                    [
-                        'replace' => '.programs-list__show-all',
-                        'html' => ''
-                    ]
-                ]
+                'html' => $html_replacements
             ]
         ];
     }
@@ -149,6 +157,8 @@ class ProgramsController extends EntityController {
         }
 
         $program->original_name = $program->name;
+        $cover = $program->cover_url;
+
         $channel = $program->channel;
         if (request()->has('from')) {
             $from_channel_id = request()->input('from');
@@ -161,6 +171,10 @@ class ProgramsController extends EntityController {
                 }
             }
             if (!$program->channel_id) {
+                $random_record = $program->records()->where(['channel_id' => $channel->id])->inRandomOrder()->first();
+                if ($random_record) {
+                    $cover = $random_record->cover;
+                }
                 $program->channel = $channel;
                 $conditions['channel_id'] = $channel->id;
             }
@@ -173,6 +187,7 @@ class ProgramsController extends EntityController {
 
         return view("pages.programs.show", [
             'program' => $program,
+            'cover' => $cover,
             'related_programs' => $related_programs,
             'channel' => $channel,
             'records_conditions' => $conditions,

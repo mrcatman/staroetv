@@ -130,7 +130,6 @@ $(body).on('submit', '.form', function (e) {
                 }
                 $(response).removeClass('response--error').addClass('response--success').html(res.text);
                 if (res.redirect_to) {
-                    console.log($(this), $(this).data('disable-redirects'));
                     setTimeout(() => {
                         if ($(this).data('disable-redirects')) {
                             window.location.reload();

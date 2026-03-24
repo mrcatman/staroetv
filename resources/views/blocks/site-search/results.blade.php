@@ -27,10 +27,10 @@
             <div class="site-search__result__texts">
                 <div class="site-search__result__title">{!! \App\Helpers\HighlightHelper::highlight($item['title'], $search) !!}</div>
                 @if (isset($item['description']) && $item['description'] != '')
-                <div class="site-search__result__description">{!! $item['description'] !!}</div>
+                <div class="site-search__result__description">{!! \App\Helpers\HighlightHelper::highlight($item['description'], $search, true) !!}</div>
                 @endif
                 @if (isset($item['additional']) && $item['additional'] != '')
-                <div class="site-search__result__additional">{{$item['additional']}}</div>
+                <div class="site-search__result__additional">{!! \App\Helpers\HighlightHelper::highlight($item['additional'], $search) !!}</div>
                 @endif
             </div>
         </a>

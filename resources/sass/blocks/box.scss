@@ -97,6 +97,9 @@
             border-top: 1px solid var(--border-color);
             border-bottom: 1px solid var(--border-color-second);
         }
+        &--no-border:after {
+            display: none;
+        }
 
         &__buttons {
             flex: 1;

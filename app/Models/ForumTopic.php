@@ -3,6 +3,7 @@
 namespace App\Models;
 use App\Helpers\DatesHelper;
 use App\Helpers\PermissionsHelper;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class ForumTopic extends Model {
@@ -67,5 +68,12 @@ class ForumTopic extends Model {
     public function messages()
     {
         return $this->hasMany(ForumMessage::class, 'topic_id', 'id');
+    }
+
+    public function updateLastMessage() {
+        $last_message = $this->messages()->last();
+        $this->topic_last_username = $last_message->username;
+        $this->last_reply_at = Carbon::createFromTimestamp($last_message->created_at_ts);
+        $this->save();
     }
 }

@@ -1,5 +1,5 @@
 @php($modal = isset($modal) ? $modal : false)
-<form data-callback="loginCallback" class="form @if ($modal) modal-window__form @endif" method="POST"
+<form data-disable-redirects="1" data-callback="loginCallback" class="form @if ($modal) modal-window__form @endif" method="POST"
       action="{{ route('login') }}">
     <div class="form__content">
         @csrf

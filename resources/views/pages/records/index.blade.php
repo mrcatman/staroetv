@@ -7,47 +7,51 @@
     @php($route_prefix_channels = route_prefix_channels($params['is_radio']))
 
     <div class="col">
-    <div class="box">
-        <div class="box__heading">
-            <h1 class="box__heading__inner">
-                {{$params['is_radio'] ? "Архив старых радиозаписей" : "Архив старых телезаписей"}}
-            </h1>
-            <div class="box__heading__right">
-                @if (\App\Helpers\PermissionsHelper::allows('channelsown') || \App\Helpers\PermissionsHelper::allows('viadd'))
-                <div class="buttons-row">
-                    @if (\App\Helpers\PermissionsHelper::allows('channelsown'))
-                       <a class="button" href="{{typed_route('[CHANNEL].add', $params['is_radio'])}}">{{$params['is_radio'] ? 'Добавить радиостанцию' : 'Добавить канал'}}</a>
-                    @endif
+        <div class="box">
+            <div class="box__heading box__heading--no-border">
+                <h1 class="box__heading__inner">
+                    {{$params['is_radio'] ? "Архив старых радиозаписей" : "Архив старых телезаписей"}}
+                </h1>
+                <div class="box__heading__right">
+                    @if (\App\Helpers\PermissionsHelper::allows('channelsown') || \App\Helpers\PermissionsHelper::allows('viadd'))
+                        <div class="buttons-row">
+                            @if (\App\Helpers\PermissionsHelper::allows('channelsown'))
+                                <a class="button"
+                                   href="{{typed_route('[CHANNEL].add', $params['is_radio'])}}">{{$params['is_radio'] ? 'Добавить радиостанцию' : 'Добавить канал'}}</a>
+                            @endif
 
-                    @if (\App\Helpers\PermissionsHelper::allows('viadd'))
-                        @if ($params['is_radio'])
-                            <a class="button" href="{{typed_route('records.[RECORD].add', $params['is_radio'])}}">
-                                <i class="fa fa-file-audio"></i>
-                                Добавить радиозапись
-                            </a>
-                        @else
-                            <a class="button" href="{{typed_route('records.[RECORD].add', $params['is_radio'])}}">
-                                <i class="fa fa-film"></i>
-                                Добавить видео
-                            </a>
-                            <a class="button" href="{{typed_route('mass-upload.[RECORD]', $params['is_radio'])}}">
-                                <i class="fa fa-upload"></i>
-                                Массовая загрузка
-                            </a>
-                        @endif
+                            @if (\App\Helpers\PermissionsHelper::allows('viadd'))
+                                @if ($params['is_radio'])
+                                    <a class="button"
+                                       href="{{typed_route('records.[RECORD].add', $params['is_radio'])}}">
+                                        <i class="fa fa-file-audio"></i>
+                                        Добавить радиозапись
+                                    </a>
+                                @else
+                                    <a class="button"
+                                       href="{{typed_route('records.[RECORD].add', $params['is_radio'])}}">
+                                        <i class="fa fa-film"></i>
+                                        Добавить видео
+                                    </a>
+                                    <a class="button"
+                                       href="{{typed_route('mass-upload.[RECORD]', $params['is_radio'])}}">
+                                        <i class="fa fa-upload"></i>
+                                        Массовая загрузка
+                                    </a>
+                                @endif
+                            @endif
+                        </div>
                     @endif
                 </div>
-                @endif
             </div>
         </div>
-    </div>
 
         <div class="row row--stretch">
             <div class="col col--2-5">
                 <div class="box">
                     <div class="box__inner">
                         <form class="channels-list-page__search" method="GET" action="{{route('records.search')}}">
-                            <input type="hidden" name="is_radio" value="{{$params['is_radio'] ? 1 : 0}}" />
+                            <input type="hidden" name="is_radio" value="{{$params['is_radio'] ? 1 : 0}}"/>
                             <div class="row row--mobile">
                                 <div class="col">
                                     <div class="input-container ">
@@ -69,7 +73,7 @@
                                 <a class="tab" data-content="regional">Местные</a>
                                 <a class="tab" data-content="abroad">Зарубежные</a>
                                 @if (count($other) > 0)
-                                <a class="tab" data-content="other">Другие</a>
+                                    <a class="tab" data-content="other">Другие</a>
                                 @endif
                             </div>
 
@@ -125,7 +129,7 @@
 
                 @include('blocks.teletext.banner-horizontal')
 
-                <div class="box box--dark">
+                <div class="box box--dark" id="latest_records">
                     <div class="box__heading">
                         <div class="box__heading__inner">
                             Последние записи

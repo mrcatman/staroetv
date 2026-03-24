@@ -157,9 +157,9 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
             Route::get('programs', function () use ($is_radio) {
                 return (new \App\Http\Controllers\ProgramsController())->index(['is_radio' => $is_radio]);
             })->name('programs');
-            Route::get('programs/show-all', function () use ($is_radio) {
-                return (new \App\Http\Controllers\ProgramsController())->showAll(['is_radio' => $is_radio]);
-            })->name('programs.show-all');
+            Route::get('programs/show-more', function () use ($is_radio) {
+                return (new \App\Http\Controllers\ProgramsController())->showMore(['is_radio' => $is_radio]);
+            })->name('programs.show-more');
 
             Route::get('calendar', function() use ($is_radio) {
                 return (new RecordsController())->calendar($is_radio);

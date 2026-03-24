@@ -25,6 +25,7 @@
             </div>
         </div>
         @foreach ($forums as $forum)
+            @if (count($forum->subforums) > 0)
             <div class="box">
                 <div class="box__heading">
                     <div class="box__heading__inner">{{$forum->title}}</div>
@@ -37,7 +38,7 @@
                     </div>
                 </div>
             </div>
-
+            @endif
         @endforeach
 
         <div class="row row--align-start">

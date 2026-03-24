@@ -3,7 +3,7 @@
         <Preloader v-if="loading" />
         <input type="hidden" name="channel_id" :value="channel.id"/>
         <div class="autocomplete">
-            <div class="row row--align-start">
+            <div class="row">
                 <div class="col">
                     <div class="input-container__inner input-container__inner--with-button">
                         <div class="input-container__element-outer">

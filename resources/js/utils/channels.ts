@@ -7,10 +7,10 @@ export const channelCategories = {
 
 export const filterChannel = (channel: Models.Channel, type: string) => {
     if (type === 'federal') {
-        return channel.is_federal;
+        return channel.is_federal && !channel.city;
     }
     if (type === 'regional') {
-        return channel.is_regional;
+        return channel.is_regional || !!channel.city;
     }
     if (type === 'abroad') {
         return channel.is_abroad;

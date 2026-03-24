@@ -184,14 +184,9 @@
     .main-page {
         &__intro {
             @include mobile() {
-                margin: 3.25em 0 1em;
+                margin: var(--col-margin) 0 0;
             }
-            &__overlay, &__video {
-                @include mobile() {
-                    top: 11.75vw;
-                    right: 11.25vw;
-                }
-            }
+
         }
     }
     .articles-list__block--right .news-block {

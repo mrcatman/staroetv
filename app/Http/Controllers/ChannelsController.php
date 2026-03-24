@@ -87,10 +87,15 @@ class ChannelsController extends EntityController
             return $genres;
         });
 
-       $global_programs = Cache::remember('channel_global_' . $channel->id, CacheTimes::PAGE, function () use ($channel) {
+        $global_programs = Cache::remember('channel_global_' . $channel->id, CacheTimes::PAGE, function () use ($channel) {
             $global_programs = Program::whereNull('channel_id')->whereHas('records', function ($q) use ($channel) {
                 $q->where(['channel_id' => $channel->id]);
             })->get();
+            foreach ($global_programs as $program) {
+                $channel_records = $program->records()->where(['channel_id' => $channel->id])->inRandomOrder();
+                $program->cover_url = $channel_records->first()->cover_url;
+                $program->records_count = $channel_records->count();
+            }
             $unknown = $channel->records()->where(['is_interprogram' => false, 'is_advertising' => false])->whereNull('program_id');
             $unknown_count = $unknown->clone()->count();
 
@@ -188,11 +193,13 @@ class ChannelsController extends EntityController
             return redirect(route('index'));
         }
 
-        $conditions = [ 'show_years' => true, 'new_titles' => false, 'channel_id' => $channel->id, 'is_advertising' => false, 'is_radio' => $channel->is_radio, 'program_id' => null, 'is_interprogram' => false];
+        $conditions = ['show_years' => true, 'new_titles' => false, 'channel_id' => $channel->id, 'is_advertising' => false, 'is_radio' => $channel->is_radio, 'program_id' => null, 'is_interprogram' => false];
 
         $program = new Program([
             'name' => 'Прочее / неопознанные передачи',
-            'description' => 'Здесь представлены все неотсортированные материалы канала <strong>'.$channel->name.'</strong> и передачи, конкретную принадлежность которых установить, увы, не удалось (мы будем признательны Вам, если Вы поможете нам опознать их!)'
+            'description' => $channel->is_radio ?
+                'Здесь представлены все неотсортированные материалы и фрагменты эфира радиостанции <strong>' . $channel->name . '</strong>' :
+                'Здесь представлены все неотсортированные материалы канала <strong>' . $channel->name . '</strong> и передачи, конкретную принадлежность которых установить, увы, не удалось (мы будем признательны Вам, если Вы поможете нам опознать их!)'
         ]);
 
         return view("pages.programs.show", [
@@ -377,7 +384,8 @@ class ChannelsController extends EntityController
         ];
     }
 
-    private function clearCache($channel) {
+    private function clearCache($channel)
+    {
         Cache::forget('channel_programs_' . $channel->id);
         Cache::forget('channel_global_' . $channel->id);
         Cache::forget('channel_interprogram_' . $channel->id);

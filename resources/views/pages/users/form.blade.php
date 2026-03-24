@@ -115,7 +115,7 @@
                     <label class="input-container__label">Подпись</label>
                     <div class="input-container__inner">
                         <div class="input-container__element-outer">
-                            <textarea class="input" name="signature">{{$user->signature_original}}</textarea>
+                            <textarea maxlength="256" class="input" name="signature">{{$user->signature_original}}</textarea>
                             <span class="input-container__message"></span>
                             <div class="input-container__description">BB-коды разрешены</div>
                         </div>

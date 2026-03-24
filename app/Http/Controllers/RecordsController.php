@@ -145,7 +145,7 @@ class RecordsController extends EntityController
             $params['pending'] = false;
         }
         $data = $this->buildChannelsList($params);
-        $last_records = Record::approved()->where($params)->orderBy('original_added_at', 'desc')->paginate($params['is_radio'] ? 36 : 60);
+        $last_records = Record::approved()->where($params)->orderBy('original_added_at', 'desc')->paginate($params['is_radio'] ? 20 : 45);
         $data['params'] = $params;
         $data['last_records'] = $last_records;
         $data['events'] = [];
@@ -665,6 +665,7 @@ class RecordsController extends EntityController
                 }
             }
         }
+
         if (request()->input("title", "") != "") {
             $record->title = request()->input('title');
         } else {
