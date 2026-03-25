@@ -476,6 +476,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
                     status: 0,
                     text: errorText
                 }
+                saving.value = false;
                 return;
             }
         }
