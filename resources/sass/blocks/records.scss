@@ -108,12 +108,22 @@
         height: 6.75em;
         min-width: 9em;
         padding: 0;
-        background-color: #000;
+        background-color: #111;
+        background-image: url('/resources/images/noise.jpg');
         background-size: cover;
         background-position: center center;
         background-repeat: no-repeat;
         position: relative;
-
+        &__picture {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
     }
 
     &__preview {
@@ -554,7 +564,6 @@
                 width: 100%;
                 margin: 0;
                 padding-top: 75%;
-                background-color: #111;
                 height: auto;
             }
 

@@ -106,6 +106,7 @@
                                         <strong>{{$channel->unique_names_list}}</strong></div>
 
 
+
                                 @endif
                                 -->
                                 @if ($channel->is_regional)
@@ -166,10 +167,14 @@
                     @foreach($programs as $index => $genre)
                         <div class="programs-list__container" data-block-id="{{$genre->id}}"
                              @if ($index != 0) style="display: none" @endif>
-                            <div class="programs-list @if ($channel->is_radio) programs-list--radio @endif">
+                            <div
+                                class="programs-list programs-list--with-show-more @if ($channel->is_radio) programs-list--radio @endif">
                                 @foreach ($genre->programs as $program)
                                     @include('blocks.programs.item', ['url' => $program->full_url.'?from='.$channel->id, 'is_radio' => $channel->is_radio])
                                 @endforeach
+                            </div>
+                            <div class="programs-list__show-more">
+                                <a data-channel-id="{{$channel->id}}" data-limit="25" class="button">Показать ещё</a>
                             </div>
                         </div>
 
@@ -222,16 +227,16 @@
         <div class="row">
             @include('blocks.records.list', ['conditions' => $records_conditions])
         </div>
-        @if (count($channel->articles) > 0)
+        @if (count($articles) > 0)
             <div class="box">
-                <div class="box__heading">
+                <a href="{{route('articles.index', ['channel' => $channel->url ?? $channel->id ])}}" class="box__heading">
                     <div class="box__heading__inner">
-                        Статьи
+                        Статьи&nbsp;<span class="box__heading__count">{{$articles['count']}}</span>
                     </div>
-                </div>
+                </a>
                 <div class="box__inner">
                     <div class="news-blocks-list">
-                        @foreach ($channel->articles as $news_item)
+                        @foreach ($articles['list'] as $news_item)
                             @include('blocks.articles.news', ['class' => 'news-block--card news-block--for-channel', 'show_cover' => true, 'news_item' => $news_item])
                         @endforeach
                     </div>

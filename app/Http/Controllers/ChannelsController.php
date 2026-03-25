@@ -142,9 +142,19 @@ class ChannelsController extends EntityController
             return $interprogram_packages;
         });
 
+        $articles = Cache::remember('channel_articles_' . $channel->id, CacheTimes::PAGE, function () use ($channel) {
+            $count = count($channel->articles);
+            $list = $channel->articles()->limit(10)->get();
+            return [
+                'count' => $count,
+                'list' => $list
+            ];
+        });
+
         ViewsHelper::increment($channel, 'channels');
         return view("pages.channels.show", [
             'channel' => $channel,
+            'articles' => $articles,
             'programs' => $genres,
             'global_programs' => $global_programs,
             'interprogram_packages' => $interprogram_packages,

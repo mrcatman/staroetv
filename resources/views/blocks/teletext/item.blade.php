@@ -1,5 +1,6 @@
 <a href="{{$teletext->url}}" class="record-item teletext-item @if ($teletext->pending) record-item--pending @endif">
-    <div class="record-item__cover teletext-item__cover" style="background-image: url('{{$teletext->cover}}')">
+    <div class="record-item__cover teletext-item__cover">
+        <div class="record-item__cover__picture" style="background-image: url('{{$teletext->cover}}')"></div>
         @if ($teletext->quality)
         <div class="record-item__stars">
             <div class="record-item__stars__inner">

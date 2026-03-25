@@ -33,6 +33,13 @@ class DatesHelper {
     public static function guess($date)
     {
         $date = trim($date);
+        foreach (DatesHelper::monthNamesParentalCase() as $index => $month) {
+            $date = str_replace(' '.$month.' ', '.'.($index + 1).'.', $date);
+        }
+        foreach (DatesHelper::monthNames() as $index => $month) {
+            $date = str_replace($month.' ', '1.'.($index + 1).'.', $date);
+        }
+
         $date = explode(";", $date)[0];
         $date = str_replace("–", "-", $date);
         $splitted_min = explode("-", $date);
@@ -67,6 +74,7 @@ class DatesHelper {
                     $data['month'] = array_search($month, $month_names) + 1;
                 }
             }
+            $data['date'] = Carbon::create($data['year'], 1, 1);
         } else {
             $date = trim($date);
             $date = explode(" ", $date)[0];

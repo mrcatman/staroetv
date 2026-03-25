@@ -193,7 +193,7 @@ class SiteSearchController extends Controller {
                 foreach ($articles as $item) {
                     $data['list'][] = [
                         'additional' => $item->created_at,
-                        'url' => $item->url,
+                        'url' => $item->full_url,
                         'title' => $item->title,
                         'picture' => $item->cover,
                         'description' => $item->searchContent($search)

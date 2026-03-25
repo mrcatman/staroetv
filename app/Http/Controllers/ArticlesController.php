@@ -11,6 +11,7 @@ use App\Helpers\PermissionsHelper;
 use App\Helpers\StringsHelper;
 use App\Helpers\ViewsHelper;
 use App\Models\ArticleBinding;
+use App\Models\Channel;
 use App\Models\Comment;
 use App\Models\Crosspost;
 use App\Models\Tag;
@@ -137,16 +138,27 @@ class ArticlesController extends EntityController {
                 $ids = TagMaterial::where(['tag_id' => $tag->id, 'material_type' => 'articles'])->pluck('material_id');
                 $articles = $articles->whereIn('id', $ids);
             }
-
         }
-        $articles = $articles->paginate(20);
 
-        $tags = $this->getTags();
+        $channel = null;
+        $tags = [];
+
+        if (request()->has('channel')) {
+            $channel = Channel::findByIdOrUrl(request()->input('channel'));
+            $articles = $articles->whereHas('bindings', function($q) use ($channel) {
+                $q->where(['channel_id' => $channel->id]);
+            });
+        } else {
+            $tags = $this->getTags();
+        }
+
+        $articles = $articles->paginate(20);
 
         $can_add = PermissionsHelper::allows('nwadd');
 
         $show_actions_panel = auth()->user() && auth()->user()->group_id > 2 && auth()->user()->group_id < 255;
         return view("pages.articles.index", [
+            'channel' => $channel,
             'tag' => $tag,
             'tags' => $tags,
             'search' => $search,

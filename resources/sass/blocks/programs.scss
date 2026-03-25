@@ -42,7 +42,9 @@
         aspect-ratio: 1.8;
         border-radius: var(--border-radius-standard);
         box-shadow: var(--element-box-shadow);
-        background: #000;
+        background-color: #111;
+        background: url('/resources/images/noise.jpg') no-repeat center center;
+        background-size: cover;
         position: relative;
         overflow: hidden;
 

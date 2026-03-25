@@ -15,7 +15,8 @@
 <a data-id={{$record->id}} href="{{$url}}" class="record-item @if ($record->pending) record-item--pending @endif @if ($record->use_own_player) record-item--with-preview @endif"
     @if ($record->use_own_player) data-src="{{$record->download_url}}" @endif
 >
-    <div class="record-item__cover" style="background-image: url('{{$record->cover ?? $record->cover_url}}')">
+    <div class="record-item__cover">
+        <div class="record-item__cover__picture" style="background-image: url('{{$record->cover ?? $record->cover_url}}')"></div>
         @if ($record->length)
             <div class="record-item__duration">{{$record->formatted_duration}}</div>
         @endif

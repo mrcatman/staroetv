@@ -12,6 +12,12 @@ $(body).on('click', '.programs-list__show-more .button', function() {
     if ($(this).data('period')) {
         params.period = $(this).data('period');
     }
+    if ($(this).data('channel-id')) {
+        params.channel_id = $(this).data('channel-id');
+    }
+    if ($(this).data('limit')) {
+        params.limit = $(this).data('limit');
+    }
 
     params.page = ($(this).data('page') || 2);
     $.get(route(`records.${$(this).data('is-radio')  ? 'radio' : 'video'}.programs.show-more`, params)).then(res => {

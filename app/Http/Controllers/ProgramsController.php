@@ -109,8 +109,14 @@ class ProgramsController extends EntityController {
             }
         }
 
-        $limit = 20;
+        if (request()->has('channel_id')) {
+            $channel = Channel::find(request()->input('channel_id'));
+            if ($channel) {
+                $programs = $programs->where(['channel_id' => $channel->id])->having('records_count', '>', 0);
+            }
+        }
 
+        $limit = (int)request()->input('limit', 20);
         $page = (int)request()->input('page', 1);
 
         $has_next_page = count($programs->clone()->limit($limit)->offset(($page) * $limit)->get()) > 0;
@@ -119,7 +125,7 @@ class ProgramsController extends EntityController {
 
         $html_replacements = [
             [
-                'append_to' => '.programs-list',
+                'append_to' => '.programs-list--with-show-more',
                 'html' => view("blocks.programs.list", ['programs' => $programs, 'is_radio' => $params['is_radio']])->render()
             ],
         ];

@@ -6,7 +6,7 @@
 <div class="box">
     <div class="box__heading">
         <div class="box__heading__inner">
-            Публикации @if ($tag) с тегом "{{$tag->name}}" @endif @if ($search) (Поиск: "{{$search}}") @endif
+            Публикации @if ($tag) с тегом "{{$tag->name}}" @endif @if ($search) (Поиск: "{{$search}}") @endif @if ($channel) о канале {{$channel->name}} @endif @if ($show_all) (только одобренные) @endif
         </div>
         <div class="box__heading__buttons">
             <div class="buttons-row">
@@ -42,7 +42,7 @@
         </div>
     </div>
     <div class="box__inner">
-
+        @if (!$channel)
         <div class="categories-list categories-list--multiline @if ($tag) categories-list--multiline-opened @endif">
             <a class="category @if (!$tag) category--active @endif" href="{{route('articles.index')}}">Все теги</a>
             @foreach ($tags as $tag_item)
@@ -52,6 +52,8 @@
                 </a>
             @endforeach
         </div>
+        @endif
+
         <div class="row">
             <div class="col">
                 <div class="news-blocks-list">
