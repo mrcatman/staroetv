@@ -10,6 +10,7 @@ declare global {
 
         showModal: (selector: string, title?: string, onClose?: () => void, params?: ModalParams) => void
         closeModal: (modal: JQuery<HTMLElement>) => void
+        closeAllModals: () => void;
         //centerY: (modal: JQuery<HTMLElement>) => void
     }
 }
@@ -140,6 +141,12 @@ const closeModal = (element: JQuery<HTMLElement>) => {
     modal.onClose && modal.onClose();
 }
 
+const closeAllModals = () => {
+    openedModals.forEach(modal => {
+        closeModal($(`.modal-window[data-name="${modal.name}"]`));
+    });
+}
+
 $(body).on('click', '.modal-window__close, .modal-window__close-button', function() {
     closeModal($(this).parents('.modal-window'));
 });
@@ -165,6 +172,7 @@ $(body).on('click', '.modals-backdrop', function() {
 
 window.showModal = showModal;
 window.closeModal = closeModal;
+window.closeAllModals = closeAllModals;
 //window.centerY = centerY;
 
 export {

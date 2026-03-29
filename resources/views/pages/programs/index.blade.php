@@ -2,6 +2,18 @@
 @section('content')
     <div class="col">
         <div class="box">
+            <div class="box__breadcrumbs">
+                <div class="breadcrumbs">
+                    <a class="breadcrumbs__item"
+                       href="{{typed_route('records.[RECORD].index',$params['is_radio'])}}">Архив</a>
+                    @if ($category)
+                        <a class="breadcrumbs__item" href="{{typed_route('records.[RECORD].programs',$params['is_radio'])}}">Передачи</a>
+                        <a class="breadcrumbs__item breadcrumbs__item--current">{{$page_title}}</a>
+                    @else
+                        <a class="breadcrumbs__item breadcrumbs__item--current">Передачи</a>
+                    @endif
+                </div>
+            </div>
             <div class="box__heading">
                 <h1 class="box__heading__inner">{{$page_title}}</h1>
             </div>

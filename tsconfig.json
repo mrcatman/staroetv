@@ -7,6 +7,8 @@
     "compilerOptions": {
         "paths": {
             "@/*": ["/resources/js/*"]
-        }
-    }
+        },
+
+        "typeRoots": ["**/*.d.ts"]
+    },
 }

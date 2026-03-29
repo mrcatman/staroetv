@@ -112,7 +112,24 @@
     &:nth-of-type(4n) &__sticker {
         transform: rotate(.5deg);
     }
-
-
 }
 
+
+.reload-programs {
+    position: absolute;
+    bottom: 2.75em;
+    left: calc(50vw + 33em);
+    z-index: 100;
+    font-size: 1.25em;
+    padding: .5em 1em;
+    border-radius: 1em;
+    background: linear-gradient(346deg, #000000d4, #00000066);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .25);
+    opacity: .75;
+    cursor: pointer;
+    transition: opacity .2s;
+    &:hover {
+        opacity: .95;
+    }
+}

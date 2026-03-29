@@ -22,7 +22,9 @@
         @foreach ($section['list'] as $item)
         <a target="_blank"  href="{{$item['url']}}" class="site-search__result">
             @if (isset($item['picture']) && $item['picture'] != '')
-            <div class="site-search__result__cover" style="background-image:url({{$item['picture']}})"></div>
+            <div class="site-search__result__cover site-search__result__cover--{{$section['name']}}">
+                <div class="site-search__result__cover__picture" style="background-image: url({{$item['picture']}})"></div>
+            </div>
             @endif
             <div class="site-search__result__texts">
                 <div class="site-search__result__title">{!! \App\Helpers\HighlightHelper::highlight($item['title'], $search) !!}</div>

@@ -66,8 +66,77 @@
         font-size: 1.75em;
         text-shadow: 0 0 .75em #000, 0 0 .25em;
 
-        &__channel {
+        &__number {
             font-size: 2em;
         }
+        &__name {
+            font-size: 1.25em;
+        }
+    }
+
+    &__controls {
+        position: absolute;
+        z-index: 1000;
+        bottom: 21.75em;
+        left: calc(50vw - 30em);
+        width: 54em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1em;
+
+        &__group {
+            display: flex;
+            background: linear-gradient(45deg, black, transparent);
+            border-radius: 20em;
+            box-shadow: 0 0 .75em inset, 0 0 1em -.5em;
+            padding: .5em;
+            gap: .5em;
+        }
+    }
+
+    &__control {
+        background: linear-gradient(to bottom, #222, #262626);
+        border-radius: 5em;
+        padding: .75em;
+        box-shadow: 0 0 .75em inset #111, 0 0 1em -.5em #111;
+        cursor: pointer;
+        color: #555;
+        position: relative;
+
+        &:hover {
+            background: linear-gradient(to bottom, #333, #363636);
+        }
+
+        &:active {
+            background: linear-gradient(to bottom, #111, #161616);
+            top: .125em;
+            box-shadow: 0 .5em .75em inset #000, 0 .5em 1em -.5em #111;
+        }
+
+        &__icon {
+            fill: currentColor;
+            width: 2.875em;
+            filter: drop-shadow(0 0 .25em #111);
+
+            &--flip {
+                transform: rotate(180deg);
+            }
+        }
+    }
+
+    &__record-title {
+        position: absolute;
+        z-index: 1000;
+        bottom: 5.25em;
+        padding: .5em .25em;
+        left: calc(50vw - 9.125em);
+        width: 15em;
+        color: #13effb;
+        font-family: 'DS Crystal', sans-serif;
+        font-size: 2.75em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-shadow: 0 0 .5em;
     }
 }

@@ -1,6 +1,7 @@
-@import "tv";
-@import "tapes";
-@import "remote";
+@use "./tv";
+@use "./tapes";
+@use "./remote";
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;0,500;0,600;0,700;1,300;1,500;1,700&display=swap');
 
 body {
     margin: 0;
@@ -8,6 +9,7 @@ body {
     background-color: #0f2812;
     overflow: hidden;
     font-size: 16px;
+    font-family: 'Raleway', sans-serif;
 }
 
 
@@ -18,50 +20,28 @@ body {
     position: relative;
 }
 
+.loader {
+    &__percent {
+        width: 100%;
+        height: 100%;
+        font-size: 2em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
 
-.floor {
+.tooltip {
+    display: none;
     position: absolute;
-    bottom: -16em;
-    left: 0;
-    width: 100%;
-    z-index: 0;
-}
-.floor__picture {
-    width: 100%;
-}
-.floor__inner {
-    position: relative;
-}
-
-.floor__inner:before {
-    content: '';
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(transparent, black);
-    background-position: 0 13em;
-}
-
-.remote__random {
-    background: linear-gradient(45deg, #b71818, #b61111);
+    top: -.5em;
+    left: calc(100% - .5em);
     padding: .5em;
-    border-radius: var(--border-radius-standard);
-    box-shadow: .25em .25em .25em inset #7f1d1d, .125em .125em 2px .25em #000;
-    text-align: center;
-    font-family: "Arial Narrow";
     color: #fff;
-    margin-bottom: 1em;
-    text-transform: uppercase;
-    font-weight: bold;
-    text-shadow: 0 0 .5em #000;
+    background: rgba(0,0,0,.5);
+    border-radius: .25em;
 }
 
-.remote__channels {
-    width: 20em;
-}
 ::-webkit-scrollbar {
     width: 0;  /* Remove scrollbar space */
     background: transparent;  /* Optional: just make scrollbar invisible */

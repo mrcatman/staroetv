@@ -112,21 +112,19 @@ $(body).on('submit', '.form', function (e) {
         $.ajax(url, params).done((res) => {
             $(this).find(`.${FORM_PRELOADER_CLASS}`).remove();
             if (res.status) {
+
                 if ($(this).data('auto-close-modal')) {
                     setTimeout(() => {
                         if ($(this).parents('.modal-window').length > 0) {
-                            if ($(this).data('reset')) {
-                                $(this).trigger('reset');
-                            }
+
                             $(this).parents('.modal-window').find('.modal-window__close').click();
                         }
                         $(response).removeClass('response--error').removeClass('response--success').html('');
 
                     }, 2500)
-                } else {
-                    if ($(this).data('reset')) {
-                        $(this).trigger('reset');
-                    }
+                }
+                if ($(this).data('reset')) {
+                    $(this).trigger('reset');
                 }
                 $(response).removeClass('response--error').addClass('response--success').html(res.text);
                 if (res.redirect_to) {

@@ -110,19 +110,32 @@
         &--channels &__results {
             display: flex;
             flex-wrap: wrap;
+            @include mobile() {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: var(--col-margin);
+            }
         }
 
         &--programs &__results {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
             gap: var(--col-margin);
+            @include mobile() {
+
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
         }
 
         &--video &__results {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
             gap: var(--col-margin);
+            @include mobile() {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
         }
+
     }
 
     &__result {
@@ -132,6 +145,7 @@
         align-items: center;
         text-align: center;
         padding: 1em 0;
+        gap: var(--col-margin);
         @include hover();
         @include mobile() {
             flex-direction: column;
@@ -148,16 +162,30 @@
         &__cover {
             background-size: cover;
             width: 14em;
-            height: 7em;
-            margin: 0 1em 0 0;
-            background-position: center;
+            aspect-ratio: 4/3;
+            background: url('/resources/images/noise.jpg') no-repeat center center;
+            background-size: cover;
+            border-radius: var(--border-radius-standard);
+            overflow: hidden;
             @include mobile() {
                 width: 100%;
-                height: 0;
-                padding-top: 60%;
-                margin: 0 0 1em;
+            }
+            &__picture {
+                width: 100%;
+                height: 100%;
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+
+            &--channels {
+                background: none;
+            }
+            &--channels &__picture {
+                background-size: contain;
             }
         }
+
 
         &__additional {
             color: var(--text-lighter);
@@ -181,28 +209,27 @@
         flex-direction: column;
         align-items: center;
         padding: 1em;
-        @include mobile() {
-            width: calc(50% - .75em);
-            padding: 0 0 1em;
-        }
+
         &__title {
             margin-bottom: 0;
         }
         &__cover {
             width: 6em;
-            height: 6em;
+            aspect-ratio: 1;
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
-            margin: 0 0 .5em;
-            @include mobile() {
-                padding: 0;
-            }
         }
 
         &__texts {
             max-width: unset;
             text-align: center;
+        }
+    }
+
+    &__section--programs &__result {
+        &__cover {
+            aspect-ratio: 1.8;
         }
     }
 }

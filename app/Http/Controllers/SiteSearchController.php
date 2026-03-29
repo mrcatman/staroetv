@@ -195,7 +195,7 @@ class SiteSearchController extends Controller {
                         'additional' => $item->created_at,
                         'url' => $item->full_url,
                         'title' => $item->title,
-                        'picture' => $item->cover,
+                        'picture' => $item->cover_url,
                         'description' => $item->searchContent($search)
                     ];
                 }

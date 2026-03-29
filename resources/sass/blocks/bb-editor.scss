@@ -86,13 +86,10 @@
 
     &__smile {
         width: auto;
-        margin: 0 .5em;
         cursor: pointer;
-        @include hover;
-        @include mobile() {
-            width: unset;
-            margin: 0 1em .5em 0;
-        }
+        text-decoration: none;
+        @include hover();
+
         &__picture {
             max-height: 1.75em;
         }
@@ -100,7 +97,6 @@
         &--with-text {
             width: auto;
             height: 5em;
-            margin: 0 0 0 1em;
             padding: 0 .5em;
             display: flex;
             flex-direction: column;
@@ -121,6 +117,7 @@
         display: flex;
         align-items: center;
         flex-wrap: wrap;
+        gap: .5em;
     }
 
     &__smiles {
