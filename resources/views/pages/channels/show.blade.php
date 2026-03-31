@@ -150,32 +150,36 @@
                 </div>
             </div>
             <div class="box__inner">
-                @if(count($programs) > 0)
+                @if(count($programs['genres']) > 0)
                     <div class="categories-list">
-                        @foreach($programs as $index => $genre)
+                        @if ($programs['show_genres'])
+                        @foreach($programs['genres'] as $index => $genre)
                             <a data-selector=".category" data-toggle-class="category--active"
                                data-show-block-selector=".programs-list__container"
                                data-show-block-id="{{$genre->id}}"
                                class="category @if ($index == 0) category--active @endif">{{$genre->name}}</a>
                         @endforeach
+                        @endif
                     </div>
                 @else
                     @include('blocks.global.no-records', ['is_radio' => $channel->is_radio])
                 @endif
                 <div class="channel-page__programs">
 
-                    @foreach($programs as $index => $genre)
+                    @foreach($programs['genres'] as $index => $genre)
                         <div class="programs-list__container" data-block-id="{{$genre->id}}"
                              @if ($index != 0) style="display: none" @endif>
                             <div
-                                class="programs-list programs-list--with-show-more @if ($channel->is_radio) programs-list--radio @endif">
+                                class="programs-list @if ($programs['show_load_more_button']) programs-list--with-show-more @endif @if ($channel->is_radio) programs-list--radio @endif">
                                 @foreach ($genre->programs as $program)
                                     @include('blocks.programs.item', ['url' => $program->full_url.'?from='.$channel->id, 'is_radio' => $channel->is_radio])
                                 @endforeach
                             </div>
+                            @if ($index === 0 && $programs['show_load_more_button'])
                             <div class="programs-list__show-more">
                                 <a data-channel-id="{{$channel->id}}" data-limit="25" class="button">Показать ещё</a>
                             </div>
+                            @endif
                         </div>
 
                     @endforeach

@@ -1,12 +1,14 @@
 import { Loader } from "./loader";
 
 const FAIL_TIMEOUT_MS = 5000;
+const YOUTUBE_IFRAME_API = 'https://www.youtube.com/iframe_api';
+// todo save and recheck
 
 export const Resources = {
     loadedList: [] as string[],
 
-    isLoaded(resource: string): boolean {
-        return this.loadedList.includes(resource);
+    isYoutubeAvailable(): boolean {
+        return this.loadedList.includes(YOUTUBE_IFRAME_API);
     },
 
     load (resources: string[], load: (string) => Promise<void>, failAfterTimeout: boolean = false): Promise<void> {
@@ -49,7 +51,7 @@ export const Resources = {
         return this.load(pictures, this.loadPicture);
     },
     loadScripts() {
-        const scripts = ['https://vk.com/js/api/videoplayer.js', 'https://www.youtube.com/iframe_api'];
+        const scripts = ['https://vk.com/js/api/videoplayer.js', YOUTUBE_IFRAME_API];
 
         return this.load(scripts, (script: string) => {
             return new Promise<void>((resolve) => {

@@ -99,7 +99,7 @@ class Teletext extends Model {
         } else if ($this->month != null) {
             $date = DatesHelper::monthNames()[$this->month].' '.$this->year;
         }
-        return $date;
+        return $date ?? 'неизвестная дата';
     }
 
     public function getTitleAttribute()

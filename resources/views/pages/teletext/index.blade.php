@@ -44,19 +44,22 @@
             <div class="teletext-sections">
                 @foreach ($sections as $section)
                     <div class="teletext-section">
-                        <a href="{{route('teletext.channel', $section['url'])}}" class="teletext-section__title">
-                            {{$section['name']}}
-                        </a>
-                        <div class="program__channels teletext-section__channels">
-                            @foreach ($section['channels'] as $channel)
-                                <a href="{{$channel['url']}}" class="program__channel__name">
+                        <a class="teletext-section__title-container" href="{{route('teletext.channel', $section['url'])}}">
+                            <div class="teletext-section__title">
+                                {{$section['name']}}
+                            </div>
+                            <div class="program__channels teletext-section__channels">
+                                @foreach ($section['channels'] as $channel)
+                                    <span class="program__channel__name">
                                     @if ($channel['logo'])
-                                        <img class="program__channel__logo" src="{{$channel['logo']}}"/>
-                                    @endif
-                                    {{$channel['name']}}
-                                </a>
-                            @endforeach
-                        </div>
+                                            <img class="program__channel__logo" src="{{$channel['logo']}}"/>
+                                        @endif
+                                        {{$channel['name']}}
+                                </span>
+                                @endforeach
+                            </div>
+                        </a>
+
                         <div class="records-list records-list--thumbs teletext-section__latest-additions">
                             @foreach($section['items'] as $teletext)
                                 @include('blocks.records.item', ['record' => $teletext, 'title' => $teletext->date_formatted])

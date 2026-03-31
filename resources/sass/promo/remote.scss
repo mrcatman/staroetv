@@ -76,13 +76,11 @@
     &__random {
         background: linear-gradient(45deg, #b71818, #b61111);
         padding: .5em;
-        border-radius: var(--border-radius-standard);
+        border-radius: .5em;
         box-shadow: .25em .25em .25em inset #7f1d1d, .125em .125em 2px .25em #000;
         text-align: center;
-        font-family: "Arial Narrow";
         color: #fff;
         margin-bottom: 1em;
-        text-transform: uppercase;
         font-weight: bold;
         text-shadow: 0 0 .5em #000;
     }

@@ -48,6 +48,13 @@ class Teletexts
                 ['url' => '2x2'],
             ]
         ],
+        [
+            'name' => 'ТелЕк',
+            'url' => 'tel-ek',
+            'channels' => [
+                ['url' => '4-kanal'],
+            ]
+        ],
     ];
 
 }

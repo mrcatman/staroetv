@@ -51,15 +51,18 @@
     }
 
     &__count {
-        margin: 0 .25em;
+        font-size: .875em;
+        opacity: .5;
+        font-weight: bold;
+        margin-left: .25em;
     }
 
     &__city {
         box-shadow: var(--input-box-shadow);
         cursor: pointer;
-        font-size: 1.125em;
+        font-size: .9375em;
         background: var(--bg-darker);
-        padding: .5em .75em;
+        padding: .75em .75em;
         &:hover {
             background: var(--bg-darker-2);
         }
@@ -70,6 +73,12 @@
 
         &--active {
             color: var(--primary);
+        }
+        &__count {
+            font-size: .875em;
+            opacity: .5;
+            font-weight: bold;
+            margin-left: .25em;
         }
     }
 

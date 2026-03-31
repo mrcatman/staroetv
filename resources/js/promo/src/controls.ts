@@ -67,9 +67,15 @@ export const Controls = {
         const reloadProgramsButton = document.getElementById('reload_programs') as HTMLButtonElement;
         reloadProgramsButton.addEventListener('click', this.initPrograms);
     },
+    initButtons() {
+        document.getElementById('control_next_channel').addEventListener('click', () => Playback.changeChannel(1));
+        document.getElementById('control_prev_channel').addEventListener('click', () => Playback.changeChannel(-1));
+        document.getElementById('control_refresh').addEventListener('click', () => Playback.start(true));
+    },
 
     initAll() {
         this.initChannels();
         this.initPrograms();
+        this.initButtons();
     }
 }

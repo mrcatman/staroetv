@@ -85,7 +85,7 @@
             margin: 0 .5em 0 0;
         }
         &__name {
-            @include hover;
+
             display: flex;
             align-items: center;
             font-size: 1.125em;
@@ -93,7 +93,9 @@
             text-align: center;
         }
     }
-
+}
+a.program__channel__name {
+    @include hover();
 }
 
 .programs-list {

@@ -44,20 +44,18 @@
         </div>
         <div class="row row--stretch record-page__content">
             <div class="col col--3 teletext-page__content">
-                <div class="inner-page__content">
-                    @include('blocks.teletext.player')
-                    <div class="box">
-                        <div class="box__inner">
-                            <div class="record-page__bottom">
-                                @include('blocks.teletext.info')
-                            </div>
-
-                            @if($teletext->description != '')
-                                <div class="record-page__description">
-                                    {!! str_replace(PHP_EOL, "<br>", $teletext->description) !!}
-                                </div>
-                            @endif
+                @include('blocks.teletext.player')
+                <div class="box">
+                    <div class="box__inner">
+                        <div class="record-page__bottom">
+                            @include('blocks.teletext.info')
                         </div>
+
+                        @if($teletext->description != '')
+                            <div class="record-page__description">
+                                {!! str_replace(PHP_EOL, "<br>", $teletext->description) !!}
+                            </div>
+                        @endif
                     </div>
                 </div>
                 @include('blocks.comments.list', ['class' => 'record-page__comments', 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_TELETEXT, 'material_id' => $teletext->id]])

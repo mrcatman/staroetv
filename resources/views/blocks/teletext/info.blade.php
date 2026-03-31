@@ -5,18 +5,20 @@
             <span class="icon-block__text">{{$teletext->channel_name}}</span>
         </a>
     @endif
-        @if ($teletext->user)
+    @if ($teletext->user)
         <a href="{{$teletext->user->url}}" class="icon-block">
             <i class="fa fa-user"></i>
             <span class="icon-block__text">{{$teletext->user->username}}</span>
         </a>
-        @endif
+    @endif
     <span class="icon-block">
         <i class="fa fa-eye"></i>
         <span class="icon-block__text">{{$teletext->views}}</span>
     </span>
-    <span class="icon-block">
+    @if ($teletext->created_at)
+        <span class="icon-block">
         <i class="fa fa-clock"></i>
-        <span class="icon-block__text">{{\App\Helpers\DatesHelper::format($teletext->created_at)}}</span>
+        <span class="icon-block__text">{{$teletext->created_at}}</span>
     </span>
+    @endif
 </div>

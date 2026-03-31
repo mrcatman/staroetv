@@ -135,7 +135,7 @@ class TeletextController extends EntityController
         $channels = Channel::whereIn('id', $other_channel_ids)->get();
         foreach ($channels as $channel) {
             $section = [
-                'name' => $channel->name,
+                'name' => null, //$channel->name,
                 'url' => $channel->url ?? $channel->id,
                 'channels' => [
                     [
@@ -173,7 +173,6 @@ class TeletextController extends EntityController
         }));
 
         $query = Teletext::query()->orderBy('created_at', 'desc');
-        $channels = [];
         if (count($texts) > 0) {
             $text = $texts[0];
             $title = $text['name'];

@@ -151,7 +151,6 @@
                 flex-wrap: wrap;
             }
             &__type {
-                border: none;
                 background: var(--box-color-hover-dark);
                 flex: unset;
                 margin: 0 1px;
@@ -185,7 +184,6 @@
         }
         @include mobile() {
             font-size: 1em;
-
         }
 
         &--bottom {
@@ -205,7 +203,7 @@
                 flex-wrap: wrap;
                 padding: 0 .75em;
                 @include light() {
-                    padding: 0;
+                    padding-top: .5em;
                 }
             }
         }
@@ -338,13 +336,10 @@
 
     &__title {
         font-size: 1.25em;
-        font-weight: bold;
+        font-weight: 600;
         width: 100%;
         color: inherit;
         padding: .25em 0;
-        @include light() {
-            font-weight: 400;
-        }
         @include mobile() {
             padding: 0;
             @include light() {
@@ -510,7 +505,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 22em;
-            font-weight: 600;
+            font-weight: normal;
             transition: color .2s;
             @include mobile() {
                 width: 100%;
@@ -638,7 +633,7 @@
             position: unset;
             height: unset;
             padding: 0 1.25em;
-            width: calc(100% - 2.5em);
+            width: 100%;
         }
 
         &:before {

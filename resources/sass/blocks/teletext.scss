@@ -3,7 +3,6 @@
         max-width: 990px;
     }
     &__player-container {
-        margin-bottom: var(--col-margin);
         padding-top: 78%;
     }
     &__processing {
@@ -56,6 +55,7 @@
     }
 
     &__subpage {
+        text-decoration: none;
         cursor: pointer;
         font-size: 1.25em;
         padding: .5em .875em;
@@ -97,7 +97,15 @@
     display: flex;
     flex-direction: column;
     gap: var(--col-margin);
-
+    &__title-container {
+        height: 4em;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        gap: var(--col-margin);
+        @include hover();
+    }
     &__title {
         font-size: 1.5em;
         font-weight: 500;

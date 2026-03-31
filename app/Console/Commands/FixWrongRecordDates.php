@@ -14,6 +14,6 @@ class FixWrongRecordDates extends Command
      */
     public function handle()
     {
-        Record::where('date', '<', '2010-01-01')->update(['date' => '2020-01-01']);
+        Record::where('created_at', '<', '2010-01-01')->update(['created_at' => '2020-01-01']);
     }
 }

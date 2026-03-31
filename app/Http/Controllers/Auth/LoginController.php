@@ -21,7 +21,7 @@ class LoginController extends Controller
         $login = request()->input('login');
 
         $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-        $user = User::where([$field => $login])->first();
+       // $user = User::where([$field => $login])->first();
 //        if (!$user) {
 //            return [
 //                'status' => 0,
@@ -85,6 +85,7 @@ class LoginController extends Controller
 
     public function logout() {
         Auth::logout();
-        return redirect(route('index'));
+        return redirect()->back();
+        //return redirect(route('index'));
     }
 }

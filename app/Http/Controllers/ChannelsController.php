@@ -40,7 +40,7 @@ class ChannelsController extends EntityController
             return redirect(route('index'));
         }
 
-        $genres = Cache::remember('channel_programs_' . $channel->id, CacheTimes::PAGE, function () use ($channel) {
+        $genres = Cache::remember('channel_programs_data_' . $channel->id, CacheTimes::PAGE, function () use ($channel) {
             $programs = $channel->programs()->withCount('records')->get();
             $additional = $channel->additionalPrograms()->withCount('records')->get();
             foreach ($additional as $program) {
@@ -84,7 +84,17 @@ class ChannelsController extends EntityController
                 ]);
             }
 
-            return $genres;
+            $show_genres = $programs->filter(function ($program) {
+                return !!$program->genre_id;
+            })->pluck('genre_id')->unique()->count() > 0;
+
+            $show_load_more_button = count($programs) > 25;
+
+            return [
+                'genres' => $genres,
+                'show_genres' => $show_genres,
+                'show_load_more_button' => $show_load_more_button
+            ];
         });
 
         $global_programs = Cache::remember('channel_global_' . $channel->id, CacheTimes::PAGE, function () use ($channel) {
