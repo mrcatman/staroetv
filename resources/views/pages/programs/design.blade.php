@@ -26,6 +26,12 @@
                         @endif
                     </div>
 
+                    @if (count($packages) === 0)
+                        <div class="nothing-found">
+                            В данный момент записей оформления этой программы нет. Вы можете помочь сайту, <a href="{{typed_route('records.[RECORD].add', $program->channel->is_radio)}}">добавив свои записи</a>
+                        </div>
+                    @endif
+
                     @foreach ($packages as $package)
                         <div class="interprogram-packages-list-item" id="package_{{$package->id}}">
                             @if ($package->name || $package->years_range)

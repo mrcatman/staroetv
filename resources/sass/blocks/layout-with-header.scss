@@ -7,11 +7,8 @@
         z-index: 10;
         position: relative;
         @include mobile() {
-            margin-top: 3em;
-            @include light() {
-                margin: 3.5em .5em 0 !important;
-                width: calc(100% - 1em) !important;
-            }
+            margin: 3.5em .5em 0;
+            width: calc(100% - 1em);
         }
     }
 

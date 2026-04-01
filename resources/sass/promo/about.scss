@@ -1,0 +1,31 @@
+.about {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(rgba(0, 0, 0, .5), #000);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &__content {
+        background: radial-gradient(rgba(0, 0, 0, .5), #000);
+        position: relative;
+        color: #fff;
+        font-size: 1vw;
+        max-width: 35vw;
+        padding: 2em;
+        border-radius: 1em;
+        box-shadow: 0 0 2.5em inset #ffffff30, 0 .5em 5em -2em rgba(255, 255, 255, .5);
+
+        a {
+            color: inherit;
+        }
+    }
+
+    &__close {
+        margin: 0 auto;
+    }
+}

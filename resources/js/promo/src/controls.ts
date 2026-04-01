@@ -53,6 +53,7 @@ export const Controls = {
             `;
             programsRootEl.appendChild(programEl);
             programEl.addEventListener('click', () => {
+                // todo убрать здесь заставки передач (?)
                 Playback.setParamsAndStart({
                     program_id: program[0],
                 })

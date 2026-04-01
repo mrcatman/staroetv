@@ -73,8 +73,13 @@
                     <div class="interprogram-packages-list-item__inner">
                         @if ($package->descriptiion != '')
                             <div
-                                    class="interprogram-packages-list-item__description">{!! $package->description !!}
+                                class="interprogram-packages-list-item__description">{!! $package->description !!}
                             </div>
+                        @endif
+                        @if (count($annotations) === 0)
+                                <div class="nothing-found">
+                                    В данный момент записей оформления за этот период нет. Вы можете помочь сайту, <a href="{{typed_route('records.[RECORD].add', $channel->is_radio)}}">добавив свои записи</a>
+                                </div>
                         @endif
                         <div class="interprogram-packages-list-item__videos">
                             @foreach($annotations as $annotation)
@@ -82,9 +87,9 @@
                                     @if ($annotation['annotation'])
                                         <div class="interprogram-annotation">
                                             <div
-                                                    class="interprogram-annotation__title">{{$annotation['annotation']->title}}</div>
+                                                class="interprogram-annotation__title">{{$annotation['annotation']->title}}</div>
                                             <div
-                                                    class="interprogram-annotation__text">{{$annotation['annotation']->text}}</div>
+                                                class="interprogram-annotation__text">{{$annotation['annotation']->text}}</div>
                                         </div>
                                     @endif
                                     <div class="records-list records-list--thumbs">
@@ -101,10 +106,8 @@
                     </div>
                 </div>
         </div>
-        @include('blocks.comments.list', [ 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_INTERPROGRAM, 'material_id' => $package->id]])
-
+            @include('blocks.comments.list', [ 'ajax' => false, 'page' => 1, 'conditions' => ['material_type' => \App\Constants\MaterialTypes::TYPE_INTERPROGRAM, 'material_id' => $package->id]])
         @else
-
             @include('blocks.records.list', ['conditions' => $records_conditions])
         @endif
     </div>

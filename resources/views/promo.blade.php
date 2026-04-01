@@ -2,7 +2,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Старый Телевизор</title>
+    <title>ТЕЛЕпорт "Старого Телевизора"</title>
     @vite([ 'resources/sass/promo/index.scss'])
 </head>
 <body>
@@ -97,10 +97,48 @@
             <div class="tv__controls__group">
                 <div class="tv__controls__year" id="record_year"></div>
             </div>
+            <div class="tv__controls__group">
+                <div class="tv__control" id="control_next_channel">
+                    <svg class="tv__control__icon"viewBox="0 0 416.979 416.979"
+                         xml:space="preserve">
+<g>
+    <path d="M356.004,61.156c-81.37-81.47-213.377-81.551-294.848-0.182c-81.47,81.371-81.552,213.379-0.181,294.85
+		c81.369,81.47,213.378,81.551,294.849,0.181C437.293,274.636,437.375,142.626,356.004,61.156z M237.6,340.786
+		c0,3.217-2.607,5.822-5.822,5.822h-46.576c-3.215,0-5.822-2.605-5.822-5.822V167.885c0-3.217,2.607-5.822,5.822-5.822h46.576
+		c3.215,0,5.822,2.604,5.822,5.822V340.786z M208.49,137.901c-18.618,0-33.766-15.146-33.766-33.765
+		c0-18.617,15.147-33.766,33.766-33.766c18.619,0,33.766,15.148,33.766,33.766C242.256,122.755,227.107,137.901,208.49,137.901z"/>
+</g>
+</svg>
+                    <span class="tooltip">О проекте</span>
+                </div>
+            </div>
         </div>
     </div>
     <div class="tapes" id="tapes"></div>
-    <button class="reload-programs" id="reload_programs">Загрузить ещё передачи
+    <button class="reload-programs" id="reload_programs">Поменять передачи</button>
+
+    <div class="about" style="display: none">
+        <div class="about__content">
+            <p class="about__text">
+                Насладитесь телевидением прошлых лет (с советской эпохи и до 2010 года) с нашим ТЕЛЕпортом. Просто выберите канал и год - или доверьтесь случайности.
+            </p>
+            <h2 class="about__heading">Доступность видео</h2>
+            <p class="about__text">
+                К сожалению, партия сочла некоторые источники наших архивов вражескими. Вы и так знаете, что использовать для доступа к ним :)<br/>
+                Если не хотите видеть современную богомерзкую рекламу, то можно использовать любой блокировщик.
+            </p>
+            <h2 class="about__heading">Есть что предложить?</h2>
+            <p class="about__text">
+                Если у вас всё ещё хранятся кассеты или любой другой носитель с записями передач, которых нет на сайте, то вы можете <a target="_blank" href="/tape-digitization">помочь архиву</a>.
+            </p>
+            <h2>О проекте</h2>
+            <p class="about__text">
+                Разработано <a target="_blank" href="https://mrcatmann.ru">mrcatmann</a> и командой сайта <a target="_blank" href="https://staroetv.su">"Старый телевизор"</a>.
+                За основу взята идея проекта <a target="_blank" href="http://myretrotvs.com/">MyRetroTVs</a>.
+            </p>
+            <a class="about__close">Закрыть</a>
+        </div>
+    </div>
 </div>
 </body>
 @routes

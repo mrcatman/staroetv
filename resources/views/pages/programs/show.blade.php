@@ -98,7 +98,7 @@
                             </div>
                         </div>
                         <div class="box__inner">
-                            <div class="articles-list__block">
+                            <div class="news-blocks-list">
                             @foreach ($program->articles as $news_item)
                                 @include('blocks.articles.news', ['class' => 'news-block--card news-block--for-program', 'show_cover' => true, 'news_item' => $news_item])
                             @endforeach

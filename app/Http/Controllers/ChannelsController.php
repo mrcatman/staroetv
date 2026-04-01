@@ -123,8 +123,10 @@ class ChannelsController extends EntityController
             return $global_programs;
         });
 
-        $interprogram_packages = Cache::remember('channel_interprogram_' . $channel->id, CacheTimes::PAGE, function () use ($channel) {
-            $interprogram_packages = $channel->interprogramPackages;
+        $can_edit_interprogram = PermissionsHelper::allows('additionalown');
+
+        $interprogram_packages = Cache::remember('channel_interprogram_packages_' . $channel->id, CacheTimes::PAGE, function () use ($channel, $can_edit_interprogram) {
+            $interprogram_packages = $channel->interprogramPackages()->withCount('records')->get();
 
 //        foreach ($interprogram_packages as $interprogram_package) {
 //            //$interprogram_package->records = $interprogram_package->records->shuffle();
@@ -152,6 +154,12 @@ class ChannelsController extends EntityController
             return $interprogram_packages;
         });
 
+        if (!$can_edit_interprogram) {
+            $interprogram_packages = $interprogram_packages->filter(function ($package) {
+                return $package->records_count > 0;
+            });
+        }
+
         $articles = Cache::remember('channel_articles_' . $channel->id, CacheTimes::PAGE, function () use ($channel) {
             $count = count($channel->articles);
             $list = $channel->articles()->limit(10)->get();
@@ -167,6 +175,7 @@ class ChannelsController extends EntityController
             'articles' => $articles,
             'programs' => $genres,
             'global_programs' => $global_programs,
+            'can_edit_interprogram' => $can_edit_interprogram,
             'interprogram_packages' => $interprogram_packages,
             'records_conditions' => ['show_years' => true, 'channel_id' => $channel->id, 'is_advertising' => false, 'is_radio' => $channel->is_radio],
             'records_conditions_interprogram' => ['channel_id' => $channel->id, 'is_interprogram' => true, 'is_radio' => $channel->is_radio]

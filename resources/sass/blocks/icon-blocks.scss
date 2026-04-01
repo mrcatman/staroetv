@@ -22,6 +22,8 @@
     }
     &__text {
         line-height: 1;
+        padding: .5em;
+        margin: -.5em;
         overflow: hidden;
         text-overflow: ellipsis;
     }

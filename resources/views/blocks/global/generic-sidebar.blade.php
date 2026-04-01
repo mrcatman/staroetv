@@ -1,4 +1,4 @@
-<div class="generic-sidebar">
+<div class="col generic-sidebar">
     <div class="box">
         <div class="box__heading">
             <div class="box__heading__inner">
@@ -25,10 +25,10 @@
             </div>
         </div>
         <div class="box__inner">
-            <div class="see-also">
+            <div class="news-blocks-list">
                 @php ($articles_count = isset($articles_count) && $articles_count ? $articles_count : 5)
                 @foreach (\App\Helpers\SidebarHelper::getArticles($articles_count) as $see_also_item)
-                    @include('blocks.articles.item-small', ['article' => $see_also_item])
+                    @include('blocks.articles.news', ['class' => 'news-block--card', 'show_cover' => true, 'hide_tags' => true, 'hide_short_content' => true, 'news_item' => $see_also_item])
                 @endforeach
             </div>
         </div>

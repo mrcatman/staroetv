@@ -173,34 +173,12 @@
                         <div class="articles-list">
                             <div class="articles-list__block articles-list__block--big">
                                 @foreach ($first_news as $first_news_item)
-                                    <a href="{{$first_news_item->full_url}}"
-                                       style="background-image:url({{$first_news_item->cover_url}})"
-                                       class="article article--big">
-                                        <div class="article__texts">
-                                            <div class="icon-blocks">
-                                                <span class="icon-block">
-                                                    <i class="fa fa-clock"></i>
-                                                    <span class="icon-block__text">{{$first_news_item->created_at}}</span>
-                                                </span>
-                                                                                    <span class="icon-block">
-                                                    <i class="fa fa-eye"></i>
-                                                    <span class="icon-block__text">{{$first_news_item->views}}</span>
-                                                </span>
-                                                                                    <span class="icon-block">
-                                                    <i class="fa fa-comment"></i>
-                                                    <span class="icon-block__text">{{$first_news_item->comments_count}}</span>
-                                                </span>
-                                            </div>
-                                            <div class="article__title">{{$first_news_item->title}}</div>
-                                            <div
-                                                class="article__short-content">{{$first_news_item->short_content}}</div>
-                                        </div>
-                                    </a>
+                                    @include('blocks.articles.item-big', ['article' => $first_news_item])
                                 @endforeach
                             </div>
                             <div class="articles-list__block articles-list__block--right">
                                 @foreach ($news as $news_item)
-                                    @include('blocks.articles.news', ['class' => 'news-block--card', 'show_cover' => true, 'news_item' => $news_item])
+                                    @include('blocks.articles.news', ['class' => 'news-block--card news-block--card-wide', 'show_cover' => true, 'news_item' => $news_item])
                                 @endforeach
                             </div>
                         </div>

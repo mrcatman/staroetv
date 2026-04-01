@@ -246,12 +246,15 @@ class DesignPackagesController extends Controller
                     ]);
                 }
 
-                $annotations->push([
-                    'annotation' => null,
-                    'records' => $records->filter(function ($record) use ($annotations) {
-                        return count($annotations) == 0 || $record->internal_order < $annotations[0]['annotation']->order;
-                    })
-                ]);
+                $other_records = $records->filter(function ($record) use ($annotations) {
+                    return count($annotations) == 0 || $record->internal_order < $annotations[0]['annotation']->order;
+                });
+                if (count($other_records) > 0) {
+                    $annotations->push([
+                        'annotation' => null,
+                        'records' => $other_records
+                    ]);
+                }
                 return $annotations;
             });
         }

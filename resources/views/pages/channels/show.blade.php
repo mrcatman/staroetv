@@ -200,7 +200,6 @@
         @endif
 
 
-        @php($can_edit_interprogram = \App\Helpers\PermissionsHelper::allows('additionalown'))
         @if ($channel->is_radio)
             @include('blocks.records.list', ['hide_if_zero' => true, 'conditions' => $records_conditions_interprogram, 'block_title' => 'Заставки, отбивки, джинглы ('.$channel->name.')'])
         @else
@@ -231,7 +230,7 @@
         <div class="row">
             @include('blocks.records.list', ['conditions' => $records_conditions])
         </div>
-        @if (count($articles) > 0)
+        @if ($articles['count'] > 0)
             <div class="box">
                 <a href="{{route('articles.index', ['channel' => $channel->url ?? $channel->id ])}}" class="box__heading">
                     <div class="box__heading__inner">
@@ -241,7 +240,7 @@
                 <div class="box__inner">
                     <div class="news-blocks-list">
                         @foreach ($articles['list'] as $news_item)
-                            @include('blocks.articles.news', ['class' => 'news-block--card news-block--for-channel', 'show_cover' => true, 'news_item' => $news_item])
+                            @include('blocks.articles.news', ['class' => 'news-block--card', 'show_cover' => true, 'news_item' => $news_item])
                         @endforeach
                     </div>
                 </div>

@@ -103,9 +103,9 @@
                     </div>
                 </div>
                 <div class="box__inner">
-                    <div class="see-also">
+                    <div class="news-blocks-list">
                         @foreach ($see_also as $see_also_item)
-                            @include('blocks.articles.item-small', ['article' => $see_also_item])
+                            @include('blocks.articles.news', ['class' => 'news-block--card', 'show_cover' => true, 'hide_tags' => true, 'hide_short_content' => true, 'news_item' => $see_also_item])
                         @endforeach
                     </div>
                 </div>

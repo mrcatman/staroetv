@@ -349,7 +349,7 @@
     flex: 1;
     font: inherit;
     width: 100%;
-    padding: .75em;
+    padding: .55em .75em;
     background: var(--inputs-color);
     border: 1px solid var(--border-color);
     color: inherit;
@@ -357,7 +357,10 @@
     box-shadow: var(--input-box-shadow);
     box-sizing: border-box;
     height: 2.75em;
-
+    @include light() {
+        padding-top: .75em;
+        padding-bottom: .75em;
+    }
     &:read-only {
         color: #777;
     }

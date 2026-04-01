@@ -8,7 +8,7 @@
         @endif
     @endif
     <div class="news-block__texts">
-        @if (!isset($hide_tags) || !$hide_tags)
+        @if ((!isset($hide_tags) || !$hide_tags) && count($news_item->tags_list) > 0)
         <div class="tags-list">
             @foreach ($news_item->tags_list as $tag)
             <a href="{{route('articles.index', ['tag' => $tag->url])}}" class="tags-list__item">{{$tag->name}}</a>
@@ -30,9 +30,11 @@
                 <span class="icon-block__text">{{$news_item->comments_count}}</span>
             </span>
         </a>
+        @if (!isset($hide_short_content) || !$hide_short_content)
         <a href="{{$news_item->full_url}}" class="news-block__short-content">
             {!! $news_item->short_content !!}
         </a>
+        @endif
     </div>
 
 </div>

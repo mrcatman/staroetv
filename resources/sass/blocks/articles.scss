@@ -245,10 +245,9 @@
 }
 
 .see-also {
-    margin: -1em;
-    @include light() {
-        margin: 0;
-    }
+    display: flex;
+    flex-direction: column;
+    gap: var(--col-margin);
 }
 
 .box--see-also {
@@ -363,14 +362,16 @@
     color: var(--box-text-color-dark);
     width: 50%;
     position: relative;
+    background-color: #111;
+    background: url('/resources/images/noise.jpg') no-repeat center center;
     background-size: cover;
-    background-position: center;
     padding: 10em 0 0;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     border-radius: var(--border-radius-standard);
     overflow: hidden;
+
     @include mobile() {
         width: 100%;
     }
@@ -381,18 +382,30 @@
         flex: .5;
         padding: 12em 0 0;
         width: unset;
+        @include mobile() {
+            font-size: .875em;
+        }
+    }
+    &__cover {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
     }
     &__texts {
         background: rgba(0, 0, 0, 0.65);
         padding: 1em;
         display: flex;
         flex-direction: column;
-        gap: .5em;
+        gap: calc(var(--col-margin) * 1.25);
+        position: relative;
+        z-index: 2;
     }
     &__title {
         font-size: 1.25em;
-        font-weight: 700;
-        background: none;
+        font-weight: bold;
     }
     &__short-content {
         box-sizing: border-box;
@@ -406,17 +419,14 @@
         line-height: 1.35;
     }
     &--big &__title {
-        font-size: 1.5em;
-        @include mobile() {
-            font-size: 1.3125em;
-        }
+        font-size: 1.4375em;
     }
 }
 
 .news-blocks-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
-    gap: var(--col-margin);
+    grid-template-columns: repeat(auto-fill, minmax(min(450px, 100%), 1fr));
+    gap: calc(var(--col-margin) * 1.5);
     @include mobile() {
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     }
@@ -433,10 +443,10 @@
     }
     &--card {
         display: flex;
-        align-items: stretch;
+        align-items: flex-start;
+        gap: var(--col-margin);
         @include mobile() {
             font-size: .875em;
-            flex-direction: column;
         }
     }
     &--for-program {
@@ -447,13 +457,7 @@
             padding-top: 0;
         }
     }
-    &--for-channel {
-        font-size: 1em;
-    }
 
-    &--for-channel.news-block--with-picture &__texts {
-        width: calc(100% - 22em);
-    }
     &--no-picture {
         font-size: 1.25em;
     }
@@ -463,17 +467,17 @@
         gap: .5em;
     }
     &__cover {
-        width: 32.5%;
-        height: 10.5em;
-        background: #000;
+        display: block;
+        width: 0;
+        min-width: 20%;
+        aspect-ratio: 4/3;
+        background-color: #111;
+        background: url('/resources/images/noise.jpg') no-repeat center center;
+        background-size: cover;
         border-radius: var(--border-radius-standard);
         box-shadow: var(--element-box-shadow);
         position: relative;
-        @include mobile() {
-            width: 100%;
-            height: 0;
-            padding-top: 62.5%;
-        }
+
         &__foreground {
             position: absolute;
             top: 0;
@@ -497,13 +501,26 @@
             opacity: .5;
         }
     }
+    &--card-wide &__cover {
+        min-width: 22.5%;
+        @include mobile() {
+            min-width: 35%;
+        }
+    }
     &__title {
         display: block;
         color: inherit;
         text-decoration: none;
-        font-size: 1.25em;
+        font-size: 1.125em;
         font-weight: 600;
-        padding: .5em 0 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+         line-clamp: 3;
+        @include light() {
+            font-size: 1.25em;
+        }
     }
 
     &__short-content {
@@ -524,20 +541,13 @@
         display: none;
     }
     &__info {
-        font-size: 1em!important;
+        font-size: .875em!important;
         display: block;
         color: inherit;
         text-decoration: none;
         font-style: italic;
     }
-    &--with-picture &__texts {
-        width: calc(100% - 6em);
-        margin: 0 0 0 1em;
-        @include mobile() {
-            width: 100% !important;
-            margin: 1em 0 0;
-        }
-    }
+
     &--card &__title {
         padding: 0;
     }

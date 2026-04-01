@@ -31,7 +31,7 @@ class ExportPromoData extends Command
 
             $data['channels'][] = [
                 $channel->id,
-                $channel->name, // todo additional names,
+                $channel->name,
                 $channel->logo_url,
                 $channel->is_federal,
                 $channel->city,
