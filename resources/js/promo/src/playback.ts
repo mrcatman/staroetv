@@ -6,6 +6,7 @@ export const Playback = {
     playerRoot: document.getElementById('player'),
     noise: document.getElementById('noise'),
     overlay: document.getElementById('overlay'),
+    notFound: document.getElementById('not_found'),
 
     currentChannelNumber: document.getElementById('channel_number'),
     currentChannelName: document.getElementById('channel_name'),
@@ -20,43 +21,58 @@ export const Playback = {
     hideTitleOverlayTimeout: null,
     firstStart: true,
     playedRecordsCount: 0,
+    updateDisplayStartTimeout: null,
+    updateDisplayInterval: null,
+    active: false,
 
+    onOff() {
+        if (this.active) {
+            this.stop();
+            this.active = false;
+        } else {
+            this.start();
+        }
+    },
     setParamsAndStart(params: Promo.PlaybackParams = {}) {
         const force = this.params.channel_id && this.params.channel_id === params.channel_id;
 
-        this.params = params;
+        this.params = {...this.params, ...params};
         this.start(force);
     },
 
     async start(force: boolean = false): Promise<void> {
+        this.active = true;
         if (this.firstStart) {
             this.firstStart = false;
             Database.records.filterAvailable();
         }
 
+        this.notFound.style.display = 'none';
         this.overlay.style.display = 'none';
         this.noise.style.display = 'block';
+        this.playerRoot.style.display = 'block';
 
         // todo: skip n last played
         const [record, seekTo] = await Database.records.get(this.params, force);
         if (!record) {
-            // todo: show error
+            this.noise.style.display = 'none';
+            this.notFound.style.display = '';
             return;
         }
         this.record = record;
 
-        this.currentChannelIndex = Database.channels.getIndexById(this.record[4]);
+        this.currentChannelIndex = Database.channels.getIndexForRecord(this.record);
 
         this.player?.stop();
 
         this.player = createPlayer(this.record[2]);
 
-        this.player.on('error', () => {
-            console.log('error 1');
+        this.player.on('error', (e) => {
+            console.log('Player error: ', e);
             this.start();
         });
         this.player.on('ended', () => {
-            console.log('ended');
+            console.log('Playback ended');
             this.start();
         });
         this.player.on('started', () => {
@@ -78,6 +94,22 @@ export const Playback = {
             Database.records.loadAll();
         }
     },
+    stop() {
+        this.playerRoot.style.display = 'none';
+        try {
+            this.player?.stop();
+        } catch (e) {}
+
+        clearTimeout(this.updateDisplayStartTimeout);
+        clearInterval(this.updateDisplayInterval);
+        this.currentRecordTitle.style.display = 'none';
+
+        clearTimeout(this.hideTitleOverlayTimeout);
+        this.overlay.style.display = 'none';
+    },
+    setVolume(volume: number) {
+        this.player?.setVolume(volume);
+    },
     changeChannel(delta: number) {
         const newChannelIndex = this.currentChannelIndex + delta;
         const channel = Database.channels.getByIndex(newChannelIndex);
@@ -88,17 +120,60 @@ export const Playback = {
     showTitle() {
         clearTimeout(this.hideTitleOverlayTimeout);
 
-        this.currentRecordTitle.innerHTML = this.record[1];
+        this.updateDisplay(this.record[1]);
 
         const [channelNumber, channelName] = Database.channels.getParamsForRecord(this.record);
         this.currentChannelNumber.innerHTML = channelNumber;
         this.currentChannelName.innerHTML = channelName;
 
-        this.currentRecordYear.innerHTML = new Date(this.record[3]).getFullYear().toString();
+        //this.currentRecordYear.innerHTML = new Date(this.record[3]).getFullYear().toString();
 
         this.overlay.style.display = '';
         this.hideTitleOverlayTimeout = setTimeout(() => {
             this.overlay.style.display = 'none';
         }, 5000)
+    },
+    updateDisplay(title: string, immediate: boolean = false) {
+        clearTimeout(this.updateDisplayStartTimeout);
+        clearInterval(this.updateDisplayInterval);
+
+        const MAX_SYMBOLS = 38;
+        if (title.length <= MAX_SYMBOLS) {
+            this.currentRecordTitle.innerHTML = title;
+            return;
+        }
+
+        let start = 0;
+        let cycles = 0;
+        const doubleTitle = `${title}   |   ${title}`;
+        const update = () => {
+            this.currentRecordTitle.innerHTML = doubleTitle.substring(start, start + MAX_SYMBOLS);
+        }
+        this.currentRecordTitle.style.display = 'block';
+        update();
+
+        this.updateDisplayStartTimeout = setTimeout(() => {
+            clearInterval(this.updateDisplayInterval);
+            this.updateDisplayInterval = setInterval(() => {
+                if (start > title.length) {
+                    cycles++;
+                    start = 0;
+                } else {
+                    start++;
+                }
+                update();
+                if (start === 0 && cycles === 1) {
+                    clearInterval(this.updateDisplayInterval);
+                }
+            }, 200);
+        }, immediate ? 0 : 3000);
+    },
+    init() {
+        this.currentRecordTitle.addEventListener('click', () => {
+            if (!this.record) {
+                return;
+            }
+            this.updateDisplay(this.record[1], true);
+        });
     }
 }

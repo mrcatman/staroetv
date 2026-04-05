@@ -1,10 +1,14 @@
 
 .remote {
-    margin: 10em 0;
     background: linear-gradient(45deg, #222, #111);
     border-radius: 2em;
     padding: 1em;
     box-shadow: -1em 5em 2em 2em #0000004a;
+    font-size: 1.25vh;
+    position: absolute;
+    bottom: -1vw;
+    left: 0;
+
     &__logo {
         display: flex;
         align-items: center;
@@ -19,11 +23,15 @@
     }
 
     &__inner {
+        height: 87.5vh;
         box-shadow: 0 0 1em;
         padding: 1em;
         border-radius: var(--border-radius-standard);
         background: #161616;
         background-size: .4em;
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
     }
 
     &__container {
@@ -41,25 +49,38 @@
         flex-wrap: wrap;
     }
 
-
-    &__channel {
+    &__button {
+        color: #fff;
+        font: inherit;
+        border: none;
         background: linear-gradient(45deg, #222, #333);
+        text-align: center;
+        font-weight: bold;
         padding: .5em;
-        border-radius: 1em;
+        border-radius: .5em;
         box-shadow: 0 0 .75em inset #111, .25em .75em .75em -.25em rgba(0,0,0,.85);
         cursor: pointer;
         transition: all .2s;
         position: relative;
         &:hover {
+            z-index: 2;
             background: linear-gradient(45deg, #333, #444);
-            filter: brightness(1.1);
+        }
+        &:active {
+            top: .125em;
+            background: linear-gradient(45deg, #161616, #222);
+            filter: brightness(.9);
         }
         &--active, &--active:hover {
             top: .25em;
             background: linear-gradient(45deg, #000, #111);
             box-shadow: 0 .5em .75em inset #111, .25em 1.25em .75em -.25em rgba(0,0,0,.85);
         }
+    }
+
+    &__channel {
         &__logo {
+            filter: drop-shadow(0 .5em .5em rgba(255, 255, 255, .1));
             width: 5em;
             height: 5em;
             background-position: center;
@@ -74,14 +95,12 @@
 
 
     &__random {
-        background: linear-gradient(45deg, #b71818, #b61111);
-        padding: .5em;
-        border-radius: .5em;
-        box-shadow: .25em .25em .25em inset #7f1d1d, .125em .125em 2px .25em #000;
-        text-align: center;
-        color: #fff;
-        margin-bottom: 1em;
-        font-weight: bold;
+
+        width: 100%;
+        background: linear-gradient(to bottom, #dc2929, #b61111);
         text-shadow: 0 0 .5em #000;
+        &:hover {
+            background: linear-gradient(to bottom, #e03d3d, #d02222);
+        }
     }
 }

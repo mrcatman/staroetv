@@ -8,7 +8,7 @@ const RECORDS_PAGES_COUNT = 10;
 const cacheParam = `?date=${new Date().toLocaleDateString()}`;
 
 export const Database = {
-    genres: [],
+    genres: [] as Promo.Genre[],
     channels: {
         list: [] as Promo.Channel[],
         getFederal(): Promo.Channel[] {
@@ -17,16 +17,19 @@ export const Database = {
             });
         },
         getParamsForRecord(record: Promo.Record): [number, string] {
-            const channel = this.list.find(channel => channel[0] == record[4]);
+            const channel = this.list.find(channel => channel[0] == record[5]);
             if (!channel) {
-                return [0, ''];
+                return [-1, ''];
             }
+            if (record[8]) {
+                return [0, 'Рекламные ролики'];
+            }
+
             if (!channel[6].length) {
                 return [channel[5], channel[1]];
             }
 
             const recordDate = new Date(record[3]);
-            console.log(recordDate);
             if (!recordDate) {
                 return [channel[5], channel[1]];
             }
@@ -46,15 +49,28 @@ export const Database = {
             }
             return this.list[index];
         },
-        getIndexById(id: number): number {
-            console.log(id);
-            return this.list.findIndex(channel => channel[0] == id);
+        getIndexForRecord(record: Promo.Record): number {
+            if (record[8]) {
+                return 0;
+            }
+            return this.list.findIndex(channel => channel[0] == record[5]);
         }
     },
     programs: {
         list: [] as Promo.Program[],
-        getRandomList(count: number = 10): Promo.Program[] {
-            return getRandomItems(this.list, count);
+        getRandomList(count: number = 10, params: Promo.PlaybackParams): Promo.Program[] {
+            let list = this.list;
+            if (params.genre_id) {
+                list = list.filter(program => {
+                    return program[3] === params.genre_id;
+                });
+            }
+            if (params.year) {
+                list = list.filter(program => {
+                    return program[4]?.includes(params.year);
+                });
+            }
+            return getRandomItems(list, count);
         }
     },
     records: {
@@ -105,20 +121,35 @@ export const Database = {
         },
         find(params: Promo.PlaybackParams): Promo.Record {
             let list = this.list;
+            if (params.commercials) {
+                list = list.filter(record => {
+                    return record[8] === true;
+                });
+            }
+            if (params.year) {
+                list = list.filter(record => {
+                    return record[4] == params.year;
+                });
+            }
             if (params.channel_id) {
                 list = list.filter(record => {
-                    return record[4] == params.channel_id;
+                    return record[5] == params.channel_id;
                 });
             }
             if (params.program_id) {
                 list = list.filter(record => {
-                    return record[5] == params.program_id;
+                    return record[6] == params.program_id;
+                });
+            }
+            if (params.genre_id) {
+                list = list.filter(record => {
+                    return record[9] == params.genre_id;
                 });
             }
             return getRandomItem(list);
         },
         updateCurrentPlaying(record: Promo.Record, ends_at: number) {
-            this.currentPlaying[record[4]] = {
+            this.currentPlaying[record[5]] = {
                 record,
                 ends_at
             }

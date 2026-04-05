@@ -7,7 +7,8 @@ declare namespace Promo {
         is_federal: boolean,
         city: string,
         order: number,
-        names: Promo.ChannelName[]
+        names: Promo.ChannelName[],
+        years: number[],
     ]
 
     type ChannelName = [
@@ -22,6 +23,7 @@ declare namespace Promo {
         name: string,
         logo: string,
         genre_id: number,
+        years: number[],
     ]
 
     type Record = [
@@ -29,10 +31,17 @@ declare namespace Promo {
         title: string,
         playback_url: string,
         date: string,
+        year: number,
         channel_id: number,
         program_id: number,
         is_interprogram: boolean,
         is_advertising: boolean,
+        genre_id: number,
+    ]
+
+    type Genre = [
+        id: number,
+        name: string,
     ]
 
     type CurrentPlayingRecords = {
@@ -45,6 +54,9 @@ declare namespace Promo {
     interface PlaybackParams {
         channel_id?: number,
         program_id?: number,
+        genre_id?: number,
+        year?: number,
+        commercials?: boolean,
     }
 
     interface Player  {
@@ -57,5 +69,6 @@ declare namespace Promo {
         seek(time: number): void;
         getCurrentTime(): number;
         getDuration(): number;
+        setVolume(volume: number): void;
     }
 }

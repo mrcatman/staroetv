@@ -1,5 +1,5 @@
 import Hls from 'hls.js';
-import { EventEmitter, getRandomDurationPoint } from "../utils";
+import { EventEmitter } from "../utils";
 
 class VKPlayer extends EventEmitter implements Promo.Player  {
     private instance;
@@ -17,7 +17,7 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
             console.log(this.instance);
 
             this.instance.on('started', () => this.emit('started'));
-            this.instance.on('error', () => this.emit('error'));
+            this.instance.on('error', (e) => this.emit('error', e));
             this.instance.on('timeupdate', () => {
                 if (this.isEnded) {
                     return;
@@ -36,11 +36,11 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
     }
 
     play() {
-        this.instance?.play();
+        this.instance.play();
     }
 
     stop() {
-        this.instance?.pause();
+        this.instance.pause();
     }
 
     getCurrentTime() {
@@ -50,10 +50,16 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
     getDuration() {
         return this.instance.getDuration();
     }
+
+    setVolume(volume: number) {
+        this.instance.setVolume(volume);
+    }
 }
 
 class RutubePlayer extends EventEmitter implements Promo.Player {
     private contentWindow;
+    private duration: number = 0;
+    private currentTime: number = 0;
 
     load(url: string, container: HTMLDivElement)  {
         return new Promise<void>((resolve, reject) => {
@@ -63,6 +69,15 @@ class RutubePlayer extends EventEmitter implements Promo.Player {
             this.contentWindow = iframe.contentWindow;
             this.contentWindow.addEventListener('message',  (event) => {
                 console.log(event);
+                const message = JSON.parse(event.data);
+                switch (message.type) {
+                    case 'player:durationChange':
+                        this.duration = message.data.duration;
+                        break;
+                    case 'player:currentTime':
+                        this.currentTime = message.data.time;
+                        break
+                }
             });
             resolve();
         });
@@ -72,8 +87,8 @@ class RutubePlayer extends EventEmitter implements Promo.Player {
         this.contentWindow?.postMessage(JSON.stringify({command}), '*');
     }
 
-    seek() {
-        // TODO
+    seek(time: number) {
+        this.doCommand( {type:'player:setCurrentTime', data: {time}});
     }
 
     play() {
@@ -85,11 +100,15 @@ class RutubePlayer extends EventEmitter implements Promo.Player {
     }
 
     getCurrentTime() {
-        // TODO
+        return this.currentTime;
     }
 
     getDuration() {
-        // TODO
+        return this.duration;
+    }
+
+    setVolume(volume: number) {
+        this.doCommand({type: 'player:setVolume', data: {volume }});
     }
 }
 
@@ -128,7 +147,7 @@ class YoutubePlayer extends EventEmitter implements Promo.Player {
                         }
                     },
                     onError: (e) => {
-                        this.emit('error');
+                        this.emit('error', e);
                     }
                 }
             });
@@ -154,6 +173,10 @@ class YoutubePlayer extends EventEmitter implements Promo.Player {
     getDuration() {
         return this.instance.getDuration();
     }
+
+    setVolume(volume: number) {
+        return this.instance.setVolume(volume * 100);
+    }
 }
 
 class HlsJsPlayer extends EventEmitter implements Promo.Player {
@@ -172,14 +195,14 @@ class HlsJsPlayer extends EventEmitter implements Promo.Player {
                 hls.on(Hls.Events.MANIFEST_PARSED, () =>  resolve());
 
                 hls.on(Hls.Events.MEDIA_ENDED, () => this.emit('ended'));
-                hls.on(Hls.Events.ERROR, () => this.emit('error'));
+                hls.on(Hls.Events.ERROR, (e) => this.emit('error', e));
             } else if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
                 this.videoElement.src = url;
                 this.videoElement.addEventListener('loadedmetadata', () => resolve());
 
                 this.videoElement.addEventListener('playing', () => this.emit('started'));
                 this.videoElement.addEventListener('ended', () => this.emit('ended'));
-                this.videoElement.addEventListener('error', () => this.emit('error'));
+                this.videoElement.addEventListener('error', (e) => this.emit('error', e));
             } else {
                 reject();
             }
@@ -205,6 +228,11 @@ class HlsJsPlayer extends EventEmitter implements Promo.Player {
     getDuration() {
         return this.videoElement.duration;
     }
+
+    setVolume(volume: number) {
+        this.videoElement.volume = volume;
+    }
+
 }
 
 class HTMLPlayer extends EventEmitter implements Promo.Player {
@@ -219,7 +247,7 @@ class HTMLPlayer extends EventEmitter implements Promo.Player {
             });
             this.videoElement.addEventListener('playing', () => this.emit('started'));
             this.videoElement.addEventListener('ended', () => this.emit('ended'));
-            this.videoElement.addEventListener('error', () => this.emit('error'));
+            this.videoElement.addEventListener('error', (e) => this.emit('error', e));
         });
     }
 
@@ -241,6 +269,10 @@ class HTMLPlayer extends EventEmitter implements Promo.Player {
 
     getDuration() {
         return this.videoElement.duration;
+    }
+
+    setVolume(volume: number) {
+        this.videoElement.volume = volume;
     }
 }
 

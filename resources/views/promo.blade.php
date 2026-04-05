@@ -3,6 +3,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>ТЕЛЕпорт "Старого Телевизора"</title>
+
+    <link rel="preload" href="https://vk.com/js/api/videoplayer.js" as="script"/>
+    <link rel="preload" href="{{Vite::asset('resources/fonts/promo/Electronica-Normal.ttf')}}" as="font"
+          crossorigin="anonymous"/>
+    <link rel="preload" href="{{Vite::asset('resources/fonts/promo/Electronica-Normal.woff2')}}" as="font"
+          type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="{{Vite::asset('resources/images/promo/background.webp')}}" as="image"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100..900&display=swap" rel="stylesheet">
+
     @vite([ 'resources/sass/promo/index.scss'])
 </head>
 <body>
@@ -39,10 +50,9 @@
                 @include ('blocks.global.logo')
             </div>
             <div class="remote__inner">
-                <div class="remote__random">Случайный канал</div>
-                <div class="remote__channels" id="channels">
-
-                </div>
+                <button class="remote__button remote__random" id="remote_random">Случайный канал</button>
+                <div class="remote__channels" id="channels"></div>
+                <button class="remote__button" id="remote_commercials">Рекламные ролики</button>
             </div>
         </div>
     </div>
@@ -57,7 +67,14 @@
                     <div class="tv__overlay__name" id="channel_name"></div>
                 </div>
 
-                <div class="tv__noise" id="noise"></div>
+                <div class="tv__not-found" id="not_found" style="display:none">
+                    <div class="tv__not-found__text">
+                        <div class="tv__not-found__text__title">К сожалению, по вашим параметрам не нашлось записей :(
+                        </div>
+                        <div class="tv__not-found__text__description">Попробуйте изменить канал, год или жанр</div>
+                    </div>
+                </div>
+                <div class="tv__noise" id="noise" style="display:none"></div>
                 <div id="player" class="tv__player"></div>
             </div>
         </div>
@@ -65,26 +82,15 @@
 
         <div class="tv__controls">
             <div class="tv__controls__group">
-                <div class="tv__control" id="control_next_channel">
-                    <svg class="tv__control__icon" viewBox="0 0 30.727 30.727"
-                         xml:space="preserve">
-                                <g>
-                                    <path d="M29.994,10.183L15.363,24.812L0.733,10.184c-0.977-0.978-0.977-2.561,0-3.536c0.977-0.977,2.559-0.976,3.536,0
-                                		l11.095,11.093L26.461,6.647c0.977-0.976,2.559-0.976,3.535,0C30.971,7.624,30.971,9.206,29.994,10.183z"/>
-                                </g>
-                                </svg>
-                    <span class="tooltip">Следующий канал</span>
-                </div>
                 <div class="tv__control" id="control_prev_channel">
-                    <svg class="tv__control__icon tv__control__icon--flip" viewBox="0 0 30.727 30.727"
-                         xml:space="preserve">
-                                <g>
-                                    <path d="M29.994,10.183L15.363,24.812L0.733,10.184c-0.977-0.978-0.977-2.561,0-3.536c0.977-0.977,2.559-0.976,3.536,0
-                                		l11.095,11.093L26.461,6.647c0.977-0.976,2.559-0.976,3.535,0C30.971,7.624,30.971,9.206,29.994,10.183z"/>
-                                </g>
-                                </svg>
+                    <span class="tv__control__icon tv__control__icon--text tv__control__icon--prev-channel">-</span>
                     <span class="tooltip">Предыдущий канал</span>
                 </div>
+                <div class="tv__control" id="control_next_channel">
+                    <span class="tv__control__icon tv__control__icon--text">+</span>
+                    <span class="tooltip">Следующий канал</span>
+                </div>
+
                 <div class="tv__control" id="control_refresh">
                     <svg class="tv__control__icon" viewBox="0 0 24 24">
                         <path
@@ -94,12 +100,24 @@
                 </div>
             </div>
 
-            <div class="tv__controls__group">
-                <div class="tv__controls__year" id="record_year"></div>
+
+            <div class="tv__category">
+                <div class="tv__category__label">Год</div>
+                <button class="tv__category__value" id="control_year">любой</button>
+                <div style="display: none" class="tv__category__list tv__category__list--years"
+                     id="control_year_list"></div>
             </div>
+
+            <div class="tv__category">
+                <div class="tv__category__label">Жанр</div>
+                <button class="tv__category__value" id="control_genre">любой</button>
+                <div style="display: none" class="tv__category__list tv__category__list--genres"
+                     id="control_genre_list"></div>
+            </div>
+
             <div class="tv__controls__group">
-                <div class="tv__control" id="control_next_channel">
-                    <svg class="tv__control__icon"viewBox="0 0 416.979 416.979"
+                <div class="tv__control" id="control_about">
+                    <svg class="tv__control__icon" viewBox="0 0 416.979 416.979"
                          xml:space="preserve">
 <g>
     <path d="M356.004,61.156c-81.37-81.47-213.377-81.551-294.848-0.182c-81.47,81.371-81.552,213.379-0.181,294.85
@@ -112,31 +130,54 @@
                     <span class="tooltip">О проекте</span>
                 </div>
             </div>
+
+            <div class="tv__on-off">
+                <div class="tv__control" id="control_on_off">
+                    <svg class="tv__control__icon" viewBox="0 0 512 512"><path d="M228.576 26.213v207.32h54.848V26.214h-54.848zm-28.518 45.744C108.44 96.58 41 180.215 41 279.605c0 118.74 96.258 215 215 215 118.74 0 215-96.26 215-215 0-99.39-67.44-183.025-159.057-207.647v50.47c64.6 22.994 110.85 84.684 110.85 157.177 0 92.117-74.676 166.794-166.793 166.794-92.118 0-166.794-74.678-166.794-166.795 0-72.494 46.25-134.183 110.852-157.178v-50.47z"/></svg>
+                    <span class="tooltip">Вкл/выкл</span>
+                </div>
+            </div>
+
+            <div class="tv__volume">
+                <div class="tv__volume__outer">
+                    <div class="tv__volume__label">Громкость</div>
+                    <div class="tv__volume__inner" id="control_volume">
+                        <div class="tv__volume__indicator"></div>
+                    </div>
+                    <div class="tv__volume__text tv__volume__text--min">0%</div>
+
+                    <div class="tv__volume__text tv__volume__text--max">100%</div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="tapes" id="tapes"></div>
     <button class="reload-programs" id="reload_programs">Поменять передачи</button>
 
-    <div class="about" style="display: none">
+    <div id="about" class="about" style="display: none">
         <div class="about__content">
             <p class="about__text">
-                Насладитесь телевидением прошлых лет (с советской эпохи и до 2010 года) с нашим ТЕЛЕпортом. Просто выберите канал и год - или доверьтесь случайности.
+                Насладитесь телевидением прошлых лет (с советской эпохи и до 2010 года) с нашим ТЕЛЕпортом. Просто
+                выберите канал и год - или доверьтесь случайности.
             </p>
             <h2 class="about__heading">Доступность видео</h2>
             <p class="about__text">
-                К сожалению, партия сочла некоторые источники наших архивов вражескими. Вы и так знаете, что использовать для доступа к ним :)<br/>
+                К сожалению, партия сочла некоторые источники наших архивов вражескими. Вы и так знаете, что
+                использовать для доступа к ним :)<br/>
                 Если не хотите видеть современную богомерзкую рекламу, то можно использовать любой блокировщик.
             </p>
             <h2 class="about__heading">Есть что предложить?</h2>
             <p class="about__text">
-                Если у вас всё ещё хранятся кассеты или любой другой носитель с записями передач, которых нет на сайте, то вы можете <a target="_blank" href="/tape-digitization">помочь архиву</a>.
+                Если у вас всё ещё хранятся кассеты или любой другой носитель с записями передач, которых нет на сайте,
+                то вы можете <a target="_blank" href="/tape-digitization">помочь архиву</a>.
             </p>
             <h2>О проекте</h2>
             <p class="about__text">
-                Разработано <a target="_blank" href="https://mrcatmann.ru">mrcatmann</a> и командой сайта <a target="_blank" href="https://staroetv.su">"Старый телевизор"</a>.
+                Разработано <a target="_blank" href="https://mrcatmann.ru">mrcatmann</a> и командой сайта <a
+                    target="_blank" href="https://staroetv.su">"Старый телевизор"</a>.
                 За основу взята идея проекта <a target="_blank" href="http://myretrotvs.com/">MyRetroTVs</a>.
             </p>
-            <a class="about__close">Закрыть</a>
+            <a class="about__close" id="about_close">Продолжить</a>
         </div>
     </div>
 </div>
