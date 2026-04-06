@@ -1,8 +1,9 @@
 import { Loader } from "./loader";
 
+import background from '/resources/images/promo/background.webp'
+
 const FAIL_TIMEOUT_MS = 5000;
 const YOUTUBE_IFRAME_API = 'https://www.youtube.com/iframe_api';
-// todo save and recheck
 
 export const Resources = {
     loadedList: [] as string[],
@@ -47,11 +48,15 @@ export const Resources = {
     },
 
     loadPictures() {
-        const pictures = ['/resources/images/promo/background.webp']
+        const pictures = [background]
         return this.load(pictures, this.loadPicture);
     },
     loadScripts() {
-        const scripts = ['https://vk.com/js/api/videoplayer.js', YOUTUBE_IFRAME_API];
+        const scripts = ['https://vk.com/js/api/videoplayer.js'];
+        const youtubeLastDateCheck = parseInt(localStorage.getItem('youtube_last_date_check'));
+        if (!youtubeLastDateCheck || new Date().getTime() - youtubeLastDateCheck > 1000 * 60 * 10) {
+            scripts.push(YOUTUBE_IFRAME_API);
+        }
 
         return this.load(scripts, (script: string) => {
             return new Promise<void>((resolve) => {
@@ -64,7 +69,13 @@ export const Resources = {
         }, true);
     },
     loadAll() {
-        this.loadScripts().then(() => {Loader.increment(20)});
-        this.loadPictures().then(() => {Loader.increment(20)});
+        this.loadScripts().then(() => {
+            if (!this.isYoutubeAvailable()) {
+                localStorage.setItem('youtube_last_date_check', new Date().getTime().toString());
+            }
+            Loader.increment(20)
+        });
+        this.loadPictures().then(() => {
+            Loader.increment(20)});
     }
 }

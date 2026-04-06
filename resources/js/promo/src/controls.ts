@@ -221,7 +221,8 @@ export const Controls = {
         this.buttons.genresList.style.display = '';
     },
     initVolume() {
-        let volume = localStorage.getItem('volume') ? parseFloat(localStorage.getItem('volume')) : 1;
+        const savedVolume = parseFloat(localStorage.getItem('volume'));
+        let volume = savedVolume >= 0 ? savedVolume : 1;
         const setVolume = (_volume: number) => {
             volume = _volume;
             this.buttons.volume.style.transform = `rotate(${volume * 270 + 45}deg)`;
@@ -232,18 +233,20 @@ export const Controls = {
 
         setVolume(volume);
 
-        this.buttons.volume.addEventListener('mousedown', (e) => {
-            const x = e.clientX;
-            let startVolume = volume;
-            const onMouseMove = (e: MouseEvent) => {
-                const delta = (e.clientX - x) / 200;
-                setVolume(Math.max(0, Math.min(1, startVolume + delta)));
-            }
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', () => {
-                document.removeEventListener('mousemove', onMouseMove);
+        [['mousedown', 'mousemove', 'mouseup'], ['touchstart', 'touchmove', 'touchend']].forEach((events) => {
+            this.buttons.volume.addEventListener(events[0], (e) => {
+                const x = e.clientX ?? e.touches[0].clientX;
+                let startVolume = volume;
+                const onMouseMove = (e: MouseEvent) => {
+                    const delta = ((e.clientX ?? e.touches[0].clientX) - x) / 200;
+                    setVolume(Math.max(0, Math.min(1, startVolume + delta)));
+                }
+                document.addEventListener(events[1], onMouseMove);
+                document.addEventListener(events[2], () => {
+                    document.removeEventListener(events[1], onMouseMove);
+                });
             });
-        });
+        })
     },
     initClickOutside() {
         document.addEventListener('click', (e) => {

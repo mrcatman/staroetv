@@ -1,5 +1,6 @@
-.tv {
+@use "./mixins" as *;
 
+.tv {
     &__picture {
         position: absolute;
         z-index: 1;
@@ -10,16 +11,27 @@
         background: url('/resources/images/promo/background.webp') no-repeat center center;
         background-size: cover;
         pointer-events: none;
+        @include mobile() {
+            background-position: calc(50% + 6vw) center;
+            background-size: 293vw;
+            -webkit-mask-image: linear-gradient(to bottom, transparent 5%, #fff 10%, #fff 85%, transparent 90%);
+        }
     }
 
     &__outer {
         background: #000;
         position: absolute;
         z-index: 0;
-        top: 10vh;
-        left: calc(50vw - 37.5vh);
-        width: 64vh;
-        height: 58vh;
+        top: 10em;
+        left: calc(50vw - 37.5em);
+        width: 64em;
+        height: 58em;
+        @include mobile() {
+            width: 77vw;
+            left: 12vw;
+            top: calc(50vh - 46vw);
+            height: 65vw;
+        }
     }
 
     &__inner {
@@ -92,7 +104,7 @@
         z-index: 2;
         padding: 2em 2.25em;
         box-sizing: border-box;
-        font-family: "PF Videotext Pro", sans-serif;
+        font-family: "AmericanTypewriter", sans-serif;
         color: #0f0;
         font-size: 2.5em;
         text-shadow: 0 0 .75em #000, 0 0 .25em;
@@ -109,15 +121,19 @@
     &__controls {
         position: absolute;
         z-index: 1;
-        top: 66.5vh;
-        font-size: 1.25vh;
+        top: 53.25em;
+        font-size: 1.25em;
         left: calc(50vw - 30em - var(--widescreen-margin));
         width: 54em;
         display: flex;
         align-items: center;
         justify-content: space-around;
         gap: 1em;
-
+        @include mobile() {
+            font-size: 1.5vw;
+            left: calc(50vw - 27.5em);
+            top: calc(50vh + 20vw);
+        }
         &__group {
             display: flex;
             background: linear-gradient(45deg, black, transparent);
@@ -143,6 +159,7 @@
         justify-content: center;
         transition: all .1s;
         user-select: none;
+
         &:hover {
             color: #ff6a00;
         }
@@ -178,21 +195,20 @@
 
     &__on-off {
         position: absolute;
-        top: 17.5vh;
-        left: 4vh;
+        top: 14.5em;
+        left: 4em;
         box-shadow: 0 0 1em #000;
         border-radius: 50%;
     }
 
     &__volume {
         position: absolute;
-        top: 16.75vh;
-        left: 54vh;
+        top: 13.25em;
+        left: 44em;
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: .5em;
-        font-size: 1.125vh;
         user-select: none;
 
         &__inner {
@@ -203,6 +219,7 @@
             border-radius: 50%;
             box-shadow: 0 .75em 1em inset rgba(0, 0, 0, .5), 0 0 1.75em -.5em rgba(0, 0, 0, .75);
         }
+
         &__indicator {
             position: absolute;
             width: .25em;
@@ -213,9 +230,11 @@
             bottom: 0;
             left: 2.25em;
         }
+
         &__outer {
             position: relative;
         }
+
         &__label {
             color: #777;
             text-shadow: 0 0 .5em rgba(0, 0, 0, .75);
@@ -286,7 +305,7 @@
             bottom: calc(100% + 1em);
             display: flex;
             flex-wrap: wrap;
-            font-size: 1.875vh;
+            font-size: 1.875em;
             text-align: center;
             background: radial-gradient(rgba(0, 0, 0, .5), rgba(0, 0, 0, .8));
             border-radius: 1em;
@@ -345,11 +364,11 @@
         cursor: pointer;
         position: absolute;
         z-index: 1000;
-        font-size: 3vh;
-        top: 75.75vh;
+        font-size: 3em;
+        top: 75.75em;
         padding: .5em .25em;
         left: calc(50vw - 10.25em);
-        width: 51vh;
+        width: 51em;
         color: #13effb;
         font-family: 'ElectronicaNormal', sans-serif;
         white-space: nowrap;

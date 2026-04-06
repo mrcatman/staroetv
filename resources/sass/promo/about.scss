@@ -1,3 +1,5 @@
+@use "./mixins" as *;
+
 .about {
     position: fixed;
     top: 0;
@@ -18,7 +20,12 @@
         max-width: 35vw;
         padding: 2em;
         border-radius: 1em;
+        box-sizing: border-box;
         box-shadow: 0 0 2.5em inset #ffffff30, 0 .5em 5em -2em rgba(255, 255, 255, .5);
+        @include mobile() {
+            font-size: 2.75vw;
+            max-width: 85vw;
+        }
         a {
             color: inherit;
         }

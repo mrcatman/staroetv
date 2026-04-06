@@ -7,4 +7,20 @@
     font-display: swap;
 }
 
-// todo load fonts: typewriter, tv display
+@font-face {
+    font-family: 'AmericanTypewriter';
+    src: url('/resources/fonts/promo/AmericanTypewriter.woff2') format('woff2'),
+    url('/resources/fonts/promo/AmericanTypewriter.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'VCROSDMono';
+    src: url('/resources/fonts/promo/VCROSDMonoRUSVHSicons.woff2') format('woff2'),
+    url('/resources/fonts/promo/VCROSDMonoRUSVHSicons.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
