@@ -134,8 +134,8 @@ export const Controls = {
         Playback.onOff();
     },
     initButtons() {
-        this.buttons.prevChannel.addEventListener('click', () => Playback.changeChannel(1));
-        this.buttons.nextChannel.addEventListener('click', () => Playback.changeChannel(-1));
+        this.buttons.prevChannel.addEventListener('click', () => Playback.changeChannel(-1));
+        this.buttons.nextChannel.addEventListener('click', () => Playback.changeChannel(1));
         this.buttons.refresh.addEventListener('click', () => Playback.start(true));
         this.buttons.about.addEventListener('click', () => About.show());
 
