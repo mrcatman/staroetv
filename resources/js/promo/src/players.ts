@@ -163,7 +163,7 @@ class YoutubePlayer extends EventEmitter implements Promo.Player {
     }
 
     stop() {
-        this.instance.stopVideo();
+        this.instance?.stopVideo();
     }
 
     getCurrentTime() {
@@ -195,7 +195,10 @@ class HlsJsPlayer extends EventEmitter implements Promo.Player {
                 hls.on(Hls.Events.MANIFEST_PARSED, () =>  resolve());
 
                 hls.on(Hls.Events.MEDIA_ENDED, () => this.emit('ended'));
-                hls.on(Hls.Events.ERROR, (e) => this.emit('error', e));
+                hls.on(Hls.Events.ERROR, (e) => {
+                    console.log('hls error', e.toString());
+                    this.emit('error', e)
+                });
             } else if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
                 this.videoElement.src = url;
                 this.videoElement.addEventListener('loadedmetadata', () => resolve());

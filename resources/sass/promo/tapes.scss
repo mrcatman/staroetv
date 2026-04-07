@@ -1,3 +1,4 @@
+@use "./mixins" as *;
 
 .tapes {
     position: absolute;
@@ -8,8 +9,13 @@
     gap: 1.9em;
     left: calc(50vw + 39.5em - var(--widescreen-margin));
     perspective: 152em;
+    @include mobile() {
+        font-size: 1.225vw;
+        top: calc(50vh - 44vw);
+        left: 104vw;
+        perspective: 200vw;
+    }
 }
-
 
 .tape {
     width: 44em;
@@ -90,6 +96,10 @@
             display: flex;
             align-items: center;
             gap: .5em;
+            line-height: 1;
+            @include mobile() {
+                font-size: 1.8em;
+            }
         }
 
         &__cover {
@@ -98,6 +108,10 @@
             height: 2.5em;
             background-size: cover;
             background-position: center;
+            @include mobile() {
+                width: 3.5em;
+                height: 2em;
+            }
         }
     }
 
@@ -111,27 +125,5 @@
 
     &:nth-of-type(4n) &__sticker {
         transform: rotate(.5deg);
-    }
-}
-
-
-.reload-programs {
-    position: absolute;
-    bottom: 2.75em;
-    left: calc(50vw + 25em);
-    white-space: nowrap;
-    z-index: 100;
-    font: inherit;
-    font-size: 1.75em;
-    padding: .5em 1em;
-    border-radius: 1em;
-    background: linear-gradient(346deg, #000000d4, #00000066);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, .25);
-    opacity: .75;
-    cursor: pointer;
-    transition: opacity .2s;
-    &:hover {
-        opacity: .95;
     }
 }

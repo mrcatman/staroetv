@@ -1,16 +1,31 @@
 @use "./mixins" as *;
 
 .remote {
-    background: linear-gradient(45deg, #222, #111);
-    border-radius: 2em;
-    padding: 1em;
-    box-shadow: -1em 5em 2em 2em #0000004a;
-    font-size: 1.25vh;
     position: absolute;
     bottom: -1vw;
     left: 0;
+    transition: bottom .4s;
+    pointer-events: all;
     @include mobile() {
-        display: none;
+        bottom: calc(-100% - 2em);
+        height: 100vh;
+        overflow: auto;
+        overflow-x: hidden;
+        left: 12.5vw;
+        &--visible {
+            bottom: 0;
+        }
+    }
+    &__outer {
+        background: linear-gradient(45deg, #222, #111);
+        border-radius: 2em;
+        padding: 1em;
+        box-shadow: -1em 5em 2em 2em #0000004a;
+        font-size: 1.25vh;
+        @include mobile() {
+            margin: 4em 0 1.75em;
+            font-size: 3.125vw;
+        }
     }
     &__logo {
         display: flex;
@@ -37,14 +52,24 @@
         display: flex;
         flex-direction: column;
         gap: 1em;
+        @include mobile() {
+            height: unset;
+        }
     }
 
     &__container {
         position: absolute;
-        z-index: 2;
+        z-index: 10;
         top: 0;
         left: 5em;
         height: 100vh;
+        pointer-events: none;
+        @include mobile() {
+            overflow: auto;
+            position: fixed;
+            left: 0;
+            width: 100vw;
+        }
     }
 
     &__channels {

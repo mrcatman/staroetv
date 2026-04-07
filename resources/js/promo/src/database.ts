@@ -16,29 +16,29 @@ export const Database = {
                 return !!channel[3];
             });
         },
-        getParamsForRecord(record: Promo.Record): [number, string] {
+        getParamsForRecord(record: Promo.Record): [number, number, string] {
             const channel = this.list.find(channel => channel[0] == record[5]);
             if (!channel) {
-                return [-1, ''];
+                return [-1, -1, ''];
             }
             if (record[8]) {
-                return [0, 'Рекламные ролики'];
+                return [record[5], 0, 'Рекламные ролики'];
             }
 
             if (!channel[6].length) {
-                return [channel[5], channel[1]];
+                return [channel[0], channel[5], channel[1]];
             }
 
             const recordDate = new Date(record[3]);
             if (!recordDate) {
-                return [channel[5], channel[1]];
+                return [channel[0], channel[5], channel[1]];
             }
 
             const name = channel[6].filter(name => !!name[1]).reverse().find(name => {
                 const nameDate = new Date(name[1]);
                 return nameDate <= recordDate;
             })
-            return [channel[5], name?.[0] || channel[1]];
+            return [channel[0], channel[5], name?.[0] || channel[1]];
         },
         getByIndex(index: number): Promo.Channel {
             if (index < 0) {
@@ -76,7 +76,7 @@ export const Database = {
     records: {
         list: [],
         loadedPages: [],
-        currentPlaying: {} as Promo.CurrentPlayingRecords,
+        nowPlaying: {} as Promo.NowPlayingRecords,
 
         async loadPage(page: number) {
             if (this.loadedPages.includes(page)) {
@@ -99,9 +99,9 @@ export const Database = {
         async get(params: Promo.PlaybackParams, force: boolean = false): Promise<[Promo.Record, number?]> {
             return new Promise((resolve) => {
                 const now = new Date().getTime();
-                if (params.channel_id && !force && this.currentPlaying[params.channel_id] && this.currentPlaying[params.channel_id].ends_at > now) {
-                    const seekTo = (this.currentPlaying[params.channel_id].ends_at - now) / 1000;
-                    return resolve([this.currentPlaying[params.channel_id].record, seekTo]);
+                if (params.channel_id && !force && this.nowPlaying[params.channel_id] && this.nowPlaying[params.channel_id].ends_at > now) {
+                    const seekTo = (this.nowPlaying[params.channel_id].ends_at - now) / 1000;
+                    return resolve([this.nowPlaying[params.channel_id].record, seekTo]);
                 }
 
                 let item = this.find(params);
@@ -133,7 +133,7 @@ export const Database = {
             }
             if (params.channel_id) {
                 list = list.filter(record => {
-                    return record[5] == params.channel_id;
+                    return record[5] == params.channel_id && !record[8];
                 });
             }
             if (params.program_id) {
@@ -148,11 +148,14 @@ export const Database = {
             }
             return getRandomItem(list);
         },
-        updateCurrentPlaying(record: Promo.Record, ends_at: number) {
-            this.currentPlaying[record[5]] = {
+        updateNowPlaying(record: Promo.Record, ends_at: number) {
+            this.nowPlaying[record[5]] = {
                 record,
                 ends_at
             }
+        },
+        clearNowPlaying() {
+            this.nowPlaying = {};
         },
         filterAvailable() {
             const youtubeAvailable = Resources.isYoutubeAvailable();

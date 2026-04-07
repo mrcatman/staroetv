@@ -4,6 +4,8 @@
 @use "./tapes";
 @use "./remote";
 @use "./about";
+@use "./buttons";
+@use "./mixins" as *;
 
 body {
     margin: 0;
@@ -31,6 +33,14 @@ body {
     background: #000;
     position: relative;
     margin: 0 auto;
+    transition: all .4s;
+    left: 0;
+    &--programs {
+        @include mobile() {
+            left: -100vw;
+            transform: scale(1.25);
+        }
+    }
 }
 
 .tooltip {
@@ -44,8 +54,14 @@ body {
     background: rgba(0,0,0,.5);
     border-radius: .25em;
     white-space: nowrap;
+    @include mobile() {
+        font-size: 1rem;
+        top: -1.75em;
+        border-radius: .5em;
+    }
 }
 
 .remote__button:hover .tooltip, .tv__control:hover .tooltip {
     visibility: visible;
 }
+

@@ -93,12 +93,13 @@ class ExportPromoData extends Command
 
         $program_genres = Program::pluck('genre_id', 'id');
 
-        // todo убрать радио
+        // todo убрать радио, зарубежные каналы, dailymotion
         $records->inRandomOrder()->chunk(100, function ($records) use (&$count, &$part_index, &$parts, $total_records, &$records_list, $program_genres) {
             foreach ($records as $record) {
                 $url = $record->use_own_player ? $record->source_hls : $record->original_url;
                 if ($record->telegram_id) {
-                    $url = $record->all_telegram_sources[array_rand($record->all_telegram_sources)];
+                    continue;
+                    //$url = $record->all_telegram_sources[array_rand($record->all_telegram_sources)];
                 }
 
                 $is_advertising = $record->is_advertising;

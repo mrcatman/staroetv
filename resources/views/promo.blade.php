@@ -17,7 +17,7 @@
     @vite([ 'resources/sass/promo/index.scss'])
 </head>
 <body>
-<div class="main">
+<div class="main" id="main">
     <div class="loader" id="loader"
          style="position: absolute;top:0;left:0;width: 100%;height: 100%;z-index:100000000;background:#111;color: #fff;display: flex;flex-direction:column;align-items:center;justify-content:center">
         <div class="loader__tv">
@@ -44,15 +44,21 @@
         <div class="loader__percent" id="loader_percent">0%</div>
     </div>
 
+    <div class="close-remote__container" id="close_remote_container" style="display: none">
+        <div class="button close-remote" id="close_remote">Убрать пульт</div>
+
+    </div>
     <div class="remote__container">
-        <div class="remote">
-            <div class="remote__logo">
-                @include ('blocks.global.logo')
-            </div>
-            <div class="remote__inner">
-                <button class="remote__button remote__random" id="remote_random">Случайный канал</button>
-                <div class="remote__channels" id="channels"></div>
-                <button class="remote__button" id="remote_commercials">Рекламные ролики</button>
+        <div class="remote" id="remote">
+            <div class="remote__outer">
+                <div class="remote__logo">
+                    @include ('blocks.global.logo')
+                </div>
+                <div class="remote__inner">
+                    <button class="remote__button remote__random" id="remote_random">Случайный канал</button>
+                    <div class="remote__channels" id="channels"></div>
+                    <button class="remote__button" id="remote_commercials">Рекламные ролики</button>
+                </div>
             </div>
         </div>
     </div>
@@ -133,7 +139,10 @@
 
             <div class="tv__on-off">
                 <div class="tv__control" id="control_on_off">
-                    <svg class="tv__control__icon" viewBox="0 0 512 512"><path d="M228.576 26.213v207.32h54.848V26.214h-54.848zm-28.518 45.744C108.44 96.58 41 180.215 41 279.605c0 118.74 96.258 215 215 215 118.74 0 215-96.26 215-215 0-99.39-67.44-183.025-159.057-207.647v50.47c64.6 22.994 110.85 84.684 110.85 157.177 0 92.117-74.676 166.794-166.793 166.794-92.118 0-166.794-74.678-166.794-166.795 0-72.494 46.25-134.183 110.852-157.178v-50.47z"/></svg>
+                    <svg class="tv__control__icon" viewBox="0 0 512 512">
+                        <path
+                            d="M228.576 26.213v207.32h54.848V26.214h-54.848zm-28.518 45.744C108.44 96.58 41 180.215 41 279.605c0 118.74 96.258 215 215 215 118.74 0 215-96.26 215-215 0-99.39-67.44-183.025-159.057-207.647v50.47c64.6 22.994 110.85 84.684 110.85 157.177 0 92.117-74.676 166.794-166.793 166.794-92.118 0-166.794-74.678-166.794-166.795 0-72.494 46.25-134.183 110.852-157.178v-50.47z"/>
+                    </svg>
                     <span class="tooltip">Вкл/выкл</span>
                 </div>
             </div>
@@ -152,35 +161,40 @@
         </div>
     </div>
     <div class="tapes" id="tapes"></div>
-    <button class="reload-programs" id="reload_programs">Поменять передачи</button>
+    <button class="button reload-programs" id="reload_programs">Поменять кассеты</button>
 
-    <div id="about" class="about" style="display: none">
-        <div class="about__content">
-            <p class="about__text">
-                Насладитесь телевидением прошлых лет (с советской эпохи и до 2010 года) с нашим ТЕЛЕпортом. Просто
-                выберите канал и год - или доверьтесь случайности.
-            </p>
-            <h2 class="about__heading">Доступность видео</h2>
-            <p class="about__text">
-                К сожалению, партия сочла некоторые источники наших архивов вражескими. Вы и так знаете, что
-                использовать для доступа к ним :)<br/>
-                Если не хотите видеть современную богомерзкую рекламу, то можно использовать любой блокировщик.
-            </p>
-            <h2 class="about__heading">Есть что предложить?</h2>
-            <p class="about__text">
-                Если у вас всё ещё хранятся кассеты или любой другой носитель с записями передач, которых нет на сайте,
-                то вы можете <a target="_blank" href="/tape-digitization">помочь архиву</a>.
-            </p>
-            <h2>О проекте</h2>
-            <p class="about__text">
-                Разработано <a target="_blank" href="https://mrcatmann.ru">mrcatmann</a> и командой сайта <a
-                    target="_blank" href="https://staroetv.su">"Старый телевизор"</a>.
-                За основу взята идея проекта <a target="_blank" href="http://myretrotvs.com/">MyRetroTVs</a>.
-            </p>
-            <a class="about__close" id="about_close">Продолжить</a>
-        </div>
+</div>
+
+<div id="about" class="about" style="display: none">
+    <div class="about__content">
+        <p class="about__text">
+            Насладитесь телевидением прошлых лет (с советской эпохи и до 2010 года) с нашим ТЕЛЕпортом. Просто
+            выберите канал и год - или доверьтесь случайности.
+        </p>
+        <h2 class="about__heading">Доступность видео</h2>
+        <p class="about__text">
+            К сожалению, партия сочла некоторые источники наших архивов вражескими. Вы и так знаете, что
+            использовать для доступа к ним :)<br/>
+            Если не хотите видеть современную богомерзкую рекламу, то можно использовать любой блокировщик.
+        </p>
+        <h2 class="about__heading">Есть что предложить?</h2>
+        <p class="about__text">
+            Если у вас всё ещё хранятся кассеты или любой другой носитель с записями передач, которых нет на сайте,
+            то вы можете <a target="_blank" href="/tape-digitization">помочь архиву</a>.
+        </p>
+        <h2>О проекте</h2>
+        <p class="about__text">
+            Разработано <a target="_blank" href="https://mrcatmann.ru">mrcatmann</a> и командой сайта <a
+                target="_blank" href="https://staroetv.su">"Старый телевизор"</a>.
+            За основу взята идея проекта <a target="_blank" href="http://myretrotvs.com/">MyRetroTVs</a>.
+        </p>
+        <a class="about__close" id="about_close">Продолжить</a>
     </div>
 </div>
+
+<button class="button toggle-remote" id="toggle_remote">Достать пульт</button>
+<button class="button toggle-programs" id="toggle_programs">Выбрать кассету</button>
+
 </body>
 @routes
 @vite(['resources/js/promo/index.ts'])

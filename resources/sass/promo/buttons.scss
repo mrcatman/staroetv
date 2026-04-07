@@ -1,0 +1,73 @@
+@use "./mixins" as *;
+
+.button {
+    white-space: nowrap;
+    z-index: 100;
+    font: inherit;
+    font-size: 1.75em;
+    padding: .5em 1em;
+    border-radius: 1em;
+    background: linear-gradient(346deg, #000000d4, #00000066);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .25);
+    opacity: .75;
+    cursor: pointer;
+    transition: opacity .2s;
+    &:hover {
+        opacity: .95;
+    }
+}
+
+
+.reload-programs {
+    position: absolute;
+    bottom: 2.75em;
+    left: calc(50vw + 25em);
+    @include mobile() {
+        bottom: unset;
+        top: calc(50vh - 55vw);
+        font-size: 2.25vw!important;
+        left: 116vw;
+    }
+}
+
+.toggle-programs {
+    display: none;
+    position: fixed;
+    bottom: 2em;
+    left: calc(50vw - 12em);
+    z-index: 5;
+    @include mobile() {
+        display: block;
+    }
+}
+
+.toggle-remote {
+    display: none;
+    position: fixed;
+    bottom: 2em;
+    left: calc(50vw + 2em);
+    z-index: 5;
+    @include mobile() {
+        display: block;
+    }
+}
+
+.close-remote {
+    &__container {
+        visibility: hidden;
+        @include mobile() {
+            visibility: visible;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 2em 0 4em;
+            z-index: 1002;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,.75) 70%, transparent);
+        }
+    }
+}

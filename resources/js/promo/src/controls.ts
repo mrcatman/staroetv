@@ -8,6 +8,9 @@ import { About } from "./about";
 //reloadProgramsButton.addEventListener('click', loadPrograms);
 
 export const Controls = {
+    main: document.getElementById('main') as HTMLElement,
+    remote: document.getElementById('remote') as HTMLElement,
+    closeRemoteContainer: document.getElementById('close_remote_container'),
     buttons: {
         nextChannel: document.getElementById('control_next_channel'),
         prevChannel: document.getElementById('control_prev_channel'),
@@ -25,11 +28,12 @@ export const Controls = {
         commercials: document.getElementById('remote_commercials'),
 
         volume: document.getElementById('control_volume'),
+
+        togglePrograms: document.getElementById('toggle_programs'),
+        toggleRemote: document.getElementById('toggle_remote'),
+        closeRemote: document.getElementById('close_remote'),
     },
-    setActiveButton(buttonEl: HTMLButtonElement) {
-        document.querySelector('.remote__button--active')?.classList.remove('remote__button--active');
-        buttonEl.classList.add('remote__button--active');
-    },
+
     async initChannels() {
         const channelsRootEl = document.querySelector('#channels');
         channelsRootEl.innerHTML = '';
@@ -58,17 +62,19 @@ export const Controls = {
 
             const channelEl = document.createElement('button');
             channelEl.classList.add('remote__button', 'remote__channel');
+            channelEl.dataset.id = channel[0].toString();
             channelEl.innerHTML = `
             <div class="remote__channel__logo" style="background-image:url(${logo}"></div>
             <span class="tooltip">${name}</span>
             `;
             channelsRootEl.appendChild(channelEl);
             channelEl.addEventListener('click', () => {
-                this.setActiveButton(channelEl);
+                this.setActiveChannelButton(channelEl);
                 Playback.setParamsAndStart({
                     channel_id: channel[0],
                     commercials: false,
                 })
+                this.closeRemote();
             });
         })
         Loader.increment(5);
@@ -77,7 +83,14 @@ export const Controls = {
         await Resources.load(logos, Resources.loadPicture, true);
         Loader.increment(10);
     },
-
+    setActiveChannelButton(buttonEl?: HTMLButtonElement) {
+        document.querySelector('.remote__button--active')?.classList.remove('remote__button--active');
+        buttonEl && buttonEl.classList.add('remote__button--active');
+    },
+    updateActiveChannel(id: number) {
+        const activeChannel = document.querySelector(`.remote__channel[data-id="${id}"]`) as HTMLButtonElement;
+        this.setActiveChannelButton(activeChannel);
+    },
     async initPrograms() {
         const programsRootEl = document.querySelector('#tapes');
         programsRootEl.innerHTML = '';
@@ -97,6 +110,7 @@ export const Controls = {
             programsRootEl.appendChild(programEl);
             programEl.addEventListener('click', () => {
                 // todo убрать здесь заставки передач (?)
+                this.main.classList.remove('main--programs');
                 Playback.setParamsAndStart({
                     channel_id: undefined,
                     program_id: program[0],
@@ -114,21 +128,23 @@ export const Controls = {
         reloadProgramsButton.addEventListener('click', this.initPrograms);
     },
     randomChannel() {
-        this.setActiveButton(this.buttons.random);
+        this.setActiveChannelButton(this.buttons.random);
         Playback.setParamsAndStart({
             channel_id: undefined,
             program_id: undefined,
             commercials: false,
         });
+        this.closeRemote();
     },
     commercials() {
-        this.setActiveButton(this.buttons.commercials);
+        this.setActiveChannelButton(this.buttons.commercials);
         Playback.setParamsAndStart({
             channel_id: undefined,
             program_id: undefined,
             genre_id: undefined,
             commercials: true,
         });
+        this.closeRemote();
     },
     onOff() {
         Playback.onOff();
@@ -146,7 +162,7 @@ export const Controls = {
         this.buttons.commercials.addEventListener('click', () => this.commercials());
         this.buttons.onOff.addEventListener('click', () => this.onOff());
     },
-    showYears() { // todo скрытие, вариант "Все"
+    showYears() {
         if (!this.buttons.yearsList.children.length) {
             const setYear = (el: HTMLDivElement, year: number) => {
                 this.buttons.yearsList.querySelectorAll('.tv__category__list__item').forEach(_el => {
@@ -156,13 +172,14 @@ export const Controls = {
 
                 this.buttons.yearsList.style.display = 'none';
 
+                Database.records.clearNowPlaying();
                 Playback.setParamsAndStart({
+                    program_id: undefined,
                     year,
                 });
                 this.initChannels();
                 this.initPrograms();
                 this.buttons.year.innerHTML = `${year ?? 'любой'}`;
-
 
                 const reset = this.buttons.yearsList.querySelector('.tv__category__list__item--reset');
                 reset.style.display = year ? '' : 'none';
@@ -193,6 +210,7 @@ export const Controls = {
 
                 this.buttons.genresList.style.display = 'none';
 
+                Database.records.clearNowPlaying();
                 Playback.setParamsAndStart({
                     commercials: false,
                     genre_id: genre ? genre[0] : undefined,
@@ -258,11 +276,27 @@ export const Controls = {
             });
         });
     },
+    initMobileToggles() {
+        document.body.scrollLeft = 0;
+        this.buttons.togglePrograms.addEventListener('click', () => {
+            this.main.classList.toggle('main--programs');
+        });
+        this.buttons.toggleRemote.addEventListener('click', () => {
+            this.remote.classList.toggle('remote--visible');
+            this.closeRemoteContainer.style.display = this.remote.classList.contains('remote--visible') ? '' : 'none';
+        });
+        this.buttons.closeRemote.addEventListener('click', () => this.closeRemote());
+    },
+    closeRemote() {
+        this.remote.classList.remove('remote--visible');
+        this.closeRemoteContainer.style.display = 'none';
+    },
     initAll() {
         this.initChannels();
         this.initPrograms();
         this.initButtons();
         this.initVolume();
         this.initClickOutside();
+        this.initMobileToggles();
     }
 }

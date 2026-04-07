@@ -1,6 +1,7 @@
 import { Database } from "./database";
 import { createPlayer } from "./players";
 import { getRandomDurationPoint } from "../utils";
+import { Controls } from "./controls";
 
 export const Playback = {
     playerRoot: document.getElementById('player'),
@@ -33,19 +34,21 @@ export const Playback = {
             this.start();
         }
     },
-    setParamsAndStart(params: Promo.PlaybackParams = {}) {
+    async setParamsAndStart(params: Promo.PlaybackParams = {}, skipOnNonExisting: boolean = false) {
         const force = this.params.channel_id && this.params.channel_id === params.channel_id;
 
         this.params = {...this.params, ...params};
-        this.start(force);
+        return await this.start(force, skipOnNonExisting);
     },
 
-    async start(force: boolean = false): Promise<void> {
+    async start(force: boolean = false, skipOnNonExisting: boolean = false): Promise<boolean> {
         this.active = true;
         if (this.firstStart) {
             this.firstStart = false;
             Database.records.filterAvailable();
         }
+
+        this.destroy();
 
         this.notFound.style.display = 'none';
         this.overlay.style.display = 'none';
@@ -54,21 +57,26 @@ export const Playback = {
 
         // todo: skip n last played
         const [record, seekTo] = await Database.records.get(this.params, force);
+        console.log('Start record', record, this.params);
+
         if (!record) {
-            this.noise.style.display = 'none';
             this.notFound.style.display = '';
-            return;
+            this.stop();
+            if (!skipOnNonExisting) {
+                this.noise.style.display = 'none';
+            }
+            return false;
         }
+
         this.record = record;
-
         this.currentChannelIndex = Database.channels.getIndexForRecord(this.record);
-
-        this.player?.stop();
 
         this.player = createPlayer(this.record[2]);
 
         this.player.on('error', (e) => {
             console.log('Player error: ', e);
+
+            this.destroy();
             this.start();
         });
         this.player.on('ended', () => {
@@ -82,7 +90,7 @@ export const Playback = {
             this.noise.style.display = 'none';
 
             const endsAt = new Date().getTime() + (this.player.getDuration() - this.player.getCurrentTime()) * 1000;
-            Database.records.updateCurrentPlaying(this.record, endsAt);
+            Database.records.updateNowPlaying(this.record, endsAt);
         });
 
         await this.player.load(this.record[2], this.playerRoot);
@@ -93,12 +101,17 @@ export const Playback = {
         if (this.playedRecordsCount >= 2) {
             Database.records.loadAll();
         }
+        return true;
     },
-    stop() {
+    destroy() {
         this.playerRoot.style.display = 'none';
+        this.playerRoot.innerHTML = '';
         try {
             this.player?.stop();
         } catch (e) {}
+    },
+    stop() {
+        this.destroy();
 
         clearTimeout(this.updateDisplayStartTimeout);
         clearInterval(this.updateDisplayInterval);
@@ -110,21 +123,26 @@ export const Playback = {
     setVolume(volume: number) {
         this.player?.setVolume(volume);
     },
-    changeChannel(delta: number) {
-        const newChannelIndex = this.currentChannelIndex + delta;
-        const channel = Database.channels.getByIndex(newChannelIndex);
-        this.setParamsAndStart({
-            channel_id: channel[0]
-        });
+    async changeChannel(delta: number) {
+        let state = false;
+        while (!state) {
+            this.currentChannelIndex += delta;
+            const channel = Database.channels.getByIndex(this.currentChannelIndex);
+            state = await this.setParamsAndStart({
+                channel_id: channel[0]
+            }, true);
+        }
     },
     showTitle() {
         clearTimeout(this.hideTitleOverlayTimeout);
 
         this.updateDisplay(this.record[1]);
 
-        const [channelNumber, channelName] = Database.channels.getParamsForRecord(this.record);
+        const [channelId, channelNumber, channelName] = Database.channels.getParamsForRecord(this.record);
         this.currentChannelNumber.innerHTML = channelNumber;
         this.currentChannelName.innerHTML = channelName;
+
+        Controls.updateActiveChannel(channelId);
 
         //this.currentRecordYear.innerHTML = new Date(this.record[3]).getFullYear().toString();
 

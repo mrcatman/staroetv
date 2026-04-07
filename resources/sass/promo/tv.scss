@@ -14,6 +14,8 @@
         @include mobile() {
             background-position: calc(50% + 6vw) center;
             background-size: 293vw;
+            width: 293vw;
+            left: -97vw;
             -webkit-mask-image: linear-gradient(to bottom, transparent 5%, #fff 10%, #fff 85%, transparent 90%);
         }
     }
@@ -104,7 +106,7 @@
         z-index: 2;
         padding: 2em 2.25em;
         box-sizing: border-box;
-        font-family: "AmericanTypewriter", sans-serif;
+        font-family: "VCROSDMono", sans-serif;
         color: #0f0;
         font-size: 2.5em;
         text-shadow: 0 0 .75em #000, 0 0 .25em;
@@ -289,6 +291,11 @@
             position: relative;
             overflow: hidden;
             text-overflow: ellipsis;
+            @include mobile() {
+                font-size: 2.75em;
+                padding: .25em;
+                width: 4em;
+            }
 
             &:hover {
                 background: linear-gradient(45deg, #222, #333);
@@ -363,16 +370,21 @@
     &__record-title {
         cursor: pointer;
         position: absolute;
-        z-index: 1000;
+        z-index: 4;
         font-size: 3em;
-        top: 75.75em;
-        padding: .5em .25em;
+        top: 25.25em;
+        padding: 0.5em 0.25em;
         left: calc(50vw - 10.25em);
-        width: 51em;
+        width: 17em;
         color: #13effb;
         font-family: 'ElectronicaNormal', sans-serif;
         white-space: nowrap;
         overflow: hidden;
         text-shadow: 0 0 .5em;
+        @include mobile() {
+            font-size: 3.6vw;
+            top: calc(50vh + 31.5vw);
+            left: 19vw;
+        }
     }
 }

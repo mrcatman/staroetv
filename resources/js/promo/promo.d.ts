@@ -44,7 +44,7 @@ declare namespace Promo {
         name: string,
     ]
 
-    type CurrentPlayingRecords = {
+    type NowPlayingRecords = {
         [key: number]: {
             record: Promo.Record,
             ends_at: number
