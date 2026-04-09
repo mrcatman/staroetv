@@ -7,6 +7,7 @@ use App\Models\Genre;
 use App\Models\Program;
 use App\Models\Record;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class ExportPromoData extends Command
 {
@@ -20,11 +21,15 @@ class ExportPromoData extends Command
             'programs' => [],
             'genres' => [],
         ];
-        // todo менять каналы и передачи по годам
-
         $channel_index = 1;
-        $channels_query = Channel::where(['is_radio' => false])->whereNull('country')->orderBy('order', 'ASC');
-        $channels = $channels_query->clone()->where(['is_federal' => true])->get()->merge($channels_query->clone()->where(['is_federal' => false])->get());
+        $channels_query = Channel::where(['is_radio' => false])->whereNull('country');
+
+        $regional_counts = Channel::select([DB::raw('count(*) as count'), 'city'])->orderBy('count', 'desc')->whereNotNull('city')->groupBy('city')->get()->pluck('count', 'city');
+        $channels = $channels_query->clone()->where(['is_federal' => true])->orderBy('order', 'ASC')->get()
+            ->merge($channels_query->clone()->where(['is_federal' => false])->whereNull('city')->orderBy('order', 'ASC')->get())
+            ->merge($channels_query->clone()->where(['is_federal' => false])->whereNotNull('city')->orderByRaw("FIELD(city, '" . $regional_counts->keys()->join("','") . "')")->get());
+
+
         foreach ($channels as $channel) {
             $names = $channel->names->map(function ($name) {
                 $logo = $name->logo ? $name->logo->url : null;
@@ -83,7 +88,10 @@ class ExportPromoData extends Command
             return;
         }
 
-        $records = Record::whereIn('channel_id', $channels->pluck('id'))->orWhere(['is_radio' => false, 'is_advertising' => true]);
+        $records = Record::where(function($q) use ($channels) {
+            $q->whereIn('channel_id', $channels->pluck('id'));
+            $q->orWhere(['is_advertising' => true]);
+        })->where(['is_radio' => false])->where('embed_code', 'NOT LIKE', '%dailymotion%')->whereNull('telegram_id')->whereNull('country');
         $total_records = $records->count();
         $parts = 10;
 
@@ -93,14 +101,12 @@ class ExportPromoData extends Command
 
         $program_genres = Program::pluck('genre_id', 'id');
 
-        // todo убрать радио, зарубежные каналы, dailymotion
         $records->inRandomOrder()->chunk(100, function ($records) use (&$count, &$part_index, &$parts, $total_records, &$records_list, $program_genres) {
             foreach ($records as $record) {
                 $url = $record->use_own_player ? $record->source_hls : $record->original_url;
-                if ($record->telegram_id) {
-                    continue;
-                    //$url = $record->all_telegram_sources[array_rand($record->all_telegram_sources)];
-                }
+//                if ($record->telegram_id) {
+//                    //$url = $record->all_telegram_sources[array_rand($record->all_telegram_sources)];
+//                }
 
                 $is_advertising = $record->is_advertising;
                 if ($record->is_interprogram && str_contains(mb_strtolower($record->title), 'реклам') && !str_contains(mb_strtolower($record->title), 'рекламная')) {

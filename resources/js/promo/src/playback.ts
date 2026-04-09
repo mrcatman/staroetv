@@ -42,6 +42,8 @@ export const Playback = {
     },
 
     async start(force: boolean = false, skipOnNonExisting: boolean = false): Promise<boolean> {
+        this.updateDisplay('Загрузка видео...');
+
         this.active = true;
         if (this.firstStart) {
             this.firstStart = false;
@@ -60,6 +62,7 @@ export const Playback = {
         console.log('Start record', record, this.params);
 
         if (!record) {
+            this.updateDisplay('Ничего не найдено');
             this.notFound.style.display = '';
             this.stop();
             if (!skipOnNonExisting) {
@@ -129,7 +132,8 @@ export const Playback = {
             this.currentChannelIndex += delta;
             const channel = Database.channels.getByIndex(this.currentChannelIndex);
             state = await this.setParamsAndStart({
-                channel_id: channel[0]
+                channel_id: channel[0],
+                commercials: undefined
             }, true);
         }
     },

@@ -54,10 +54,15 @@
                 <div class="remote__logo">
                     @include ('blocks.global.logo')
                 </div>
-                <div class="remote__inner">
-                    <button class="remote__button remote__random" id="remote_random">Случайный канал</button>
-                    <div class="remote__channels" id="channels"></div>
-                    <button class="remote__button" id="remote_commercials">Рекламные ролики</button>
+                <div id="remote_main" class="remote__inner">
+                    <button class="remote__button remote__button--random" id="remote_random">Случайный канал</button>
+                    <div class="remote__channels" id="remote_channels"></div>
+                    <button class="remote__button remote__button--commercials" id="remote_commercials">Рекламные ролики</button>
+                    <button class="remote__button" id="remote_show_all">Все каналы</button>
+                </div>
+                <div id="remote_all" class="remote__inner" style="display: none">
+                    <button class="remote__button remote__button--back" id="remote_back">Назад</button>
+                    <div  class="remote__all-channels" id="remote_all_channels"></div>
                 </div>
             </div>
         </div>
@@ -80,7 +85,9 @@
                         <div class="tv__not-found__text__description">Попробуйте изменить канал, год или жанр</div>
                     </div>
                 </div>
-                <div class="tv__noise" id="noise" style="display:none"></div>
+                <video autoplay muted loop class="tv__noise" id="noise" style="display:none">
+                    <source src="{{Vite::asset('resources/images/promo/noise.webm')}}" type="video/webm">
+                </video>
                 <div id="player" class="tv__player"></div>
             </div>
         </div>

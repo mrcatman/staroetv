@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Constants\Actions;
 use App\Constants\CacheTimes;
+use App\Constants\Geography;
 use App\Constants\MaterialTypes;
 use App\Constants\Periods;
 use App\Constants\RecordComplaintTypes;
@@ -46,7 +47,7 @@ class RecordsController extends EntityController
         return Cache::remember('channels_list_' . $hash, CacheTimes::PAGE, function () use ($params) {
             $federal = Channel::where(['is_federal' => true])->where($params)->orderBy('order', 'ASC')->get();
 
-            $regions = json_decode(file_get_contents(storage_path("cities.json")), 1);
+            $regions = Geography::REGIONS;
             $regions_by_city = [];
             foreach ($regions as $region => $cities) {
                 foreach ($cities as $city) {
@@ -79,10 +80,22 @@ class RecordsController extends EntityController
                     $channels_by_region[$channel->city]['channels'][] = $channel_data;
                 }
             }
-            //$main_cities = ['Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань'];
+            foreach ($channels_by_region as $region => &$data) {
+                $capital = Geography::CAPITALS[$region];
+                uksort($data['cities'], function ($a, $b) use ($capital) {
+                    return $a === $capital ? -1 : ($b === $capital ? 1 : strcmp($a, $b));
+                });
+            }
 
-            //dd($channels_by_region);
             ksort($channels_by_region);
+
+//            $main_regions = ['Московская область', 'Ленинградская область', 'Новосибирская область', 'Свердловская область', 'Татарстан'];
+//            uksort($channels_by_region, function ($a, $b) use ($main_regions) {
+//                $a_pos = array_search($a, $main_regions);
+//                $b_pos = array_search($b, $main_regions);
+//                return $a_pos !== false ? ($b_pos !== false ? $a_pos - $b_pos : -1) : ($b_pos !== false ? 1 : strcmp($a, $b));
+//            });
+
             $abroad = Channel::where(['is_abroad' => true])->whereNotNull('country')->where($params)->orderBy('order', 'ASC')->get();
             $abroad_by_country = [];
             foreach ($abroad as $channel) {
@@ -112,7 +125,7 @@ class RecordsController extends EntityController
                 'abroad' => $abroad_by_country,
                 'other' => $other
             ];
-        });
+       });
     }
 
     public function buildOtherCategoriesList()

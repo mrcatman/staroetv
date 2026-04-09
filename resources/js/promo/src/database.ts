@@ -54,6 +54,24 @@ export const Database = {
                 return 0;
             }
             return this.list.findIndex(channel => channel[0] == record[5]);
+        },
+        getNameAndLogo(channel: Promo.Channel, year?: number): [string, string] {
+            let name = channel[1];
+            let logo = channel[2];
+            if (year && channel[6]?.length) {
+                const yearName = channel[6].find((channelName) => {
+                    return new Date(channelName[2]) >= new Date(year, 1, 1);
+                });
+                if (yearName) {
+                    if (yearName[0].length) {
+                        name = yearName[0];
+                    }
+                    if (yearName[3]?.length) {
+                        logo = yearName[3];
+                    }
+                }
+            }
+            return [name, logo];
         }
     },
     programs: {

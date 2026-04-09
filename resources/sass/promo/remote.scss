@@ -16,6 +16,7 @@
             bottom: 0;
         }
     }
+
     &__outer {
         background: linear-gradient(45deg, #222, #111);
         border-radius: 2em;
@@ -27,15 +28,18 @@
             font-size: 3.125vw;
         }
     }
+
     &__logo {
         display: flex;
         align-items: center;
         justify-content: center;
         padding-bottom: 1em;
         filter: drop-shadow(4px 4px 6px #555);
+
         svg {
             width: 100%;
         }
+
         path {
             fill: #ffffff21;
             stroke: none;
@@ -43,7 +47,8 @@
     }
 
     &__inner {
-        height: 87.5vh;
+        width: 20em;
+        height: 89.5vh;
         box-shadow: 0 0 1em;
         padding: 1em;
         border-radius: var(--border-radius-standard);
@@ -88,29 +93,66 @@
         font-weight: bold;
         padding: .5em;
         border-radius: .5em;
-        box-shadow: 0 0 .75em inset #111, .25em .75em .75em -.25em rgba(0,0,0,.85);
+        box-shadow: 0 0 .75em inset #111, .25em .75em .75em -.25em rgba(0, 0, 0, .85);
         cursor: pointer;
         transition: all .2s;
         position: relative;
+
         &:hover {
             z-index: 2;
             background: linear-gradient(45deg, #333, #444);
         }
+
         &:active {
             top: .125em;
             background: linear-gradient(45deg, #161616, #222);
             filter: brightness(.9);
         }
+
         &--active, &--active:hover {
             top: .25em;
             background: linear-gradient(45deg, #000, #111);
-            box-shadow: 0 .5em .75em inset #111, .25em 1.25em .75em -.25em rgba(0,0,0,.85);
+            box-shadow: 0 .5em .75em inset #111, .25em 1.25em .75em -.25em rgba(0, 0, 0, .85);
+        }
+
+        &--random {
+            background: linear-gradient(to bottom, #dc2929, #b61111);
+            text-shadow: 0 0 .5em #000;
+
+            &:hover {
+                background: linear-gradient(to bottom, #e03d3d, #d02222);
+            }
+        }
+
+        &--commercials {
+            width: 100%;
+            background: linear-gradient(to bottom, #2991dc, #114bb6);
+            text-shadow: 0 0 .5em #000;
+
+            &:hover {
+                background: linear-gradient(to bottom, #4ca7e8, #2960c7);
+            }
         }
     }
 
+    &__all-channels {
+        display: flex;
+        flex-direction: column;
+        gap: .5em;
+        overflow: auto;
+    }
     &__channel {
+        &--wide {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            position: relative;
+            gap: .5em;
+        }
+
         &__logo {
             filter: drop-shadow(0 .5em .5em rgba(255, 255, 255, .1));
+            min-width: 5em;
             width: 5em;
             height: 5em;
             background-position: center;
@@ -118,19 +160,37 @@
             background-size: 80%;
         }
 
+        &--wide &__logo {
+            min-width: 3.25em;
+            width: 3.25em;
+            height: 3.25em;
+        }
+
         &__name {
-            display: none;
+            font-size: 1.25em;
+            font-weight: 600;
+        }
+
+        &__number {
+            position: absolute;
+            top: .5em;
+            right: .5em;
+            font-weight: 500;
+            font-size: 1.25em;
+            opacity: .25;
+        }
+
+        &__texts {
+            text-align: left;
+            margin-right: 3.25em;
+        }
+
+
+        &__about {
+            font-size: .875em;
+            font-weight: 500;
+            opacity: .6;
         }
     }
 
-
-    &__random {
-
-        width: 100%;
-        background: linear-gradient(to bottom, #dc2929, #b61111);
-        text-shadow: 0 0 .5em #000;
-        &:hover {
-            background: linear-gradient(to bottom, #e03d3d, #d02222);
-        }
-    }
 }

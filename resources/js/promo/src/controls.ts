@@ -8,9 +8,14 @@ import { About } from "./about";
 //reloadProgramsButton.addEventListener('click', loadPrograms);
 
 export const Controls = {
-    main: document.getElementById('main') as HTMLElement,
-    remote: document.getElementById('remote') as HTMLElement,
+    allChannels: false,
+    main: document.getElementById('main'),
+    remote: document.getElementById('remote'),
+    remoteChannels: document.getElementById('remote_channels'),
     closeRemoteContainer: document.getElementById('close_remote_container'),
+    remoteMain: document.getElementById('remote_main'),
+    remoteAll: document.getElementById('remote_all'),
+    remoteAllChannels: document.getElementById('remote_all_channels'),
     buttons: {
         nextChannel: document.getElementById('control_next_channel'),
         prevChannel: document.getElementById('control_prev_channel'),
@@ -32,44 +37,31 @@ export const Controls = {
         togglePrograms: document.getElementById('toggle_programs'),
         toggleRemote: document.getElementById('toggle_remote'),
         closeRemote: document.getElementById('close_remote'),
+
+        showAllChannels: document.getElementById('remote_show_all'),
+        showAllChannelsBack: document.getElementById('remote_back'),
     },
 
     async initChannels() {
-        const channelsRootEl = document.querySelector('#channels');
-        channelsRootEl.innerHTML = '';
-
+        this.remoteChannels.innerHTML = '';
         const year = Playback.params.year;
         const channels = Database.channels.getFederal();
         channels.forEach(channel => {
             if (year && !channel[7].includes(year)) {
                 return;
             }
-            let name = channel[1];
-            let logo = channel[2];
-            if (year && channel[6]?.length) {
-                const yearName = channel[6].find((channelName) => {
-                    return new Date(channelName[2]) >= new Date(year, 1, 1);
-                });
-                if (yearName) {
-                    if (yearName[0].length) {
-                        name = yearName[0];
-                    }
-                    if (yearName[3]?.length) {
-                        logo = yearName[3];
-                    }
-                }
-            }
+            const [name, logo] = Database.channels.getNameAndLogo(channel, year);
 
             const channelEl = document.createElement('button');
-            channelEl.classList.add('remote__button', 'remote__channel');
             channelEl.dataset.id = channel[0].toString();
+            channelEl.classList.add('remote__button', 'remote__channel');
             channelEl.innerHTML = `
             <div class="remote__channel__logo" style="background-image:url(${logo}"></div>
             <span class="tooltip">${name}</span>
             `;
-            channelsRootEl.appendChild(channelEl);
+            this.remoteChannels.appendChild(channelEl);
             channelEl.addEventListener('click', () => {
-                this.setActiveChannelButton(channelEl);
+                this.updateActiveChannel(channel[0]);
                 Playback.setParamsAndStart({
                     channel_id: channel[0],
                     commercials: false,
@@ -77,19 +69,54 @@ export const Controls = {
                 this.closeRemote();
             });
         })
+
+        this.remoteAllChannels.innerHTML = '';
+        const allChannels = Database.channels.list;
+        allChannels.forEach(channel => {
+            if (year && !channel[7].includes(year)) {
+                return;
+            }
+            const [name, logo] = Database.channels.getNameAndLogo(channel, year);
+
+            const channelEl = document.createElement('button');
+            channelEl.dataset.id = channel[0].toString();
+            channelEl.classList.add('remote__button', 'remote__channel', 'remote__channel--wide');
+            channelEl.innerHTML = `
+            <div class="remote__channel__logo" style="background-image:url(${logo}"></div>
+            <div class="remote__channel__number">${channel[5]}</div>
+            <div class="remote__channel__texts">
+                <div class="remote__channel__name">${name}</div>
+                <div class="remote__channel__about">${channel[4] ?? ''}</div>
+            </div>
+            `;
+            this.remoteAllChannels.appendChild(channelEl);
+            channelEl.addEventListener('click', () => {
+                this.updateActiveChannel(channel[0]);
+                Playback.setParamsAndStart({
+                    channel_id: channel[0],
+                    commercials: false,
+                })
+                this.closeRemote();
+            });
+        })
+
         Loader.increment(5);
 
         const logos = channels.map(channel => channel[2]);
         await Resources.load(logos, Resources.loadPicture, true);
         Loader.increment(10);
     },
-    setActiveChannelButton(buttonEl?: HTMLButtonElement) {
-        document.querySelector('.remote__button--active')?.classList.remove('remote__button--active');
-        buttonEl && buttonEl.classList.add('remote__button--active');
+    setActiveChannelButtons(buttonEls?: HTMLButtonElement[]) {
+        Array.from(document.querySelectorAll('.remote__button--active')).forEach(el => {
+            el.classList.remove('remote__button--active');
+        });
+        buttonEls && Array.from(buttonEls).forEach(el => {
+            el.classList.add('remote__button--active');
+        });
     },
     updateActiveChannel(id: number) {
-        const activeChannel = document.querySelector(`.remote__channel[data-id="${id}"]`) as HTMLButtonElement;
-        this.setActiveChannelButton(activeChannel);
+        const activeChannel = document.querySelectorAll(`.remote__channel[data-id="${id}"]`);
+        this.setActiveChannelButtons(activeChannel);
     },
     async initPrograms() {
         const programsRootEl = document.querySelector('#tapes');
@@ -128,7 +155,7 @@ export const Controls = {
         reloadProgramsButton.addEventListener('click', this.initPrograms);
     },
     randomChannel() {
-        this.setActiveChannelButton(this.buttons.random);
+        this.setActiveChannelButtons([this.buttons.random]);
         Playback.setParamsAndStart({
             channel_id: undefined,
             program_id: undefined,
@@ -137,7 +164,7 @@ export const Controls = {
         this.closeRemote();
     },
     commercials() {
-        this.setActiveChannelButton(this.buttons.commercials);
+        this.setActiveChannelButtons([this.buttons.commercials]);
         Playback.setParamsAndStart({
             channel_id: undefined,
             program_id: undefined,
@@ -161,6 +188,9 @@ export const Controls = {
         this.buttons.random.addEventListener('click', () => this.randomChannel());
         this.buttons.commercials.addEventListener('click', () => this.commercials());
         this.buttons.onOff.addEventListener('click', () => this.onOff());
+
+        this.buttons.showAllChannels.addEventListener('click', () => this.showAllChannels());
+        this.buttons.showAllChannelsBack.addEventListener('click', () => this.showMainChannels());
     },
     showYears() {
         if (!this.buttons.yearsList.children.length) {
@@ -290,6 +320,16 @@ export const Controls = {
     closeRemote() {
         this.remote.classList.remove('remote--visible');
         this.closeRemoteContainer.style.display = 'none';
+    },
+    showAllChannels() {
+        this.allChannels = true;
+        this.remoteMain.style.display = 'none';
+        this.remoteAll.style.display = '';
+    },
+    showMainChannels() {
+        this.allChannels = false;
+        this.remoteMain.style.display = '';
+        this.remoteAll.style.display = 'none';
     },
     initAll() {
         this.initChannels();
