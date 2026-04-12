@@ -20,7 +20,6 @@ export const Playback = {
     player: null as Promo.Player,
 
     hideTitleOverlayTimeout: null,
-    firstStart: true,
     playedRecordsCount: 0,
     updateDisplayStartTimeout: null,
     updateDisplayInterval: null,
@@ -45,28 +44,23 @@ export const Playback = {
         this.updateDisplay('Загрузка видео...');
 
         this.active = true;
-        if (this.firstStart) {
-            this.firstStart = false;
-            Database.records.filterAvailable();
-        }
-
         this.destroy();
 
         this.notFound.style.display = 'none';
         this.overlay.style.display = 'none';
-        this.noise.style.display = 'block';
+        this.noise.style.opacity = '1';
         this.playerRoot.style.display = 'block';
-
-        // todo: skip n last played
         const [record, seekTo] = await Database.records.get(this.params, force);
+
         console.log('Start record', record, this.params);
 
         if (!record) {
+            Controls.setActiveRecord(null);
             this.updateDisplay('Ничего не найдено');
             this.notFound.style.display = '';
             this.stop();
             if (!skipOnNonExisting) {
-                this.noise.style.display = 'none';
+                this.noise.style.opacity = '0';
             }
             return false;
         }
@@ -88,18 +82,27 @@ export const Playback = {
         });
         this.player.on('started', () => {
             this.playedRecordsCount++;
-
+            Controls.setActiveRecord(this.record);
             this.showTitle();
-            this.noise.style.display = 'none';
+            this.noise.style.opacity = '0';
+
+            this.params.program_id = undefined;
 
             const endsAt = new Date().getTime() + (this.player.getDuration() - this.player.getCurrentTime()) * 1000;
             Database.records.updateNowPlaying(this.record, endsAt);
         });
 
         await this.player.load(this.record[2], this.playerRoot);
-        const seekToTime = seekTo ?? getRandomDurationPoint(this.player.getDuration());
-        this.player.seek(seekToTime);
+
+
+       if (!this.params.commercials) {
+            const seekToTime = seekTo ?? getRandomDurationPoint(this.player.getDuration());
+            seekToTime && this.player.seek(seekToTime);
+        }
         this.player.play();
+        setTimeout(() => {
+           this.player.setVolume(parseFloat(localStorage.getItem('volume')) ?? 1);
+        }, 200);
 
         if (this.playedRecordsCount >= 2) {
             Database.records.loadAll();
@@ -122,6 +125,8 @@ export const Playback = {
 
         clearTimeout(this.hideTitleOverlayTimeout);
         this.overlay.style.display = 'none';
+
+        Controls.setActiveRecord(null);
     },
     setVolume(volume: number) {
         this.player?.setVolume(volume);
@@ -133,6 +138,7 @@ export const Playback = {
             const channel = Database.channels.getByIndex(this.currentChannelIndex);
             state = await this.setParamsAndStart({
                 channel_id: channel[0],
+                program_id: undefined,
                 commercials: undefined
             }, true);
         }

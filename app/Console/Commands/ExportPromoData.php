@@ -35,7 +35,7 @@ class ExportPromoData extends Command
                 $logo = $name->logo ? $name->logo->url : null;
                 return [$name->name, $name->date_start, $name->date_end, $logo];
             });
-            $years = $channel->records()->pluck('year')->unique()->sort()->filter(function($year) {
+            $years = $channel->records()->pluck('year')->unique()->sort()->filter(function ($year) {
                 return $year > 1950;
             })->values();
 
@@ -51,12 +51,12 @@ class ExportPromoData extends Command
             ];
             $channel_index++;
         }
-        echo 'Exported '.count($data['channels']).' channels'.PHP_EOL;
+        echo 'Exported ' . count($data['channels']) . ' channels' . PHP_EOL;
 
         $count = 0;
         Program::whereIn('channel_id', Channel::where(['is_federal' => true])->pluck('id'))->where('views', '>', 1000)->has('records', '>=', 2)->chunk(100, function ($programs) use (&$count, &$data) {
             foreach ($programs as $program) {
-                $years = $program->records()->pluck('year')->unique()->sort()->filter(function($year) {
+                $years = $program->records()->pluck('year')->unique()->sort()->filter(function ($year) {
                     return $year > 1950;
                 })->values();
                 $data['programs'][] = [
@@ -64,13 +64,14 @@ class ExportPromoData extends Command
                     $program->name,
                     $program->cover_url,
                     $program->genre_id,
-                    $years
+                    $years,
+                    $program->channel_id,
                 ];
             }
-            $count+= count($programs);
-            echo 'Exporting programs... '.$count.PHP_EOL;
+            $count += count($programs);
+            echo 'Exporting programs... ' . $count . PHP_EOL;
         });
-        echo 'Exported '.count($data['programs']).' programs'.PHP_EOL;
+        echo 'Exported ' . count($data['programs']) . ' programs' . PHP_EOL;
 
         $genres = Genre::where(['type' => 'programs'])->get();
         foreach ($genres as $genre) {
@@ -79,7 +80,7 @@ class ExportPromoData extends Command
                 $genre->name,
             ];
         }
-        echo 'Exported '.count($data['genres']).' genres'.PHP_EOL;
+        echo 'Exported ' . count($data['genres']) . ' genres' . PHP_EOL;
 
         file_put_contents(public_path('promo/index.json'), json_encode($data, JSON_UNESCAPED_UNICODE));
 
@@ -88,10 +89,14 @@ class ExportPromoData extends Command
             return;
         }
 
-        $records = Record::where(function($q) use ($channels) {
+        $records = Record::where(function ($q) use ($channels) {
             $q->whereIn('channel_id', $channels->pluck('id'));
             $q->orWhere(['is_advertising' => true]);
-        })->where(['is_radio' => false])->where('embed_code', 'NOT LIKE', '%dailymotion%')->whereNull('telegram_id')->whereNull('country');
+        })->where(['is_radio' => false])->where(function ($q) {
+            $q->where('embed_code', 'NOT LIKE', '%dailymotion%');
+            $q->orWhereNull('embed_code');
+        })->whereNull('telegram_id')->whereNull('country');
+
         $total_records = $records->count();
         $parts = 10;
 
@@ -104,6 +109,9 @@ class ExportPromoData extends Command
         $records->inRandomOrder()->chunk(100, function ($records) use (&$count, &$part_index, &$parts, $total_records, &$records_list, $program_genres) {
             foreach ($records as $record) {
                 $url = $record->use_own_player ? $record->source_hls : $record->original_url;
+                if (!str_contains($url, 'vk.com') && !str_contains($url, 'youtu') && !str_contains($url, '.m3u8')) { // todo check why rutube iframe api doesn't work in helium
+                    continue;
+                }
 //                if ($record->telegram_id) {
 //                    //$url = $record->all_telegram_sources[array_rand($record->all_telegram_sources)];
 //                }
@@ -132,13 +140,13 @@ class ExportPromoData extends Command
                     $part_index++;
                 }
             }
-            $count+= count($records);
-            echo 'Exporting records... '.$count.PHP_EOL;
+            $count += count($records);
+            echo 'Exporting records... ' . $count . PHP_EOL;
         });
 
         file_put_contents(public_path('promo/records-' . $part_index . '.json'), json_encode($records_list, JSON_UNESCAPED_UNICODE));
 
-        echo 'Exported '.$count.' records'.PHP_EOL;
+        echo 'Exported ' . $count . ' records' . PHP_EOL;
 
 
     }

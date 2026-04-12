@@ -59,9 +59,15 @@ export const Database = {
             let name = channel[1];
             let logo = channel[2];
             if (year && channel[6]?.length) {
-                const yearName = channel[6].find((channelName) => {
+                let yearName = channel[6].find((channelName) => {
                     return new Date(channelName[2]) >= new Date(year, 1, 1);
                 });
+                if (!yearName) {
+                    yearName = channel[6].find((channelName) => {
+                        return !channelName[2];
+                    });
+                }
+
                 if (yearName) {
                     if (yearName[0].length) {
                         name = yearName[0];
@@ -76,11 +82,19 @@ export const Database = {
     },
     programs: {
         list: [] as Promo.Program[],
+        availableRecordsCounts: {} as Record<number, number>,
         getRandomList(count: number = 10, params: Promo.PlaybackParams): Promo.Program[] {
-            let list = this.list;
+            let list = this.list.filter(program => {
+                return this.availableRecordsCounts[program[0]] > 0;
+            });
             if (params.genre_id) {
                 list = list.filter(program => {
                     return program[3] === params.genre_id;
+                });
+            }
+            if (params.channel_id) {
+                list = list.filter(program => {
+                    return program[5] === params.channel_id;
                 });
             }
             if (params.year) {
@@ -92,8 +106,9 @@ export const Database = {
         }
     },
     records: {
-        list: [],
+        list: [] as Promo.Record[],
         loadedPages: [],
+        lastPlayed: {},
         nowPlaying: {} as Promo.NowPlayingRecords,
 
         async loadPage(page: number) {
@@ -102,10 +117,11 @@ export const Database = {
             }
 
             const response = await fetch(`/promo/records-${page}.json${cacheParam}`);
-            const database = await response.json();
+            let records = await response.json();
 
-            this.list = [...this.list, ...database];
+            this.list = [...this.list, ...records];
             this.loadedPages.push(page);
+            Database.filterMedia();
         },
 
         loadAll() {
@@ -117,22 +133,48 @@ export const Database = {
         async get(params: Promo.PlaybackParams, force: boolean = false): Promise<[Promo.Record, number?]> {
             return new Promise((resolve) => {
                 const now = new Date().getTime();
-                if (params.channel_id && !force && this.nowPlaying[params.channel_id] && this.nowPlaying[params.channel_id].ends_at > now) {
+                if (params.channel_id && !params.program_id && !force && this.nowPlaying[params.channel_id] && this.nowPlaying[params.channel_id].ends_at > now) {
                     const seekTo = (this.nowPlaying[params.channel_id].ends_at - now) / 1000;
                     return resolve([this.nowPlaying[params.channel_id].record, seekTo]);
                 }
 
                 let item = this.find(params);
+                let initialItem = null;
+                if (item && this.lastPlayed[item[5]] && this.lastPlayed[item[5]].includes(item[0])) {
+                    initialItem = item;
+                    item = null;
+                }
+
+                const addToLastPlayed = (record: Promo.Record) => {
+                    //console.log('last played', this.lastPlayed);
+                    if (!record) {
+                        return;
+                    }
+                    if (!this.lastPlayed[record[5]]) {
+                        this.lastPlayed[record[5]] = [];
+                    }
+                    this.lastPlayed[record[5]].push(record[0]);
+                    this.lastPlayed[record[5]] = this.lastPlayed[record[5]].slice(-5);
+                }
+
                 if (!item && this.loadedPages.length < RECORDS_PAGES_COUNT) {
                     for (let i = 1; i <= RECORDS_PAGES_COUNT; i++) {
                         this.loadPage(i).then(() => {
                             item = this.find(params);
                             if (item) {
+                                addToLastPlayed(item);
                                 resolve([item]);
+                            }
+                            if (this.loadedPages.length === RECORDS_PAGES_COUNT) {
+                                addToLastPlayed(initialItem);
+                                resolve([initialItem]);
                             }
                         });
                     }
                 } else {
+                    item = item || initialItem;
+
+                    addToLastPlayed(item);
                     resolve([item]);
                 }
             });
@@ -175,20 +217,23 @@ export const Database = {
         clearNowPlaying() {
             this.nowPlaying = {};
         },
-        filterAvailable() {
+        filterAvailable(list: Promo.Record[]) {
             const youtubeAvailable = Resources.isYoutubeAvailable();
-            const telegramAvailable = false; // todo
-
-            this.list = this.list.filter(record => {
+            return list.filter(record => {
                 if (record[2].includes('youtube.com')) {
                     return youtubeAvailable;
                 }
-                if (record[2].includes('tgvideo')) {
-                    return telegramAvailable;
-                }
+
                 return true;
             });
         }
+    },
+    filterMedia() {
+        this.records.list = this.records.filterAvailable(this.records.list);
+        this.programs.availableRecordsCounts = {};
+        this.records.list.forEach(record => {
+            this.programs.availableRecordsCounts[record[6]] = (this.programs.availableRecordsCounts[record[6]] || 0) + 1;
+        });
     },
     async loadMain() {
         const response = await fetch(`/promo/index.json${cacheParam}`);
@@ -206,14 +251,25 @@ export const Database = {
 
         this.genres = database.genres;
     },
-
-
     loadRequired() {
+        let mainLoaded = false;
+        let recordsLoaded = false;
+        const initMediaIfReady = () => {
+            if (!mainLoaded || !recordsLoaded) {
+                return;
+            }
+            this.filterMedia();
+            Controls.initMedia();
+        }
+
         this.loadMain().then(() => {
+            mainLoaded = true;
+            initMediaIfReady();
             Loader.increment(15);
-            Controls.initAll();
         });
         this.records.loadPage(1).then(() => {
+            recordsLoaded= true;
+            initMediaIfReady();
             Loader.increment(15)
         });
     }

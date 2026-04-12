@@ -9,6 +9,7 @@
     gap: 1.9em;
     left: calc(50vw + 39.5em - var(--widescreen-margin));
     perspective: 152em;
+    height: 83em;
     @include mobile() {
         font-size: 1.225vw;
         top: calc(50vh - 44vw);

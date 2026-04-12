@@ -14,7 +14,6 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
             this.instance.on('inited', () => {
                 resolve();
             })
-            console.log(this.instance);
 
             this.instance.on('started', () => this.emit('started'));
             this.instance.on('error', (e) => this.emit('error', e));
@@ -58,6 +57,8 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
 
 class RutubePlayer extends EventEmitter implements Promo.Player {
     private contentWindow;
+    private started: boolean = false;
+
     private duration: number = 0;
     private currentTime: number = 0;
 
@@ -67,10 +68,18 @@ class RutubePlayer extends EventEmitter implements Promo.Player {
 
             const iframe = container.querySelector('iframe');
             this.contentWindow = iframe.contentWindow;
+            console.log(this.contentWindow);
             this.contentWindow.addEventListener('message',  (event) => {
-                console.log(event);
                 const message = JSON.parse(event.data);
-                switch (message.type) {
+                console.log(message.command.type);
+                switch (message.command.type) {
+                    case 'player:play':
+                        if (!this.started) {
+                            this.play();
+                            this.emit('started');
+                            resolve();
+                        }
+                        break
                     case 'player:durationChange':
                         this.duration = message.data.duration;
                         break;
@@ -119,9 +128,8 @@ class YoutubePlayer extends EventEmitter implements Promo.Player {
             container.innerHTML = '';
             const player = document.createElement('div');
             container.appendChild(player);
-
             this.instance = new YT.Player(player, {
-                videoId: url.split('/').pop(),
+                videoId: url.split('/').pop().split('?').shift(),
                 playerVars: {
                     origin: 'https://www.youtube.com',
                     enablejsapi: 1,
@@ -189,15 +197,21 @@ class HlsJsPlayer extends EventEmitter implements Promo.Player {
 
             if (Hls.isSupported()) {
                 const hls = new Hls();
+                hls.loadSource('https://staroetv.su/test/test.m3u8');
                 hls.loadSource(url);
                 hls.attachMedia(this.videoElement);
                 this.videoElement.addEventListener('playing', () => this.emit('started'));
                 hls.on(Hls.Events.MANIFEST_PARSED, () =>  resolve());
 
                 hls.on(Hls.Events.MEDIA_ENDED, () => this.emit('ended'));
-                hls.on(Hls.Events.ERROR, (e) => {
-                    console.log('hls error', e.toString());
-                    this.emit('error', e)
+                hls.on(Hls.Events.ERROR, (e, data) => {
+                    console.log('hls error', data);
+                    if (data.fatal) {
+                        hls.destroy();
+                        setTimeout(() => {
+                            this.emit('error', e)
+                        }, 1000);
+                    }
                 });
             } else if (this.videoElement.canPlayType('application/vnd.apple.mpegurl')) {
                 this.videoElement.src = url;

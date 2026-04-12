@@ -25,7 +25,7 @@
         position: absolute;
         z-index: 0;
         top: 10em;
-        left: calc(50vw - 37.5em);
+        left: calc(50vw - 37.5em - var(--widescreen-margin));
         width: 64em;
         height: 58em;
         @include mobile() {
@@ -50,6 +50,9 @@
         width: 100%;
         height: 100%;
         z-index: 4;
+        transition: opacity .4s;
+        pointer-events: none;
+        mix-blend-mode: luminosity;
     }
 
     &__player {
@@ -108,7 +111,9 @@
         color: #0f0;
         font-size: 2.5em;
         text-shadow: 0 0 .75em #000, 0 0 .25em;
-
+        @include mobile() {
+            font-size: 3.5vw;
+        }
         &__number {
             font-size: 2em;
         }
@@ -164,6 +169,17 @@
             color: #ff6a00;
         }
 
+        &--disabled {
+            color: #252525;
+            cursor: default;
+            &:hover {
+                color: #252525;
+                .tooltip {
+                    display: none;
+                }
+            }
+        }
+
         &:active {
             background: linear-gradient(to bottom, #111, #161616);
             top: .125em;
@@ -175,7 +191,9 @@
             width: 2.875em;
             filter: drop-shadow(0 0 .25em #111);
             text-align: center;
-
+            &--small {
+                width: 2.25em;
+            }
             &--text {
                 width: 100%;
                 height: 100%;
@@ -372,7 +390,7 @@
         font-size: 3em;
         top: 25.25em;
         padding: 0.5em 0.25em;
-        left: calc(50vw - 10.25em);
+        left: calc(50vw - 10.25em - var(--widescreen-margin));
         width: 17em;
         color: #13effb;
         font-family: 'ElectronicaNormal', sans-serif;

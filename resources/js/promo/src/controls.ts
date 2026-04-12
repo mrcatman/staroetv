@@ -16,15 +16,21 @@ export const Controls = {
     remoteMain: document.getElementById('remote_main'),
     remoteAll: document.getElementById('remote_all'),
     remoteAllChannels: document.getElementById('remote_all_channels'),
+
+    programsReloadCount: 0,
+
     buttons: {
         nextChannel: document.getElementById('control_next_channel'),
         prevChannel: document.getElementById('control_prev_channel'),
         refresh: document.getElementById('control_refresh'),
+        goToRecord: document.getElementById('control_go_to_record'),
         about: document.getElementById('control_about'),
         onOff: document.getElementById('control_on_off'),
 
         year: document.getElementById('control_year'),
         yearsList: document.getElementById('control_year_list'),
+
+        reloadPrograms: document.getElementById('reload_programs'),
 
         genre: document.getElementById('control_genre'),
         genresList: document.getElementById('control_genre_list'),
@@ -64,8 +70,10 @@ export const Controls = {
                 this.updateActiveChannel(channel[0]);
                 Playback.setParamsAndStart({
                     channel_id: channel[0],
+                    program_id: undefined,
                     commercials: false,
                 })
+                this.initPrograms();
                 this.closeRemote();
             });
         })
@@ -94,8 +102,10 @@ export const Controls = {
                 this.updateActiveChannel(channel[0]);
                 Playback.setParamsAndStart({
                     channel_id: channel[0],
+                    program_id: undefined,
                     commercials: false,
                 })
+                this.initPrograms();
                 this.closeRemote();
             });
         })
@@ -119,6 +129,11 @@ export const Controls = {
         this.setActiveChannelButtons(activeChannel);
     },
     async initPrograms() {
+        this.programsReloadCount++;
+        if (this.programsReloadCount > 2) {
+            Database.records.loadAll();
+        }
+
         const programsRootEl = document.querySelector('#tapes');
         programsRootEl.innerHTML = '';
 
@@ -151,8 +166,7 @@ export const Controls = {
         await Resources.load(logos, Resources.loadPicture, true);
         Loader.increment(10);
 
-        const reloadProgramsButton = document.getElementById('reload_programs') as HTMLButtonElement;
-        reloadProgramsButton.addEventListener('click', this.initPrograms);
+
     },
     randomChannel() {
         this.setActiveChannelButtons([this.buttons.random]);
@@ -161,6 +175,7 @@ export const Controls = {
             program_id: undefined,
             commercials: false,
         });
+        this.initPrograms();
         this.closeRemote();
     },
     commercials() {
@@ -176,9 +191,9 @@ export const Controls = {
     onOff() {
         Playback.onOff();
     },
-    initButtons() {
-        this.buttons.prevChannel.addEventListener('click', () => Playback.changeChannel(-1));
-        this.buttons.nextChannel.addEventListener('click', () => Playback.changeChannel(1));
+    initMain() {
+        this.buttons.prevChannel.addEventListener('click', () => this.changeChannel(-1));
+        this.buttons.nextChannel.addEventListener('click', () => this.changeChannel(1));
         this.buttons.refresh.addEventListener('click', () => Playback.start(true));
         this.buttons.about.addEventListener('click', () => About.show());
 
@@ -191,6 +206,22 @@ export const Controls = {
 
         this.buttons.showAllChannels.addEventListener('click', () => this.showAllChannels());
         this.buttons.showAllChannelsBack.addEventListener('click', () => this.showMainChannels());
+        this.buttons.reloadPrograms.addEventListener('click', () => this.initPrograms());
+    },
+    changeChannel(delta: number) {
+        Playback.changeChannel(delta);
+        this.initPrograms();
+    },
+    setActiveRecord(record: Promo.Record) {
+        if (record) {
+            this.buttons.goToRecord.classList.remove('tv__control--disabled');
+            this.buttons.goToRecord.setAttribute('href', `/video/${record[0]}`);
+            this.buttons.goToRecord.setAttribute('target', '_blank');
+        } else {
+            this.buttons.goToRecord.classList.add('tv__control--disabled');
+            this.buttons.goToRecord.setAttribute('href', undefined);
+            this.buttons.goToRecord.setAttribute('target', undefined);
+        }
     },
     showYears() {
         if (!this.buttons.yearsList.children.length) {
@@ -242,6 +273,7 @@ export const Controls = {
 
                 Database.records.clearNowPlaying();
                 Playback.setParamsAndStart({
+                    program_id: undefined,
                     commercials: false,
                     genre_id: genre ? genre[0] : undefined,
                 });
@@ -331,10 +363,13 @@ export const Controls = {
         this.remoteMain.style.display = '';
         this.remoteAll.style.display = 'none';
     },
-    initAll() {
+
+    initMedia() {
         this.initChannels();
         this.initPrograms();
-        this.initButtons();
+    },
+    initButtons() {
+        this.initMain();
         this.initVolume();
         this.initClickOutside();
         this.initMobileToggles();

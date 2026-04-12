@@ -85,7 +85,7 @@
                         <div class="tv__not-found__text__description">Попробуйте изменить канал, год или жанр</div>
                     </div>
                 </div>
-                <video autoplay muted loop class="tv__noise" id="noise" style="display:none">
+                <video autoplay muted loop class="tv__noise" id="noise" style="opacity: 0">
                     <source src="{{Vite::asset('resources/images/promo/noise.webm')}}" type="video/webm">
                 </video>
                 <div id="player" class="tv__player"></div>
@@ -129,6 +129,12 @@
             </div>
 
             <div class="tv__controls__group">
+                <a class="tv__control tv__control--disabled" id="control_go_to_record">
+                    <svg class="tv__control__icon tv__control__icon--small" viewBox="0 0 16 16" >
+                        <path d="M14 3.5L8.5 9 7 7.5 12.5 2H10V0h6v6h-2V3.5zM6 0v2H2v12h12v-4h2v6H0V0h6z" fill-rule="evenodd"/>
+                    </svg>
+                    <span class="tooltip">Посмотреть видео полностью</span>
+                </a>
                 <div class="tv__control" id="control_about">
                     <svg class="tv__control__icon" viewBox="0 0 416.979 416.979"
                          xml:space="preserve">
