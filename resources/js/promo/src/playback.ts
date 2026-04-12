@@ -101,7 +101,9 @@ export const Playback = {
         }
         this.player.play();
         setTimeout(() => {
-           this.player.setVolume(parseFloat(localStorage.getItem('volume')) ?? 1);
+            try {
+                this.player.setVolume(parseFloat(localStorage.getItem('volume')) ?? 1);
+            } catch (e) {}
         }, 200);
 
         if (this.playedRecordsCount >= 2) {
@@ -135,12 +137,27 @@ export const Playback = {
         let state = false;
         while (!state) {
             this.currentChannelIndex += delta;
-            const channel = Database.channels.getByIndex(this.currentChannelIndex);
-            state = await this.setParamsAndStart({
-                channel_id: channel[0],
-                program_id: undefined,
-                commercials: undefined
-            }, true);
+            if (this.currentChannelIndex < 0) {
+                this.currentChannelIndex = Database.channels.list.length - 1;
+            }
+            if (this.currentChannelIndex > Database.channels.list.length ) {
+                this.currentChannelIndex = 0;
+            }
+            if (this.currentChannelIndex === 0) {
+                state = await this.setParamsAndStart({
+                    channel_id: undefined,
+                    program_id: undefined,
+                    commercials: true
+                }, true);
+            } else {
+                const channel = Database.channels.list[this.currentChannelIndex - 1];
+                state = await this.setParamsAndStart({
+                    channel_id: channel[0],
+                    program_id: undefined,
+                    commercials: undefined
+                }, true);
+            }
+
         }
     },
     showTitle() {

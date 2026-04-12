@@ -125,7 +125,9 @@ export const Controls = {
         });
     },
     updateActiveChannel(id: number) {
-        const activeChannel = document.querySelectorAll(`.remote__channel[data-id="${id}"]`);
+        const activeChannel = id ?
+            document.querySelectorAll(`.remote__channel[data-id="${id}"]`) :
+            [this.buttons.commercials]
         this.setActiveChannelButtons(activeChannel);
     },
     async initPrograms() {

@@ -22,7 +22,7 @@ export const Database = {
                 return [-1, -1, ''];
             }
             if (record[8]) {
-                return [record[5], 0, 'Рекламные ролики'];
+                return [0, 0, 'Рекламные ролики'];
             }
 
             if (!channel[6].length) {
@@ -40,20 +40,11 @@ export const Database = {
             })
             return [channel[0], channel[5], name?.[0] || channel[1]];
         },
-        getByIndex(index: number): Promo.Channel {
-            if (index < 0) {
-                return this.list[this.list.length - 1];
-            }
-            if (index >= this.list.length) {
-                return this.list[0];
-            }
-            return this.list[index];
-        },
         getIndexForRecord(record: Promo.Record): number {
             if (record[8]) {
                 return 0;
             }
-            return this.list.findIndex(channel => channel[0] == record[5]);
+            return this.list.findIndex(channel => channel[0] == record[5]) + 1;
         },
         getNameAndLogo(channel: Promo.Channel, year?: number): [string, string] {
             let name = channel[1];
