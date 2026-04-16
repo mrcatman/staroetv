@@ -109,6 +109,10 @@
         @include mobile {
             width: 100% !important;
         }
+
+        .box {
+            height: 100%;
+        }
     }
 
     &__info-blocks {
@@ -155,6 +159,7 @@
             font-size: 2em;
             font-weight: bold;
             transition: color .1s;
+            text-decoration: none;
             &:hover {
                 color: var(--primary-highlight);
             }
@@ -175,8 +180,9 @@
     &__avatar {
         width: 14em;
         margin: 0 0 1em;
+        box-shadow: var(--block-box-shadow);
         @include mobile {
-            margin: 0;
+            border-radius: var(--border-radius-standard);
             height: auto !important;
             width: 100%;
         }

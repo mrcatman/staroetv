@@ -54,11 +54,14 @@ class ExportPromoData extends Command
         echo 'Exported ' . count($data['channels']) . ' channels' . PHP_EOL;
 
         $count = 0;
-        Program::whereIn('channel_id', Channel::where(['is_federal' => true])->pluck('id'))->where('views', '>', 1000)->has('records', '>=', 2)->chunk(100, function ($programs) use (&$count, &$data) {
+        Program::has('records', '>=', 2)->whereHas('channel', function ($q) {
+            return $q->where(['is_radio' => false]);
+        })->chunk(100, function ($programs) use (&$count, &$data) {
             foreach ($programs as $program) {
                 $years = $program->records()->pluck('year')->unique()->sort()->filter(function ($year) {
                     return $year > 1950;
                 })->values();
+                $highlight = $program->channel->is_federal && $program->views > 100;
                 $data['programs'][] = [
                     $program->id,
                     $program->name,
@@ -66,6 +69,7 @@ class ExportPromoData extends Command
                     $program->genre_id,
                     $years,
                     $program->channel_id,
+                    $highlight
                 ];
             }
             $count += count($programs);
@@ -106,12 +110,16 @@ class ExportPromoData extends Command
 
         $program_genres = Program::pluck('genre_id', 'id');
 
-        $records->inRandomOrder()->chunk(100, function ($records) use (&$count, &$part_index, &$parts, $total_records, &$records_list, $program_genres) {
+        $seed = date('Ymd');
+        $records->inRandomOrder($seed)->chunk(100, function ($records) use (&$count, &$part_index, &$parts, $total_records, &$records_list, $program_genres, &$record_ids) {
             foreach ($records as $record) {
                 $url = $record->use_own_player ? $record->source_hls : $record->original_url;
+
                 if (!str_contains($url, 'vk.com') && !str_contains($url, 'youtu') && !str_contains($url, '.m3u8')) { // todo check why rutube iframe api doesn't work in helium
                     continue;
                 }
+
+                $count++;
 //                if ($record->telegram_id) {
 //                    //$url = $record->all_telegram_sources[array_rand($record->all_telegram_sources)];
 //                }
@@ -140,7 +148,7 @@ class ExportPromoData extends Command
                     $part_index++;
                 }
             }
-            $count += count($records);
+
             echo 'Exporting records... ' . $count . PHP_EOL;
         });
 

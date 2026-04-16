@@ -13,8 +13,19 @@
     opacity: .75;
     cursor: pointer;
     transition: opacity .2s;
+    display: flex;
+    gap: .5em;
+    align-items: center;
+    justify-content: center;
+    @include mobile() {
+        font-size: 3.25vw;
+    }
     &:hover {
         opacity: .95;
+    }
+    &__icon {
+        width: 1em;
+        fill: currentColor;
     }
 }
 
@@ -24,34 +35,24 @@
     bottom: 2.75em;
     left: calc(50vw + 25em);
     @include mobile() {
+        font-size: 3vw!important;
         bottom: unset;
-        top: calc(50vh - 55vw);
-        font-size: 2.25vw!important;
-        left: 116vw;
+        top: calc(50vh - 67vw);
+        left: 104vw;
+    }
+}
+.programs-back {
+    display: none;
+    @include mobile() {
+        position: absolute;
+        display: flex;
+        font-size: 3vw!important;
+        bottom: unset;
+        top: calc(50vh - 67vw);
+        left: 167vw;
     }
 }
 
-.toggle-programs {
-    display: none;
-    position: fixed;
-    bottom: 2em;
-    left: calc(50vw - 12em);
-    z-index: 5;
-    @include mobile() {
-        display: block;
-    }
-}
-
-.toggle-remote {
-    display: none;
-    position: fixed;
-    bottom: 2em;
-    left: calc(50vw + 2em);
-    z-index: 5;
-    @include mobile() {
-        display: block;
-    }
-}
 
 .close-remote {
     &__container {

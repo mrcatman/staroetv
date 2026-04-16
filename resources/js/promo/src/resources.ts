@@ -89,3 +89,5 @@ export const Resources = {
         });
     }
 }
+
+window.Resources = Resources;

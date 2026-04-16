@@ -18,12 +18,15 @@
         color: #fff;
         font-size: 1vw;
         max-width: 35vw;
+        max-height: 90vh;
         padding: 2em;
         border-radius: 1em;
         box-sizing: border-box;
         box-shadow: 0 0 2.5em inset #ffffff30, 0 .5em 5em -2em rgba(255, 255, 255, .5);
+        overflow: auto;
+        overflow-x: hidden;
         @include mobile() {
-            font-size: 2.75vw;
+            font-size: 3.75vw;
             max-width: 85vw;
         }
         a {

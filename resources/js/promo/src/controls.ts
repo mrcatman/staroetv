@@ -23,6 +23,11 @@ export const Controls = {
         nextChannel: document.getElementById('control_next_channel'),
         prevChannel: document.getElementById('control_prev_channel'),
         refresh: document.getElementById('control_refresh'),
+
+        mobileNextChannel: document.getElementById('mobile_control_next_channel'),
+        mobilePrevChannel: document.getElementById('mobile_control_prev_channel'),
+        mobileRefresh: document.getElementById('mobile_control_refresh'),
+
         goToRecord: document.getElementById('control_go_to_record'),
         about: document.getElementById('control_about'),
         onOff: document.getElementById('control_on_off'),
@@ -31,6 +36,7 @@ export const Controls = {
         yearsList: document.getElementById('control_year_list'),
 
         reloadPrograms: document.getElementById('reload_programs'),
+        programsBack: document.getElementById('programs_back'),
 
         genre: document.getElementById('control_genre'),
         genresList: document.getElementById('control_genre_list'),
@@ -154,7 +160,7 @@ export const Controls = {
             programsRootEl.appendChild(programEl);
             programEl.addEventListener('click', () => {
                 // todo убрать здесь заставки передач (?)
-                this.main.classList.remove('main--programs');
+                this.programsBack();
                 Playback.setParamsAndStart({
                     channel_id: undefined,
                     program_id: program[0],
@@ -167,8 +173,9 @@ export const Controls = {
         const logos = programs.map(program => program[2]);
         await Resources.load(logos, Resources.loadPicture, true);
         Loader.increment(10);
-
-
+    },
+    programsBack() {
+        this.main.classList.remove('main--programs');
     },
     randomChannel() {
         this.setActiveChannelButtons([this.buttons.random]);
@@ -196,7 +203,12 @@ export const Controls = {
     initMain() {
         this.buttons.prevChannel.addEventListener('click', () => this.changeChannel(-1));
         this.buttons.nextChannel.addEventListener('click', () => this.changeChannel(1));
-        this.buttons.refresh.addEventListener('click', () => Playback.start(true));
+        //this.buttons.refresh.addEventListener('click', () => Playback.start(true));
+
+        this.buttons.mobilePrevChannel.addEventListener('click', () => this.changeChannel(-1));
+        this.buttons.mobileNextChannel.addEventListener('click', () => this.changeChannel(1));
+        //this.buttons.mobileRefresh.addEventListener('click', () => Playback.start(true));
+
         this.buttons.about.addEventListener('click', () => About.show());
 
         this.buttons.year.addEventListener('click', () => this.showYears());
@@ -209,6 +221,7 @@ export const Controls = {
         this.buttons.showAllChannels.addEventListener('click', () => this.showAllChannels());
         this.buttons.showAllChannelsBack.addEventListener('click', () => this.showMainChannels());
         this.buttons.reloadPrograms.addEventListener('click', () => this.initPrograms());
+        this.buttons.programsBack.addEventListener('click', () => this.programsBack());
     },
     changeChannel(delta: number) {
         Playback.changeChannel(delta);
@@ -269,7 +282,7 @@ export const Controls = {
                 this.buttons.genresList.querySelectorAll('.tv__category__list__item').forEach(_el => {
                     _el.classList.remove('tv__category__list__item--active');
                 });
-                el.classList.add('tv__category__list__item--active'); // todo обновить список передач
+                el.classList.add('tv__category__list__item--active');
 
                 this.buttons.genresList.style.display = 'none';
 
@@ -280,7 +293,7 @@ export const Controls = {
                     genre_id: genre ? genre[0] : undefined,
                 });
                 this.initPrograms();
-                this.buttons.genre.innerHTML = genre[1];
+                this.buttons.genre.innerHTML = genre ? genre[1] : 'любой';
 
                 const reset = this.buttons.genresList.querySelector('.tv__category__list__item--reset');
                 reset.style.display = genre ? '' : 'none';
@@ -341,19 +354,20 @@ export const Controls = {
         });
     },
     initMobileToggles() {
-        document.body.scrollLeft = 0;
         this.buttons.togglePrograms.addEventListener('click', () => {
             this.main.classList.toggle('main--programs');
         });
         this.buttons.toggleRemote.addEventListener('click', () => {
             this.remote.classList.toggle('remote--visible');
             this.closeRemoteContainer.style.display = this.remote.classList.contains('remote--visible') ? '' : 'none';
+            this.buttons.toggleRemote.style.display = this.remote.classList.contains('remote--visible') ? 'none' : '';
         });
         this.buttons.closeRemote.addEventListener('click', () => this.closeRemote());
     },
     closeRemote() {
         this.remote.classList.remove('remote--visible');
         this.closeRemoteContainer.style.display = 'none';
+        this.buttons.toggleRemote.style.display = '';
     },
     showAllChannels() {
         this.allChannels = true;
@@ -375,5 +389,6 @@ export const Controls = {
         this.initVolume();
         this.initClickOutside();
         this.initMobileToggles();
+        document.body.scrollLeft = 0;
     }
 }

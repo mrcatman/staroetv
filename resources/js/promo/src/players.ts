@@ -55,71 +55,71 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
     }
 }
 
-class RutubePlayer extends EventEmitter implements Promo.Player {
-    private contentWindow;
-    private started: boolean = false;
-
-    private duration: number = 0;
-    private currentTime: number = 0;
-
-    load(url: string, container: HTMLDivElement)  {
-        return new Promise<void>((resolve, reject) => {
-            container.innerHTML = `<iframe src="${url}" frameborder="0" allowfullscreen allow="clipboard-write; autoplay" ></iframe>`;
-
-            const iframe = container.querySelector('iframe');
-            this.contentWindow = iframe.contentWindow;
-            console.log(this.contentWindow);
-            this.contentWindow.addEventListener('message',  (event) => {
-                const message = JSON.parse(event.data);
-                console.log(message.command.type);
-                switch (message.command.type) {
-                    case 'player:play':
-                        if (!this.started) {
-                            this.play();
-                            this.emit('started');
-                            resolve();
-                        }
-                        break
-                    case 'player:durationChange':
-                        this.duration = message.data.duration;
-                        break;
-                    case 'player:currentTime':
-                        this.currentTime = message.data.time;
-                        break
-                }
-            });
-            resolve();
-        });
-    }
-
-    private doCommand(command) {
-        this.contentWindow?.postMessage(JSON.stringify({command}), '*');
-    }
-
-    seek(time: number) {
-        this.doCommand( {type:'player:setCurrentTime', data: {time}});
-    }
-
-    play() {
-        this.doCommand( {type:'player:play', data: {}});
-    }
-
-    stop() {
-        this.doCommand( {type:'player:pause', data: {}});
-    }
-
-    getCurrentTime() {
-        return this.currentTime;
-    }
-
-    getDuration() {
-        return this.duration;
-    }
-
-    setVolume(volume: number) {
-        this.doCommand({type: 'player:setVolume', data: {volume }});
-    }
-}
+// class RutubePlayer extends EventEmitter implements Promo.Player {
+//     private contentWindow;
+//     private started: boolean = false;
+//
+//     private duration: number = 0;
+//     private currentTime: number = 0;
+//
+//     load(url: string, container: HTMLDivElement)  {
+//         return new Promise<void>((resolve, reject) => {
+//             container.innerHTML = `<iframe src="${url}" frameborder="0" allowfullscreen allow="clipboard-write; autoplay" ></iframe>`;
+//
+//             const iframe = container.querySelector('iframe');
+//             this.contentWindow = iframe.contentWindow;
+//             console.log(this.contentWindow);
+//             this.contentWindow.addEventListener('message',  (event) => {
+//                 const message = JSON.parse(event.data);
+//                 console.log(message.command.type);
+//                 switch (message.command.type) {
+//                     case 'player:play':
+//                         if (!this.started) {
+//                             this.play();
+//                             this.emit('started');
+//                             resolve();
+//                         }
+//                         break
+//                     case 'player:durationChange':
+//                         this.duration = message.data.duration;
+//                         break;
+//                     case 'player:currentTime':
+//                         this.currentTime = message.data.time;
+//                         break
+//                 }
+//             });
+//             resolve();
+//         });
+//     }
+//
+//     private doCommand(command) {
+//         this.contentWindow?.postMessage(JSON.stringify({command}), '*');
+//     }
+//
+//     seek(time: number) {
+//         this.doCommand( {type:'player:setCurrentTime', data: {time}});
+//     }
+//
+//     play() {
+//         this.doCommand( {type:'player:play', data: {}});
+//     }
+//
+//     stop() {
+//         this.doCommand( {type:'player:pause', data: {}});
+//     }
+//
+//     getCurrentTime() {
+//         return this.currentTime;
+//     }
+//
+//     getDuration() {
+//         return this.duration;
+//     }
+//
+//     setVolume(volume: number) {
+//         this.doCommand({type: 'player:setVolume', data: {volume }});
+//     }
+// }
 
 class YoutubePlayer extends EventEmitter implements Promo.Player {
     private instance;
@@ -299,9 +299,9 @@ export const createPlayer = (url: string): Promo.Player | null => {
         case url.includes('vk.com'):
             player = new VKPlayer();
             break;
-        case url.includes('rutube'):
-            player = new RutubePlayer();
-            break;
+        // case url.includes('rutube'):
+        //     player = new RutubePlayer();
+        //     break;
         case url.includes('youtu'):
             player = new YoutubePlayer();
             break;

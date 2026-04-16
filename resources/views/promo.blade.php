@@ -56,13 +56,16 @@
                 </div>
                 <div id="remote_main" class="remote__inner">
                     <button class="remote__button remote__button--random" id="remote_random">Случайный канал</button>
+                    <button class="remote__button remote__button--commercials" id="remote_commercials">Рекламные
+                        ролики
+                    </button>
                     <div class="remote__channels" id="remote_channels"></div>
-                    <button class="remote__button remote__button--commercials" id="remote_commercials">Рекламные ролики</button>
+
                     <button class="remote__button" id="remote_show_all">Все каналы</button>
                 </div>
                 <div id="remote_all" class="remote__inner" style="display: none">
                     <button class="remote__button remote__button--back" id="remote_back">Назад</button>
-                    <div  class="remote__all-channels" id="remote_all_channels"></div>
+                    <div class="remote__all-channels" id="remote_all_channels"></div>
                 </div>
             </div>
         </div>
@@ -72,7 +75,7 @@
     <div class="tv">
         <div class="tv__picture"></div>
         <div class="tv__outer">
-            <div class="tv__inner">
+            <div class="tv__inner" id="inner">
                 <div class="tv__overlay" id="overlay">
                     <div class="tv__overlay__number" id="channel_number"></div>
                     <div class="tv__overlay__name" id="channel_name"></div>
@@ -88,13 +91,16 @@
                 <video autoplay muted loop class="tv__noise" id="noise" style="opacity: 0">
                     <source src="{{Vite::asset('resources/images/promo/noise.webm')}}" type="video/webm">
                 </video>
+                <video autoplay muted loop class="tv__intro" id="intro" >
+                    <source src="{{Vite::asset('resources/images/promo/intro.webm')}}" type="video/webm">
+                </video>
                 <div id="player" class="tv__player"></div>
             </div>
         </div>
         <div class="tv__record-title" id="record_title"></div>
 
         <div class="tv__controls">
-            <div class="tv__controls__group">
+            <div class="tv__controls__group tv__controls__group--desktop-only">
                 <div class="tv__control" id="control_prev_channel">
                     <span class="tv__control__icon tv__control__icon--text tv__control__icon--prev-channel">-</span>
                     <span class="tooltip">Предыдущий канал</span>
@@ -104,6 +110,7 @@
                     <span class="tooltip">Следующий канал</span>
                 </div>
 
+                <!--
                 <div class="tv__control" id="control_refresh">
                     <svg class="tv__control__icon" viewBox="0 0 24 24">
                         <path
@@ -111,6 +118,7 @@
                     </svg>
                     <span class="tooltip">Другая запись</span>
                 </div>
+                -->
             </div>
 
 
@@ -130,8 +138,9 @@
 
             <div class="tv__controls__group">
                 <a class="tv__control tv__control--disabled" id="control_go_to_record">
-                    <svg class="tv__control__icon tv__control__icon--small" viewBox="0 0 16 16" >
-                        <path d="M14 3.5L8.5 9 7 7.5 12.5 2H10V0h6v6h-2V3.5zM6 0v2H2v12h12v-4h2v6H0V0h6z" fill-rule="evenodd"/>
+                    <svg class="tv__control__icon tv__control__icon--small" viewBox="0 0 16 16">
+                        <path d="M14 3.5L8.5 9 7 7.5 12.5 2H10V0h6v6h-2V3.5zM6 0v2H2v12h12v-4h2v6H0V0h6z"
+                              fill-rule="evenodd"/>
                     </svg>
                     <span class="tooltip">Посмотреть видео полностью</span>
                 </a>
@@ -167,47 +176,136 @@
                         <div class="tv__volume__indicator"></div>
                     </div>
                     <div class="tv__volume__text tv__volume__text--min">0%</div>
-
                     <div class="tv__volume__text tv__volume__text--max">100%</div>
                 </div>
             </div>
         </div>
     </div>
     <div class="tapes" id="tapes"></div>
-    <button class="button reload-programs" id="reload_programs">Поменять кассеты</button>
+    <button class="button reload-programs" id="reload_programs">
+        <svg class="button__icon" viewBox="0 0 24 24">
+            <path
+                d="M10 11H7.101l.001-.009a4.956 4.956 0 0 1 .752-1.787 5.054 5.054 0 0 1 2.2-1.811c.302-.128.617-.226.938-.291a5.078 5.078 0 0 1 2.018 0 4.978 4.978 0 0 1 2.525 1.361l1.416-1.412a7.036 7.036 0 0 0-2.224-1.501 6.921 6.921 0 0 0-1.315-.408 7.079 7.079 0 0 0-2.819 0 6.94 6.94 0 0 0-1.316.409 7.04 7.04 0 0 0-3.08 2.534 6.978 6.978 0 0 0-1.054 2.505c-.028.135-.043.273-.063.41H2l4 4 4-4zm4 2h2.899l-.001.008a4.976 4.976 0 0 1-2.103 3.138 4.943 4.943 0 0 1-1.787.752 5.073 5.073 0 0 1-2.017 0 4.956 4.956 0 0 1-1.787-.752 5.072 5.072 0 0 1-.74-.61L7.05 16.95a7.032 7.032 0 0 0 2.225 1.5c.424.18.867.317 1.315.408a7.07 7.07 0 0 0 2.818 0 7.031 7.031 0 0 0 4.395-2.945 6.974 6.974 0 0 0 1.053-2.503c.027-.135.043-.273.063-.41H22l-4-4-4 4z"/>
+        </svg>
+        Поменять кассеты
+    </button>
+    <button class="button programs-back" id="programs_back">
+        <svg viewBox="0 0 1024 1024" class="button__icon">
+            <path d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
+            <path
+                d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
+        </svg>
+        Назад
+    </button>
 
+    <div class="mobile-controls">
+        <a class="mobile-controls__button mobile-controls__change-channel mobile-controls__change-channel--prev"
+           id="mobile_control_prev_channel">
+            <div class="mobile-controls__text">-</div>
+            <div class="mobile-controls__label">Пред. канал</div>
+        </a>
+        <a class="mobile-controls__button mobile-controls__change-channel mobile-controls__change-channel--next"
+           id="mobile_control_next_channel">
+            <div class="mobile-controls__text">+</div>
+            <div class="mobile-controls__label">След. канал</div>
+        </a>
+        <a class="mobile-controls__button mobile-controls__refresh" id="toggle_remote">
+            <svg class="mobile-controls__icon" viewBox="0 -0.5 21 21">
+                <g id="Page-1" stroke="none" stroke-width="1" fill-rule="evenodd">
+                    <g id="Dribbble-Light-Preview" transform="translate(-99.000000, -200.000000)">
+                        <g id="icons" transform="translate(56.000000, 160.000000)">
+                            <path
+                                d="M60.85,51 L57.7,51 C55.96015,51 54.55,52.343 54.55,54 L54.55,57 C54.55,58.657 55.96015,60 57.7,60 L60.85,60 C62.58985,60 64,58.657 64,57 L64,54 C64,52.343 62.58985,51 60.85,51 M49.3,51 L46.15,51 C44.41015,51 43,52.343 43,54 L43,57 C43,58.657 44.41015,60 46.15,60 L49.3,60 C51.03985,60 52.45,58.657 52.45,57 L52.45,54 C52.45,52.343 51.03985,51 49.3,51 M60.85,40 L57.7,40 C55.96015,40 54.55,41.343 54.55,43 L54.55,46 C54.55,47.657 55.96015,49 57.7,49 L60.85,49 C62.58985,49 64,47.657 64,46 L64,43 C64,41.343 62.58985,40 60.85,40 M52.45,43 L52.45,46 C52.45,47.657 51.03985,49 49.3,49 L46.15,49 C44.41015,49 43,47.657 43,46 L43,43 C43,41.343 44.41015,40 46.15,40 L49.3,40 C51.03985,40 52.45,41.343 52.45,43"
+                                id="menu_navigation_grid-[#1529]">
+
+                            </path>
+                        </g>
+                    </g>
+                </g>
+            </svg>
+            <div class="mobile-controls__label">Показать пульт</div>
+        </a>
+
+        <!--
+        <a class="mobile-controls__button mobile-controls__refresh" id="mobile_control_refresh">
+            <svg class="mobile-controls__icon" viewBox="0 0 24 24">
+                <path
+                    d="M10 11H7.101l.001-.009a4.956 4.956 0 0 1 .752-1.787 5.054 5.054 0 0 1 2.2-1.811c.302-.128.617-.226.938-.291a5.078 5.078 0 0 1 2.018 0 4.978 4.978 0 0 1 2.525 1.361l1.416-1.412a7.036 7.036 0 0 0-2.224-1.501 6.921 6.921 0 0 0-1.315-.408 7.079 7.079 0 0 0-2.819 0 6.94 6.94 0 0 0-1.316.409 7.04 7.04 0 0 0-3.08 2.534 6.978 6.978 0 0 0-1.054 2.505c-.028.135-.043.273-.063.41H2l4 4 4-4zm4 2h2.899l-.001.008a4.976 4.976 0 0 1-2.103 3.138 4.943 4.943 0 0 1-1.787.752 5.073 5.073 0 0 1-2.017 0 4.956 4.956 0 0 1-1.787-.752 5.072 5.072 0 0 1-.74-.61L7.05 16.95a7.032 7.032 0 0 0 2.225 1.5c.424.18.867.317 1.315.408a7.07 7.07 0 0 0 2.818 0 7.031 7.031 0 0 0 4.395-2.945 6.974 6.974 0 0 0 1.053-2.503c.027-.135.043-.273.063-.41H22l-4-4-4 4z"/>
+            </svg>
+            <div class="mobile-controls__label">Другая запись</div>
+        </a>
+        -->
+
+        <!--
+        <button class="button toggle-remote" id="toggle_remote">
+            <svg class="button__icon" viewBox="0 -0.5 21 21">
+                <g id="Page-1" stroke="none" stroke-width="1" fill-rule="evenodd">
+                    <g id="Dribbble-Light-Preview" transform="translate(-99.000000, -200.000000)">
+                        <g id="icons" transform="translate(56.000000, 160.000000)">
+                            <path
+                                d="M60.85,51 L57.7,51 C55.96015,51 54.55,52.343 54.55,54 L54.55,57 C54.55,58.657 55.96015,60 57.7,60 L60.85,60 C62.58985,60 64,58.657 64,57 L64,54 C64,52.343 62.58985,51 60.85,51 M49.3,51 L46.15,51 C44.41015,51 43,52.343 43,54 L43,57 C43,58.657 44.41015,60 46.15,60 L49.3,60 C51.03985,60 52.45,58.657 52.45,57 L52.45,54 C52.45,52.343 51.03985,51 49.3,51 M60.85,40 L57.7,40 C55.96015,40 54.55,41.343 54.55,43 L54.55,46 C54.55,47.657 55.96015,49 57.7,49 L60.85,49 C62.58985,49 64,47.657 64,46 L64,43 C64,41.343 62.58985,40 60.85,40 M52.45,43 L52.45,46 C52.45,47.657 51.03985,49 49.3,49 L46.15,49 C44.41015,49 43,47.657 43,46 L43,43 C43,41.343 44.41015,40 46.15,40 L49.3,40 C51.03985,40 52.45,41.343 52.45,43"
+                                id="menu_navigation_grid-[#1529]">
+
+                            </path>
+                        </g>
+                    </g>
+                </g>
+            </svg>
+            Показать пульт
+        </button>
+        -->
+        <button class="button toggle-programs" id="toggle_programs">
+            <svg class="button__icon"
+                 viewBox="0 0 512 512">
+                <g>
+                    <g>
+                        <rect y="80.696" width="512" height="70.678"/>
+                    </g>
+                </g>
+                <g>
+                    <g>
+                        <path d="M0,184.765v246.539h512V184.765H0z M133.565,338.365H77.913c-13.457-30.101-13.457-64.508,0-94.609h55.652V338.365z
+			 M325.565,338.647h-139.13v-94.609h139.13V338.647z M434.087,338.365h-55.652v-94.609h55.652
+			C447.544,273.858,447.544,308.264,434.087,338.365z"/>
+                    </g>
+                </g>
+            </svg>
+            Выбрать кассету
+        </button>
+
+    </div>
 </div>
 
 <div id="about" class="about" style="display: none">
     <div class="about__content">
-        <p class="about__text">
-            Насладитесь телевидением прошлых лет (с советской эпохи и до 2010 года) с нашим ТЕЛЕпортом. Просто
-            выберите канал и год - или доверьтесь случайности.
-        </p>
+        <div class="about__main">
+            <p class="about__text">
+                Насладитесь телевидением прошлых лет (с советской эпохи и до 2010 года) с нашим ТЕЛЕпортом. Просто
+                выберите канал и год - или доверьтесь случайности.
+            </p>
 
-        <h2 class="about__heading">Доступность видео</h2>
-        <p class="about__text">
-            К сожалению, партия сочла некоторые источники наших архивов вражескими. Вы и так знаете, что
-            использовать для доступа к ним :)<br/>
-            Если не хотите видеть современную богомерзкую рекламу, то можно использовать любой блокировщик.
-        </p>
-        <h2 class="about__heading">Есть что предложить?</h2>
-        <p class="about__text">
-            Если у вас всё ещё хранятся кассеты или любой другой носитель с записями передач, которых нет на сайте,
-            то вы можете <a target="_blank" href="/tape-digitization">помочь архиву</a>.
-        </p>
-        <h2>О проекте</h2>
-        <p class="about__text">
-            Разработано <a target="_blank" href="https://mrcatmann.ru">mrcatmann</a> и командой сайта <a
-                target="_blank" href="https://staroetv.su">"Старый телевизор"</a>.
-            За основу взята идея проекта <a target="_blank" href="http://myretrotvs.com/">MyRetroTVs</a>.
-        </p>
+            <h2 class="about__heading">Доступность видео</h2>
+            <p class="about__text">
+                К сожалению, партия сочла некоторые источники наших архивов (Youtube) вражескими. Вы и так знаете, что
+                использовать для доступа к ним :)<br/>
+                Если не хотите видеть современную богомерзкую рекламу, то можно использовать любой блокировщик.
+            </p>
+            <h2 class="about__heading">Есть что предложить?</h2>
+            <p class="about__text">
+                Если у вас всё ещё хранятся кассеты или любой другой носитель с записями передач, которых нет на сайте,
+                то вы можете <a target="_blank" href="/tape-digitization">помочь архиву</a>.
+            </p>
+            <h2>О проекте</h2>
+            <p class="about__text">
+                Разработано <a target="_blank" href="https://mrcatmann.ru">mrcatmann</a> и командой сайта <a
+                    target="_blank" href="https://staroetv.su">"Старый телевизор"</a>.
+                За основу взята идея проекта <a target="_blank" href="http://myretrotvs.com/">MyRetroTVs</a>.
+            </p>
+        </div>
         <a class="about__close" id="about_close">Продолжить</a>
     </div>
 </div>
 
-<button class="button toggle-remote" id="toggle_remote">Достать пульт</button>
-<button class="button toggle-programs" id="toggle_programs">Выбрать кассету</button>
 
 </body>
 @routes

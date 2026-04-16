@@ -4,6 +4,7 @@
 @use "./tapes";
 @use "./remote";
 @use "./about";
+@use "./mobile-controls";
 @use "./buttons";
 @use "./mixins" as *;
 
@@ -37,8 +38,8 @@ body {
     left: 0;
     &--programs {
         @include mobile() {
-            left: -100vw;
-            transform: scale(1.25);
+            left: -108.5vw;
+            transform: scale(1.14);
         }
     }
 }

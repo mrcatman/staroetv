@@ -78,6 +78,12 @@ export const Database = {
             let list = this.list.filter(program => {
                 return this.availableRecordsCounts[program[0]] > 0;
             });
+            if (!params.channel_id) {
+                list = list.filter(program => {
+                    return !!program[6];
+                });
+            }
+
             if (params.genre_id) {
                 list = list.filter(program => {
                     return program[3] === params.genre_id;
@@ -265,3 +271,5 @@ export const Database = {
         });
     }
 }
+
+window.Database = Database;

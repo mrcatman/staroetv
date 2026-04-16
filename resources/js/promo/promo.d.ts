@@ -25,6 +25,7 @@ declare namespace Promo {
         genre_id: number,
         years: number[],
         channel_id: number,
+        highlight: boolean,
     ]
 
     type Record = [

@@ -118,7 +118,8 @@
             @include light() {
                 line-height: 1;
             }
-            @include mobile {
+            @include mobile() {
+                white-space: nowrap;
                 font-size: 1.3125em;
             }
         }

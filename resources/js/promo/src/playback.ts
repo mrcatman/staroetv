@@ -5,7 +5,9 @@ import { Controls } from "./controls";
 
 export const Playback = {
     playerRoot: document.getElementById('player'),
+    inner: document.getElementById('inner'),
     noise: document.getElementById('noise'),
+    intro: document.getElementById('intro'),
     overlay: document.getElementById('overlay'),
     notFound: document.getElementById('not_found'),
 
@@ -48,6 +50,9 @@ export const Playback = {
 
         this.notFound.style.display = 'none';
         this.overlay.style.display = 'none';
+        this.intro.style.opacity = '0';
+        this.intro.style.pointerEvents = 'none';
+
         this.noise.style.opacity = '1';
         this.playerRoot.style.display = 'block';
         const [record, seekTo] = await Database.records.get(this.params, force);
@@ -60,7 +65,9 @@ export const Playback = {
             this.notFound.style.display = '';
             this.stop();
             if (!skipOnNonExisting) {
+                this.intro.style.opacity = '0';
                 this.noise.style.opacity = '0';
+                this.intro.style.pointerEvents = 'none';
             }
             return false;
         }
@@ -129,6 +136,8 @@ export const Playback = {
         this.overlay.style.display = 'none';
 
         Controls.setActiveRecord(null);
+        this.intro.style.opacity = '1';
+        this.intro.style.pointerEvents = '';
     },
     setVolume(volume: number) {
         this.player?.setVolume(volume);
@@ -219,6 +228,9 @@ export const Playback = {
                 return;
             }
             this.updateDisplay(this.record[1], true);
+        });
+        this.inner.addEventListener('click', () => {
+            this.start(true);
         });
     }
 }
