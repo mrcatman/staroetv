@@ -35,11 +35,12 @@ class ReplaceVideosFromVk extends Command
             $found_videos = $found_videos->where(function ($item) use ($video){
                 return trim(mb_strtolower($item->title)) == trim(mb_strtolower($video->title));
             });
+            echo 'Found videos for '.$video->title.': '.count($found_videos).PHP_EOL;
 
             if (!isset($titles_counts[$video->title])) {
                 $titles_counts[$video->title] = 0;
             }
-            $found_video = $found_videos->get($titles_counts[$video->title]);
+            $found_video = $found_videos->at($titles_counts[$video->title]);
 
             if (!$found_video && $titles_counts[$video->title] > 0) {
                 echo 'Not found video: '.$video->title.' with index: '.$titles_counts[$video->title].PHP_EOL;
