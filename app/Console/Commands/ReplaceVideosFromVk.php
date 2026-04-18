@@ -69,6 +69,7 @@ class ReplaceVideosFromVk extends Command
             if ($found_videos->count() === 1) {
                 if ($found_videos->first()->title === $video->title) {
                     echo 'Auto accepting: '.$video->title.PHP_EOL;
+                    $video->embed_code = '<iframe src="' . $found_videos->first()->player . '" frameborder="0" allowfullscreen></iframe>';
                     $this->accept($video, $found_videos->first());
                     usleep(500000);
                     continue;
