@@ -36,6 +36,7 @@ class ReplaceVideosFromVk extends Command
             if (!isset($found_video->image)) {
                 echo 'Image not found, probably video broken'.PHP_EOL;
                 echo json_encode($found_video).PHP_EOL;
+                continue;
             }
 
             $thumbnail = $found_video->image[count($found_video->image) - 1]->url;
