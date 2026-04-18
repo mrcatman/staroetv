@@ -43,31 +43,31 @@
         transform: rotateY(-17.5deg) translateX(-2.25em) translateY(.25em);
     }
     &:nth-of-type(4) {
-        width: 44.5em;
-        transform: rotateY(-14deg) translateX(1.5em) translateY(.125em);
+        width: 44.25em;
+        transform: rotateY(-14deg) rotateZ(.6deg) translateX(1.5em) translateY(0.125em);
     }
     &:nth-of-type(5) {
         width: 43.75em;
-        transform: rotateY(-21.5deg) translateX(-3em) translateY(.5em);
+        transform: rotateY(-21.5deg) rotateZ(.5deg) translateX(-3em) translateY(0.5em);
     }
     &:nth-of-type(6) {
         width: 45em;
-        transform: rotateY(-19.5deg) rotateZ(.5deg) translateX(-.125em) translateY(.4em);
+        transform: rotateY(-19.5deg) rotateZ(0.75deg) translateX(-0.125em) translateY(0.4em);
     }
     &:nth-of-type(7) {
         width: 42.75em;
-        transform: rotateY(-22.5deg) translateX(-2.75em) translateY(.625em);
+        transform: rotateY(-22.5deg) rotateZ(.625deg) translateX(-2.75em) translateY(0.625em);
     }
     &:nth-of-type(8) {
-        width: 41.25em;
-        transform: rotateY(-23.5deg) rotateZ(.75deg) translateX(-1.125em) translateY(.5em);
+        width: 41.5em;
+        transform: rotateY(-23.5deg) rotateZ(1deg) translateX(-1.25em) translateY(0.5em);
     }
     &:nth-of-type(9) {
         transform: rotateY(-21.5deg) translateX(.125em) translateY(.75em);
     }
     &:nth-of-type(10) {
         width: 43.75em;
-        transform: rotateY(-28.5deg) translateX(-1.5em) translateY(1em);
+        transform: rotateY(-28.5deg) rotateZ(.5deg) translateX(-1.5em) translateY(1em);
     }
     &:nth-of-type(11) {
         width: 45em;
@@ -77,6 +77,8 @@
         width: 44em;
         transform: rotateY(-13.5deg) translateX(-.25em) translateY(1.5em);
     }
+
+
 
     &__sticker {
         width: 100%;
@@ -97,7 +99,6 @@
             display: flex;
             align-items: center;
             gap: .5em;
-            line-height: 1;
             @include mobile() {
                 font-size: 1.8em;
             }
@@ -105,6 +106,7 @@
 
         &__cover {
             background: #ccc;
+            min-width: 4em;
             width: 4em;
             height: 2.5em;
             background-size: cover;
@@ -116,15 +118,5 @@
         }
     }
 
-    &:nth-of-type(4n - 2) &__sticker {
-        transform: rotate(-.5deg);
-    }
 
-    &:nth-of-type(4n - 1) &__sticker {
-        transform: rotate(.25deg);
-    }
-
-    &:nth-of-type(4n) &__sticker {
-        transform: rotate(.5deg);
-    }
 }

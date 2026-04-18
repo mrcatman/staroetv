@@ -135,7 +135,10 @@ class RecordsController extends EntityController
             $other_categories = Genre::withCount('records')->where(['type' => 'videos_other'])->get();
             foreach ($other_categories as $other_category) {
                 $other_category->full_url = typed_route('records.[RECORD].other.category', false, $other_category->url);
-                $other_category->cover_url = Record::where(['other_category_id' => $other_category->id])->whereNotNull('cover_id')->inRandomOrder()->limit(1)->first()->coverPicture->url;
+                $other_category_record = Record::where(['other_category_id' => $other_category->id])->whereNotNull('cover_id')->inRandomOrder()->limit(1)->first();
+                if ($other_category_record) {
+                    $other_category->cover_url = $other_category_record->coverPicture->url;
+                }
             }
             $other_categories = $global_programs->merge($other_categories);
             $unknown = Record::where(['is_interprogram' => false, 'is_advertising' => false, 'is_radio' => false])->doesntHave('program')->whereNull('other_category_id');
