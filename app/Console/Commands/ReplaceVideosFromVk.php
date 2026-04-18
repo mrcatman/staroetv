@@ -40,7 +40,7 @@ class ReplaceVideosFromVk extends Command
         $videos = Record::where(['author_id' => $user_id])->where(function($query) {
             $query->where('embed_code', 'like', '%youtu%')
                 ->orWhereNotNull('telegram_id');
-        })->orderBy('id', 'desc')->limit(100000)->offset($offset)->get();
+        })->whereNull('source_path')->orderBy('id', 'desc')->limit(100000)->offset($offset)->get();
 
         foreach ($videos as $video) {
             $search = ExternalServicesHelper::vkVideoSearch($video->title, $group_id);
