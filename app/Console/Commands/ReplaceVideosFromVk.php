@@ -26,7 +26,7 @@ class ReplaceVideosFromVk extends Command
         $found_videos = collect($data->response->items);
         $videos = Record::where(['author_id' => $user_id])->whereIn('title', $found_videos->pluck('title'))->get();
         foreach ($videos as $video) {
-            if (strpos($video->embed_code, 'vk.com') !== false) {
+            if (strpos($video->embed_code, 'vk.com') !== false && strpos($video->embed_code, 'vkvideo.ru') !== false) {
                 continue;
             }
             // todo части
