@@ -59,8 +59,11 @@ class RemoveSpammers extends Command
             $query->where('username', 'like', '%bet%')
                 ->orWhere('username', 'like', '%game%')
                 ->orWhere('username', 'like', '%win%')
-                ->orWhere('username', 'like', '%vn%')
-                ->orWhere('signature', 'like', '%http%');
+                ->orWhere('username', 'like', '%vn%');
+            $query->orWhere(function ($q) {
+                $q->where('signature', 'like', '%http%');
+                $q->where('signature', 'not like', '%userbars%');
+            });
         })->orderBy('id')->chunk(100, function ($users) use ($confirm) {
             $users->each(function ($user) use ($confirm) {
                 echo 'User ' . $user->username . ' has suspicious signature: '.$user->signature . PHP_EOL.PHP_EOL;
