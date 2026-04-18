@@ -37,7 +37,7 @@ class ReplaceVideosFromVk extends Command
         $user_id = $this->argument('user_id');
         $offset = $this->argument('offset') ?? 0;
 
-        $videos = Record::where(['author_id' => $user_id])->where('title', 'LIKE', '%сезам%')->where(function($query) {
+        $videos = Record::where(['author_id' => $user_id])->where(function($query) {
             $query->where('embed_code', 'like', '%youtu%')
                 ->orWhereNotNull('telegram_id');
         })->limit(10000)->offset($offset)->get();
@@ -52,7 +52,7 @@ class ReplaceVideosFromVk extends Command
                 continue;
             }
 
-            echo PHP_EOL.'Found '.$found_videos->count().' videos for '.$video->title.PHP_EOL;
+            echo PHP_EOL.PHP_EOL.'Found '.$found_videos->count().' videos for '.$video->title.PHP_EOL;
             $labels = [];
 
             foreach ($found_videos as $index => $found_video) {
