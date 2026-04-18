@@ -58,10 +58,12 @@ class RemoveSpammers extends Command
         User::whereDate('created_at', '>', Carbon::create(2023, 1, 1))->whereNotNull('signature')->where(function ($query) {
             $query->where('username', 'like', '%bet%')
                 ->orWhere('username', 'like', '%game%')
-                ->orWhere('username', 'like', '%win%');
+                ->orWhere('username', 'like', '%win%')
+                ->orWhere('username', 'like', '%vn%')
+                ->orWhere('signature', 'like', '%http%');
         })->orderBy('id')->chunk(100, function ($users) use ($confirm) {
             $users->each(function ($user) use ($confirm) {
-                echo 'User ' . $user->username . ' has suspicious signature: '.$user->signature . PHP_EOL;
+                echo 'User ' . $user->username . ' has suspicious signature: '.$user->signature . PHP_EOL.PHP_EOL;
                 if ($confirm) {
                     $user->delete();
                 }
