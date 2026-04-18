@@ -109,7 +109,7 @@ class Teletext extends Model {
 
     public function getPageContent($page)
     {
-        $dir = '/teletext/'.$this->id.'/'.$page.'.html';
+        $dir = '/teletext-data/'.$this->id.'/'.$page.'.html';
         $file_path = Storage::disk('public_data')->path($dir);
         return file_get_contents($file_path);
     }

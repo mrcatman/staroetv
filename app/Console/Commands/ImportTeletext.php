@@ -111,13 +111,13 @@ class ImportTeletext extends Command
             }
             $teletext->save();
 
-            $dir = '/teletext/'.$teletext->id;
+            $dir = '/teletext-data/'.$teletext->id;
             Storage::disk('temp')->makeDirectory($dir);
             Storage::disk('public_data')->makeDirectory($dir);
 
             $processed_pages = [];
             foreach ($pages as $page) {
-                $dir = '/teletext/' . $teletext->id . '/' . $page . '.html';
+                $dir = '/teletext-data/' . $teletext->id . '/' . $page . '.html';
                 $temp_path = Storage::disk('temp')->path($dir);
                 $file_path = Storage::disk('public_data')->path($dir);
                 if (!file_exists($file_path)) {

@@ -14,7 +14,7 @@ use Spatie\LaravelScreenshot\Facades\Screenshot;
 class TeletextHelper {
     public static function process(Teletext $teletext): void
     {
-        $dir = '/teletext/'.$teletext->id;
+        $dir = '/teletext-data/'.$teletext->id;
         Storage::disk('temp')->makeDirectory($dir);
         Storage::disk('public_data')->makeDirectory($dir);
 
@@ -44,7 +44,7 @@ class TeletextHelper {
 
     public static function processPage(Teletext $teletext, string $page): void
     {
-        $path = '/teletext/'.$teletext->id.'/'.$page.'.html';
+        $path = '/teletext-data/'.$teletext->id.'/'.$page.'.html';
         $temp_path = Storage::disk('temp')->path($path);
         $file_path = Storage::disk('public_data')->path($path);
 
@@ -76,8 +76,8 @@ class TeletextHelper {
             return;
         }
         $page = in_array('100', $teletext->pages) ? '100' : $teletext->pages[0];
-        $thumbnail = '/teletext/'.$teletext->id.'/'.$page.'.png';
-        Screenshot::url(config('app.url').'/teletext/'.$teletext->id.'?page='.$page.'&inline=true')
+        $thumbnail = '/teletext-data/'.$teletext->id.'/'.$page.'.png';
+        Screenshot::url(config('app.url').'/teletext-data/'.$teletext->id.'?page='.$page.'&inline=true')
             ->withBrowsershot(function (Browsershot $browsershot) {
                 $browsershot->ignoreHttpsErrors();
                 $browsershot->windowSize(640, 480);

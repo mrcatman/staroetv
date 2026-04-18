@@ -351,6 +351,7 @@ class ProgramsController extends EntityController {
         Cache::forget('program_random_pictures_'.$program->id);
         Cache::forget('program_cover_'.$program->id);
         Cache::forget('programs_channels_names_'.$program->id);
+        Cache::forget('other_categories');
     }
 
     public function merge() {
