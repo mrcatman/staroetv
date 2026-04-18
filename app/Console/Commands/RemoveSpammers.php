@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Helpers\GeolocationHelper;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class RemoveSpammers extends Command
@@ -43,7 +44,7 @@ class RemoveSpammers extends Command
     {
         $forbidden_countries = explode(',',config('site.geoip_forbidden_countries'));
         $confirm = $this->option('confirm');
-        User::orderBy('id')->chunk(100, function ($users) use ($confirm, $forbidden_countries) {
+        User::whereDate('created_at', '>', Carbon::create(2023, 1, 1))->orderBy('id')->chunk(100, function ($users) use ($confirm, $forbidden_countries) {
             $users->each(function ($user) use ($confirm, $forbidden_countries) {
                 $country = $this->geolocation->country($user);
                 if (in_array($country, $forbidden_countries)) {
