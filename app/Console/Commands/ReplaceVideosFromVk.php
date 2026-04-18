@@ -109,6 +109,7 @@ class ReplaceVideosFromVk extends Command
             } else {
                 $index = array_search($action, $labels);
                 $found_video = $found_videos->get($index);
+                $video->embed_code = '<iframe src="' . $found_video->player . '" frameborder="0" allowfullscreen></iframe>';
                 $this->accept($video, $found_video);
             }
         }
