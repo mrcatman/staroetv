@@ -40,9 +40,9 @@ class ReplaceVideosFromVk extends Command
             if (!isset($titles_counts[$video->title])) {
                 $titles_counts[$video->title] = 0;
             }
-            $found_video = $found_videos->at($titles_counts[$video->title]);
+            $found_video = $found_videos->get($titles_counts[$video->title]);
 
-            if (!$found_video && $titles_counts[$video->title] > 0) {
+            if (!$found_video) {
                 echo 'Not found video: '.$video->title.' with index: '.$titles_counts[$video->title].PHP_EOL;
                 $found_video = $found_videos->first();
             }
