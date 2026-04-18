@@ -25,14 +25,29 @@ class ReplaceVideosFromVk extends Command
         $data = ExternalServicesHelper::vkVideoList($group_id, $count, $offset);
         $found_videos = collect($data->response->items);
         $videos = Record::where(['author_id' => $user_id])->whereIn('title', $found_videos->pluck('title'))->get();
+
+        $titles_counts = [];
         foreach ($videos as $video) {
             if (strpos($video->embed_code, 'vk.com') !== false && strpos($video->embed_code, 'vkvideo.ru') !== false) {
-                continue;
+                //continue;
             }
             // todo части
-            $found_video = $found_videos->firstWhere(function ($item) use ($video){
+            $found_videos = $found_videos->where(function ($item) use ($video){
                 return trim(mb_strtolower($item->title)) == trim(mb_strtolower($video->title));
             });
+
+            if (!isset($titles_counts[$video->title])) {
+                $titles_counts[$video->title] = 0;
+            }
+            $found_video = $found_videos->get($titles_counts[$video->title]);
+
+            if (!$found_video && $titles_counts[$video->title] > 0) {
+                echo 'Not found video: '.$video->title.' with index: '.$titles_counts[$video->title].PHP_EOL;
+                $found_video = $found_videos->first();
+            }
+
+            $titles_counts[$video->title]++;
+
             if (!isset($found_video->image)) {
                 echo 'Image not found, probably video broken'.PHP_EOL;
                 echo json_encode($found_video).PHP_EOL;
@@ -51,7 +66,7 @@ class ReplaceVideosFromVk extends Command
             $video->telegram_id = null;
 
             $video->save();
-            echo 'Video found: '.$video->title.PHP_EOL;
+            echo 'Video found: '.$video->title.' ('.$found_video->player.')'.PHP_EOL;
         }
     }
 }
