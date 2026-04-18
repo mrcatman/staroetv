@@ -32,19 +32,19 @@ class ReplaceVideosFromVk extends Command
                 //continue;
             }
             // todo части
-            $found_videos = $found_videos->where(function ($item) use ($video){
+            $found_videos_with_title = $found_videos->where(function ($item) use ($video){
                 return trim(mb_strtolower($item->title)) == trim(mb_strtolower($video->title));
             });
-            echo 'Found videos for '.$video->title.': '.count($found_videos).PHP_EOL;
+            echo 'Found videos for '.$video->title.': '.count($found_videos_with_title).PHP_EOL;
 
             if (!isset($titles_counts[$video->title])) {
                 $titles_counts[$video->title] = 0;
             }
-            $found_video = $found_videos->get($titles_counts[$video->title]);
+            $found_video = $found_videos_with_title->get($titles_counts[$video->title]);
 
             if (!$found_video) {
                 echo 'Not found video: '.$video->title.' with index: '.$titles_counts[$video->title].PHP_EOL;
-                $found_video = $found_videos->first();
+                $found_video = $found_videos_with_title->first();
             }
 
             $titles_counts[$video->title]++;
