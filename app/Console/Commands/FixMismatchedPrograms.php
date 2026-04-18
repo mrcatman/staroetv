@@ -77,7 +77,7 @@ class FixMismatchedPrograms extends Command
                             options: ['Add channel to program', 'Find similar by name', 'Create new', 'Skip']
                         );
                         if ($action == 'Add channel to program') {
-                            AdditionalChannel::create(['program_id' => $record->program_id, 'channel_id' => $record->channel_id]);
+                            AdditionalChannel::firstOrCreate(['program_id' => $record->program_id, 'channel_id' => $record->channel_id]);
                             $programs[$record->program_id][] = $record->channel_id;
                         }
                         if ($action == 'Find similar by name') {
