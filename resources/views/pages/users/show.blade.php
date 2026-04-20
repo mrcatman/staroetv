@@ -174,7 +174,7 @@
                 </div>
             </a>
             <div class="box__inner">
-                <div class="records-list records-list--thumbs ">
+                <div class="records-list records-list--thumbs records-list--thumbs-only-desktop">
                     @foreach ($videos as $record)
                         @include('blocks.records.item', ['record' => $record])
                     @endforeach

@@ -544,12 +544,20 @@ textarea.input {
             display: flex;
             gap: var(--col-margin);
             justify-content: flex-end;
+            @include mobile() {
+                width: 100%;
+                justify-content: flex-start;
+            }
         }
 
         &__link {
+            white-space: nowrap;
             cursor: pointer;
             text-decoration: underline;
             font-size: .875em;
+            @include mobile() {
+                font-size: 1em;
+            }
         }
     }
 

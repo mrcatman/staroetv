@@ -47,8 +47,9 @@
                 <h1 class="box__heading__inner" id="record_title">
                     {{$record->title_without_tags}}
                 </h1>
+                @if ($record->can_edit || \App\Helpers\PermissionsHelper::allows('contentapprove'))
                 <div class="box__heading__right">
-                    @if ($record->can_edit || \App\Helpers\PermissionsHelper::allows('contentapprove'))
+
                         <span class="button button--light button--dropdown">
                         <span class="button--dropdown__text">Действия</span>
                         <span class="button--dropdown__icon">
@@ -80,8 +81,8 @@
                             @endif
                         </div>
                     </span>
-                    @endif
                 </div>
+                @endif
             </div>
         </div>
         <div class="row row--stretch record-page__content">

@@ -2,7 +2,7 @@
     @php($records_data = \App\Helpers\RecordsHelper::get($conditions))
 @endif
 @php($new_titles = isset($conditions['new_titles']) ? $conditions['new_titles'] : false)
-@php($show_advanced_filters = count($records_data['records']) >= 5)
+@php($show_advanced_filters = count($records_data['records']) >= 5 || $records_data['selected_year'] || $records_data['selected_month'])
 @php($hide_if_zero = isset($hide_if_zero) ? $hide_if_zero : false)
 @php($block_title = isset($block_title) ? $block_title : "Записи")
 @php($is_radio = isset($conditions['is_radio']) && $conditions['is_radio'])

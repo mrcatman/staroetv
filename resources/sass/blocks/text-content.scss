@@ -4,7 +4,7 @@
     width: 100%;
 
     @include mobile() {
-        font-size: 1em;
+        font-size: .9375em;
     }
     &:empty {
         display: none;

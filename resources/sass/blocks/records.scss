@@ -324,9 +324,6 @@
 
     &__comments {
         height: auto !important;
-        @include mobile() {
-            margin: 1em 0 0;
-        }
     }
 
     &__description {
