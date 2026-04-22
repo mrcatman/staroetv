@@ -160,6 +160,9 @@ class ReplaceVideosFromVk extends Command
         foreach ($duplicates as $duplicate) {
             $search = ExternalServicesHelper::vkVideoSearch($this->normalize($duplicate->title), $group_id);
             $found_videos = collect($search->response->items);
+            if ($found_videos->isEmpty()) {
+                echo 'Not found in VK: '.$duplicate->title.PHP_EOL;
+            }
             dd($duplicate->title, count($found_videos));
         }
     }
