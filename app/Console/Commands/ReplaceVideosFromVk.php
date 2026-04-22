@@ -6,13 +6,14 @@ use App\Helpers\ExternalServicesHelper;
 use App\Models\Picture;
 use App\Models\Record;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 
 class ReplaceVideosFromVk extends Command
 {
 
-    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {offset?}';
+    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {offset=0} {action?}';
     protected $description = 'Command description';
 
     private function accept($video, $found_video)
@@ -29,6 +30,7 @@ class ReplaceVideosFromVk extends Command
         $video->telegram_id = null;
         $video->save();
 
+        $video->external_id = ExternalServicesHelper::resolveVkId($video->embed_code);
         echo 'Video saved: '.$video->title.' ('.$found_video->player.')'.PHP_EOL;
     }
 
@@ -41,8 +43,7 @@ class ReplaceVideosFromVk extends Command
         return trim($title);
     }
 
-    public function handle()
-    {
+    private function replace() {
         $group_id = -1 * $this->argument('group_id');
         $user_id = $this->argument('user_id');
         $offset = $this->argument('offset') ?? 0;
@@ -146,5 +147,33 @@ class ReplaceVideosFromVk extends Command
                 $this->accept($video, $found_video);
             }
         }
+    }
+
+    private function fixDuplicates() {
+        $group_id = -1 * $this->argument('group_id');
+        $user_id = $this->argument('user_id');
+        $duplicates = Record::where(['author_id' => $user_id])
+            ->select('external_id', 'title', DB::raw('COUNT(*) as count'))
+            ->groupBy('external_id')
+            ->havingRaw('COUNT(*) > 1')
+            ->get();
+        foreach ($duplicates as $duplicate) {
+            $search = ExternalServicesHelper::vkVideoSearch($this->normalize($duplicate->title), $group_id);
+            $found_videos = collect($search->response->items);
+            dd($duplicate->title, count($found_videos));
+        }
+    }
+
+    public function handle()
+    {
+
+        $action = $this->argument('action') ?? 'replace';
+
+        if ($action === 'replace') {
+            $this->replace();
+        } elseif ($action === 'fix-duplicates') {
+            $this->fixDuplicates();
+        }
+
     }
 }
