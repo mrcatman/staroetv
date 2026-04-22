@@ -13,7 +13,7 @@ use function Laravel\Prompts\text;
 class ReplaceVideosFromVk extends Command
 {
 
-    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {--offset=0} {--action=replace} {--filter=} {--order=id}';
+    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {--offset=0} {--action=replace} {--filter=} {--order=id} {--extended-search=0}';
     protected $description = 'Command description';
 
     private function accept($video, $found_video)
@@ -45,8 +45,27 @@ class ReplaceVideosFromVk extends Command
     }
 
     private function search($title, $group_id) {
-        $search = ExternalServicesHelper::vkVideoSearch($this->normalize($title), $group_id);
-        $found_videos = collect($search->response->items);
+        if ($this->option('extended-search') == '1') {
+            $data = explode('(', $title);
+            $name = trim($data[0]);
+            $channel_and_date = explode(',', explode(')', $data[1])[0]);
+            $date = isset($channel_and_date[1]) ? $channel_and_date[1] : $channel_and_date[0];
+            $search = ExternalServicesHelper::vkVideoSearch($name, $group_id);
+            $found_videos = collect($search->response->items)->filter(function ($item) use ($date) {
+                return str_contains($item->title, $date);
+            });
+            if (count($found_videos) === 0) {
+                echo 'Not found videos by name, trying to search by date'.PHP_EOL;
+            }
+            usleep(500000);
+
+            $search = ExternalServicesHelper::vkVideoSearch($date, $group_id);
+            $found_videos = collect($search->response->items);
+        } else {
+            $search = ExternalServicesHelper::vkVideoSearch($this->normalize($title), $group_id);
+            $found_videos = collect($search->response->items);
+        }
+
         foreach ($found_videos as $item) {
             $item->external_id = ExternalServicesHelper::resolveVkId($item->player);
         }
@@ -57,7 +76,7 @@ class ReplaceVideosFromVk extends Command
             }
             return !$already_added->contains($item->external_id);
         })->values();
-      
+
         return $filtered_videos;
     }
 

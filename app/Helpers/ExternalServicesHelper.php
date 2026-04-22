@@ -24,7 +24,7 @@ class ExternalServicesHelper {
 
     public static function vkVideoSearch($search, $vk_owner_id) {
         $token = config('tokens.vk');
-        return self::request("https://api.vk.com/method/video.search?q=$search&access_token=$token&v=5.167&owner_id=$vk_owner_id&extended=1");
+        return self::request("https://api.vk.com/method/video.search?q=$search&access_token=$token&v=5.167&owner_id=$vk_owner_id&count=100&extended=1");
     }
 
     public static function resolveYoutubeChannelId($url)
