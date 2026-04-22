@@ -28,9 +28,10 @@ class ReplaceVideosFromVk extends Command
         $video->cover_id = $cover->id;
 
         $video->telegram_id = null;
+        $video->external_id = ExternalServicesHelper::resolveVkId($video->embed_code);
+
         $video->save();
 
-        $video->external_id = ExternalServicesHelper::resolveVkId($video->embed_code);
         echo 'Video saved: '.$video->title.' ('.$found_video->player.')'.PHP_EOL;
     }
 
