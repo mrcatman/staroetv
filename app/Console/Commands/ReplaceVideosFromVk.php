@@ -172,6 +172,7 @@ class ReplaceVideosFromVk extends Command
             if ($found_videos->isEmpty()) {
                 echo 'Not found in VK: '.$duplicate->title.PHP_EOL;
             } else {
+                echo PHP_EOL.PHP_EOL.'Found '.$found_videos->count().' videos for '.$duplicate->title.' ('.$duplicate->count.' duplicates)'.PHP_EOL;
                 $labels = $this->getLabels($found_videos);
                 $videos = Record::where(['external_id' => $duplicate->external_id])->get();
                 foreach ($videos as $video) {
@@ -180,6 +181,9 @@ class ReplaceVideosFromVk extends Command
                         options: $labels,
                     );
                     $index = array_search($action, $labels);
+                    $labels = array_filter($labels, function ($label) use ($action) {
+                        return $label !== $action;
+                    });
                     $found_video = $found_videos->get($index);
                     $video->embed_code = '<iframe src="' . $found_video->player . '" frameborder="0" allowfullscreen></iframe>';
                     $this->accept($video, $found_video);
