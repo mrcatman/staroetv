@@ -13,7 +13,7 @@ use function Laravel\Prompts\text;
 class ReplaceVideosFromVk extends Command
 {
 
-    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {--offset=0} {--action=replace} {--filter=}';
+    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {--offset=0} {--action=replace} {--filter=} {--order=id';
     protected $description = 'Command description';
 
     private function accept($video, $found_video)
@@ -88,10 +88,17 @@ class ReplaceVideosFromVk extends Command
             foreach ($skip as $item) {
                 $q->where('title', 'not like', '%'.$item.'%');
             }
-        })->orderBy('id', 'desc')->limit(100000)->offset($offset);
+        })->limit(100000)->offset($offset);
         if ($filter != '') {
             $records = $records->where('title', 'like', '%'.$filter.'%');
         }
+        $order = $this->option('order');
+        if ($order == 'title') {
+            $records = $records->orderBy('title', 'asc');
+        } else {
+            $records = $records->orderBy('id', 'desc');
+        }
+
         return $records->get();
     }
 
