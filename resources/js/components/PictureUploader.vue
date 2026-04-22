@@ -14,10 +14,9 @@
                     <Response :light="true" :data="URLModal.response"/>
                 </div>
             </div>
-
         </modal>
 
-        <input type="hidden" v-if="picture" :value="picture.id" :name="name"/>
+        <input type="hidden" :value="picture?.id || null" :name="name"/>
         <div class="picture-uploader__inner">
             <a class="picture-uploader__reset" v-if="picture && picture.url" @click="picture = null">удалить</a>
             <div class="picture-uploader__image" v-if="picture && picture.url"
