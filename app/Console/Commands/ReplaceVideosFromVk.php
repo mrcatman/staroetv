@@ -176,6 +176,9 @@ class ReplaceVideosFromVk extends Command
                 $labels = $this->getLabels($found_videos);
                 $videos = Record::where(['external_id' => $duplicate->external_id])->get();
                 foreach ($videos as $video) {
+                    if (count($labels) === 0) {
+                        echo 'No more videos to select, continuing'.PHP_EOL;
+                    }
                     $action = select(
                         label: 'Action',
                         options: $labels,
