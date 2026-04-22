@@ -486,6 +486,26 @@ class Record extends Model {
         }, $this->all_telegram_sources);
     }
 
+    public function getMultipleEmbedsAttribute() {
+        $embeds = explode('|', $this->attributes['embed_code']);
+        if (count($embeds) < 2) {
+            return null;
+        }
+        return $embeds;
+    }
+
+    public function getSourcesCountAttribute()
+    {
+        if ($this->telegram_id && count($this->all_telegram_sources) > 1) {
+            return count($this->all_telegram_sources);
+        }
+
+        if ($this->multiple_embeds) {
+            return count($this->multiple_embeds);
+        }
+        return 1;
+    }
+
     public function scopeSearch($query, $search, $need_sort = true)
     {
         $initial_search = $search;

@@ -1,15 +1,14 @@
 
-@if ($record->telegram_id && count($record->all_telegram_sources) > 1)
+@if ($record->sources_count > 1)
     <div class="box">
         <div class="box__inner">
             <div class="tabs" data-id="parts">
-                @for ($i = 0; $i < count($record->all_telegram_sources); $i++)
+                @for ($i = 0; $i < $record->sources_count; $i++)
                     <a class="tab @if ($i == 0) tab--active @endif" data-content="part_{{$i}}">Часть {{$i + 1}}</a>
                 @endfor
             </div>
         </div>
     </div>
-
 @endif
 @if ($record->is_radio)
     @if ($record->use_own_player)
@@ -54,7 +53,16 @@
         </div>
     @else
         <div class="record-page__player-container">
+            @if ($record->multiple_embeds)
+                @for ($i = 0; $i < count($record->multiple_embeds); $i++)
+                    <div class="tab-content" data-id="parts" data-tab="part_{{$i}}"
+                         @if($i != 0) style="display: none" @endif>
+                        {!! $record->multiple_embeds[$i] !!}
+                    </div>
+                @endfor
+            @else
             {!! $record->embed_code !!}
+            @endif
             @if(strpos($record->embed_code, "youtu") !== false)
                 <div class="record-page__download-overlay" data-id="{{$record->id}}" data-title="{{$record->title}}"
                      data-url="{{$record->url}}" data-poster="{{$record->cover}}" style="display: none">
@@ -74,6 +82,6 @@
     @endif
 @endif
 
-@if(strpos($record->embed_code, "youtu") !== false)
+@if(strpos($record->embed_code, "youtu") !== false && !$record->use_own_player && !$record->telegram_id)
     <div class="warning-alert record-page__youtube-alert">Возможны проблемы с загрузкой этого видео, если у вас не работает Youtube (вы знаете, что делать)</div>
 @endif
