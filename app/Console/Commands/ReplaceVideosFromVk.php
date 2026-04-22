@@ -47,10 +47,16 @@ class ReplaceVideosFromVk extends Command
         $user_id = $this->argument('user_id');
         $offset = $this->argument('offset') ?? 0;
 
+        $skip = ['Белый попугай', 'Непутёвые заметки', 'Своя игра (НТВ'];
+
         $videos = Record::where(['author_id' => $user_id])->where(function($query) {
             $query->where('embed_code', 'like', '%youtu%')
                 ->orWhereNotNull('telegram_id');
-        })->whereNull('source_path')->orderBy('id', 'desc')->limit(100000)->offset($offset)->get();
+        })->whereNull('source_path')->where(function($q) use ($skip) {
+            foreach ($skip as $item) {
+                $q->where('title', 'not like', '%'.$item.'%');
+            }
+        })->orderBy('id', 'desc')->limit(100000)->offset($offset)->get();
 
         foreach ($videos as $video) {
             $search = ExternalServicesHelper::vkVideoSearch($this->normalize($video->title), $group_id);
