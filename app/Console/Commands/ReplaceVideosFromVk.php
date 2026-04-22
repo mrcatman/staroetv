@@ -43,6 +43,35 @@ class ReplaceVideosFromVk extends Command
         return trim($title);
     }
 
+    private function search($title, $group_id) {
+        $search = ExternalServicesHelper::vkVideoSearch($this->normalize($title), $group_id);
+        $found_videos = collect($search->response->items);
+        foreach ($found_videos as $item) {
+            $item->external_id = ExternalServicesHelper::resolveVkId($item->player);
+        }
+        $already_added = Record::whereIn('external_id', $found_videos->pluck('external_id'))->pluck('external_id');
+        $found_videos = $found_videos->filter(function ($item) use ($already_added) {
+            return !$already_added->contains($item->external_id);
+        });
+        return $found_videos;
+    }
+
+    private function getLabels($found_videos) {
+        $labels = [];
+
+        foreach ($found_videos as $index => $found_video) {
+            if (!isset($found_video->image)) {
+                echo 'Image not found, probably video broken' . PHP_EOL;
+                echo json_encode($found_video) . PHP_EOL;
+            } else {
+                $label = '#' . $index . '. ' . $found_video->title . '(' . $found_video->share_url . ')' . PHP_EOL;
+                echo $label;
+                $labels[] = $label;
+            }
+        }
+        return $labels;
+    }
+
     private function replace() {
         $group_id = -1 * $this->argument('group_id');
         $user_id = $this->argument('user_id');
@@ -60,15 +89,7 @@ class ReplaceVideosFromVk extends Command
         })->orderBy('id', 'desc')->limit(100000)->offset($offset)->get();
 
         foreach ($videos as $video) {
-            $search = ExternalServicesHelper::vkVideoSearch($this->normalize($video->title), $group_id);
-            $found_videos = collect($search->response->items);
-            foreach ($found_videos as $item) {
-                $item->external_id = ExternalServicesHelper::resolveVkId($item->player);
-            }
-            $already_added = Record::whereIn('external_id', $found_videos->pluck('external_id'))->pluck('external_id');
-            $found_videos = $found_videos->filter(function ($item) use ($already_added) {
-                return !$already_added->contains($item->external_id);
-            });
+            $found_videos = $this->search($video->title, $group_id);
             if ($found_videos->isEmpty()) {
                 echo 'Not found in VK: '.$video->title.PHP_EOL;
                 usleep(500000);
@@ -76,18 +97,7 @@ class ReplaceVideosFromVk extends Command
             }
 
             echo PHP_EOL.PHP_EOL.'Found '.$found_videos->count().' videos for '.$video->title.PHP_EOL;
-            $labels = [];
-
-            foreach ($found_videos as $index => $found_video) {
-                if (!isset($found_video->image)) {
-                    echo 'Image not found, probably video broken' . PHP_EOL;
-                    echo json_encode($found_video) . PHP_EOL;
-                } else {
-                    $label = '#' . $index . '. ' . $found_video->title . '(' . $found_video->share_url . ')' . PHP_EOL;
-                    echo $label;
-                    $labels[] = $label;
-                }
-            }
+            $labels = $this->getLabels($found_videos);
 
             if ($this->normalize($found_videos->first()->title) === $this->normalize($video->title)) {
                 echo 'Auto accepting: '.$video->title.PHP_EOL;
@@ -158,12 +168,22 @@ class ReplaceVideosFromVk extends Command
             ->havingRaw('COUNT(*) > 1')
             ->get();
         foreach ($duplicates as $duplicate) {
-            $search = ExternalServicesHelper::vkVideoSearch($this->normalize($duplicate->title), $group_id);
-            $found_videos = collect($search->response->items);
+            $found_videos = $this->search($duplicate->title, $group_id);
             if ($found_videos->isEmpty()) {
                 echo 'Not found in VK: '.$duplicate->title.PHP_EOL;
             } else {
-                dd($duplicate->title, count($found_videos));
+                $labels = $this->getLabels($found_videos);
+                $videos = Record::where(['external_id' => $duplicate->external_id])->get();
+                foreach ($videos as $video) {
+                    $action = select(
+                        label: 'Action',
+                        options: $labels,
+                    );
+                    $index = array_search($action, $labels);
+                    $found_video = $found_videos->get($index);
+                    $video->embed_code = '<iframe src="' . $found_video->player . '" frameborder="0" allowfullscreen></iframe>';
+                    $this->accept($video, $found_video);
+                }
             }
         }
     }
