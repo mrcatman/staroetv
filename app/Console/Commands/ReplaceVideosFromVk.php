@@ -33,7 +33,7 @@ class ReplaceVideosFromVk extends Command
     }
 
     private function normalize($title) {
-        $title = preg_replace('/[^a-zA-Z0-9\p{Cyrillic}]/u', '', $title);
+        $title = preg_replace('/[^a-zA-Z0-9. \p{Cyrillic}]/u', '', $title);
         $replacements = ['(не с начала)', '(не до конца)', '(фрагмент)'];
         foreach ($replacements as $replacement) {
             $title = str_replace($replacement, '', $title);
@@ -53,7 +53,7 @@ class ReplaceVideosFromVk extends Command
         })->whereNull('source_path')->orderBy('id', 'desc')->limit(100000)->offset($offset)->get();
 
         foreach ($videos as $video) {
-            $search = ExternalServicesHelper::vkVideoSearch($video->title, $group_id);
+            $search = ExternalServicesHelper::vkVideoSearch($this->normalize($video->title), $group_id);
             $found_videos = collect($search->response->items);
             foreach ($found_videos as $item) {
                 $item->external_id = ExternalServicesHelper::resolveVkId($item->player);
