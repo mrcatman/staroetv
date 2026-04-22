@@ -162,8 +162,9 @@ class ReplaceVideosFromVk extends Command
             $found_videos = collect($search->response->items);
             if ($found_videos->isEmpty()) {
                 echo 'Not found in VK: '.$duplicate->title.PHP_EOL;
+            } else {
+                dd($duplicate->title, count($found_videos));
             }
-            dd($duplicate->title, count($found_videos));
         }
     }
 
