@@ -13,7 +13,7 @@ use function Laravel\Prompts\text;
 class ReplaceVideosFromVk extends Command
 {
 
-    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {--offset} {--action} {--filter}';
+    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {--offset=0} {--action=replace} {--filter=}';
     protected $description = 'Command description';
 
     private function accept($video, $found_video)
@@ -74,9 +74,10 @@ class ReplaceVideosFromVk extends Command
     }
 
     private function getVideos() {
-        $offset = $this->argument('offset') ?? 0;
+
         $user_id = $this->argument('user_id');
-        $filter = $this->argument('filter');
+        $offset = $this->option('offset');
+        $filter = $this->option('filter');
 
         $skip = ['Белый попугай', 'Непутёвые заметки', 'Своя игра (НТВ'];
 
@@ -224,7 +225,7 @@ class ReplaceVideosFromVk extends Command
     public function handle()
     {
 
-        $action = $this->argument('action') ?? 'replace';
+        $action = $this->option('action');
 
         if ($action === 'replace') {
             $this->replace();
