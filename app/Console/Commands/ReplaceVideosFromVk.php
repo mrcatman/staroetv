@@ -52,7 +52,7 @@ class ReplaceVideosFromVk extends Command
         $already_added = Record::whereIn('external_id', $found_videos->pluck('external_id'))->pluck('external_id');
         $found_videos = $found_videos->filter(function ($item) use ($already_added) {
             return !$already_added->contains($item->external_id);
-        });
+        })->values();
         return $found_videos;
     }
 
@@ -184,6 +184,7 @@ class ReplaceVideosFromVk extends Command
                     $labels = array_filter($labels, function ($label) use ($action) {
                         return $label !== $action;
                     });
+
                     $found_video = $found_videos->get($index);
                     $video->embed_code = '<iframe src="' . $found_video->player . '" frameborder="0" allowfullscreen></iframe>';
                     $this->accept($video, $found_video);
