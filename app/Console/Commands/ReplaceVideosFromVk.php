@@ -87,14 +87,15 @@ class ReplaceVideosFromVk extends Command
                 }
             }
 
+            if ($this->normalize($found_videos->first()->title) === $this->normalize($video->title)) {
+                echo 'Auto accepting: '.$video->title.PHP_EOL;
+                $video->embed_code = '<iframe src="' . $found_videos->first()->player . '" frameborder="0" allowfullscreen></iframe>';
+                $this->accept($video, $found_videos->first());
+                usleep(500000);
+                continue;
+            }
+
             if ($found_videos->count() === 1) {
-                if ($this->normalize($found_videos->first()->title) === $this->normalize($video->title)) {
-                    echo 'Auto accepting: '.$video->title.PHP_EOL;
-                    $video->embed_code = '<iframe src="' . $found_videos->first()->player . '" frameborder="0" allowfullscreen></iframe>';
-                    $this->accept($video, $found_videos->first());
-                    usleep(500000);
-                    continue;
-                }
                 $action = select(
                     label: 'Action',
                     options: ['Accept', 'Skip'],
