@@ -135,9 +135,7 @@ class ReplaceVideosFromVk extends Command
                 echo 'Video saved in multiple parts: '.$video->title.' ('.$video->embed_code.')'.PHP_EOL;
             } else {
                 $index = array_search($action, $labels);
-                var_dump($index);
                 $found_video = $found_videos->get($index);
-                var_dump($found_video);
                 $video->embed_code = '<iframe src="' . $found_video->player . '" frameborder="0" allowfullscreen></iframe>';
                 $this->accept($video, $found_video);
             }
