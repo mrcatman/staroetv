@@ -51,10 +51,14 @@ class ReplaceVideosFromVk extends Command
             $item->external_id = ExternalServicesHelper::resolveVkId($item->player);
         }
         $already_added = Record::whereIn('external_id', $found_videos->pluck('external_id'))->pluck('external_id');
-        $found_videos = $found_videos->filter(function ($item) use ($already_added) {
+        $filtered_videos = $found_videos->filter(function ($item) use ($already_added) {
+            if ($already_added->contains($item->external_id)) {
+                echo 'Skipping video: '.$item->title.' ('.$item->id.')'.PHP_EOL;
+            }
             return !$already_added->contains($item->external_id);
         })->values();
-        return $found_videos;
+      
+        return $filtered_videos;
     }
 
     private function getLabels($found_videos) {
