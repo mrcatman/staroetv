@@ -1,3 +1,4 @@
+
 @if ($record->telegram_id && count($record->all_telegram_sources) > 1)
     <div class="box">
         <div class="box__inner">
@@ -71,4 +72,8 @@
             @endif
         </div>
     @endif
+@endif
+
+@if(strpos($record->embed_code, "youtu") !== false)
+    <div class="warning-alert record-page__youtube-alert">Возможны проблемы с загрузкой этого видео, если у вас не работает Youtube (вы знаете, что делать)</div>
 @endif

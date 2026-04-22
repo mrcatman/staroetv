@@ -7,6 +7,7 @@ use App\Models\Picture;
 use App\Models\Record;
 use Illuminate\Console\Command;
 use function Laravel\Prompts\select;
+use function Laravel\Prompts\text;
 
 class ReplaceVideosFromVk extends Command
 {
@@ -45,6 +46,17 @@ class ReplaceVideosFromVk extends Command
         foreach ($videos as $video) {
             $search = ExternalServicesHelper::vkVideoSearch($video->title, $group_id);
             $found_videos = collect($search->response->items);
+            foreach ($found_videos as $item) {
+                $item->external_id = ExternalServicesHelper::resolveVkId($item->player);
+            }
+            $already_added = Record::whereIn('external_id', $found_videos->pluck('external_id'))->pluck('external_id');
+            $found_videos = $found_videos->filter(function ($item) use ($already_added) {
+                return !$already_added->contains($item->external_id);
+            });
+
+            $found_videos = $found_videos->sort(function ($item1, $item2) {
+                return strcmp($item1->title, $item2->title);
+            });
 
             if ($found_videos->isEmpty()) {
                 echo 'Not found in VK: '.$video->title.PHP_EOL;
@@ -88,9 +100,15 @@ class ReplaceVideosFromVk extends Command
 
             $action = select(
                 label: 'Action',
-                options: array_merge(['Skip', 'All'], $labels),
+                options: array_merge(['Skip', 'All', 'Manual'], $labels),
             );
-            if ($action === 'Skip') {} elseif ($action === 'All') {
+            if ($action === 'Skip') {} elseif ($action === 'Manual') {
+                $url = text('Enter video URL');
+                $video_id = ExternalServicesHelper::resolveVkId($url);
+                $response = ExternalServicesHelper::vkVideo($video_id);
+                $found_video = $response->response->items[0];
+                $this->accept($video, $found_video);
+            } elseif ($action === 'All') {
                 $thumbnail = $found_videos->first()->image[count($found_videos->first()->image) - 1]->url;
 
                 $cover = Picture::firstOrNew([

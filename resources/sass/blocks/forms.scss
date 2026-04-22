@@ -262,7 +262,7 @@
         justify-content: center;
         transition: all .2s;
         background: rgba(0, 0, 0, .025);
-
+        text-decoration: none;
         &:hover {
             background: rgba(0, 0, 0, .05);
             color: var(--primary);

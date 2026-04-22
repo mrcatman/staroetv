@@ -1,98 +1,123 @@
 <template>
     <div class="channels-manager">
 
-        <snackbar ref="snackbar" />
+        <snackbar ref="snackbar"/>
 
-        <modal ref="logoModal" title="Загрузка по URL" :loading="logoPanel.loading" class="modal">
-            <div class="input-container input-container--vertical">
-                <label class="input-container__label">Введите URL</label>
-                <div class="input-container__inner">
-                    <input class="input" v-model="logoPanel.data.address"/>
+        <modal ref="logoModal" title="Загрузка по URL" class="modal">
+            <preloader v-if="logoPanel.loading"/>
+            <div class="form__content">
+                <div class="input-container input-container--vertical">
+                    <label class="input-container__label">Введите URL</label>
+                    <div class="input-container__inner">
+                        <input class="input" v-model="logoPanel.data.address"/>
+                    </div>
                 </div>
-            </div>
-            <div class="form__bottom">
-                <a @click="loadLogo()" class="button button--light">Загрузить</a>
-                <Response :light="true" :data="logoPanel.response"/>
+                <div class="form__bottom">
+                    <a @click="loadLogo()" class="button button--light">Загрузить</a>
+                    <Response :light="true" :data="logoPanel.response"/>
+                </div>
             </div>
         </modal>
 
-        <modal title="Удаление канала" :loading="deletePanel.loading" ref="deleteModal">
-            <div class="modal-window__text">Вы уверены, что хотите удалить канал?</div>
-            <div class="form__bottom">
-                <button class="button button--light" @click="deleteChannel()">ОК</button>
-                <button class="button button--light" @click="deleteModalRef?.hide()">Отмена</button>
-                <response :light="true" :data="deletePanel.response"/>
-            </div>
-        </modal>
-
-        <modal :loading="mergePanel.loading" title="Объединить канал с..." ref="mergeModal">
-            <div class="input-container" v-if="!mergePanel.data.is_advertising">
-                <label class="input-container__label">Канал</label>
-                <div class="input-container__inner">
-                    <select2 theme="default" :options="mergeOptions" v-model="mergePanel.data.merged_id"/>
+        <modal title="Удаление канала"  ref="deleteModal">
+            <preloader v-if="deletePanel.loading"/>
+            <div class="form__content">
+                <div class="modal-window__text">Вы уверены, что хотите удалить канал?</div>
+                <div class="form__bottom">
+                    <button class="button button--light" @click="deleteChannel()">ОК</button>
+                    <button class="button button--light" @click="deleteModalRef?.hide()">Отмена</button>
+                    <response :light="true" :data="deletePanel.response"/>
                 </div>
             </div>
-            <label class="input-container input-container--checkbox">
-                <input type="checkbox" v-model="mergePanel.data.is_advertising">
-                <div class="input-container--checkbox__element"></div>
-                <div class="input-container__label">Переместить в раздел с рекламой?</div>
-            </label>
-            <div class="form__bottom">
-                <button class="button button--light" @click="mergeChannels()">ОК</button>
-                <button class="button button--light" @click="mergeModalRef?.hide()">Отмена</button>
-                <response :light="true" :data="mergePanel.response"/>
+
+        </modal>
+
+        <modal title="Объединить канал с..." ref="mergeModal">
+            <preloader v-if="mergePanel.loading"/>
+            <div class="form__content">
+                <div class="input-container" v-if="!mergePanel.data.is_advertising">
+                    <label class="input-container__label">Канал</label>
+                    <div class="input-container__inner">
+                        <select2 theme="default" :options="mergeOptions" v-model="mergePanel.data.merged_id"/>
+                    </div>
+                </div>
+                <label class="input-container input-container--checkbox">
+                    <input type="checkbox" v-model="mergePanel.data.is_advertising">
+                    <div class="input-container--checkbox__element"></div>
+                    <div class="input-container__label">Переместить в раздел с рекламой?</div>
+                </label>
+                <div class="form__bottom">
+                    <button class="button button--light" @click="mergeChannels()">ОК</button>
+                    <button class="button button--light" @click="mergeModalRef?.hide()">Отмена</button>
+                    <response :light="true" :data="mergePanel.response"/>
+                </div>
             </div>
         </modal>
 
         <div class="admin-panel__main-content">
-            <Preloader v-if="table.loading" />
+            <Preloader v-if="table.loading"/>
             <div class="admin-panel__table-filters">
                 <div class="pager-container pager-container--light pager-container--admin-panel">
-                    <b-pagination v-model="table.currentPage" :total-rows="channelsList.length" :per-page="table.perPage" align="fill" size="sm" class="my-0"></b-pagination>
+                    <b-pagination v-model="table.currentPage" :total-rows="channelsList.length"
+                                  :per-page="table.perPage" align="fill" size="sm" class="my-0"></b-pagination>
                 </div>
                 <div class="admin-panel__table-filters__input">
                     <input class="input" placeholder="Поиск" v-model="table.filter"/>
                 </div>
             </div>
-            <b-table class="admin-panel__table" show-empty stacked="md" :filter="table.filter" :items="channelsList" :fields="table.fields" :current-page="table.currentPage" :per-page="table.perPage" empty-filtered-text="По вашему запросу не найдено каналов">
+            <b-table class="admin-panel__table" show-empty stacked="md" :filter="table.filter" :items="channelsList"
+                     :fields="table.fields" :current-page="table.currentPage" :per-page="table.perPage"
+                     empty-filtered-text="По вашему запросу не найдено каналов">
                 <template v-slot:cell(name)="data">
                     <div class="channels-manager__first-col">
                         <div class="admin-panel__table__row-loading" v-if="data.item._loading"></div>
-                        <div class="channels-manager__logo" v-if="data.item.logo" :style="{backgroundImage: 'url('+data.item.logo.url+')'}"></div>
-                        <input @change="setNeedSave(channelsList[data.item._index])" class="input" v-model="channelsList[data.item._index].name"/>
+                        <div class="channels-manager__logo" v-if="data.item.logo"
+                             :style="{backgroundImage: 'url('+data.item.logo.url+')'}"></div>
+                        <input @change="setNeedSave(channelsList[data.item._index])" class="input"
+                               v-model="channelsList[data.item._index].name"/>
                         <a title="Перейти на страницу канала" target="_blank" :href="data.item.full_url">
                             <i class="fa fa-external-link-square-alt"></i>
                         </a>
-                        <span class="channels-manager__not-saved" title="Есть несохраненные изменения" v-if="channelsList[data.item._index]._need_save">*</span>
+                        <span class="channels-manager__not-saved" title="Есть несохраненные изменения"
+                              v-if="channelsList[data.item._index]._need_save">*</span>
                     </div>
                 </template>
                 <template v-slot:cell(is_radio)="data">
-                    <input @change="setNeedSave(channelsList[data.item._index])" type="checkbox" v-model="channelsList[data.item._index].is_radio"/>
+                    <input @change="setNeedSave(channelsList[data.item._index])" type="checkbox"
+                           v-model="channelsList[data.item._index].is_radio"/>
                 </template>
                 <template v-slot:cell(is_federal)="data">
-                    <input @change="setNeedSave(channelsList[data.item._index])" type="checkbox" v-model="channelsList[data.item._index].is_federal"/>
+                    <input @change="setNeedSave(channelsList[data.item._index])" type="checkbox"
+                           v-model="channelsList[data.item._index].is_federal"/>
                 </template>
                 <template v-slot:cell(is_regional)="data">
-                    <input @change="setNeedSave(channelsList[data.item._index])" type="checkbox" v-model="channelsList[data.item._index].is_regional"/>
+                    <input @change="setNeedSave(channelsList[data.item._index])" type="checkbox"
+                           v-model="channelsList[data.item._index].is_regional"/>
                 </template>
                 <template v-slot:cell(city)="data">
-                    <input @change="setNeedSave(channelsList[data.item._index])" class="input" v-model="channelsList[data.item._index].city"/>
+                    <input @change="setNeedSave(channelsList[data.item._index])" class="input"
+                           v-model="channelsList[data.item._index].city"/>
                 </template>
                 <template v-slot:cell(is_abroad)="data">
-                    <input @change="setNeedSave(channelsList[data.item._index])" type="checkbox" v-model="channelsList[data.item._index].is_abroad"/>
+                    <input @change="setNeedSave(channelsList[data.item._index])" type="checkbox"
+                           v-model="channelsList[data.item._index].is_abroad"/>
                 </template>
                 <template v-slot:cell(country)="data">
-                    <input @change="setNeedSave(channelsList[data.item._index])" class="input" v-model="channelsList[data.item._index].country"/>
+                    <input @change="setNeedSave(channelsList[data.item._index])" class="input"
+                           v-model="channelsList[data.item._index].country"/>
                 </template>
                 <template v-slot:cell(_options)="data">
                     <div class="buttons-row buttons-row--nowrap">
-                        <a title="Логотип" @click="showLogoModal(data.item)" class="button button--icon-only button--light">
+                        <a title="Логотип" @click="showLogoModal(data.item)"
+                           class="button button--icon-only button--light">
                             <i class="fa-regular fa-image"></i>
                         </a>
-                        <a title="Объединить" @click="showMergeModal(data.item)" target="_blank" class="button button--icon-only button--light">
+                        <a title="Объединить" @click="showMergeModal(data.item)" target="_blank"
+                           class="button button--icon-only button--light">
                             <i class="fa-regular fa-object-group"></i>
                         </a>
-                        <a title="Удалить" @click="showDeleteModal(data.item)" class="button button--icon-only button--light">
+                        <a title="Удалить" @click="showDeleteModal(data.item)"
+                           class="button button--icon-only button--light">
                             <i class="fa fa-times"></i>
                         </a>
                     </div>
@@ -101,8 +126,10 @@
             <div class="form__bottom form__bottom--admin-panel">
                 <a @click="saveChannels()" class="button button--light">Сохранить</a>
                 <response :light="true" :data="table.response"/>
-                <div class="pager-container pager-container--light pager-container--admin-panel pager-container--admin-panel-bottom">
-                    <b-pagination v-model="table.currentPage" :total-rows="channelsList.length" :per-page="table.perPage" align="fill" size="sm" class="my-0"></b-pagination>
+                <div
+                    class="pager-container pager-container--light pager-container--admin-panel pager-container--admin-panel-bottom">
+                    <b-pagination v-model="table.currentPage" :total-rows="channelsList.length"
+                                  :per-page="table.perPage" align="fill" size="sm" class="my-0"></b-pagination>
                 </div>
             </div>
 
@@ -110,31 +137,33 @@
     </div>
 </template>
 <style lang="scss">
-    .channels-manager {
-        &__not-saved {
-            color: #f00;
-            margin: .35em 0 0 .5em;
-            font-size: 1.25em;
-        }
-        &__logo {
-            min-width: 2em;
-            width: 2em;
-            height: 2em;
-            margin-right: .5em;
-            background-size: contain;
-            background-position: center center;
-            background-repeat: no-repeat;
-        }
+.channels-manager {
+    &__not-saved {
+        color: #f00;
+        margin: .35em 0 0 .5em;
+        font-size: 1.25em;
+    }
 
-        &__first-col {
-            padding: .25em;
-            display: flex;
-            align-items: center;
-            i {
-                margin-left: .5em;
-            }
+    &__logo {
+        min-width: 2em;
+        width: 2em;
+        height: 2em;
+        margin-right: .5em;
+        background-size: contain;
+        background-position: center center;
+        background-repeat: no-repeat;
+    }
+
+    &__first-col {
+        padding: .25em;
+        display: flex;
+        align-items: center;
+
+        i {
+            margin-left: .5em;
         }
     }
+}
 </style>
 <script setup lang="ts">
 import { ref, computed, onMounted, useTemplateRef } from 'vue';
@@ -335,7 +364,7 @@ const deleteChannel = () => {
     if (!deletePanel.value.channel) return;
     deletePanel.value.loading = true;
     $.post(route('channels.delete'), {
-        channel_id: deletePanel.value.channel.id
+        id: deletePanel.value.channel.id
     }).done(res => {
         deletePanel.value.loading = false;
         if (res.status) {

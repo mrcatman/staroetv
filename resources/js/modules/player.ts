@@ -180,10 +180,19 @@ const checkYoutubeAvailability = () => {
         return;
     }
     if (youtubeAvailabilityState === -1) {
-        const xhr = $.get('https://youtube.com');
-        setTimeout(() => {
-            youtubeAvailabilityState = xhr.readyState === 1 ? 0 : 1;
+        const el = document.createElement('script');
+        el.src = 'https://www.youtube.com/iframe_api';
+        el.onload = () => {
+            youtubeAvailabilityState = 1;
             onYoutubeAvailabilityStateReady();
+        }
+
+        document.head.appendChild(el);
+        setTimeout(() => {
+            if (youtubeAvailabilityState === -1) {
+                youtubeAvailabilityState = 0;
+                onYoutubeAvailabilityStateReady();
+            }
         }, 5000);
     } else {
         onYoutubeAvailabilityStateReady();
@@ -193,10 +202,13 @@ const checkYoutubeAvailability = () => {
 const onYoutubeAvailabilityStateReady = () => {
     if (youtubeAvailabilityState === 0) {
         $('.record-page__download-overlay').css('display', '');
+    } else {
+        $('.record-page__youtube-alert').hide();
     }
 }
 
 $(body).on('click', '.record-page__download-overlay__button', function () {
+
     const overlay = $(this).parents('.record-page__download-overlay');
     const error = $(overlay).find('.record-page__download-overlay__error');
     $(overlay).append(FORM_PRELOADER_HTML);

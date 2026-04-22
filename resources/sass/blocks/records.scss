@@ -362,6 +362,10 @@
         }
     }
 
+    &__youtube-alert {
+        margin-top: var(--col-margin);
+    }
+
     &__download-overlay {
         position: absolute;
         top: 0;
