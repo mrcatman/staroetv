@@ -62,11 +62,6 @@ class ReplaceVideosFromVk extends Command
             $found_videos = $found_videos->filter(function ($item) use ($already_added) {
                 return !$already_added->contains($item->external_id);
             });
-
-            $found_videos = $found_videos->sort(function ($item1, $item2) {
-                return strcmp($item1->title, $item2->title);
-            });
-
             if ($found_videos->isEmpty()) {
                 echo 'Not found in VK: '.$video->title.PHP_EOL;
                 usleep(500000);
@@ -119,6 +114,10 @@ class ReplaceVideosFromVk extends Command
                 $found_video = $response->response->items[0];
                 $this->accept($video, $found_video);
             } elseif ($action === 'All') {
+                $found_videos = $found_videos->sort(function ($item1, $item2) {
+                    return strcmp($item1->title, $item2->title);
+                });
+
                 $thumbnail = $found_videos->first()->image[count($found_videos->first()->image) - 1]->url;
 
                 $cover = Picture::firstOrNew([
