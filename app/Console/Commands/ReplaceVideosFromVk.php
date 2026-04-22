@@ -178,6 +178,7 @@ class ReplaceVideosFromVk extends Command
                 foreach ($videos as $video) {
                     if (count($labels) === 0) {
                         echo 'No more videos to select, continuing'.PHP_EOL;
+                        continue;
                     }
                     $action = select(
                         label: 'Action',
@@ -191,7 +192,7 @@ class ReplaceVideosFromVk extends Command
                     $found_video = $found_videos->get($index);
                     $found_videos->forget($index);
                     $found_videos = $found_videos->values();
-                    
+
                     $video->embed_code = '<iframe src="' . $found_video->player . '" frameborder="0" allowfullscreen></iframe>';
                     $this->accept($video, $found_video);
                 }
