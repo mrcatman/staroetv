@@ -73,14 +73,13 @@ class ReplaceVideosFromVk extends Command
         return $labels;
     }
 
-    private function replace() {
-        $group_id = -1 * $this->argument('group_id');
-        $user_id = $this->argument('user_id');
+    private function getVideos() {
         $offset = $this->argument('offset') ?? 0;
+        $user_id = $this->argument('user_id');
 
         $skip = ['Белый попугай', 'Непутёвые заметки', 'Своя игра (НТВ'];
 
-        $videos = Record::where(['author_id' => $user_id])->where(function($query) {
+        return Record::where(['author_id' => $user_id])->where(function($query) {
             $query->where('embed_code', 'like', '%youtu%')
                 ->orWhereNotNull('telegram_id');
         })->whereNull('source_path')->where(function($q) use ($skip) {
@@ -88,6 +87,12 @@ class ReplaceVideosFromVk extends Command
                 $q->where('title', 'not like', '%'.$item.'%');
             }
         })->orderBy('id', 'desc')->limit(100000)->offset($offset)->get();
+    }
+
+    private function replace() {
+        $group_id = -1 * $this->argument('group_id');
+
+        $videos = $this->getVideos();
 
         foreach ($videos as $video) {
             $found_videos = $this->search($video->title, $group_id);
@@ -193,11 +198,21 @@ class ReplaceVideosFromVk extends Command
                     $found_video = $found_videos->get($index);
                     $found_videos->forget($index);
                     $found_videos = $found_videos->values();
+                    if (!$found_video) {
+                        continue;
+                    }
 
                     $video->embed_code = '<iframe src="' . $found_video->player . '" frameborder="0" allowfullscreen></iframe>';
                     $this->accept($video, $found_video);
                 }
             }
+        }
+    }
+
+    private function dumpTitles() {
+        $videos = $this->getVideos();
+        foreach ($videos as $video) {
+            echo $video->title.PHP_EOL;
         }
     }
 
@@ -210,6 +225,8 @@ class ReplaceVideosFromVk extends Command
             $this->replace();
         } elseif ($action === 'fix-duplicates') {
             $this->fixDuplicates();
+        } elseif ($action === 'dump-titles') {
+            $this->dumpTitles();
         }
 
     }
