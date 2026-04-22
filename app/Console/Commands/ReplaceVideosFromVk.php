@@ -32,6 +32,10 @@ class ReplaceVideosFromVk extends Command
         echo 'Video saved: '.$video->title.' ('.$found_video->player.')'.PHP_EOL;
     }
 
+    private function normalize($title) {
+        return preg_replace('/[^a-zA-Z0-9\p{Cyrillic}]/u', '', $title);
+    }
+
     public function handle()
     {
         $group_id = -1 * $this->argument('group_id');
@@ -79,7 +83,7 @@ class ReplaceVideosFromVk extends Command
             }
 
             if ($found_videos->count() === 1) {
-                if ($found_videos->first()->title === $video->title) {
+                if ($this->normalize($found_videos->first()->title) === $this->normalize($video->title)) {
                     echo 'Auto accepting: '.$video->title.PHP_EOL;
                     $video->embed_code = '<iframe src="' . $found_videos->first()->player . '" frameborder="0" allowfullscreen></iframe>';
                     $this->accept($video, $found_videos->first());
