@@ -13,7 +13,7 @@ use function Laravel\Prompts\text;
 class ReplaceVideosFromVk extends Command
 {
 
-    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {offset=0} {action?}';
+    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {offset?} {action?} {filter?}';
     protected $description = 'Command description';
 
     private function accept($video, $found_video)
@@ -76,17 +76,22 @@ class ReplaceVideosFromVk extends Command
     private function getVideos() {
         $offset = $this->argument('offset') ?? 0;
         $user_id = $this->argument('user_id');
+        $filter = $this->argument('filter');
 
         $skip = ['Белый попугай', 'Непутёвые заметки', 'Своя игра (НТВ'];
 
-        return Record::where(['author_id' => $user_id])->where(function($query) {
+        $records = Record::where(['author_id' => $user_id])->where(function($query) {
             $query->where('embed_code', 'like', '%youtu%')
                 ->orWhereNotNull('telegram_id');
         })->whereNull('source_path')->where(function($q) use ($skip) {
             foreach ($skip as $item) {
                 $q->where('title', 'not like', '%'.$item.'%');
             }
-        })->orderBy('id', 'desc')->limit(100000)->offset($offset)->get();
+        })->orderBy('id', 'desc')->limit(100000)->offset($offset);
+        if ($filter) {
+            $records = $records->where('title', 'like', '%'.$filter.'%');
+        }
+        return $records->get();
     }
 
     private function replace() {
