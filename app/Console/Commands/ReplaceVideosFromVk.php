@@ -13,7 +13,7 @@ use function Laravel\Prompts\text;
 class ReplaceVideosFromVk extends Command
 {
 
-    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {--offset=0} {--action=replace} {--filter=} {--order=id';
+    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {--offset=0} {--action=replace} {--filter=} {--order=id}';
     protected $description = 'Command description';
 
     private function accept($video, $found_video)
