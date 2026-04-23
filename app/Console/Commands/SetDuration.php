@@ -49,7 +49,7 @@ class SetDuration extends Command
             $record = Record::where(['id' => $this->argument('id')])->firstOrFail();
             $this->updateDuration($record);
         } else {
-            Record::whereNull('length')->chunk(100, function ($records) {
+            Record::whereNull('length')->inRandomOrder(1)->chunk(100, function ($records) {
                 foreach ($records as $record) {
                     $this->updateDuration($record);
                     usleep(500000);
