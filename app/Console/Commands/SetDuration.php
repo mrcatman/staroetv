@@ -36,7 +36,7 @@ class SetDuration extends Command
         echo "Updating duration for $record->title ($record->id)".PHP_EOL;
         $duration = MediaHelper::updateDuration($record);
         if ($duration) {
-            echo "Updated duration to $duration";
+            echo "Updated duration to $duration".PHP_EOL;
         } else {
             echo "Cannot resolve duration".PHP_EOL;
         }
