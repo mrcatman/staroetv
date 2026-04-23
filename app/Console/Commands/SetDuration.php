@@ -52,6 +52,7 @@ class SetDuration extends Command
             Record::whereNull('length')->chunk(100, function ($records) {
                 foreach ($records as $record) {
                     $this->updateDuration($record);
+                    usleep(500000);
                 }
             });
         }
