@@ -34,7 +34,7 @@ class MakeProgramGlobal extends Command
         $programs = $programs->get();
 
         $first = $programs->first();
-        echo "Base: ".$first->name." (".$first->channel->name.")".PHP_EOL;
+        echo "Base: ".$first->name." (".($first->channel ? $first->channel->name : "-").")".PHP_EOL;
         $first->channel_id = null;
         $first->save();
 
