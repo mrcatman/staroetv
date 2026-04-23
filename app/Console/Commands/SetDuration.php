@@ -20,44 +20,43 @@ use Illuminate\Support\Facades\Storage;
 
 class SetDuration extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'records:duration {id}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
+    protected $signature = 'records:duration {id?}';
+
+
     protected $description = 'Parse media files durations';
 
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
+
     public function __construct()
     {
         parent::__construct();
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
-    public function handle()
-    {
-        $record = Record::findOrFail($this->argument('id'));
+    private function updateDuration($record) {
+        echo "Updating duration for $record->title ($record->id)".PHP_EOL;
         $duration = MediaHelper::updateDuration($record);
         if ($duration) {
-            echo "Updated duration to $duration\n";
-            return;
+            echo "Updated duration to $duration";
+        } else {
+            echo "Cannot resolve duration".PHP_EOL;
+        }
+    }
+
+
+    public function handle()
+    {
+        if ($this->argument('id')) {
+            $record = Record::where(['id' => $this->argument('id')])->firstOrFail();
+            $this->updateDuration($record);
+        } else {
+            Record::whereNull('length')->chunk(100, function ($records) {
+                foreach ($records as $record) {
+                    $this->updateDuration($record);
+                }
+            });
         }
 
-        echo "Cannot resolve duration\n";
+
+
     }
 }
