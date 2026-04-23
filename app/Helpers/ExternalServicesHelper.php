@@ -135,6 +135,9 @@ class ExternalServicesHelper {
 
     public static function youtubeVideoDuration($youtube_video_id) {
         $response = self::youtubeVideo($youtube_video_id, 'contentDetails');
+        if (!isset($response->items[0])) {
+            return null;
+        }
 
         $interval = new \DateInterval($response->items[0]->contentDetails->duration);
         $reference = new \DateTimeImmutable();
