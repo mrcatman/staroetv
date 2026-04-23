@@ -40,7 +40,7 @@ class MakeProgramGlobal extends Command
 
         foreach ($programs as $program) {
             if ($program->id != $first->id) {
-                echo $program->name." (".$program->channel->name.")".PHP_EOL;
+                echo $program->name." (".($program->channel ? $program->channel->name : "-").")".PHP_EOL;
                 foreach ($program->records as $record) {
                     $record->program_id = $first->id;
                     $record->save();
