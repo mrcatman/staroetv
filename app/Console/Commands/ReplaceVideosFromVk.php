@@ -163,8 +163,7 @@ class ReplaceVideosFromVk extends Command
                             }
                             usleep(500000);
 
-                            $search = ExternalServicesHelper::vkVideoSearch('"' . $date . '"', $group_id);
-                            $found_videos = collect($search->response->items);
+                            $found_videos = $this->search('"' . $date . '"', $group_id);
                         }
                     }
                 }
@@ -172,9 +171,14 @@ class ReplaceVideosFromVk extends Command
 
             if (count($found_videos) === 0) {
                 if ($this->option('extended-search') == '1') {
-                    $this->manual($video);
+                    $prompt = text('Enter search phrase');
+                    $found_videos = $this->search($prompt, $group_id);
+                    if ($found_videos->count() === 0) {
+                        $this->manual($video);
+                        continue;
+                    }
                 }
-                continue;
+
             }
 
             echo PHP_EOL . PHP_EOL . 'Found ' . $found_videos->count() . ' videos for ' . $video->title . PHP_EOL;
