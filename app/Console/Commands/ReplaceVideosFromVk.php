@@ -136,7 +136,18 @@ class ReplaceVideosFromVk extends Command
             $found_videos = $this->search($video->title, $group_id);
             if ($found_videos->isEmpty()) {
                 echo 'Not found in VK: '.$video->title.PHP_EOL;
-                usleep(500000);
+                if ($this->option('extended-search') == '1') {
+                    $url = text('Enter video URL');
+                    if (trim($url) === '') {
+                        continue;
+                    }
+                    $video_id = ExternalServicesHelper::resolveVkId($url);
+                    $response = ExternalServicesHelper::vkVideo($video_id);
+                    $found_video = $response->response->items[0];
+                    $this->accept($video, $found_video);
+                } else {
+                    usleep(500000);
+                }
                 continue;
             }
 
