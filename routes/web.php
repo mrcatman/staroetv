@@ -650,7 +650,7 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         Route::get('forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('forgot-password');
         Route::post('forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('forgot-password-send');
         Route::get('password/reset/{token}', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('reset-password');
-        Route::post('password/reset', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('reset-password');
+        Route::post('password/reset', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('reset-password-send');
         Route::get('/confirm-account/{code}', [\App\Http\Controllers\Auth\RegisterController::class, 'confirm'])->name('confirm');
         Route::get('/users/change-email/{code}', [ProfileController::class, 'changeEmail'])->name('change-email');
     });
