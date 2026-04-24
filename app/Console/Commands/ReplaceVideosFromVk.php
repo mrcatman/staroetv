@@ -234,7 +234,9 @@ class ReplaceVideosFromVk extends Command
         }
         $video_id = explode("video", $url)[1];
         $video_id = explode("?", $video_id)[0];
+        var_dump($video_id);
         $response = ExternalServicesHelper::vkVideo($video_id);
+        var_dump($response);
         $found_video = $response->response->items[0];
         $this->accept($video, $found_video);
     }
