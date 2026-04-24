@@ -32,10 +32,11 @@ class ReplaceVideosFromVk extends Command
 
         $video->save();
 
-        echo 'Video saved: '.$video->title.' ('.$found_video->player.')'.PHP_EOL;
+        echo 'Video saved: ' . $video->title . ' (' . $found_video->player . ')' . PHP_EOL;
     }
 
-    private function normalize($title) {
+    private function normalize($title)
+    {
         $replacements = ['(не с начала)', '(не до конца)', '(фрагмент)'];
         foreach ($replacements as $replacement) {
             $title = str_replace($replacement, '', $title);
@@ -55,35 +56,18 @@ class ReplaceVideosFromVk extends Command
         return trim($title);
     }
 
-    private function compareTitles($title1, $title2) {
+    private function compareTitles($title1, $title2)
+    {
         $title1 = $this->normalize($title1);
         $title2 = $this->normalize($title2);
         return $title1 === $title2 || str_contains($title1, $title2) || str_contains($title2, $title1);
     }
 
-    private function search($title, $group_id) {
-        if ($this->option('extended-search') == '1') {
-            $data = explode('(', $title);
-            $name = trim($data[0]);
-            $channel_and_date_string = explode(')', $data[1])[0];
-            $channel_and_date = explode(',', $channel_and_date_string);
-            $date = isset($channel_and_date[1]) ? $channel_and_date[1] : $channel_and_date[0];
-            $channel = $channel_and_date[0];
-            $search = ExternalServicesHelper::vkVideoSearch($name.' '.$channel, $group_id);
-            $found_videos = collect($search->response->items)->filter(function ($item) use ($date) {
-                return str_contains($item->title, $date);
-            });
-            if (count($found_videos) === 0) {
-                echo 'Not found videos by name, trying to search by date'.PHP_EOL;
-            }
-            usleep(500000);
+    private function search($title, $group_id)
+    {
 
-            $search = ExternalServicesHelper::vkVideoSearch('"'.$date.'"', $group_id);
-            $found_videos = collect($search->response->items);
-        } else {
-            $search = ExternalServicesHelper::vkVideoSearch($this->normalize($title), $group_id);
-            $found_videos = collect($search->response->items);
-        }
+        $search = ExternalServicesHelper::vkVideoSearch($this->normalize($title), $group_id);
+        $found_videos = collect($search->response->items);
 
         foreach ($found_videos as $item) {
             $item->external_id = ExternalServicesHelper::resolveVkId($item->player);
@@ -91,7 +75,7 @@ class ReplaceVideosFromVk extends Command
         $already_added = Record::whereIn('external_id', $found_videos->pluck('external_id'))->pluck('external_id');
         $filtered_videos = $found_videos->filter(function ($item) use ($already_added) {
             if ($already_added->contains($item->external_id)) {
-                echo 'Skipping video: '.$item->title.' ('.$item->id.')'.PHP_EOL;
+                echo 'Skipping video: ' . $item->title . ' (' . $item->id . ')' . PHP_EOL;
             }
             return !$already_added->contains($item->external_id);
         })->values();
@@ -99,7 +83,8 @@ class ReplaceVideosFromVk extends Command
         return $filtered_videos;
     }
 
-    private function getLabels($found_videos) {
+    private function getLabels($found_videos)
+    {
         $labels = [];
 
         foreach ($found_videos as $index => $found_video) {
@@ -115,7 +100,8 @@ class ReplaceVideosFromVk extends Command
         return $labels;
     }
 
-    private function getVideos() {
+    private function getVideos()
+    {
 
         $user_id = $this->argument('user_id');
         $offset = $this->option('offset');
@@ -123,16 +109,16 @@ class ReplaceVideosFromVk extends Command
 
         $skip = ['Белый попугай', 'Непутёвые заметки', 'Своя игра (НТВ', 'Смехопанорама', 'Час пик'];
 
-        $records = Record::where(['author_id' => $user_id])->where(function($query) {
+        $records = Record::where(['author_id' => $user_id])->where(function ($query) {
             $query->where('embed_code', 'like', '%youtu%')
                 ->orWhereNotNull('telegram_id');
-        })->whereNull('source_path')->where(function($q) use ($skip) {
+        })->whereNull('source_path')->where(function ($q) use ($skip) {
             foreach ($skip as $item) {
-                $q->where('title', 'not like', '%'.$item.'%');
+                $q->where('title', 'not like', '%' . $item . '%');
             }
         })->limit(100000)->offset($offset);
         if ($filter != '') {
-            $records = $records->where('title', 'like', '%'.$filter.'%');
+            $records = $records->where('title', 'like', '%' . $filter . '%');
         }
         $order = $this->option('order');
         if ($order == 'title') {
@@ -144,7 +130,8 @@ class ReplaceVideosFromVk extends Command
         return $records->get();
     }
 
-    private function replace() {
+    private function replace()
+    {
         $group_id = -1 * $this->argument('group_id');
 
         $videos = $this->getVideos();
@@ -161,21 +148,40 @@ class ReplaceVideosFromVk extends Command
                     if ($found_videos->isEmpty()) {
                         echo 'Not found (2): ' . $this->normalize($new_title) . PHP_EOL;
                         if ($this->option('extended-search') == '1') {
-                            $this->manual($video);
+                            $data = explode('(', $video->title);
+                            $name = trim($data[0]);
+                            $channel_and_date_string = explode(')', $data[1])[0];
+                            $channel_and_date = explode(',', $channel_and_date_string);
+                            $date = isset($channel_and_date[1]) ? $channel_and_date[1] : $channel_and_date[0];
+                            $channel = $channel_and_date[0];
+                            $search = ExternalServicesHelper::vkVideoSearch($name . ' ' . $channel, $group_id);
+                            $found_videos = collect($search->response->items)->filter(function ($item) use ($date) {
+                                return str_contains($item->title, $date);
+                            });
+                            if (count($found_videos) === 0) {
+                                echo 'Not found videos by name, trying to search by date' . PHP_EOL;
+                            }
+                            usleep(500000);
+
+                            $search = ExternalServicesHelper::vkVideoSearch('"' . $date . '"', $group_id);
+                            $found_videos = collect($search->response->items);
+                            if (count($found_videos) === 0) {
+                                $this->manual($video);
+                            }
                         }
-                        continue;
                     }
+                    continue;
                 }
             }
 
-            echo PHP_EOL.PHP_EOL.'Found '.$found_videos->count().' videos for '.$video->title.PHP_EOL;
+            echo PHP_EOL . PHP_EOL . 'Found ' . $found_videos->count() . ' videos for ' . $video->title . PHP_EOL;
             $labels = $this->getLabels($found_videos);
 
             $autoaccept = $found_videos->filter(function ($item) use ($video) {
                 return $this->compareTitles($video->title, $item->title);
             })->first();
             if ($autoaccept) {
-                echo 'Auto accepting: '.$video->title.PHP_EOL;
+                echo 'Auto accepting: ' . $video->title . PHP_EOL;
                 $video->embed_code = '<iframe src="' . $autoaccept->player . '" frameborder="0" allowfullscreen></iframe>';
                 $this->accept($video, $autoaccept);
                 usleep(500000);
@@ -202,7 +208,8 @@ class ReplaceVideosFromVk extends Command
                 label: 'Action',
                 options: array_merge(['Skip', 'All', 'Manual', 'Multiple'], $labels),
             );
-            if ($action === 'Skip') {} elseif ($action === 'Manual') {
+            if ($action === 'Skip') {
+            } elseif ($action === 'Manual') {
                 $this->manual($video);
             } elseif ($action === 'All' || $action === 'Multiple') {
                 if ($action === 'Multiple') {
@@ -221,13 +228,13 @@ class ReplaceVideosFromVk extends Command
                 $cover->save();
 
                 $video->cover_id = $cover->id;
-                $video->embed_code = $found_videos->map(function($found_video) {
+                $video->embed_code = $found_videos->map(function ($found_video) {
                     return '<iframe src="' . $found_video->player . '" frameborder="0" allowfullscreen></iframe>';
                 })->join('|');
                 $video->telegram_id = null;
                 $video->save();
 
-                echo 'Video saved in multiple parts: '.$video->title.' ('.$video->embed_code.')'.PHP_EOL;
+                echo 'Video saved in multiple parts: ' . $video->title . ' (' . $video->embed_code . ')' . PHP_EOL;
             } else {
                 $index = array_search($action, $labels);
                 $found_video = $found_videos->get($index);
@@ -237,7 +244,8 @@ class ReplaceVideosFromVk extends Command
         }
     }
 
-    private function manual($video) {
+    private function manual($video)
+    {
         $url = text('Enter video URL');
         if (trim($url) === '') {
             return;
@@ -250,7 +258,8 @@ class ReplaceVideosFromVk extends Command
         $this->accept($video, $found_video);
     }
 
-    private function fixDuplicates() {
+    private function fixDuplicates()
+    {
         $group_id = -1 * $this->argument('group_id');
         $user_id = $this->argument('user_id');
         $duplicates = Record::where(['author_id' => $user_id])
@@ -261,14 +270,14 @@ class ReplaceVideosFromVk extends Command
         foreach ($duplicates as $duplicate) {
             $found_videos = $this->search($duplicate->title, $group_id);
             if ($found_videos->isEmpty()) {
-                echo 'Not found in VK: '.$duplicate->title.PHP_EOL;
+                echo 'Not found in VK: ' . $duplicate->title . PHP_EOL;
             } else {
-                echo PHP_EOL.PHP_EOL.'Found '.$found_videos->count().' videos for '.$duplicate->title.' ('.$duplicate->count.' duplicates)'.PHP_EOL;
+                echo PHP_EOL . PHP_EOL . 'Found ' . $found_videos->count() . ' videos for ' . $duplicate->title . ' (' . $duplicate->count . ' duplicates)' . PHP_EOL;
                 $labels = $this->getLabels($found_videos);
                 $videos = Record::where(['external_id' => $duplicate->external_id])->get();
                 foreach ($videos as $video) {
                     if (count($labels) === 0) {
-                        echo 'No more videos to select, continuing'.PHP_EOL;
+                        echo 'No more videos to select, continuing' . PHP_EOL;
                         continue;
                     }
                     $action = select(
@@ -294,10 +303,11 @@ class ReplaceVideosFromVk extends Command
         }
     }
 
-    private function dumpTitles() {
+    private function dumpTitles()
+    {
         $videos = $this->getVideos();
         foreach ($videos as $video) {
-            echo $video->title.PHP_EOL;
+            echo $video->title . PHP_EOL;
         }
     }
 
