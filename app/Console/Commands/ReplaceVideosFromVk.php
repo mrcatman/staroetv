@@ -193,7 +193,7 @@ class ReplaceVideosFromVk extends Command
 
             $action = select(
                 label: 'Action',
-                options: array_merge(['Skip', 'All', 'Manual'], $labels),
+                options: array_merge(['Skip', 'All', 'Manual', 'Multiple'], $labels),
             );
             if ($action === 'Skip') {} elseif ($action === 'Manual') {
                 $url = text('Enter video URL');
@@ -201,7 +201,11 @@ class ReplaceVideosFromVk extends Command
                 $response = ExternalServicesHelper::vkVideo($video_id);
                 $found_video = $response->response->items[0];
                 $this->accept($video, $found_video);
-            } elseif ($action === 'All') {
+            } elseif ($action === 'All' || $action === 'Multiple') {
+                if ($action === 'Multiple') {
+                    $indexes = text('Enter indexes');
+                    $found_videos = $found_videos->only(explode(',', $indexes));
+                }
                 $found_videos = $found_videos->sort(function ($item1, $item2) {
                     return strcmp($item1->title, $item2->title);
                 });
