@@ -41,6 +41,7 @@ class ReplaceVideosFromVk extends Command
         foreach ($replacements as $replacement) {
             $title = str_replace($replacement, '', $title);
         }
+        $title = str_replace(', 0', ' ', $title);
         $title = preg_replace('/ \[г.(.*?)\]/', '', $title);
         $title = preg_replace('/ \(г.(.*?)\)/', '', $title);
         $title = str_replace("'", ' ', $title);
@@ -53,7 +54,6 @@ class ReplaceVideosFromVk extends Command
         $title = str_replace('д ф', ' ', $title);
         $title = str_replace('Дф', ' ', $title);
         $title = str_replace('дф', ' ', $title);
-        $title = str_replace(' 0', ' ', $title);
         return trim($title);
     }
 
