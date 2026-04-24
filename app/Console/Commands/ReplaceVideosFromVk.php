@@ -106,7 +106,7 @@ class ReplaceVideosFromVk extends Command
         $offset = $this->option('offset');
         $filter = $this->option('filter');
 
-        $skip = ['Белый попугай', 'Непутёвые заметки', 'Своя игра (НТВ'];
+        $skip = ['Белый попугай', 'Непутёвые заметки', 'Своя игра (НТВ', 'Смехопанорама'];
 
         $records = Record::where(['author_id' => $user_id])->where(function($query) {
             $query->where('embed_code', 'like', '%youtu%')
