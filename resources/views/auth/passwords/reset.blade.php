@@ -1,7 +1,7 @@
 @extends('layouts.default')
 
 @section('content')
-    <form class="form box" action="{{route('profile.reset-password-send')}}" method="POST" >
+    <form class="form box" action="/password/reset" method="POST" >
         <div class="box__heading">
             <div class="box__heading__inner">
                 Новый пароль
