@@ -38,6 +38,7 @@ class ReplaceVideosFromVk extends Command
     private function normalize($title) {
         $title = preg_replace('/ \[г.(.*?)\]/', '', $title);
         $title = preg_replace('/ \(г.(.*?)\)/', '', $title);
+        $title = str_replace("'", ' ', $title);
         $title = str_replace('-', ' ', $title);
         $title = str_replace(':', ' ', $title);
         $title = str_replace('.', ' ', $title);
