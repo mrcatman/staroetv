@@ -172,6 +172,9 @@ class ReplaceVideosFromVk extends Command
             if (count($found_videos) === 0) {
                 if ($this->option('extended-search') == '1') {
                     $prompt = text('Enter search phrase');
+                    if (trim($prompt) === '') {
+                        continue;
+                    }
                     $found_videos = $this->search($prompt, $group_id);
                     if ($found_videos->count() === 0) {
                         $this->manual($video);
