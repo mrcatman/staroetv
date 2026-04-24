@@ -147,8 +147,18 @@ class ReplaceVideosFromVk extends Command
                     $this->accept($video, $found_video);
                 } else {
                     usleep(500000);
+                    $new_title = explode(')', $video->title)[0].')';
+                    if ($new_title !== $video->title) {
+                        $found_videos = $this->search($new_title, $group_id);
+                        if ($found_videos->isEmpty()) {
+                            echo 'Not found (2): ' . $video->title . PHP_EOL;
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
                 }
-                continue;
+
             }
 
             echo PHP_EOL.PHP_EOL.'Found '.$found_videos->count().' videos for '.$video->title.PHP_EOL;
