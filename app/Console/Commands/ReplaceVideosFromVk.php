@@ -152,24 +152,20 @@ class ReplaceVideosFromVk extends Command
         foreach ($videos as $video) {
             $found_videos = $this->search($video->title, $group_id);
             if ($found_videos->isEmpty()) {
-                echo 'Not found in VK: '.$this->normalize($video->title).PHP_EOL;
-                if ($this->option('extended-search') == '1') {
-                    $this->manual($video);
-                    continue;
-                } else {
-                    usleep(500000);
-                    $new_title = explode(')', $video->title)[0].')';
-                    if ($new_title !== $video->title) {
-                        $found_videos = $this->search($new_title, $group_id);
-                        if ($found_videos->isEmpty()) {
-                            echo 'Not found (2): ' . $this->normalize($new_title) . PHP_EOL;
+                echo 'Not found in VK: ' . $this->normalize($video->title) . PHP_EOL;
+
+                usleep(500000);
+                $new_title = explode(')', $video->title)[0] . ')';
+                if ($new_title !== $video->title) {
+                    $found_videos = $this->search($new_title, $group_id);
+                    if ($found_videos->isEmpty()) {
+                        echo 'Not found (2): ' . $this->normalize($new_title) . PHP_EOL;
+                        if ($this->option('extended-search') == '1') {
+                            $this->manual($video);
                             continue;
                         }
-                    } else {
-                        continue;
                     }
                 }
-
             }
 
             echo PHP_EOL.PHP_EOL.'Found '.$found_videos->count().' videos for '.$video->title.PHP_EOL;
