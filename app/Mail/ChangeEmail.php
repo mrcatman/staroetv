@@ -32,7 +32,7 @@ class ChangeEmail extends Mailable
     {
         return $this->view('emails.change_mail', [
             'user' => $this->user,
-            'url' => 'http://staroetv.su/users/change-email/'.$this->change->code
+            'url' => config('app.url').route('profile.change-email', $this->change->code)
         ])->subject('Изменение email адреса');
     }
 }

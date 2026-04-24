@@ -149,7 +149,7 @@ class User extends Authenticatable
     }
 
     public function sendPasswordResetNotification($token){
-        $url = route('password.reset', ['token' => $token, 'email' => $this->email]);
+        $url = config('app.url').route('password.reset', ['token' => $token, 'email' => $this->email]);
         Mail::to($this)->send(new ResetPassword($this, $url));
     }
 

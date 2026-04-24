@@ -132,18 +132,18 @@ return [
     */
 
     'log_channel' => env('MAIL_LOG_CHANNEL'),
-    'stream' => [
-        'ssl' => [
-            'allow_self_signed' => true,
+    'mailers' => [
+        'smtp' => [
+            'transport' => 'smtp',
+            'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
+            'port' => env('MAIL_PORT', 587),
+            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+            'username' => env('MAIL_USERNAME'),
+            'password' => env('MAIL_PASSWORD'),
+            'timeout' => null,
+            'auth_mode' => null,
             'verify_peer' => false,
-            'verify_peer_name' => false,
-        ],
-    ],
-    'smtp' => [
-        'transport' => 'smtp',
-        'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
-        'port' => env('MAIL_PORT', 587),
-        'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-        'verify_peer' => false, 
-    ],
+            'auto_tls' => false,
+        ]
+    ]
 ];
