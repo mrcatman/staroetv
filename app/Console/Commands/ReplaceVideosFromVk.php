@@ -181,12 +181,15 @@ class ReplaceVideosFromVk extends Command
             if ($found_videos->count() === 1) {
                 $action = select(
                     label: 'Action',
-                    options: ['Accept', 'Skip'],
+                    options: ['Accept', 'Manual', 'Skip'],
                 );
                 if ($action === 'Accept') {
                     $found_video = $found_videos->first();
                     $video->embed_code = '<iframe src="' . $found_video->player . '" frameborder="0" allowfullscreen></iframe>';
                     $this->accept($video, $found_video);
+                }
+                if ($action === 'Manual') {
+                    $this->manual($video);
                 }
                 continue;
             }
@@ -196,12 +199,7 @@ class ReplaceVideosFromVk extends Command
                 options: array_merge(['Skip', 'All', 'Manual', 'Multiple'], $labels),
             );
             if ($action === 'Skip') {} elseif ($action === 'Manual') {
-                $url = text('Enter video URL');
-                $video_id = explode("video", $url)[1];
-                $video_id = explode("?", $video_id)[0];
-                $response = ExternalServicesHelper::vkVideo($video_id);
-                $found_video = $response->response->items[0];
-                $this->accept($video, $found_video); 
+                $this->manual($video);;
             } elseif ($action === 'All' || $action === 'Multiple') {
                 if ($action === 'Multiple') {
                     $indexes = text('Enter indexes');
@@ -233,6 +231,15 @@ class ReplaceVideosFromVk extends Command
                 $this->accept($video, $found_video);
             }
         }
+    }
+
+    private function manual($video) {
+        $url = text('Enter video URL');
+        $video_id = explode("video", $url)[1];
+        $video_id = explode("?", $video_id)[0];
+        $response = ExternalServicesHelper::vkVideo($video_id);
+        $found_video = $response->response->items[0];
+        $this->accept($video, $found_video);
     }
 
     private function fixDuplicates() {
