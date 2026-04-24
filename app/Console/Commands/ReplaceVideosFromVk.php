@@ -53,6 +53,7 @@ class ReplaceVideosFromVk extends Command
         $title = str_replace('д ф', ' ', $title);
         $title = str_replace('Дф', ' ', $title);
         $title = str_replace('дф', ' ', $title);
+        $title = str_replace(' 0', ' ', $title);
         return trim($title);
     }
 
