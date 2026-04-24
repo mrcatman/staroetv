@@ -58,6 +58,7 @@ class ReplaceVideosFromVk extends Command
             $found_videos = collect($search->response->items)->filter(function ($item) use ($date) {
                 return str_contains($item->title, $date);
             });
+            var_dump($found_videos->pluck('title'), $date);
             if (count($found_videos) === 0) {
                 echo 'Not found videos by name, trying to search by date'.PHP_EOL;
             }
