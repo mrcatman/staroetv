@@ -165,13 +165,16 @@ class ReplaceVideosFromVk extends Command
 
                             $search = ExternalServicesHelper::vkVideoSearch('"' . $date . '"', $group_id);
                             $found_videos = collect($search->response->items);
-                            if (count($found_videos) === 0) {
-                                $this->manual($video);
-                            }
                         }
                     }
-                    continue;
                 }
+            }
+
+            if (count($found_videos) === 0) {
+                if ($this->option('extended-search') == '1') {
+                    $this->manual($video);
+                }
+                continue;
             }
 
             echo PHP_EOL . PHP_EOL . 'Found ' . $found_videos->count() . ' videos for ' . $video->title . PHP_EOL;
