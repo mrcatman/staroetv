@@ -50,6 +50,12 @@ class ReplaceVideosFromVk extends Command
         return trim($title);
     }
 
+    private function compareTitles($title1, $title2) {
+        $title1 = $this->normalize($title1);
+        $title2 = $this->normalize($title2);
+        return $title1 === $title2 || str_contains($title1, $title2) || str_contains($title2, $title1);
+    }
+
     private function search($title, $group_id) {
         if ($this->option('extended-search') == '1') {
             $data = explode('(', $title);
@@ -164,10 +170,13 @@ class ReplaceVideosFromVk extends Command
             echo PHP_EOL.PHP_EOL.'Found '.$found_videos->count().' videos for '.$video->title.PHP_EOL;
             $labels = $this->getLabels($found_videos);
 
-            if ($this->normalize($found_videos->first()->title) === $this->normalize($video->title)) {
+            $autoaccept = $found_videos->filter(function ($item) use ($video) {
+                return $this->compareTitles($video->title, $item->title);
+            })->first();
+            if ($autoaccept) {
                 echo 'Auto accepting: '.$video->title.PHP_EOL;
-                $video->embed_code = '<iframe src="' . $found_videos->first()->player . '" frameborder="0" allowfullscreen></iframe>';
-                $this->accept($video, $found_videos->first());
+                $video->embed_code = '<iframe src="' . $autoaccept->player . '" frameborder="0" allowfullscreen></iframe>';
+                $this->accept($video, $autoaccept);
                 usleep(500000);
                 continue;
             }
