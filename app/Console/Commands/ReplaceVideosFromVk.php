@@ -47,10 +47,13 @@ class ReplaceVideosFromVk extends Command
     private function search($title, $group_id) {
         if ($this->option('extended-search') == '1') {
             $data = explode('(', $title);
-            $name = trim($data[0]);
+           // $name = trim($data[0]);
             $channel_and_date = explode(',', explode(')', $data[1])[0]);
             $date = isset($channel_and_date[1]) ? $channel_and_date[1] : $channel_and_date[0];
-            $search = ExternalServicesHelper::vkVideoSearch($name, $group_id);
+
+            echo 'Search string: '.$data[1].PHP_EOL;
+
+            $search = ExternalServicesHelper::vkVideoSearch('"'.$data[1].'"', $group_id);
             $found_videos = collect($search->response->items)->filter(function ($item) use ($date) {
                 return str_contains($item->title, $date);
             });
@@ -59,7 +62,7 @@ class ReplaceVideosFromVk extends Command
             }
             usleep(500000);
 
-            $search = ExternalServicesHelper::vkVideoSearch($date, $group_id);
+            $search = ExternalServicesHelper::vkVideoSearch('"'.$date.'"', $group_id);
             $found_videos = collect($search->response->items);
         } else {
             $search = ExternalServicesHelper::vkVideoSearch($this->normalize($title), $group_id);
