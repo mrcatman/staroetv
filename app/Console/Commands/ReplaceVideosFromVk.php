@@ -162,8 +162,8 @@ class ReplaceVideosFromVk extends Command
                         echo 'Not found (2): ' . $this->normalize($new_title) . PHP_EOL;
                         if ($this->option('extended-search') == '1') {
                             $this->manual($video);
-                            continue;
                         }
+                        continue;
                     }
                 }
             }
