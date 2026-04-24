@@ -52,13 +52,10 @@ class ReplaceVideosFromVk extends Command
             $channel_and_date = explode(',', $channel_and_date_string);
             $date = isset($channel_and_date[1]) ? $channel_and_date[1] : $channel_and_date[0];
 
-            echo 'Search string: '.$channel_and_date_string.PHP_EOL;
-
             $search = ExternalServicesHelper::vkVideoSearch('"'.$channel_and_date_string.'"', $group_id);
             $found_videos = collect($search->response->items)->filter(function ($item) use ($date) {
                 return str_contains($item->title, $date);
             });
-            var_dump($found_videos->pluck('title'), $date);
             if (count($found_videos) === 0) {
                 echo 'Not found videos by name, trying to search by date'.PHP_EOL;
             }
