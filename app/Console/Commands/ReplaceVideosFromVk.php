@@ -46,6 +46,8 @@ class ReplaceVideosFromVk extends Command
         $title = str_replace('-', ' ', $title);
         $title = str_replace(':', ' ', $title);
         $title = str_replace('.', ' ', $title);
+        $title = str_replace('Дф', ' ', $title);
+        $title = str_replace('дф', ' ', $title);
         $title = preg_replace('/[^a-zA-Z0-9 \p{Cyrillic}]/u', '', $title);
         return trim($title);
     }
