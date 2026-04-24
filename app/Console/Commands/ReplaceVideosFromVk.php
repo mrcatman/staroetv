@@ -245,6 +245,7 @@ class ReplaceVideosFromVk extends Command
         $video_id = explode("?", $video_id)[0];
         $response = ExternalServicesHelper::vkVideo($video_id);
         $found_video = $response->response->items[0];
+        $video->embed_code = '<iframe src="' . $found_video->player . '" frameborder="0" allowfullscreen></iframe>';
         $this->accept($video, $found_video);
     }
 
