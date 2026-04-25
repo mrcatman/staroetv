@@ -11,6 +11,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
+use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 
 class ImportTeletext extends Command
@@ -70,6 +71,7 @@ class ImportTeletext extends Command
         $user = User::where(['username' => $this->option('username')])->first();
 
         foreach ($links as $link) {
+            echo $link.PPHP_EOL;
             try {
                 preg_match('/%20(\d+).(\d+).(\d+)/', $link, $date_arr);
                 if (count($date_arr) >= 4) {
@@ -82,14 +84,23 @@ class ImportTeletext extends Command
                     $date = Carbon::parse($date_arr[1]);
                 }
             } catch (\Exception $e) {
-                echo 'Could not parse date: '.$link.PHP_EOL;
+                echo 'Could not parse date: '.PHP_EOL;
                 $date_text = text('Enter date');
                 $date = Carbon::parse($date_text);
             }
             echo 'Date: '.$date->format('d.m.Y').PHP_EOL;
             if ($date->year > 2010) {
-                echo 'Skipping'.PHP_EOL;
-                continue;
+                $action = select(
+                    label: 'Action',
+                    options: ['Skip', 'Fix date'],
+                );
+                if ($action == 'Fix date') {
+                    $date_text = text('Enter date');
+                    $date = Carbon::parse($date_text);
+                } else {
+                    echo 'Skipping' . PHP_EOL;
+                    continue;
+                }
             }
             $pages = $this->loadDirectoryListing($this->argument('url').$link);
             $pages = array_map(function($page) {
