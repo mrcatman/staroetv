@@ -350,10 +350,11 @@ class TeletextController extends EntityController
             $teletext->pending = !PermissionsHelper::allows('contentapprove');
         }
 
-        $teletext->pages = [];
+
         $teletext->setSupposedDate();
 
         if ($file) {
+            $teletext->pages = [];
             Storage::disk('temp')->putFileAs('teletext', $file, 'temp_'.$teletext->id.'.t42');
             ProcessTeletext::dispatch($teletext);
         }
