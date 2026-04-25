@@ -18,7 +18,7 @@ use Intervention\Image\Laravel\Facades\Image;
 class FixPictures extends Command
 {
 
-    protected $signature = 'pictures:fix --type={type}';
+    protected $signature = 'pictures:fix {--type=}';
 
     protected $description = '';
 
