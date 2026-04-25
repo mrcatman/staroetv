@@ -41,7 +41,7 @@ class TeletextHelper {
 
         Process::run('chmod 0755 -R '.Storage::disk('public_data')->path($dir));
         self::takeScreenshot($teletext);
-        
+
         Process::run('chmod 0755 -R '.Storage::disk('public_data')->path($dir));
     }
 

@@ -9,6 +9,7 @@ use App\Jobs\ProcessTeletext;
 use App\Models\Channel;
 use App\Models\Teletext;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -374,5 +375,10 @@ class TeletextController extends EntityController
         return Channel::selectDefault()->with('logo', 'names')->orderBy('order')->where(['is_radio' => false])->get();
     }
 
-
+    public function afterDelete(Model $entity) {
+        $dir = '/teletext-data/'.$entity->id;
+        Storage::disk('public_data')->deleteDirectory($dir);
+        
+        return parent::afterDelete($entity);
+    }
 }
