@@ -13,7 +13,7 @@ use function Laravel\Prompts\text;
 class ReplaceVideosFromVk extends Command
 {
 
-    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {--offset=0} {--action=replace} {--filter=} {--order=id} {--extended-search=0} {--only-auto=0}';
+    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {--offset=0} {--action=replace} {--filter=} {--order=id} {--extended-search=0} {--force-search=0} {--only-auto=0}';
     protected $description = 'Command description';
 
     private function accept($video, $found_video)
@@ -198,6 +198,18 @@ class ReplaceVideosFromVk extends Command
                 usleep(500000);
                 continue;
             }
+            if ($this->option('force-search') == '1') {
+                $prompt = text('Enter search phrase');
+                if (trim($prompt) === '') {
+                    continue;
+                }
+                $found_videos = $this->search($prompt, $group_id);
+                if ($found_videos->count() === 0) {
+                    $this->manual($video);
+                    continue;
+                }
+            }
+
             if ($this->option('only-auto') == '1') {
                 continue;
             }
