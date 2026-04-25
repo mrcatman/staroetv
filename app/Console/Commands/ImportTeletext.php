@@ -2,19 +2,16 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\CSVHelper;
 use App\Helpers\TeletextHelper;
 use App\Models\Channel;
-use App\Models\Picture;
 use App\Models\Teletext;
 use App\Models\User;
-use App\Models\UserMeta;
-use App\Models\UserWarning;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
+use function Laravel\Prompts\text;
 
 class ImportTeletext extends Command
 {
@@ -23,7 +20,7 @@ class ImportTeletext extends Command
      *
      * @var string
      */
-    protected $signature = 'teletext:import {url} {channel} {--username=}';
+    protected $signature = 'teletext:import {url} {channel} {--username=} {--offset=0}';
 
     /**
      * The console command description.
@@ -66,19 +63,28 @@ class ImportTeletext extends Command
     public function handle()
     {
         $links = $this->loadDirectoryListing($this->argument('url'));
+        $offset = $this->option('offset');
+        $links = array_slice($links, $offset);
+
         $channel = Channel::where(['url' => $this->argument('channel')])->orWhere(['id' => $this->argument('channel')])->first();
         $user = User::where(['username' => $this->option('username')])->first();
 
         foreach ($links as $link) {
-            preg_match('/%20(\d+).(\d+).(\d+)/', $link, $date_arr);
-            if (count($date_arr) >= 4) {
-                $date = Carbon::parse($date_arr[1] . '.' . $date_arr[2] . '.' . $date_arr[3]);
-            } else {
-                preg_match('/%20(\d+)/', $link, $date_arr);
-                if (count($date_arr) == 0) {
-                    preg_match('/(\d+)/', $link, $date_arr);
+            try {
+                preg_match('/%20(\d+).(\d+).(\d+)/', $link, $date_arr);
+                if (count($date_arr) >= 4) {
+                    $date = Carbon::parse($date_arr[1] . '.' . $date_arr[2] . '.' . $date_arr[3]);
+                } else {
+                    preg_match('/%20(\d+)/', $link, $date_arr);
+                    if (count($date_arr) == 0) {
+                        preg_match('/(\d+)/', $link, $date_arr);
+                    }
+                    $date = Carbon::parse($date_arr[1]);
                 }
-                $date = Carbon::parse($date_arr[1]);
+            } catch (\Exception $e) {
+                echo 'Could not parse date'.PHP_EOL;
+                $date_text = text('Enter date');
+                $date = Carbon::parse($date_text);
             }
             echo 'Date: '.$date->format('d.m.Y').PHP_EOL;
             if ($date->year > 2010) {
