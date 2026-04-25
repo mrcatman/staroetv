@@ -82,12 +82,14 @@ class TeletextHelper {
         $thumbnail = '/teletext-data/'.$teletext->id.'/'.$page.'.png';
         Screenshot::url(config('app.url').'/teletext/'.$teletext->id.'?page='.$page.'&inline=true')
             ->withBrowsershot(function (Browsershot $browsershot) {
+                $browsershot->waitUntilNetworkIdle();
                 $browsershot->ignoreHttpsErrors();
                 $browsershot->windowSize(640, 480);
             })
             ->width(640)
             ->height(480)
             ->disk('public_data')
+            ->quality(90)
             ->save($thumbnail);
 
         $cover = Picture::firstOrNew([
@@ -97,6 +99,8 @@ class TeletextHelper {
 
         $teletext->cover_id = $cover->id;
         $teletext->save();
+
+        Process::run('chmod 0755 '.Storage::disk('public_data')->path($thumbnail));
 
         Cache::forget('teletext_cover_'.$teletext->id);
     }
