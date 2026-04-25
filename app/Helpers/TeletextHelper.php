@@ -89,7 +89,6 @@ class TeletextHelper {
             ->width(640)
             ->height(480)
             ->disk('public_data')
-            ->quality(90)
             ->save($thumbnail);
 
         $cover = Picture::firstOrNew([
