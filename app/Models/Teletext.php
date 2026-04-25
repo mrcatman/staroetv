@@ -50,6 +50,9 @@ class Teletext extends Model {
     }
 
     public function getCoverAttribute() {
+        if (!$this->cover_id) {
+            return "/pictures/unknown.png";
+        }
         return Cache::remember('teletext_cover_'.$this->id, CacheTimes::RELATION, function () {
             if ($this->coverPicture) {
                 return $this->coverPicture->url;
@@ -97,7 +100,7 @@ class Teletext extends Model {
         if ($this->day != null) {
             $date = $this->date->format('d.m.Y');
         } else if ($this->month != null) {
-            $date = DatesHelper::monthNames()[$this->month].' '.$this->year;
+            $date = DatesHelper::monthNames()[$this->month - 1].' '.$this->year;
         }
         return $date ?? 'неизвестная дата';
     }
