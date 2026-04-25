@@ -137,6 +137,8 @@ class ImportTeletext extends Command
 
             $teletext->pages = $processed_pages;
             $teletext->save();
+
+            TeletextHelper::takeScreenshot($teletext);
         }
     }
 }

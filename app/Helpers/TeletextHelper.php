@@ -80,7 +80,7 @@ class TeletextHelper {
         }
         $page = in_array('100', $teletext->pages) ? '100' : $teletext->pages[0];
         $thumbnail = '/teletext-data/'.$teletext->id.'/'.$page.'.png';
-        Screenshot::url(config('app.url').'/teletext-data/'.$teletext->id.'?page='.$page.'&inline=true')
+        Screenshot::url(config('app.url').'/teletext/'.$teletext->id.'?page='.$page.'&inline=true')
             ->withBrowsershot(function (Browsershot $browsershot) {
                 $browsershot->ignoreHttpsErrors();
                 $browsershot->windowSize(640, 480);

@@ -378,7 +378,7 @@ class TeletextController extends EntityController
     public function afterDelete(Model $entity) {
         $dir = '/teletext-data/'.$entity->id;
         Storage::disk('public_data')->deleteDirectory($dir);
-        
+
         return parent::afterDelete($entity);
     }
 }
