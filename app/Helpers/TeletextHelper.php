@@ -17,6 +17,7 @@ class TeletextHelper {
         $dir = '/teletext-data/'.$teletext->id;
         Storage::disk('temp')->makeDirectory($dir);
         Storage::disk('public_data')->makeDirectory($dir);
+        Storage::disk('public_data')->setVisibility($dir, 'public');
 
         $output_path = Storage::disk('temp')->path($dir);
         $file_path = Storage::disk('temp')->path('teletext/temp_'.$teletext->id.'.t42');
@@ -69,6 +70,7 @@ class TeletextHelper {
         }
 
         file_put_contents($file_path, $subpages);
+        Storage::disk('public_data')->setVisibility($path, 'public');
     }
 
     public static function takeScreenshot(Teletext $teletext): void {
