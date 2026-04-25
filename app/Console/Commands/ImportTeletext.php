@@ -82,7 +82,7 @@ class ImportTeletext extends Command
                     $date = Carbon::parse($date_arr[1]);
                 }
             } catch (\Exception $e) {
-                echo 'Could not parse date'.PHP_EOL;
+                echo 'Could not parse date: '.$link.PHP_EOL;
                 $date_text = text('Enter date');
                 $date = Carbon::parse($date_text);
             }
