@@ -39,7 +39,9 @@ class TeletextHelper {
         $teletext->pages = $pages;
         $teletext->save();
 
+        Process::run('chmod 0755 -R '.Storage::disk('public_data')->path($dir));
         self::takeScreenshot($teletext);
+        
         Process::run('chmod 0755 -R '.Storage::disk('public_data')->path($dir));
     }
 
