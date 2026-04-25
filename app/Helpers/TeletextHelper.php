@@ -21,7 +21,7 @@ class TeletextHelper {
         $output_path = Storage::disk('temp')->path($dir);
         $file_path = Storage::disk('temp')->path('teletext/temp_'.$teletext->id.'.t42');
 
-        Process::path(config('site.teletext.cwd'))->run('python3 -m teletext html "'.$output_path.'/" "'.$file_path.'"');
+        Process::path(config('site.teletext.cwd'))->run('python3 -m teletext html "'.$output_path.'/" "'.$file_path.'" --localcodepage=cyr');
         Log::info('python3 -m teletext html "'.$output_path.'/" "'.$file_path.'"');
         $pages = Storage::disk('temp')->allFiles($dir);
         $pages = array_map(function($page) {
