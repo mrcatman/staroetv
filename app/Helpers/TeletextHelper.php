@@ -17,7 +17,6 @@ class TeletextHelper {
         $dir = '/teletext-data/'.$teletext->id;
         Storage::disk('temp')->makeDirectory($dir);
         Storage::disk('public_data')->makeDirectory($dir);
-        Storage::disk('public_data')->setVisibility($dir, 'public');
 
         $output_path = Storage::disk('temp')->path($dir);
         $file_path = Storage::disk('temp')->path('teletext/temp_'.$teletext->id.'.t42');
@@ -36,6 +35,7 @@ class TeletextHelper {
         }
 
         Storage::disk('temp')->delete($dir);
+        Process::run('chmod 0644 -R '.Storage::disk('temp')->path($dir));
 
         $teletext->pages = $pages;
         $teletext->save();
