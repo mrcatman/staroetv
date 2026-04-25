@@ -13,7 +13,7 @@ use function Laravel\Prompts\text;
 class ReplaceVideosFromVk extends Command
 {
 
-    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {--offset=0} {--action=replace} {--filter=} {--order=id} {--extended-search=0} {--only-auto=1}';
+    protected $signature = 'videos:replace-from-vk {group_id} {user_id} {--offset=0} {--action=replace} {--filter=} {--order=id} {--extended-search=0} {--only-auto=0}';
     protected $description = 'Command description';
 
     private function accept($video, $found_video)
@@ -50,10 +50,10 @@ class ReplaceVideosFromVk extends Command
         $title = str_replace('.', ' ', $title);
         $title = str_replace('/', ' ', $title);
         $title = preg_replace('/[^a-zA-Z0-9 \p{Cyrillic}]/u', '', $title);
-        $title = str_replace('Д ф', ' ', $title);
-        $title = str_replace('д ф', ' ', $title);
-        $title = str_replace('Дф', ' ', $title);
-        $title = str_replace('дф', ' ', $title);
+        //$title = str_replace('Д ф', ' ', $title);
+        //$title = str_replace('д ф', ' ', $title);
+        //$title = str_replace('Дф', ' ', $title);
+        //$title = str_replace('дф', ' ', $title);
         return trim($title);
     }
 
