@@ -86,8 +86,7 @@ class TeletextHelper {
                 $browsershot->ignoreHttpsErrors();
                 $browsershot->windowSize(640, 480);
             })
-            ->width(640)
-            ->height(480)
+            ->size(640, 480)
             ->disk('public_data')
             ->save($thumbnail);
 
