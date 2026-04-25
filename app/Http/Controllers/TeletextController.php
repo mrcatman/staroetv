@@ -364,7 +364,7 @@ class TeletextController extends EntityController
         return [
             'status' => 1,
             'text' => $is_new ? 'Телетекст добавлен' : 'Телетекст обновлён',
-            'redirect_to' => route('teletext.show', $teletext) . (!$teletext->cover_id ? '?update_cover=1' : '')
+            'redirect_to' => route('teletext.show', $teletext)// . (!$teletext->cover_id ? '?update_cover=1' : '')
         ];
     }
 

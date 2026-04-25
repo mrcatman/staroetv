@@ -66,6 +66,17 @@ return [
         'public_data' => [
             'driver' => 'local',
             'root'   => public_path(),
+            'visibility' => 'public',
+            'permissions' => [
+                'file' => [
+                    'public' => 0755,
+                    'private' => 0600,
+                ],
+                'dir' => [
+                    'public' => 0755,
+                    'private' => 0700,
+                ],
+            ],
         ],
         'temp' => [
             'driver' => 'local',
