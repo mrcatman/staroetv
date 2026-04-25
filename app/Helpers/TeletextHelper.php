@@ -35,7 +35,7 @@ class TeletextHelper {
         }
 
         Storage::disk('temp')->delete($dir);
-        Process::run('chmod 0644 -R '.Storage::disk('temp')->path($dir));
+        Process::run('chmod 0644 -R '.Storage::disk('public_data')->path($dir));
 
         $teletext->pages = $pages;
         $teletext->save();
@@ -88,7 +88,7 @@ class TeletextHelper {
             ->height(480)
             ->disk('public_data')
             ->save($thumbnail);
-
+        Process::run('chmod 0644 '.Storage::disk('public_data')->path($thumbnail));
         $cover = Picture::firstOrNew([
             'url' => $thumbnail
         ]);
