@@ -26,7 +26,7 @@ class FixPictures extends Command
 
     public function handle()
     {
-        $type = $this->argument('type');
+        $type = $this->option('type');
         switch ($type) {
             case 'db-duplicates':
                 $this->fixDBDuplicates();
