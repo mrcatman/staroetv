@@ -170,7 +170,7 @@ class ReplaceVideosFromVk extends Command
                 }
             }
 
-            if (count($found_videos) === 0) {
+            if (count($found_videos) === 0 && $this->option('force-search') != '1') {
                 if ($this->option('extended-search') == '1' && $this->option('only-auto') != '1') {
                     $prompt = text('Enter search phrase');
                     if (trim($prompt) === '') {
@@ -200,13 +200,12 @@ class ReplaceVideosFromVk extends Command
             }
             if ($this->option('force-search') == '1') {
                 $prompt = text('Enter search phrase');
-                if (trim($prompt) === '') {
-                    continue;
-                }
-                $found_videos = $this->search($prompt, $group_id);
-                if ($found_videos->count() === 0) {
-                    $this->manual($video);
-                    continue;
+                if (trim($prompt) !== '') {
+                    $found_videos = $this->search($prompt, $group_id);
+                    if ($found_videos->count() === 0) {
+                        $this->manual($video);
+                        continue;
+                    }
                 }
             }
 
