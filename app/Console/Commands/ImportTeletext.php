@@ -13,6 +13,7 @@ use App\Models\UserWarning;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
 class ImportTeletext extends Command
@@ -139,6 +140,7 @@ class ImportTeletext extends Command
             $teletext->save();
 
             TeletextHelper::takeScreenshot($teletext);
+            Process::run('chmod 0755 -R '.Storage::disk('public_data')->path($dir));
         }
     }
 }
