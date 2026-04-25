@@ -71,7 +71,7 @@ class ImportTeletext extends Command
         $user = User::where(['username' => $this->option('username')])->first();
 
         foreach ($links as $link) {
-            echo $link.PPHP_EOL;
+            echo $link.PHP_EOL;
             try {
                 preg_match('/%20(\d+).(\d+).(\d+)/', $link, $date_arr);
                 if (count($date_arr) >= 4) {
