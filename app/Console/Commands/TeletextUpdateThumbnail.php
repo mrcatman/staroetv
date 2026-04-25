@@ -16,10 +16,10 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
-class TeletextUpdateScreenshot extends Command
+class TeletextUpdateThumbnail extends Command
 {
 
-    protected $signature = 'teletext:update-screenshot {id}';
+    protected $signature = 'teletext:update-thumbnail {id}';
 
 
     public function __construct()
