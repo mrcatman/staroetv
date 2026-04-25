@@ -37,7 +37,7 @@ class ReplaceVideosFromVk extends Command
 
     private function normalize($title)
     {
-        $replacements = ['(не с начала)', '(не до конца)', '(фрагмент)'];
+        $replacements = ['(не с начала)', '(не до конца)', '(фрагмент)', 'вечер', 'утро'];
         foreach ($replacements as $replacement) {
             $title = str_replace($replacement, '', $title);
         }
