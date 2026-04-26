@@ -305,7 +305,7 @@ class ProfileController extends Controller
     }
 
     public function getPermissions() {
-        $can_edit_records = PermissionsHelper::allows('viedit');
+        $can_edit_records = !!PermissionsHelper::allows('viedit');
         return [
             'can_edit_records' => $can_edit_records
         ];
