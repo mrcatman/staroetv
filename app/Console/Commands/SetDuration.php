@@ -32,13 +32,18 @@ class SetDuration extends Command
         parent::__construct();
     }
 
-    private function updateDuration($record) {
-        echo "Updating duration for $record->title ($record->id)".PHP_EOL;
-        $duration = MediaHelper::updateDuration($record);
-        if ($duration) {
-            echo "Updated duration to $duration".PHP_EOL;
-        } else {
-            echo "Cannot resolve duration".PHP_EOL;
+    private function updateDuration($record)
+    {
+        try {
+            echo "Updating duration for $record->title ($record->id)" . PHP_EOL;
+            $duration = MediaHelper::updateDuration($record);
+            if ($duration) {
+                echo "Updated duration to $duration" . PHP_EOL;
+            } else {
+                echo "Cannot resolve duration" . PHP_EOL;
+            }
+        } catch (\Exception $e) {
+            echo "Error while updating duration: " . $e->getMessage() . PHP_EOL;
         }
     }
 
@@ -56,7 +61,6 @@ class SetDuration extends Command
                 }
             });
         }
-
 
 
     }
