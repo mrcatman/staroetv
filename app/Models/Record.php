@@ -509,7 +509,7 @@ class Record extends Model {
     public function scopeSearch($query, $search, $need_sort = true)
     {
         $initial_search = $search;
-        $search = preg_replace('/[~,<>;(){}\[\]]/', '', $search);
+        $search = preg_replace('/[~,<>;"\'(){}\[\]]/', '', $search);
         $words = collect(explode(' ', $search))
             ->map(function ($term) {
                 $normalized = Morphy::getPseudoRoot(mb_strtoupper($term));
