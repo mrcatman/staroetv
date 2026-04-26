@@ -113,7 +113,7 @@ export const Database = {
                 return;
             }
 
-            const response = await fetch(`/promo/records-${page}.json${cacheParam}`);
+            const response = await fetch(`/teleport-data/records-${page}.json${cacheParam}`);
             let records = await response.json();
 
             this.list = [...this.list, ...records];
@@ -233,7 +233,7 @@ export const Database = {
         });
     },
     async loadMain() {
-        const response = await fetch(`/promo/index.json${cacheParam}`);
+        const response = await fetch(`/teleport-data/index.json${cacheParam}`);
         const database = await response.json();
 
         this.channels.list = database.channels.map((channel: Promo.Channel) => {

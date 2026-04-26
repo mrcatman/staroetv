@@ -86,7 +86,7 @@ class ExportPromoData extends Command
         }
         echo 'Exported ' . count($data['genres']) . ' genres' . PHP_EOL;
 
-        file_put_contents(public_path('promo/index.json'), json_encode($data, JSON_UNESCAPED_UNICODE));
+        file_put_contents(public_path('teleport-data/index.json'), json_encode($data, JSON_UNESCAPED_UNICODE));
 
         $without_records = $this->option('without-records');
         if ($without_records) {
@@ -143,7 +143,7 @@ class ExportPromoData extends Command
                     $genre_id,
                 ];
                 if (count($records_list) > $total_records / $parts) {
-                    file_put_contents(public_path('promo/records-' . $part_index . '.json'), json_encode($records_list, JSON_UNESCAPED_UNICODE));
+                    file_put_contents(public_path('teleport-data/records-' . $part_index . '.json'), json_encode($records_list, JSON_UNESCAPED_UNICODE));
                     $records_list = [];
                     $part_index++;
                 }
@@ -152,7 +152,7 @@ class ExportPromoData extends Command
             echo 'Exporting records... ' . $count . PHP_EOL;
         });
 
-        file_put_contents(public_path('promo/records-' . $part_index . '.json'), json_encode($records_list, JSON_UNESCAPED_UNICODE));
+        file_put_contents(public_path('teleport-data/records-' . $part_index . '.json'), json_encode($records_list, JSON_UNESCAPED_UNICODE));
 
         echo 'Exported ' . $count . ' records' . PHP_EOL;
 
