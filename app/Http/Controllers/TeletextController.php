@@ -348,7 +348,7 @@ class TeletextController extends EntityController
 
         if ($is_new) {
             $teletext->author_id = auth()->user()->id;
-            $teletext->pending = !PermissionsHelper::allows('contentapprove');
+            $teletext->pending = PermissionsHelper::allows('teletextpremod');
         }
 
 
