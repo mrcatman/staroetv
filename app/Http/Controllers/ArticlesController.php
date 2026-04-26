@@ -431,7 +431,7 @@ class ArticlesController extends EntityController {
 
     private function setTags($article) {
         $tags = json_decode(request()->input('tags'));
-        if ($tags) {
+        if ($tags != null) {
             $ids = array_map(function($tag) {
                 if (!isset($tag->id)) {
                     $new_tag = Tag::where(['name' => $tag->text])->first();
@@ -465,7 +465,7 @@ class ArticlesController extends EntityController {
             }
         }
         $bindings = json_decode(request()->input('bindings'));
-        if ($bindings) {
+        if ($bindings != null) {
             $program_ids = $bindings->programs;
             foreach ($program_ids as $program_id) {
                 $binding = ArticleBinding::firstOrNew([
