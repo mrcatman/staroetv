@@ -7,7 +7,7 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
 
     load(url: string, container: HTMLDivElement)  {
         return new Promise<void>((resolve, reject) => {
-            container.innerHTML = `<iframe src="${url}&js_api=1" frameborder="0" allowfullscreen></iframe>`;
+            container.innerHTML = `<iframe src="${url}&js_api=1" frameborder="0" allowfullscreen allow="autoplay"></iframe>`;
 
             const iframe = container.querySelector('iframe');
             this.instance = VK.VideoPlayer(iframe);
