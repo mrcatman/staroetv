@@ -2,10 +2,10 @@
     <div class="footer__menu">
         <div class="container">
             <div class="footer__menu__inner">
-                <a class="footer__menu__link" href="{{route('pages.show-by-url', 'about')}}">О проекте</a>
-                <a class="footer__menu__link" href="{{route('pages.show-by-url', 'team')}}">Команда сайта</a>
-                <a class="footer__menu__link" href="{{route('pages.show-by-url', 'donate')}}">Помочь сайту</a>
-                <a class="footer__menu__link" href="{{route('pages.show-by-url', 'rules')}}">Правила</a>
+                <a class="footer__menu__link" href="{{route('page-by-url', 'about')}}">О проекте</a>
+                <a class="footer__menu__link" href="{{route('page-by-url', 'team')}}">Команда сайта</a>
+                <a class="footer__menu__link" href="{{route('page-by-url', 'donate')}}">Помочь сайту</a>
+                <a class="footer__menu__link" href="{{route('page-by-url', 'rules')}}">Правила</a>
                 <a class="footer__menu__link" href="{{route('contact.index')}}">Обратная связь</a>
                 <a class="footer__menu__link" href="{{route('users.index')}}">Пользователи</a>
                 <a class="footer__menu__link" href="{{route('top-list.videos')}}">Топ пользователей</a>
