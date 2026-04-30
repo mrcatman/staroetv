@@ -8,7 +8,7 @@
         border-bottom: 1px solid var(--border-color);
 
         img {
-            margin: -.5em 0!important;
+            margin: -.5em 0 !important;
         }
 
         p {
@@ -20,11 +20,19 @@
     img {
         margin: 0 0 .75em;
     }
+
     h2 {
         display: inline-block;
         position: relative;
         top: -1em;
         margin: 0 .5em;
+    }
+}
+
+.static-page--donate {
+    iframe {
+        border: none;
+        height: 210px;
     }
 }
 
@@ -34,15 +42,18 @@
         border-top: 1px solid var(--border-color);
         margin: 0;
         padding: .5em 0;
+
         a {
             font-weight: normal;
         }
     }
 }
+
 .static-page {
-    h1,h2,h3,h4,h5,h6 {
+    h1, h2, h3, h4, h5, h6 {
         font-family: var(--font-main);
     }
+
     .back-to-top {
         background: var(--bg-darker-2);
         border-radius: 5em;
@@ -52,10 +63,13 @@
         position: relative;
         top: -1.5em;
         text-decoration: none;
+
         &:hover {
             background: var(--bg-darker);
         }
     }
+}
+
 }
 
 
