@@ -44,7 +44,7 @@ export type RecordsUploadData = {
         thumbnails: string[],
 
         upload: boolean,
-        uploaded_file_url?: string,
+        uploaded_file_path?: string,
         source_hls?: string,
         move_to_storage?: boolean,
         duration: number,
@@ -87,7 +87,7 @@ const defaultData: RecordsUploadData = {
         thumbnail_url: null,
         thumbnails: [],
         upload: false,
-        uploaded_file_url: null,
+        uploaded_file_path: null,
         source_hls: null,
         move_to_storage: false,
         duration: 0,
@@ -484,7 +484,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
 
 
         if (tusUpload.url.value) {
-            data.value.record.uploaded_file_url = tusUpload.url.value;
+            data.value.record.uploaded_file_path = tusUpload.url.value;
 
             data.value.record.thumbnails = [];
             data.value.record.thumbnail_id = null;

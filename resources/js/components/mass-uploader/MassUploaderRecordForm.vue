@@ -211,8 +211,8 @@
 
             <div class="row" v-if="files.length">
                 <div class="col">
-                    <input-container vertical label="Файл на сервере" :errors="errors.uploaded_file_url">
-                        <select2 theme="default" :options="files" v-model="data.record.uploaded_file_url"/>
+                    <input-container vertical label="Файл на сервере" :errors="errors.uploaded_file_path">
+                        <select2 theme="default" :options="files" v-model="data.record.uploaded_file_path"/>
                     </input-container>
                 </div>
             </div>
@@ -396,13 +396,13 @@ if (props.record.upload) {
 
 parseTitle();
 if (props.record.file) {
-    data.value.record.uploaded_file_url = props.record.file;
+    data.value.record.uploaded_file_path = props.record.file;
 } else {
-    data.value.record.uploaded_file_url = props.files.find(file => file.split('/').pop().replace('.mp4', '') === data.value.title);
+    data.value.record.uploaded_file_path = props.files.find(file => file.split('/').pop().replace('.mp4', '') === data.value.title);
 }
 
 const saveRecord = () => {
-    data.value.record.upload = data.value.record.uploaded_file_url?.length;
+    data.value.record.upload = data.value.record.uploaded_file_path?.length;
     save();
 }
 

@@ -602,18 +602,24 @@ class RecordsController extends EntityController
         }
 
         $upload = request()->input('record.upload', false);
-        $has_uploaded_video = $upload && request()->has('record.uploaded_file_url');
+        $has_uploaded_video = $upload && request()->has('record.uploaded_file_path');
         $storage = Storage::disk('media-storage');
 
         if ($has_uploaded_video) {
-            $uploaded_file_url = request()->input('record.uploaded_file_url');
-            if (!$storage->exists($uploaded_file_url)) {
-                $errors['uploaded_file_url'] = 'Ошибка загрузки: файл не найден. Повторите загрузку ещё раз';
+            $uploaded_file_path = request()->input('record.uploaded_file_path');
+            if (!$storage->exists($uploaded_file_path)) {
+                $errors['uploaded_file_path'] = 'Ошибка загрузки: файл не найден. Повторите загрузку ещё раз';
             } else {
-                $record->use_own_player = true;
-                $record->source_path = $uploaded_file_url;
+                if (str_starts_with($uploaded_file_path, 'temp-upload/')) {
+                    $new_file_path = str_replace('temp-upload/', 'videos/', $uploaded_file_path);
 
-                $thumbnail = !$is_radio ? MediaHelper::makeThumbnail($storage->path($uploaded_file_url)) : null;
+                    $storage->move($uploaded_file_path, $new_file_path);
+                    $uploaded_file_path = $new_file_path;
+                }
+                $record->use_own_player = true;
+                $record->source_path = $uploaded_file_path;
+
+                $thumbnail = !$is_radio ? MediaHelper::makeThumbnail($storage->path($uploaded_file_path)) : null;
                 if ($thumbnail) {
                     $cover = Picture::firstOrNew([
                         'url' => $thumbnail
@@ -622,7 +628,7 @@ class RecordsController extends EntityController
                     $record->cover_id = $cover->id;
                 }
 
-                $duration = MediaHelper::getDuration($storage->path($uploaded_file_url));
+                $duration = MediaHelper::getDuration($storage->path($uploaded_file_path));
                 $record->length = $duration;
             }
         }
