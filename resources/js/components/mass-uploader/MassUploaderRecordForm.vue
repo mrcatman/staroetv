@@ -398,8 +398,7 @@ parseTitle();
 if (props.record.file) {
     data.value.uploaded_file_url = props.record.file;
 } else {
-    const file = props.files.find(file => file.replace('.mp4', '') === data.title);
-    console.log(file);
+    const file = props.files.find(file => file.replace('.mp4', '') === data.value.title);
     if (file) {
         data.value.uploaded_file_url = `${file}.mp4`;
     }
