@@ -27,6 +27,9 @@ class Article extends Model {
     }
 
     public function getTitleAttribute() {
+        if (!isset($this->attributes['title'])) {
+            return "";
+        }
         return html_entity_decode($this->attributes['title']);
     }
 

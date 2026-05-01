@@ -64,7 +64,7 @@ class ArticlesController extends EntityController {
 
     public function show($url) {
         $data = Cache::remember('article_'.$url, CacheTimes::PAGE,  function() use ($url) {
-            $article = Article::where(['url' => $url])->firstOrFail();
+            $article = Article::where(['url' => $url])->orWhere('id', $url)->firstOrFail();
             $see_also = Article::where('id', '<', $article->id)->approved()->orderBy('created_at', 'desc')->limit(5)->get();
             $see_also = $see_also->merge(
                 Article::where('id', '>', $article->id)->approved()->orderBy('id', 'asc')->limit(3)->get()
@@ -410,8 +410,8 @@ class ArticlesController extends EntityController {
             'source' => 'sometimes',
             'slug' => 'sometimes'
         ];
-        if (PermissionsHelper::allows('nwedit')) {
-            $rules['created_at'] = 'sometimes|date';
+        if (PermissionsHelper::allows('nwedit') && request()->input('created_at', '') != '') {
+            $rules['created_at'] = 'date';
         }
         $data = request()->validate($rules);
         $article->fill($data);
