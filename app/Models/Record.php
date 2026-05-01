@@ -453,6 +453,9 @@ class Record extends Model {
     }
 
     public function getSourceHlsAttribute() {
+        if (!$this->source_path) {
+            return null;
+        }
         return config('site.media_server_url').'/hls'.$this->source_path.'/index.m3u8';
     }
 

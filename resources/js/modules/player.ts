@@ -4,12 +4,12 @@ import { FORM_PRELOADER_CLASS, FORM_PRELOADER_HTML } from "./preloader";
 
 const body = $('body');
 
-const generateControls = (title: string = null, isRadio: boolean = false) => {
+const generateControls = (id: number = null, title: string = null, isRadio: boolean = false) => {
     const titleEl = title ? `<div class="plyr__title"><span class="plyr__title__inner">${title}</span></div>` : '';
-    const rightControls = `<button type="button" class="plyr__control plyr__control--embed">
+    const rightControls = `${id ? `<button type="button" class="plyr__control plyr__control--embed">
                     <i class="fa fa-code"></i>
                     <span class="plyr__tooltip" role="tooltip">Код для вставки</span>
-               </button>
+               </button>` : ''}
 
                 <button type="button" class="plyr__control plyr__control--fullscreen" data-plyr="fullscreen">
                     <svg class="icon--pressed" role="presentation"><use xlink:href="#plyr-exit-fullscreen"></use></svg>
@@ -64,7 +64,7 @@ export const initPlayer = () => {
         const id = $(playerEl).data('id');
         const isRadio = $(playerEl).hasClass('own-player--radio');
         const player = new Plyr(playerEl, {
-            controls: generateControls(title, isRadio)
+            controls: generateControls(id, title, isRadio)
         });
         window.player = player;
         player.on('ready', async (event) => {

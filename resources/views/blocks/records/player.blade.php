@@ -13,7 +13,7 @@
 @if ($record->is_radio)
     @if ($record->use_own_player)
         <audio @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif  data-title="{{$record->title}}"
-               data-url="{{$record->url}}" data-id="{{$record->id}}" class="own-player own-player--radio" controls>
+               data-url="{{config('app.url')}}{{$record->url}}" data-id="{{$record->id}}" class="own-player own-player--radio" controls>
             <source src="{{$record->source_audio}}">
         </audio>
     @else
@@ -26,7 +26,7 @@
                 <div class="tab-content" data-id="parts" data-tab="part_{{$i}}"
                      @if($i != 0) style="display: none" @endif>
                     <video @if (isset($autoplay) && $autoplay) autoplay="autoplay"
-                           @endif data-title="{{$record->title}} (часть {{$i}}" data-url="{{$record->url}}#part_{{$i}}"
+                           @endif data-title="{{$record->title}} (часть {{$i}}" data-url="{{config('app.url')}}{{$record->url}}#part_{{$i}}"
                            data-id="{{$record->id}}" poster="{{$record->all_telegram_thumbs[$i]}}" class="own-player"
                            controls>
                         <source src="{{$record->all_telegram_sources[$i]}}" type="video/mp4">
@@ -35,22 +35,12 @@
             @endfor
         @else
             <video @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif data-title="{{$record->title}}"
-                   data-url="{{$record->url}}" data-id="{{$record->id}}"
+                   data-url="{{config('app.url')}}{{$record->url}}" data-id="{{$record->id}}"
                    poster="{{$record->cover}}?{{$record->updated_at}}" class="own-player" controls>
                 <source src="{{$record->source_path ? $record->source_hls : $record->source_telegram}}"
                         type="{{$record->source_path ? 'application/vnd.apple.mpegurl' : 'video/mp4' }}">
             </video>
         @endif
-    @elseif (strpos($record->embed_code, "youtu") !== false && !request()->has('original_player') && false)
-        <div class="plyr__video-embed own-player" data-title="{{$record->title}}" data-url="{{$record->url}}"
-             data-id="{{$record->id}}">
-            <iframe
-                src="https://www.youtube.com/embed/{{$record->embed_youtube_id}}?iv_load_policy=3&modestbranding=1&playsinline=1&showinfo=0&rel=0&enablejsapi=1"
-                allowfullscreen
-                allowtransparency
-                allow="autoplay"
-            ></iframe>
-        </div>
     @else
         <div class="record-page__player-container">
             @if ($record->multiple_embeds)

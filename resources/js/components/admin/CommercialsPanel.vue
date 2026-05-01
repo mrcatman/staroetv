@@ -7,10 +7,8 @@
                 <a class="button" @click="getRecord()">Другой ролик</a>
                 <a target="_blank" :href="record.url" class="button button--light">На страницу</a>
                 <a target="_blank" :href="_route(`records.${record.is_radio ? 'radio' : 'video'}.edit`, record.id)" class="button button--light">В редактор</a>
-
             </div>
         </div>
-
 
 
         <div class="form__content">

@@ -409,10 +409,13 @@
                 </div>
             </div>
             <div class="col record-form__sidebar" v-if="!inModal">
-                <div class="col record-form__player-container__outer"
-                     v-if="(data.record.code?.length && codeValid) || data.record.thumbnails.length">
-                    <div class="record-form__player-container" v-if="data.record.code?.length && codeValid"
-                         v-html="data.record.code"></div>
+                <div class="col record-form__player-container" v-if="data.record.upload && data.record.source_hls">
+                    <player-embed :record="{use_own_player: true, source_hls: data.record.source_hls}" />
+                </div>
+                <div class="col record-form__player-container"
+                     v-else-if="(data.record.code?.length && codeValid) || data.record.thumbnails.length">
+                    <player-embed v-if="data.record.code?.length && codeValid" :record="{embed_code: data.record.code}" />
+
                     <div class="record-form__thumbnails" v-show="data.record.thumbnails.length > 1">
                         <img class="record-form__thumbnail" v-for="(thumbnail, $index) in data.record.thumbnails"
                              :key="$index"
@@ -560,28 +563,15 @@
     }
 
     &__player-container {
+        width: 100%;
         position: relative;
-        padding-top: 60%;
-
-        iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        &__outer {
-            width: 100%;
-            position: relative;
-        }
     }
 
 
 }
 </style>
 <script lang="ts" setup>
-import { computed, useTemplateRef, watch } from "vue";
+import { computed, ref, useTemplateRef, watch } from "vue";
 
 // import Datepicker from 'vuejs-datepicker';
 
@@ -600,6 +590,7 @@ import { autocompleteOptions } from "@/utils/autocomplete";
 import RecordsItem from "@/components/records/RecordsItem.vue";
 import TypeSelect from "@/components/record-form/TypeSelect.vue";
 import SimilarModal from "@/components/record-form/SimilarModal.vue";
+import PlayerEmbed from "@/components/PlayerEmbed.vue";
 
 const props = defineProps<{
     canEditAll?: boolean,

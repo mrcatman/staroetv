@@ -55,8 +55,6 @@ export const useTusUpload = (isRadio?: boolean) => {
                         resolve(res.data);
 
                         url.value = res.data.url;
-                        duration.value = res.data.duration;
-                        thumbnail.value = res.data.thumbnail;
                     }).fail(e => {
                         isUploading.value = false;
                         reject(getErrorMessage(e));
@@ -78,7 +76,5 @@ export const useTusUpload = (isRadio?: boolean) => {
 
         upload,
         url,
-        duration,
-        thumbnail,
     }
 }

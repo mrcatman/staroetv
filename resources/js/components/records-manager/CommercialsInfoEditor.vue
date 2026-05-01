@@ -105,7 +105,7 @@ const categoriesStore = useCategoriesStore();
 categoriesStore.load();
 
 const props = defineProps<{
-    record: Models.Record,
+    record?: Models.Record,
     autoUpdateTitle?: boolean,
     hideAdditional?: boolean,
 }>();

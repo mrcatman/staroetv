@@ -32,7 +32,6 @@ export type RecordsUploadData = {
     is_radio: boolean,
 
     type: Records.Type,
-    original_added_at?: string,
     author_id?: number,
 
     record: {
@@ -46,10 +45,10 @@ export type RecordsUploadData = {
 
         upload: boolean,
         uploaded_file_url?: string,
-        storage_file?: string,
+        source_hls?: string,
         move_to_storage?: boolean,
         duration: number,
-    }
+    },
     date: Common.Date,
     channel: RecordsUploadRelationData,
     program: RecordsUploadRelationData,
@@ -89,6 +88,7 @@ const defaultData: RecordsUploadData = {
         thumbnails: [],
         upload: false,
         uploaded_file_url: null,
+        source_hls: null,
         move_to_storage: false,
         duration: 0,
     },
@@ -163,18 +163,19 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
                 title: record.title,
                 is_radio: record.is_radio,
                 type: guessType(record),
-                original_added_at: new Date(record.original_added_at_ts * 1000).toISOString().slice(0, 10),
                 author_id: record.author_id,
 
                 source: record.source,
                 record: {
                     url: record.original_url ?? '',
                     code: record.embed_code,
+                    duration: record.duration,
                     thumbnail_url: record.cover_picture?.url,
                     thumbnail_id: record.cover_id,
                     thumbnails: [],
                     own_code: false, // todo check youtube/vk
                     upload: record.use_own_player,
+                    source_hls: record.source_hls
                 },
                 short_description: record.short_description,
                 description: record.description,
@@ -484,11 +485,13 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
 
         if (tusUpload.url.value) {
             data.value.record.uploaded_file_url = tusUpload.url.value;
-            if (tusUpload.thumbnail.value) {
-                data.value.record.thumbnail_url = tusUpload.thumbnail.value;
-            }
-            data.value.record.duration = tusUpload.duration.value;
+
+            data.value.record.thumbnails = [];
+            data.value.record.thumbnail_id = null;
+            data.value.record.thumbnail_url = null;
         }
+
+
         $.post(record ? route('records.update', record.id) : route('records.save'), data.value).done(res => {
             saving.value = false;
             response.value = res;

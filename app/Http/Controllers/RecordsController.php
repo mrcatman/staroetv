@@ -366,13 +366,12 @@ class RecordsController extends EntityController
         if (!$record) {
             return redirect(route('index'));
         }
+        $record->append('source_hls');
 
         if (!$record->can_edit) {
             return redirect('/');
         }
-        $ts = $record->original_added_at_ts;
         $can_edit_all = PermissionsHelper::allows('viedit');
-        $record->original_added_at_ts = $ts;
 
         return view("pages.records.form", [
             'data' => [
@@ -602,8 +601,38 @@ class RecordsController extends EntityController
             $record->program_id = null;
         }
 
-        $has_uploaded_video = request()->input('record.upload', false) && request()->has('record.uploaded_file_url');
-        if (!$has_uploaded_video && !$record->use_own_player) {
+        $upload = request()->input('record.upload', false);
+        $has_uploaded_video = $upload && request()->has('record.uploaded_file_url');
+        $storage = Storage::disk('media-storage');
+
+        if ($has_uploaded_video) {
+            $uploaded_file_url = request()->input('record.uploaded_file_url');
+            if (!$storage->exists($uploaded_file_url)) {
+                $errors['uploaded_file_url'] = 'Ошибка загрузки: файл не найден. Повторите загрузку ещё раз';
+            } else {
+                $record->use_own_player = true;
+                $record->source_path = $uploaded_file_url;
+
+                $thumbnail = !$is_radio ? MediaHelper::makeThumbnail($storage->path($uploaded_file_url)) : null;
+                if ($thumbnail) {
+                    $cover = Picture::firstOrNew([
+                        'url' => $thumbnail
+                    ]);
+                    $cover->save();
+                    $record->cover_id = $cover->id;
+                }
+
+                $duration = MediaHelper::getDuration($storage->path($uploaded_file_url));
+                $record->length = $duration;
+            }
+        }
+
+        if ($record->use_own_player && !$upload) {
+            $record->use_own_player = false;
+            $record->source_path = null;
+        }
+
+        if (!$record->use_own_player) {
             if (request()->input('record.code') == "") {
                 $errors['url'] = "Укажите корректную ссылку";
             } else {
@@ -669,16 +698,14 @@ class RecordsController extends EntityController
             }
             if ($cover_url) {
                 $cover = Picture::where(['url' => $cover_url])->first();
-                if ($cover) {
-                    $record->cover_id = $cover->id;
-                } else {
+                if (!$cover) {
                     $cover = new Picture();
-                    $cover->loadFromURL($cover_url, sha1($cover_url), "imported/".date("dmY"));
+                    $cover->loadFromURL($cover_url, sha1($cover_url), "imported/" . date("dmY"));
                     $cover->compress();
 
                     $cover->save();
-                    $record->cover_id = $cover->id;
                 }
+                $record->cover_id = $cover->id;
             }
         }
 
@@ -698,17 +725,7 @@ class RecordsController extends EntityController
             }
         }
 
-        $storage = Storage::disk('media-storage');
 
-        if ($has_uploaded_video) {
-            $uploaded_file_url = request()->input('record.uploaded_file_url');
-            if (!$storage->exists($uploaded_file_url)) {
-                $errors['uploaded_file_url'] = 'Ошибка загрузки: файл не найден. Повторите загрузку ещё раз';
-            } else {
-                $record->use_own_player = true;
-                $record->source_path = $uploaded_file_url;
-            }
-        }
 
         if (count($errors) > 0) {
             return [

@@ -211,8 +211,8 @@
 
             <div class="row" v-if="files.length">
                 <div class="col">
-                    <input-container vertical label="Файл на сервере" :errors="errors.storage_file">
-                        <select2 theme="default" :options="files" v-model="data.record.storage_file"/>
+                    <input-container vertical label="Файл на сервере" :errors="errors.uploaded_file_url">
+                        <select2 theme="default" :options="files" v-model="data.record.uploaded_file_url"/>
                     </input-container>
                 </div>
             </div>
@@ -230,7 +230,7 @@
             </input-container>
 
             <div class="form__bottom">
-                <button :disabled="saving" @click="save()" class="button">Добавить</button>
+                <button :disabled="saving" @click="saveRecord()" class="button">Добавить</button>
                 <div class="form__progress" v-if="isUploadingFile">
                     <div class="form__progress__bar" :style="{width: uploadPercent + '%'}">
                         {{ uploadPercent + '%' }}
@@ -396,13 +396,17 @@ if (props.record.upload) {
 
 parseTitle();
 if (props.record.file) {
-    data.value.storage_file = props.record.file;
+    data.value.uploaded_file_url = props.record.file;
 } else {
-    const file = props.files.map(file => file.replace('.mp4', ''))
-        .find(file => file === data.title);
+    const file = props.files.find(file => file.replace('.mp4', '') === data.title);
     if (file) {
-        data.value.storage_file = `${file}.mp4`;
+        data.value.uploaded_file_url = `${file}.mp4`;
     }
+}
+
+const saveRecord = () => {
+    data.value.record.upload = !!data.value.record.uploaded_file_url;
+    save();
 }
 
 const remove = () => {
