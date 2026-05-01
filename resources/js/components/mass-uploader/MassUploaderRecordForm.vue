@@ -399,6 +399,7 @@ if (props.record.file) {
     data.value.uploaded_file_url = props.record.file;
 } else {
     const file = props.files.find(file => file.replace('.mp4', '') === data.value.title);
+    console.log(props.files, data.value.title, data);
     if (file) {
         data.value.uploaded_file_url = `${file}.mp4`;
     }
