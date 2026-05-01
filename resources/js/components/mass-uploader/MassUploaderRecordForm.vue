@@ -396,10 +396,9 @@ if (props.record.upload) {
 
 parseTitle();
 if (props.record.file) {
-    data.value.uploaded_file_url = props.record.file;
+    data.value.record.uploaded_file_url = props.record.file;
 } else {
-    data.value.uploaded_file_url = props.files.find(file => file.replace('.mp4', '') === data.value.title);
-    console.log(data.value.uploaded_file_url, data.value.title, props.files, props.files.length);
+    data.value.record.uploaded_file_url = props.files.find(file => file.replace('.mp4', '') === data.value.title);
 }
 
 const saveRecord = () => {
