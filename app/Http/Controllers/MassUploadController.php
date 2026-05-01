@@ -39,9 +39,7 @@ class MassUploadController extends Controller {
         $can_upload = PermissionsHelper::allows('viupload');
 
         try {
-            $files = $can_upload ? collect(Storage::disk('media-storage')->files('temp-upload'))->map(function ($file) {
-                return basename($file);
-            })->prepend('') : [];
+            $files = $can_upload ? collect(Storage::disk('media-storage')->files('temp-upload'))->prepend('') : [];
         } catch (\Exception $e) {
             $files = [];
         }

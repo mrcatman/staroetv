@@ -398,7 +398,7 @@ parseTitle();
 if (props.record.file) {
     data.value.record.uploaded_file_url = props.record.file;
 } else {
-    data.value.record.uploaded_file_url = props.files.find(file => file.replace('.mp4', '') === data.value.title);
+    data.value.record.uploaded_file_url = props.files.find(file => file.split('/').pop().replace('.mp4', '') === data.value.title);
 }
 
 const saveRecord = () => {
