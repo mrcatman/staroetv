@@ -610,12 +610,6 @@ class RecordsController extends EntityController
             if (!$storage->exists($uploaded_file_path)) {
                 $errors['uploaded_file_path'] = 'Ошибка загрузки: файл не найден. Повторите загрузку ещё раз';
             } else {
-                if (str_starts_with($uploaded_file_path, 'temp-upload/')) {
-                    $new_file_path = str_replace('temp-upload/', 'videos/', $uploaded_file_path);
-
-                    $storage->move($uploaded_file_path, $new_file_path);
-                    $uploaded_file_path = '/'.$new_file_path;
-                }
                 $record->use_own_player = true;
                 $record->source_path = $uploaded_file_path;
 
@@ -731,8 +725,6 @@ class RecordsController extends EntityController
             }
         }
 
-
-
         if (count($errors) > 0) {
             return [
                 'status' => 0,
@@ -740,6 +732,16 @@ class RecordsController extends EntityController
                 'errors' => $errors
             ];
         }
+
+        if ($has_uploaded_video && str_starts_with($uploaded_file_path, 'temp-upload/')) {
+            $new_file_path = str_replace('temp-upload/', 'videos/', $uploaded_file_path);
+
+            $storage->move($uploaded_file_path, $new_file_path);
+
+            $uploaded_file_path = '/' . $new_file_path;
+            $record->source_path = $uploaded_file_path;
+        }
+
         $record->is_radio = $is_radio;
         if ($record->channel && $record->channel->is_radio) {
             $record->is_radio = true;
