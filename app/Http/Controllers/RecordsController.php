@@ -614,7 +614,7 @@ class RecordsController extends EntityController
                     $new_file_path = str_replace('temp-upload/', 'videos/', $uploaded_file_path);
 
                     $storage->move($uploaded_file_path, $new_file_path);
-                    $uploaded_file_path = $new_file_path;
+                    $uploaded_file_path = '/'.$new_file_path;
                 }
                 $record->use_own_player = true;
                 $record->source_path = $uploaded_file_path;
