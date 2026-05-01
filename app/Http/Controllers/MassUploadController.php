@@ -40,7 +40,7 @@ class MassUploadController extends Controller {
 
         try {
             $files = $can_upload ? collect(Storage::disk('media-storage')->files('temp-upload'))->map(function ($file) {
-                return pathinfo($file, PATHINFO_FILENAME);
+                return basename($file);
             })->prepend('') : [];
         } catch (\Exception $e) {
             $files = [];
