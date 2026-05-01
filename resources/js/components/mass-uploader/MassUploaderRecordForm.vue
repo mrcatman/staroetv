@@ -405,7 +405,7 @@ if (props.record.file) {
 }
 
 const saveRecord = () => {
-    data.value.record.upload = !!data.value.record.uploaded_file_url;
+    data.value.record.upload = data.value.record.uploaded_file_url?.length;
     save();
 }
 
