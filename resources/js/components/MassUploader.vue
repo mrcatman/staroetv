@@ -1,6 +1,7 @@
 <template>
     <div class="mass-uploader">
-        <input type="file" multiple :accept="isRadio ? 'audio/*' : 'video/*'" ref="fileInputRef" @change="onFileInputChange"
+        <input type="file" multiple :accept="isRadio ? 'audio/*' : 'video/*'" ref="fileInputRef"
+               @change="onFileInputChange"
                style="display: none"/>
         <preloader v-if="loading"/>
         <div class="form__content">
@@ -33,7 +34,9 @@
                         </div>
                     </div>
                 </div>
-                <button class="button mass-uploader__load-list" :disabled="!source.length" @click="load()">Загрузить список</button>
+                <button class="button mass-uploader__load-list" :disabled="!source.length" @click="load()">Загрузить
+                    список
+                </button>
                 <div class="horisontal-delimiter"></div>
                 <div class="form__section-label">Индивидуальная загрузка</div>
             </template>
@@ -47,7 +50,8 @@
                         </input-container>
                     </div>
                     <div class="col">
-                        <input-container vertical :label="isRadio ? 'Загрузить с устройства' : 'Или загрузить с устройства'">
+                        <input-container vertical
+                                         :label="isRadio ? 'Загрузить с устройства' : 'Или загрузить с устройства'">
                             <div>
                                 <button class="button button--big" @click="fileInputRef.click()">Добавить файлы</button>
                             </div>
@@ -58,14 +62,11 @@
             </template>
 
 
-            <div class="form__bottom">
-                <template v-if="records.length && !isIndividualUpload && nextPageToken != ''">
-                    <button class="button" @click="load()">Загрузить еще</button>
-                    <div class="mass-uploader__next-token">Код для доступа к следующей странице:
-                        <strong>{{ nextPageToken }}</strong>
-                    </div>
-                </template>
-
+            <div class="form__bottom" v-if="records.length && !isIndividualUpload && nextPageToken != ''">
+                <button class="button" @click="load()">Загрузить еще</button>
+                <div class="mass-uploader__next-token">Код для доступа к следующей странице:
+                    <strong>{{ nextPageToken }}</strong>
+                </div>
             </div>
         </div>
     </div>
@@ -75,6 +76,7 @@
     &__load-list {
         margin-top: -1.25em;
     }
+
     &__next-token {
         margin: 1em 0;
     }
@@ -100,7 +102,7 @@ import { useCategoriesStore } from "@/stores/categories";
 import InputContainer from "@/components/InputContainer.vue";
 import { getErrorMessage } from "@/utils/errors";
 
-defineProps< {
+defineProps<{
     isRadio: boolean,
 }>();
 
@@ -121,7 +123,7 @@ const started = ref<boolean>(false);
 const isIndividualUpload = ref<boolean>(false);
 const links = ref<string>('');
 
-const source = ref<string>('');
+const source = ref<string>(localStorage.getItem('mass-uploader-source') ?? '');
 const nextPageToken = ref<string>('');
 
 const files = ref<string[]>([]);
@@ -144,6 +146,8 @@ const load = () => {
 
             isIndividualUpload.value = false;
             started.value = true;
+
+            localStorage.setItem('mass-uploader-source', source.value);
         } else {
             response.value = res;
         }

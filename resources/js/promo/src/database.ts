@@ -91,7 +91,7 @@ export const Database = {
             }
             if (params.channel_id) {
                 list = list.filter(program => {
-                    return program[5] === params.channel_id;
+                    return program[5]?.includes(params.channel_id);
                 });
             }
             if (params.year) {

@@ -24,7 +24,7 @@ declare namespace Promo {
         logo: string,
         genre_id: number,
         years: number[],
-        channel_id: number,
+        channel_ids: number[],
         highlight: boolean,
     ]
 

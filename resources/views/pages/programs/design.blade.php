@@ -27,8 +27,10 @@
                     </div>
 
                     @if (count($packages) === 0)
-                        <div class="nothing-found">
-                            В данный момент записей оформления этой программы нет. Вы можете помочь сайту, <a href="{{typed_route('records.[RECORD].add', $program->channel->is_radio)}}">добавив свои записи</a>
+                        <div class="box__inner">
+                            <div class="nothing-found">
+                                В данный момент записей оформления этой программы нет. Вы можете помочь сайту, <a href="{{typed_route('records.[RECORD].add', $program->channel->is_radio)}}">добавив свои записи</a>
+                            </div>
                         </div>
                     @endif
 

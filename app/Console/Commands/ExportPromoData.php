@@ -62,13 +62,15 @@ class ExportPromoData extends Command
                     return $year > 1950;
                 })->values();
                 $highlight = $program->channel->is_federal && $program->views > 100;
+
+                $channel_ids = [$program->channel_id, $program->additionalChannels->pluck('id')];
                 $data['programs'][] = [
                     $program->id,
                     $program->name,
                     $program->cover_url,
                     $program->genre_id,
                     $years,
-                    $program->channel_id,
+                    $channel_ids,
                     $highlight
                 ];
             }
