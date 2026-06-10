@@ -14,16 +14,20 @@ class ContactFormController extends Controller {
 
     private function sendToAdmin(Mailable $message)
     {
-        Mail::to(config('site.admin_email'))->send($message);
+        try {
+            Mail::to(config('site.admin_email'))->send($message);
+        } catch (\Exception $e) {}
 
-        $text = $message->subject.PHP_EOL.$message->render();
-        $text = str_replace('<br>', '', $text);
-        $text = str_replace('<hr>', '________________', $text);
-        Http::post('https://api.telegram.org/bot'.config('tokens.telegram').'/sendMessage', [
-            'chat_id' => config('site.admin_telegram_id'),
-            'text' => $text,
-            'parse_mode' => 'html',
-        ]);
+        try {
+            $text = $message->subject.PHP_EOL.$message->render();
+            $text = str_replace('<br>', '', $text);
+            $text = str_replace('<hr>', '________________', $text);
+            Http::post(config('site.telegram_api_proxy', 'https://api.telegram.org/').'bot'.config('tokens.telegram').'/sendMessage', [
+                'chat_id' => config('site.admin_telegram_id'),
+                'text' => $text,
+                'parse_mode' => 'html',
+            ]);
+        } catch (\Exception $e) {}
     }
 
     public function index() {

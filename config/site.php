@@ -11,4 +11,5 @@ return [
     'media_server_url' => env('MEDIA_SERVER_URL'),
     'geoip_db_path' => env('GEOIP_DB_PATH'),
     'geoip_forbidden_countries' => env('GEOIP_FORBIDDEN_COUNTRIES'),
+    'telegram_api_proxy' => env('TELEGRAM_API_PROXY'),
 ];
