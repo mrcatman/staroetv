@@ -12,7 +12,7 @@ export const About = {
         this.el.style.display = 'none';
         if (this.firstTime) {
             this.firstTime = false;
-            Playback.start();
+            Playback.start({});
         }
     },
     init() {

@@ -39,10 +39,10 @@ export const Playback = {
         const force = this.params.channel_id && this.params.channel_id === params.channel_id;
 
         this.params = {...this.params, ...params};
-        return await this.start(force, skipOnNonExisting);
+        return await this.start({force, skipOnNonExisting});
     },
 
-    async start(force: boolean = false, skipOnNonExisting: boolean = false): Promise<boolean> {
+    async start({ force = false, skipOnNonExisting = false, doNotSeekToRandomTime = false}): Promise<boolean> {
         this.updateDisplay('Загрузка видео...');
 
         this.active = true;
@@ -101,11 +101,11 @@ export const Playback = {
 
         await this.player.load(this.record[2], this.playerRoot);
 
-
-       if (!this.params.commercials) {
+        if (!this.params.commercials && !doNotSeekToRandomTime) {
             const seekToTime = seekTo ?? getRandomDurationPoint(this.player.getDuration());
             seekToTime && this.player.seek(seekToTime);
         }
+
         this.player.play();
         setTimeout(() => {
             try {
@@ -230,7 +230,8 @@ export const Playback = {
             this.updateDisplay(this.record[1], true);
         });
         this.inner.addEventListener('click', () => {
-            this.start(true);
+            this.start({ force: true });
         });
+        this.intro.currentTime = Math.random() * 35;
     }
 }
