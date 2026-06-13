@@ -53,7 +53,7 @@
 <script src="https://yastatic.net/share2/share.js"></script>
 <script src="https://www.google.com/recaptcha/api.js?render=6LccwdUZAAAAANbvD4YOUIKQXR77BP8Zg5A-a9UT"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
-<script async src="https://telegram.org/js/telegram-widget.js?22"></script>
+<script async defer src="https://telegram.org/js/telegram-widget.js?22"></script>
 @endif
 @if (!$pjax)
 @yield('scripts')

@@ -1,4 +1,4 @@
-import translit from '../translit'
+import translit from '@/utils/translit'
 const body = $('body');
 $(body).on('change', '#channel_name', function() {
     let name = $(this).val();
