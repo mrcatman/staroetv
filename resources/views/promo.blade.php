@@ -92,7 +92,7 @@
                     <source src="{{Vite::asset('resources/images/promo/noise.webm')}}" type="video/webm">
                 </video>
                 <video autoplay muted loop class="tv__intro" id="intro">
-                    <source src="{{Vite::asset('resources/images/promo/intro.mp4')}}" type="video/webm">
+                    <source src="{{Vite::asset('resources/images/promo/intro.mp4')}}" type="video/mp4">
                 </video>
                 <div id="player" class="tv__player"></div>
             </div>
