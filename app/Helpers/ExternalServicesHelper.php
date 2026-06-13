@@ -29,7 +29,7 @@ class ExternalServicesHelper {
 
     public static function resolveYoutubeChannelId($url)
     {
-        preg_match('~(?:https?://)?(?:www\.)?(?:youtube\.com/(?:c/|channel/|user/|@)?|youtu\.be/)([\w@.\-]{1,30})~', $url, $matches);
+        preg_match( '~(?:https?://)?(?:www\.)?(?:youtube\.com/(?:c/|channel/|user/|@)?|youtu\.be/)([\p{L}\p{N}@._-]{1,30})~u', $url, $matches);
         if (!isset($matches[1])) {
             return null;
         }
