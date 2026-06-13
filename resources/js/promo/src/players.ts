@@ -197,7 +197,6 @@ class HlsJsPlayer extends EventEmitter implements Promo.Player {
 
             if (Hls.isSupported()) {
                 const hls = new Hls();
-                hls.loadSource('https://staroetv.su/test/test.m3u8');
                 hls.loadSource(url);
                 hls.attachMedia(this.videoElement);
                 this.videoElement.addEventListener('playing', () => this.emit('started'));
