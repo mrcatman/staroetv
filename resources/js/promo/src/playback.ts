@@ -42,7 +42,7 @@ export const Playback = {
         return await this.start({force, skipOnNonExisting});
     },
 
-    async start({ force = false, skipOnNonExisting = false, doNotSeekToRandomTime = false}): Promise<boolean> {
+    async start({ force, skipOnNonExisting, doNotSeekToRandomTime} = {force: false, skipOnNonExisting: false, doNotSeekToRandomTime: false}): Promise<boolean> {
         this.updateDisplay('Загрузка видео...');
 
         this.active = true;

@@ -260,7 +260,7 @@ export const Controls = {
                 const reset = this.buttons.yearsList.querySelector('.tv__category__list__item--reset');
                 reset.style.display = year ? '' : 'none';
             }
-            for (let i = 1970; i <= 2010; i++) {
+            for (let i = 1992; i <= 2010; i++) {
                 const el = document.createElement('div');
                 el.innerHTML = `${i}`;
                 el.classList.add('tv__category__list__item');

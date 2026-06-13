@@ -25,7 +25,13 @@ class ExportPromoData extends Command
         $channels_query = Channel::where(['is_radio' => false])->whereNull('country');
 
         $regional_counts = Channel::select([DB::raw('count(*) as count'), 'city'])->orderBy('count', 'desc')->whereNotNull('city')->groupBy('city')->get()->pluck('count', 'city');
-        $channels = $channels_query->clone()->where(['is_federal' => true])->orderBy('order', 'ASC')->get()
+
+        $excluded = [
+            47, // Первая программа ЦТ
+            842 // Вторая программа ЦТ
+        ];
+
+        $channels = $channels_query->clone()->where(['is_federal' => true])->whereNotIn('id', $excluded)->orderBy('order', 'ASC')->get()
             ->merge($channels_query->clone()->where(['is_federal' => false])->whereNull('city')->orderBy('order', 'ASC')->get())
             ->merge($channels_query->clone()->where(['is_federal' => false])->whereNotNull('city')->orderByRaw("FIELD(city, '" . $regional_counts->keys()->join("','") . "')")->get());
 
@@ -36,7 +42,7 @@ class ExportPromoData extends Command
                 return [$name->name, $name->date_start, $name->date_end, $logo];
             });
             $years = $channel->records()->pluck('year')->unique()->sort()->filter(function ($year) {
-                return $year > 1950;
+                return $year > 1991;
             })->values();
 
             $data['channels'][] = [

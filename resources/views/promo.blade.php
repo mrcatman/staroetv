@@ -91,7 +91,7 @@
                 <video autoplay muted loop class="tv__noise" id="noise" style="opacity: 0">
                     <source src="{{Vite::asset('resources/images/promo/noise.webm')}}" type="video/webm">
                 </video>
-                <video autoplay muted loop class="tv__intro" id="intro" >
+                <video autoplay muted loop class="tv__intro" id="intro">
                     <source src="{{Vite::asset('resources/images/promo/intro.mp4')}}" type="video/webm">
                 </video>
                 <div id="player" class="tv__player"></div>
@@ -211,14 +211,12 @@
         </a>
         <a class="mobile-controls__button mobile-controls__refresh" id="toggle_remote">
             <svg class="mobile-controls__icon" viewBox="0 -0.5 21 21">
-                <g id="Page-1" stroke="none" stroke-width="1" fill-rule="evenodd">
-                    <g id="Dribbble-Light-Preview" transform="translate(-99.000000, -200.000000)">
-                        <g id="icons" transform="translate(56.000000, 160.000000)">
+                <g stroke="none" stroke-width="1" fill-rule="evenodd">
+                    <g transform="translate(-99.000000, -200.000000)">
+                        <g transform="translate(56.000000, 160.000000)">
                             <path
                                 d="M60.85,51 L57.7,51 C55.96015,51 54.55,52.343 54.55,54 L54.55,57 C54.55,58.657 55.96015,60 57.7,60 L60.85,60 C62.58985,60 64,58.657 64,57 L64,54 C64,52.343 62.58985,51 60.85,51 M49.3,51 L46.15,51 C44.41015,51 43,52.343 43,54 L43,57 C43,58.657 44.41015,60 46.15,60 L49.3,60 C51.03985,60 52.45,58.657 52.45,57 L52.45,54 C52.45,52.343 51.03985,51 49.3,51 M60.85,40 L57.7,40 C55.96015,40 54.55,41.343 54.55,43 L54.55,46 C54.55,47.657 55.96015,49 57.7,49 L60.85,49 C62.58985,49 64,47.657 64,46 L64,43 C64,41.343 62.58985,40 60.85,40 M52.45,43 L52.45,46 C52.45,47.657 51.03985,49 49.3,49 L46.15,49 C44.41015,49 43,47.657 43,46 L43,43 C43,41.343 44.41015,40 46.15,40 L49.3,40 C51.03985,40 52.45,41.343 52.45,43"
-                                id="menu_navigation_grid-[#1529]">
-
-                            </path>
+                                id="menu_navigation_grid-[#1529]"></path>
                         </g>
                     </g>
                 </g>
@@ -255,8 +253,7 @@
         </button>
         -->
         <button class="button toggle-programs" id="toggle_programs">
-            <svg class="button__icon"
-                 viewBox="0 0 512 512">
+            <svg class="button__icon" viewBox="0 0 512 512">
                 <g>
                     <g>
                         <rect y="80.696" width="512" height="70.678"/>
@@ -279,28 +276,51 @@
 <div id="about" class="about" style="display: none">
     <div class="about__content">
         <div class="about__main">
+            <h2 class="about__heading">ТЕЛЕпорт</h2>
             <p class="about__text">
-                Насладитесь телевидением прошлых лет (с советской эпохи и до 2010 года) с нашим ТЕЛЕпортом. Просто
-                выберите канал и год - или доверьтесь случайности.
+                Добро пожаловать на наш скромный симулятор лампового аналогового телека 90-х и нулевых. Выбрать ли что-то конкретное или довериться случаю - решать вам.
             </p>
-
+            <h2 class="about__heading">Инструкции</h2>
+            <ul class="about__text">
+                <li>Нажмите на <strong>экран телевизора</strong>, чтобы перейти к следующему видео.</li>
+                <li>Выберите канал с помощью <strong>пульта</strong>. Нажмите на канал ещё раз, чтобы поменять видео.</li>
+                <li>С помощью кнопок на ТВ можно выбрать конкретный <strong>год</strong> и <strong>жанр</strong> роликов.</li>
+                <li>Кнопки <span class="about__button"><span class="about__button__text">+</span></span>, <span class="about__button"><span class="about__button__text">-</span></span> — следующий/предыдущий
+                    канал соответственно
+                </li>
+                <li>Можно выбрать конкретную передачу с помощью <strong>полки с кассетами</strong> (список всегда случайный)</li>
+                <li>Кнопка <span class="about__button"><svg class="about__button__icon" viewBox="0 0 16 16">
+                        <path d="M14 3.5L8.5 9 7 7.5 12.5 2H10V0h6v6h-2V3.5zM6 0v2H2v12h12v-4h2v6H0V0h6z"
+                              fill-rule="evenodd"/>
+                    </svg>  </span> - посмотреть видео полностью
+                </li>
+            </ul>
             <h2 class="about__heading">Доступность видео</h2>
             <p class="about__text">
-                К сожалению, партия сочла некоторые источники наших архивов (Youtube) вражескими. Вы и так знаете, что
-                использовать для доступа к ним :)<br/>
+                К сожалению, часть видео на сайте залита на "вражеские" источники (Ютуб). При использовании сами-знаете-чего доступный архив может значительно расшириться :)<br/>
                 Если не хотите видеть современную богомерзкую рекламу, то можно использовать любой блокировщик.
+            </p>
+            <h2 class="about__heading">Почему нет сериалов и мультиков?</h2>
+            <p class="about__text">
+                Увы, это считается полноценным пиратством, программы всё же находятся в "серой зоне". Возможно, в будущем ситуация изменится.
             </p>
             <h2 class="about__heading">Есть что предложить?</h2>
             <p class="about__text">
-                Если у вас всё ещё хранятся кассеты или любой другой носитель с записями передач, которых нет на сайте,
-                то вы можете <a target="_blank" href="/tape-digitization">помочь архиву</a>.
+                По всем вопросам и предложениям пишите в <a target="_blank" href="https://staroetv.su/contact">форму</a> или <a target="_blank" href="https://t.me/staroetv?direct">напрямую в Телеграм</a>.
+                <br/>
+                Если у вас всё ещё хранятся VHS кассеты или любой другой носитель с записями, которых нет на
+                сайте, то вы можете <a target="_blank" href="https://staroetv.su/tape-digitization">помочь архиву</a>.
             </p>
-            <h2>О проекте</h2>
+
+            <h2 class="about__heading">О проекте</h2>
             <p class="about__text">
-                Разработано <a target="_blank" href="https://mrcatmann.ru">mrcatmann</a> и командой сайта <a
-                    target="_blank" href="https://staroetv.su">"Старый телевизор"</a>.
+                Разработано <a target="_blank" href="https://mrcatmann.ru">mrcatmann</a> и командой сайта <a target="_blank" href="https://staroetv.su">"Старый телевизор"</a>.
                 За основу взята идея проекта <a target="_blank" href="http://myretrotvs.com/">MyRetroTVs</a>.
             </p>
+
+
+
+
         </div>
         <a class="about__close" id="about_close">Продолжить</a>
     </div>

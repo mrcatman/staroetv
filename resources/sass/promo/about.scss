@@ -18,16 +18,14 @@
         color: #fff;
         font-size: 1vw;
         max-width: 35vw;
-        max-height: 90vh;
         padding: 2em;
         border-radius: 1em;
         box-sizing: border-box;
         box-shadow: 0 0 2.5em inset #ffffff30, 0 .5em 5em -2em rgba(255, 255, 255, .5);
-        overflow: auto;
-        overflow-x: hidden;
+
         @include mobile() {
-            font-size: 3.75vw;
-            max-width: 85vw;
+            font-size: 3.5vw;
+            max-width: 92vw;
         }
         a {
             color: inherit;
@@ -42,7 +40,34 @@
             height: 100%;
             background: url('/resources/images/bg.webp');
             background-size: 10em;
-            opacity: .1;
+            opacity: .2;
+            pointer-events: none;
+        }
+    }
+    &__main {
+        max-height: 80vh;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+    &__button {
+        background: rgba(255, 255, 255, .25);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: .25em;
+        width: 1em;
+        height: 1em;
+
+        &__icon {
+            width: .75em;
+            fill: #fff;
+        }
+
+        &__text {
+            font-size: 2em;
+            margin: -.25em 0;
+            display: inline-block;
         }
     }
 
@@ -64,5 +89,10 @@
         &:hover {
             background: #ff8313;
         }
+    }
+    &__heading {
+        margin: 0 0 .25em;
+        font-weight: bold;
+        font-size: 1.375em;
     }
 }
