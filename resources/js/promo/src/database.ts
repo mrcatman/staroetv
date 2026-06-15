@@ -17,12 +17,12 @@ export const Database = {
             });
         },
         getParamsForRecord(record: Promo.Record): [number, number, string] {
+            if (record[8]) {
+                return [0, 0, 'Рекламные ролики'];
+            }
             const channel = this.list.find(channel => channel[0] == record[5]);
             if (!channel) {
                 return [-1, -1, ''];
-            }
-            if (record[8]) {
-                return [0, 0, 'Рекламные ролики'];
             }
 
             if (!channel[6].length) {
