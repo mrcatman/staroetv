@@ -230,7 +230,7 @@ export const Controls = {
     setActiveRecord(record: Promo.Record) {
         if (record) {
             this.buttons.goToRecord.classList.remove('tv__control--disabled');
-            this.buttons.goToRecord.setAttribute('href', `/video/${record[0]}`);
+            this.buttons.goToRecord.setAttribute('href', `https://staroetv.su/video/${record[0]}`);
             this.buttons.goToRecord.setAttribute('target', '_blank');
         } else {
             this.buttons.goToRecord.classList.add('tv__control--disabled');
