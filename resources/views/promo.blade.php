@@ -1,8 +1,3 @@
-@php
-    function _asset($path) {
-       return str_replace('https://staroetv.su', '', Vite::asset($path));
-    }
-@endphp
 <html>
 <head>
     <meta charset="utf-8">
@@ -10,11 +5,11 @@
     <title>ТЕЛЕпорт "Старого Телевизора"</title>
 
     <link rel="preload" href="https://vk.com/js/api/videoplayer.js" as="script"/>
-    <link rel="preload" href="{{_asset('resources/fonts/promo/Electronica-Normal.ttf')}}" as="font"
+    <link rel="preload" href="{{Vite::asset('resources/fonts/promo/Electronica-Normal.ttf')}}" as="font"
           crossorigin="anonymous"/>
-    <link rel="preload" href="{{_asset('resources/fonts/promo/Electronica-Normal.woff2')}}" as="font"
+    <link rel="preload" href="{{Vite::asset('resources/fonts/promo/Electronica-Normal.woff2')}}" as="font"
           type="font/woff2" crossorigin="anonymous">
-    <link rel="preload" href="{{_asset('resources/images/promo/background.webp')}}" as="image"/>
+    <link rel="preload" href="{{Vite::asset('resources/images/promo/background.webp')}}" as="image"/>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100..900&display=swap" rel="stylesheet">
@@ -94,10 +89,10 @@
                     </div>
                 </div>
                 <video autoplay muted loop class="tv__noise" id="noise" style="opacity: 0">
-                    <source src="{{_asset('resources/images/promo/noise.webm')}}" type="video/webm">
+                    <source src="{{Vite::asset('resources/images/promo/noise.webm')}}" type="video/webm">
                 </video>
                 <video autoplay muted loop class="tv__intro" id="intro">
-                    <source src="{{_asset('resources/images/promo/intro.mp4')}}" type="video/mp4">
+                    <source src="{{Vite::asset('resources/images/promo/intro.mp4')}}" type="video/mp4">
                 </video>
                 <div id="player" class="tv__player"></div>
             </div>
