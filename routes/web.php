@@ -105,16 +105,8 @@ if (!function_exists('defineCrudRoutes')) {
     }
 }
 
-Route::domain('teleport.staroetv.su')->middleware(DisableCookies::class)->group(function () {
-    Route::get('/', [PromoController::class, 'index']);
-    Route::any('{any}', function () {
-        return redirect('/');
-    })->where('any', '.*');
-});
 
 Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], function () {
-
-
     Route::get('/', [IndexController::class, 'index'])->name('index');
     Route::get('/promo', [PromoController::class, 'index'])->name('promo.index');
 
