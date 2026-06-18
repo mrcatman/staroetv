@@ -11,6 +11,7 @@
 |
 */
 
+use App\Http\Middleware\DisableCookies;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ArticlesController;
 use App\Http\Controllers\Auth\ProfileController;
@@ -104,13 +105,16 @@ if (!function_exists('defineCrudRoutes')) {
     }
 }
 
+Route::domain('teleport.staroetv.su')->middleware(DisableCookies::class)->group(function () {
+    Route::get('/', [PromoController::class, 'index']);
+    Route::any('{any}', function () {
+        return redirect('/');
+    })->where('any', '.*');
+});
+
 Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], function () {
-    Route::domain('teleport.staroetv.su')->group(function () {
-        Route::get('/', [PromoController::class, 'index']);
-        Route::any('{any}', function () {
-            return redirect('/');
-        })->where('any', '.*');
-    });
+
+
     Route::get('/', [IndexController::class, 'index'])->name('index');
     Route::get('/promo', [PromoController::class, 'index'])->name('promo.index');
 
