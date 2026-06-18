@@ -105,9 +105,8 @@ if (!function_exists('defineCrudRoutes')) {
     }
 }
 
-
-Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], function () {
-    Route::get('/', [IndexController::class, 'index'])->name('index');
+$domain = request()->host() !== 'teleport.staroetv.su' ? request()->host() : 'staroetv.su';
+Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class, 'domain' => $domain], function () {
     Route::get('/promo', [PromoController::class, 'index'])->name('promo.index');
 
     Route::get('/new-design', function () {
@@ -824,5 +823,6 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], 
         return view('blocks.global.garland');
     });
 
+    Route::get('/', [IndexController::class, 'index'])->name('index');
     Route::get('{url}', [PagesController::class, 'showByURL'])->name('page-by-url');
 });
