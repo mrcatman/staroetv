@@ -107,6 +107,9 @@ if (!function_exists('defineCrudRoutes')) {
 Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class], function () {
     Route::domain('teleport.staroetv.su')->group(function () {
         Route::get('/', [PromoController::class, 'index']);
+        Route::any('{any}', function () {
+            return redirect('/');
+        })->where('any', '.*');
     });
     Route::get('/', [IndexController::class, 'index'])->name('index');
     Route::get('/promo', [PromoController::class, 'index'])->name('promo.index');

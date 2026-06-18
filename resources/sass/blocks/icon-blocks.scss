@@ -5,6 +5,7 @@
     align-items: center;
     width: 100%;
     gap: var(--col-margin);
+    text-decoration: none;
     @include mobile() {
         font-size: 1em;
     }
