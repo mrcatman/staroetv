@@ -88,6 +88,7 @@
                         <div class="tv__not-found__text__description">Попробуйте изменить канал, год или жанр</div>
                     </div>
                 </div>
+                <div class="tv__flash" id="flash" style="opacity: 0"></div>
                 <video autoplay muted loop class="tv__noise" id="noise" style="opacity: 0">
                     <source src="{{Vite::asset('resources/images/promo/noise.webm')}}" type="video/webm">
                 </video>

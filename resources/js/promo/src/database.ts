@@ -264,7 +264,8 @@ export const Database = {
             initMediaIfReady();
             Loader.increment(15);
         });
-        this.records.loadPage(1).then(() => {
+
+        this.records.loadPage(Math.ceil(Math.random() * RECORDS_PAGES_COUNT)).then(() => {
             recordsLoaded= true;
             initMediaIfReady();
             Loader.increment(15)

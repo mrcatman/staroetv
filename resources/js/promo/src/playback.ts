@@ -3,6 +3,8 @@ import { createPlayer } from "./players";
 import { getRandomDurationPoint } from "../utils";
 import { Controls } from "./controls";
 
+const RECORD_PLAY_TIMEOUT = 1000 * 12;
+
 export const Playback = {
     playerRoot: document.getElementById('player'),
     inner: document.getElementById('inner'),
@@ -10,6 +12,7 @@ export const Playback = {
     intro: document.getElementById('intro'),
     overlay: document.getElementById('overlay'),
     notFound: document.getElementById('not_found'),
+    flash: document.getElementById('flash'),
 
     currentChannelNumber: document.getElementById('channel_number'),
     currentChannelName: document.getElementById('channel_name'),
@@ -20,6 +23,8 @@ export const Playback = {
     record: null as Promo.Record,
     params: {} as Promo.PlaybackParams,
     player: null as Promo.Player,
+
+    recordTimeout: null,
 
     hideTitleOverlayTimeout: null,
     playedRecordsCount: 0,
@@ -43,6 +48,8 @@ export const Playback = {
     },
 
     async start({ force, skipOnNonExisting, doNotSeekToRandomTime} = {force: false, skipOnNonExisting: false, doNotSeekToRandomTime: false}): Promise<boolean> {
+        clearTimeout(this.recordTimeout);
+
         this.updateDisplay('Загрузка видео...');
 
         this.active = true;
@@ -53,8 +60,14 @@ export const Playback = {
         this.intro.style.opacity = '0';
         this.intro.style.pointerEvents = 'none';
 
+        this.flash.style.opacity = '1';
+        setTimeout(() => {
+            this.flash.style.opacity = '0';
+        }, 200);
+
         this.noise.style.opacity = '1';
         this.playerRoot.style.display = 'block';
+
         const [record, seekTo] = await Database.records.get(this.params, force);
 
         console.log('Start record', record, this.params);
@@ -72,6 +85,8 @@ export const Playback = {
             return false;
         }
 
+        let started = false;
+
         this.record = record;
         this.currentChannelIndex = Database.channels.getIndexForRecord(this.record);
 
@@ -88,6 +103,7 @@ export const Playback = {
             this.start();
         });
         this.player.on('started', () => {
+            started = true;
             this.playedRecordsCount++;
             Controls.setActiveRecord(this.record);
             this.showTitle();
@@ -97,6 +113,7 @@ export const Playback = {
 
             const endsAt = new Date().getTime() + (this.player.getDuration() - this.player.getCurrentTime()) * 1000;
             Database.records.updateNowPlaying(this.record, endsAt);
+            clearTimeout(this.recordTimeout);
         });
 
         await this.player.load(this.record[2], this.playerRoot);
@@ -112,6 +129,17 @@ export const Playback = {
                 this.player.setVolume(parseFloat(localStorage.getItem('volume')) ?? 1);
             } catch (e) {}
         }, 200);
+
+        this.recordTimeout = setTimeout(() => {
+            if (!started) {
+                console.log(`Record not started in ${RECORD_PLAY_TIMEOUT}ms, trying a new one...`);
+                this.start({
+                    force: true,
+                    skipOnNonExisting,
+                    doNotSeekToRandomTime
+                })
+            }
+        }, RECORD_PLAY_TIMEOUT);
 
         if (this.playedRecordsCount >= 2) {
             Database.records.loadAll();
