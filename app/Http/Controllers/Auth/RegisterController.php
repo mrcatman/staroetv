@@ -26,12 +26,12 @@ class RegisterController extends Controller
         GeolocationHelper $geolocation
     )
     {
-        if (!CaptchaHelper::verify()) {
-            return [
-                'status' => 0,
-                'text' => 'Скорее всего вы робот :(',
-            ];
-        }
+//        if (!CaptchaHelper::verify()) {
+//            return [
+//                'status' => 0,
+//                'text' => 'Скорее всего вы робот :(',
+//            ];
+//        }
 
         if (!request()->input('rules')) {
             return [
