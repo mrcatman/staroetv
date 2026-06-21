@@ -1,5 +1,5 @@
 export const getRandomDurationPoint = (duration: number) => {
-    const maxPointPercent = .8;
+    const maxPointPercent = .65;
     return Math.random() * maxPointPercent * duration;
 }
 

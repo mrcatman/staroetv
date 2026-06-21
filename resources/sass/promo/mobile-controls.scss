@@ -11,7 +11,7 @@
         width: .925em;
         position: fixed;
         bottom: 0;
-        height: .9375em;
+        height: .75em;
         line-height: .5;
         padding: .25em;
         background: linear-gradient(to bottom, #222, #262626);
@@ -34,7 +34,7 @@
             transform: translateY(.025em);
         }
         &--center {
-            padding: .125em .35em;
+            padding: .075em .35em;
             left: calc(50vw - 1em);
             width: 1.3125em;
             border-radius: .125em;
@@ -93,7 +93,7 @@
     }
 
     &__toggle-remote {
-        bottom: .75em;
+        bottom: .65em;
     }
     &__random-channel {
         bottom: 0;

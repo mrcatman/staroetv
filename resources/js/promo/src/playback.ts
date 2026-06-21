@@ -46,11 +46,11 @@ export const Playback = {
         return await this.start({force, skipOnNonExisting});
     },
 
-    async start({ force, skipOnNonExisting, doNotSeekToRandomTime} = {force: false, skipOnNonExisting: false, doNotSeekToRandomTime: false}): Promise<boolean> {
+    async start({ force, skipOnNonExisting, doNotSeekToRandomTime, tries} = {force: false, skipOnNonExisting: false, doNotSeekToRandomTime: false, tries: 0}): Promise<boolean> {
         return new Promise(async (resolve) => {
             clearTimeout(this.recordTimeout);
 
-            this.updateDisplay('Загрузка видео...');
+            this.updateDisplay(tries > 0 ? `${tries + 1} попытка поймать канал...` : 'Ловим канал...');
 
             this.active = true;
             this.destroy();
@@ -138,7 +138,8 @@ export const Playback = {
                     this.start({
                         force: true,
                         skipOnNonExisting,
-                        doNotSeekToRandomTime
+                        doNotSeekToRandomTime,
+                        tries: tries + 1
                     })
                 }
             }, RECORD_PLAY_TIMEOUT);
@@ -195,7 +196,6 @@ export const Playback = {
                     program_id: undefined,
                     commercials: undefined
                 }, true);
-                console.log('state', state, channel[0]);
             }
 
         }
