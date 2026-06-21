@@ -12,7 +12,6 @@ export const Playback = {
     intro: document.getElementById('intro'),
     overlay: document.getElementById('overlay'),
     notFound: document.getElementById('not_found'),
-    flash: document.getElementById('flash'),
 
     currentChannelNumber: document.getElementById('channel_number'),
     currentChannelName: document.getElementById('channel_name'),
@@ -48,103 +47,106 @@ export const Playback = {
     },
 
     async start({ force, skipOnNonExisting, doNotSeekToRandomTime} = {force: false, skipOnNonExisting: false, doNotSeekToRandomTime: false}): Promise<boolean> {
-        clearTimeout(this.recordTimeout);
-
-        this.updateDisplay('Загрузка видео...');
-
-        this.active = true;
-        this.destroy();
-
-        this.notFound.style.display = 'none';
-        this.overlay.style.display = 'none';
-        this.intro.style.opacity = '0';
-        this.intro.style.pointerEvents = 'none';
-
-        this.flash.style.opacity = '1';
-        setTimeout(() => {
-            this.flash.style.opacity = '0';
-        }, 200);
-
-        this.noise.style.opacity = '1';
-        this.playerRoot.style.display = 'block';
-
-        const [record, seekTo] = await Database.records.get(this.params, force);
-
-        console.log('Start record', record, this.params);
-
-        if (!record) {
-            Controls.setActiveRecord(null);
-            this.updateDisplay('Ничего не найдено');
-            this.notFound.style.display = '';
-            this.stop();
-            if (!skipOnNonExisting) {
-                this.intro.style.opacity = '0';
-                this.noise.style.opacity = '0';
-                this.intro.style.pointerEvents = 'none';
-            }
-            return false;
-        }
-
-        let started = false;
-
-        this.record = record;
-        this.currentChannelIndex = Database.channels.getIndexForRecord(this.record);
-
-        this.player = createPlayer(this.record[2]);
-
-        this.player.on('error', (e) => {
-            console.log('Player error: ', e);
-
-            this.destroy();
-            this.start();
-        });
-        this.player.on('ended', () => {
-            console.log('Playback ended');
-            this.start();
-        });
-        this.player.on('started', () => {
-            started = true;
-            this.playedRecordsCount++;
-            Controls.setActiveRecord(this.record);
-            this.showTitle();
-            this.noise.style.opacity = '0';
-
-            this.params.program_id = undefined;
-
-            const endsAt = new Date().getTime() + (this.player.getDuration() - this.player.getCurrentTime()) * 1000;
-            Database.records.updateNowPlaying(this.record, endsAt);
+        return new Promise(async (resolve) => {
             clearTimeout(this.recordTimeout);
-        });
 
-        await this.player.load(this.record[2], this.playerRoot);
+            this.updateDisplay('Загрузка видео...');
 
-        if (!this.params.commercials && !doNotSeekToRandomTime) {
-            const seekToTime = seekTo ?? getRandomDurationPoint(this.player.getDuration());
-            seekToTime && this.player.seek(seekToTime);
-        }
+            this.active = true;
+            this.destroy();
 
-        this.player.play();
-        setTimeout(() => {
-            try {
-                this.player.setVolume(parseFloat(localStorage.getItem('volume')) ?? 1);
-            } catch (e) {}
-        }, 200);
+            this.notFound.style.display = 'none';
+            this.overlay.style.display = 'none';
+            this.intro.style.opacity = '0';
+            this.intro.style.pointerEvents = 'none';
 
-        this.recordTimeout = setTimeout(() => {
-            if (!started) {
-                console.log(`Record not started in ${RECORD_PLAY_TIMEOUT}ms, trying a new one...`);
-                this.start({
-                    force: true,
-                    skipOnNonExisting,
-                    doNotSeekToRandomTime
-                })
+            this.noise.style.opacity = '1';
+            this.playerRoot.style.display = 'block';
+
+            const [record, seekTo] = await Database.records.get(this.params, force);
+
+            console.log('Start record', record, this.params);
+
+            if (!record) {
+                Controls.setActiveRecord(null);
+                this.updateDisplay('Ничего не найдено');
+                this.notFound.style.display = '';
+                this.stop();
+                if (!skipOnNonExisting) {
+                    this.intro.style.opacity = '0';
+                    this.noise.style.opacity = '0';
+                    this.intro.style.pointerEvents = 'none';
+                }
+                return resolve(false);
             }
-        }, RECORD_PLAY_TIMEOUT);
 
-        if (this.playedRecordsCount >= 2) {
-            Database.records.loadAll();
-        }
-        return true;
+            let started = false;
+
+            this.record = record;
+            this.currentChannelIndex = Database.channels.getIndexForRecord(this.record);
+
+            this.player = createPlayer(this.record[2]);
+
+            this.player.on('error', (e) => {
+                console.log('Player error: ', e);
+                Database.records.markError(record);
+
+                this.destroy();
+                this.start();
+
+                return resolve(false);
+            });
+            this.player.on('ended', () => {
+                console.log('Playback ended');
+                this.start({doNotSeekToRandomTime: this.params.channel_id});
+            });
+            this.player.on('started', () => {
+                started = true;
+                this.playedRecordsCount++;
+                Controls.setActiveRecord(this.record);
+                this.showTitle();
+                this.noise.style.opacity = '0';
+
+                this.params.program_id = undefined;
+
+                const endsAt = new Date().getTime() + (this.player.getDuration() - this.player.getCurrentTime()) * 1000;
+                Database.records.updateNowPlaying(this.record, endsAt);
+                clearTimeout(this.recordTimeout);
+
+                return resolve(true);
+            });
+
+            await this.player.load(this.record[2], this.playerRoot);
+
+            if (!this.params.commercials && !doNotSeekToRandomTime) {
+                const seekToTime = seekTo ?? getRandomDurationPoint(this.player.getDuration());
+                seekToTime && this.player.seek(seekToTime);
+            }
+
+            this.player.play();
+            setTimeout(() => {
+                try {
+                    this.player.setVolume(parseFloat(localStorage.getItem('volume')) ?? 1);
+                } catch (e) {
+                }
+            }, 200);
+
+            this.recordTimeout = setTimeout(() => {
+                console.log('started', started);
+                if (!started) {
+                    console.log(`Record not started in ${RECORD_PLAY_TIMEOUT}ms, trying a new one...`);
+                    this.start({
+                        force: true,
+                        skipOnNonExisting,
+                        doNotSeekToRandomTime
+                    })
+                }
+            }, RECORD_PLAY_TIMEOUT);
+
+            if (this.playedRecordsCount >= 2) {
+                Database.records.loadAll();
+            }
+        });
     },
     destroy() {
         this.playerRoot.style.display = 'none';
@@ -177,7 +179,7 @@ export const Playback = {
             if (this.currentChannelIndex < 0) {
                 this.currentChannelIndex = Database.channels.list.length - 1;
             }
-            if (this.currentChannelIndex > Database.channels.list.length ) {
+            if (this.currentChannelIndex > Database.channels.list.length) {
                 this.currentChannelIndex = 0;
             }
             if (this.currentChannelIndex === 0) {
@@ -193,6 +195,7 @@ export const Playback = {
                     program_id: undefined,
                     commercials: undefined
                 }, true);
+                console.log('state', state, channel[0]);
             }
 
         }

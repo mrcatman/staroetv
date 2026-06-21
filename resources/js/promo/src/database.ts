@@ -107,6 +107,7 @@ export const Database = {
         loadedPages: [],
         lastPlayed: {},
         nowPlaying: {} as Promo.NowPlayingRecords,
+        recordsWithErrors: [],
 
         async loadPage(page: number) {
             if (this.loadedPages.includes(page)) {
@@ -137,7 +138,7 @@ export const Database = {
 
                 let item = this.find(params);
                 let initialItem = null;
-                if (item && this.lastPlayed[item[5]] && this.lastPlayed[item[5]].includes(item[0])) {
+                if (item && (this.recordsWithErrors.includes(item[0]) || (this.lastPlayed[item[5]] && this.lastPlayed[item[5]].includes(item[0])))) {
                     initialItem = item;
                     item = null;
                 }
@@ -170,11 +171,17 @@ export const Database = {
                     }
                 } else {
                     item = item || initialItem;
+                    if (!item || this.recordsWithErrors.includes(item[0])) {
+                        resolve([null]);
+                    }
 
                     addToLastPlayed(item);
                     resolve([item]);
                 }
             });
+        },
+        markError(record: Promo.Record) {
+            this.recordsWithErrors.push(record[0]);
         },
         find(params: Promo.PlaybackParams): Promo.Record {
             let list = this.list;

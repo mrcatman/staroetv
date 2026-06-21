@@ -103,11 +103,23 @@
         <div class="tv__controls">
             <div class="tv__controls__group tv__controls__group--desktop-only">
                 <div class="tv__control" id="control_prev_channel">
-                    <span class="tv__control__icon tv__control__icon--text tv__control__icon--prev-channel">-</span>
+                    <svg class="tv__control__icon" viewBox="-5.5 0 26 26">
+                        <g fill-rule="evenodd" >
+                            <g  transform="translate(-423.000000, -1196.000000)">
+                                <path d="M428.115,1209 L437.371,1200.6 C438.202,1199.77 438.202,1198.43 437.371,1197.6 C436.541,1196.76 435.194,1196.76 434.363,1197.6 L423.596,1207.36 C423.146,1207.81 422.948,1208.41 422.985,1209 C422.948,1209.59 423.146,1210.19 423.596,1210.64 L434.363,1220.4 C435.194,1221.24 436.541,1221.24 437.371,1220.4 C438.202,1219.57 438.202,1218.23 437.371,1217.4 L428.115,1209" id="chevron-left" sketch:type="MSShapeGroup"></path>
+                            </g>
+                        </g>
+                    </svg>
                     <span class="tooltip">Предыдущий канал</span>
                 </div>
                 <div class="tv__control" id="control_next_channel">
-                    <span class="tv__control__icon tv__control__icon--text">+</span>
+                    <svg class="tv__control__icon" viewBox="-5.5 0 26 26">
+                        <g  fill-rule="evenodd">
+                            <g  transform="translate(-474.000000, -1196.000000)" >
+                                <path d="M488.404,1207.36 L477.637,1197.6 C476.806,1196.76 475.459,1196.76 474.629,1197.6 C473.798,1198.43 473.798,1199.77 474.629,1200.6 L483.885,1209 L474.629,1217.4 C473.798,1218.23 473.798,1219.57 474.629,1220.4 C475.459,1221.24 476.806,1221.24 477.637,1220.4 L488.404,1210.64 C488.854,1210.19 489.052,1209.59 489.015,1209 C489.052,1208.41 488.854,1207.81 488.404,1207.36" id="chevron-right" sketch:type="MSShapeGroup"></path>
+                            </g>
+                        </g>
+                    </svg>
                     <span class="tooltip">Следующий канал</span>
                 </div>
 
@@ -125,14 +137,14 @@
 
             <div class="tv__category">
                 <div class="tv__category__label">Год</div>
-                <button class="tv__category__value" id="control_year">любой</button>
+                <button class="tv__category__value tv__category__value--years" id="control_year">любой</button>
                 <div style="display: none" class="tv__category__list tv__category__list--years"
                      id="control_year_list"></div>
             </div>
 
             <div class="tv__category">
                 <div class="tv__category__label">Жанр</div>
-                <button class="tv__category__value" id="control_genre">любой</button>
+                <button class="tv__category__value tv__category__value--genres" id="control_genre">любой</button>
                 <div style="display: none" class="tv__category__list tv__category__list--genres"
                      id="control_genre_list"></div>
             </div>
@@ -202,15 +214,27 @@
     <div class="mobile-controls">
         <a class="mobile-controls__button mobile-controls__change-channel mobile-controls__change-channel--prev"
            id="mobile_control_prev_channel">
-            <div class="mobile-controls__text">-</div>
+            <svg class="mobile-controls__icon" viewBox="-5.5 0 26 26">
+                <g fill-rule="evenodd" >
+                    <g  transform="translate(-423.000000, -1196.000000)">
+                        <path d="M428.115,1209 L437.371,1200.6 C438.202,1199.77 438.202,1198.43 437.371,1197.6 C436.541,1196.76 435.194,1196.76 434.363,1197.6 L423.596,1207.36 C423.146,1207.81 422.948,1208.41 422.985,1209 C422.948,1209.59 423.146,1210.19 423.596,1210.64 L434.363,1220.4 C435.194,1221.24 436.541,1221.24 437.371,1220.4 C438.202,1219.57 438.202,1218.23 437.371,1217.4 L428.115,1209" id="chevron-left" sketch:type="MSShapeGroup"></path>
+                    </g>
+                </g>
+            </svg>
             <div class="mobile-controls__label">Пред. канал</div>
         </a>
         <a class="mobile-controls__button mobile-controls__change-channel mobile-controls__change-channel--next"
            id="mobile_control_next_channel">
-            <div class="mobile-controls__text">+</div>
+            <svg class="mobile-controls__icon" viewBox="-5.5 0 26 26">
+                 <g  fill-rule="evenodd">
+                    <g  transform="translate(-474.000000, -1196.000000)" >
+                        <path d="M488.404,1207.36 L477.637,1197.6 C476.806,1196.76 475.459,1196.76 474.629,1197.6 C473.798,1198.43 473.798,1199.77 474.629,1200.6 L483.885,1209 L474.629,1217.4 C473.798,1218.23 473.798,1219.57 474.629,1220.4 C475.459,1221.24 476.806,1221.24 477.637,1220.4 L488.404,1210.64 C488.854,1210.19 489.052,1209.59 489.015,1209 C489.052,1208.41 488.854,1207.81 488.404,1207.36" id="chevron-right" sketch:type="MSShapeGroup"></path>
+                    </g>
+                </g>
+            </svg>
             <div class="mobile-controls__label">След. канал</div>
         </a>
-        <a class="mobile-controls__button mobile-controls__refresh" id="toggle_remote">
+        <a class="mobile-controls__button mobile-controls__button--center mobile-controls__toggle-remote" id="toggle_remote">
             <svg class="mobile-controls__icon" viewBox="0 -0.5 21 21">
                 <g stroke="none" stroke-width="1" fill-rule="evenodd">
                     <g transform="translate(-99.000000, -200.000000)">
@@ -223,6 +247,16 @@
                 </g>
             </svg>
             <div class="mobile-controls__label">Показать пульт</div>
+        </a>
+        <a class="mobile-controls__button mobile-controls__button--center mobile-controls__random-channel" id="random_channel">
+            <svg class="mobile-controls__icon" viewBox="50 50 430 430" >
+                <g stroke-width="1" fill-rule="evenodd">
+                    <g id="icon" transform="translate(46.976875, 46.976875)">
+                        <path d="M379.689791,38.3564581 L379.689791,379.689791 L38.3564581,379.689791 L38.3564581,38.3564581 L379.689791,38.3564581 Z M283.689791,251.689791 C266.016679,251.689791 251.689791,266.016679 251.689791,283.689791 C251.689791,301.362903 266.016679,315.689791 283.689791,315.689791 C301.362903,315.689791 315.689791,301.362903 315.689791,283.689791 C315.689791,266.016679 301.362903,251.689791 283.689791,251.689791 Z M209.023125,177.023125 C191.350013,177.023125 177.023125,191.350013 177.023125,209.023125 C177.023125,226.696237 191.350013,241.023125 209.023125,241.023125 C226.696237,241.023125 241.023125,226.696237 241.023125,209.023125 C241.023125,191.350013 226.696237,177.023125 209.023125,177.023125 Z M134.356458,102.356458 C116.683346,102.356458 102.356458,116.683346 102.356458,134.356458 C102.356458,152.02957 116.683346,166.356458 134.356458,166.356458 C152.02957,166.356458 166.356458,152.02957 166.356458,134.356458 C166.356458,116.683346 152.02957,102.356458 134.356458,102.356458 Z" id="Combined-Shape" transform="translate(209.023125, 209.023125) rotate(-345.000000) translate(-209.023125, -209.023125) "></path>
+                    </g>
+                </g>
+            </svg>
+            <div class="mobile-controls__label">Случайный канал</div>
         </a>
 
         <!--
@@ -279,7 +313,7 @@
         <div class="about__main">
             <h2 class="about__heading">ТЕЛЕпорт</h2>
             <p class="about__text">
-                Добро пожаловать на наш скромный симулятор лампового аналогового телека 90-х и нулевых. Выбрать ли что-то конкретное или довериться случаю - решать вам.
+                Добро пожаловать на наш скромный симулятор лампового аналогового телека 90-х и нулевых.
             </p>
             <h2 class="about__heading">Инструкции</h2>
             <ul class="about__text">
@@ -319,16 +353,26 @@
                 За основу взята идея проекта <a target="_blank" href="http://myretrotvs.com/">MyRetroTVs</a>.
             </p>
 
-
-
-
         </div>
         <a class="about__close" id="about_close">Продолжить</a>
     </div>
 </div>
-
-
 </body>
 @routes
 @vite(['resources/js/promo/index.ts'])
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=110041560', 'ym');
+
+    ym(110041560, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/110041560" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+
 </html>

@@ -4,9 +4,6 @@ import { Resources } from "./resources";
 import { Playback } from "./playback";
 import { About } from "./about";
 
-//const reloadProgramsButton = document.getElementById('reload_programs') as HTMLButtonElement;
-//reloadProgramsButton.addEventListener('click', loadPrograms);
-
 export const Controls = {
     allChannels: false,
     main: document.getElementById('main'),
@@ -16,6 +13,7 @@ export const Controls = {
     remoteMain: document.getElementById('remote_main'),
     remoteAll: document.getElementById('remote_all'),
     remoteAllChannels: document.getElementById('remote_all_channels'),
+    flash: document.getElementById('flash'),
 
     programsReloadCount: 0,
 
@@ -42,6 +40,7 @@ export const Controls = {
         genresList: document.getElementById('control_genre_list'),
 
         random: document.getElementById('remote_random'),
+        randomMobile: document.getElementById('random_channel'),
         commercials: document.getElementById('remote_commercials'),
 
         volume: document.getElementById('control_volume'),
@@ -215,6 +214,7 @@ export const Controls = {
         this.buttons.genre.addEventListener('click', () => this.showGenres());
 
         this.buttons.random.addEventListener('click', () => this.randomChannel());
+        this.buttons.randomMobile.addEventListener('click', () => this.randomChannel());
         this.buttons.commercials.addEventListener('click', () => this.commercials());
         this.buttons.onOff.addEventListener('click', () => this.onOff());
 
@@ -224,6 +224,11 @@ export const Controls = {
         this.buttons.programsBack.addEventListener('click', () => this.programsBack());
     },
     changeChannel(delta: number) {
+        this.flash.style.opacity = '1';
+        setTimeout(() => {
+            this.flash.style.opacity = '0';
+        }, 200);
+
         Playback.changeChannel(delta);
         this.initPrograms();
     },

@@ -8,12 +8,12 @@
 
     &__button {
         font-size: 20vw;
-        width: .875em;
+        width: .925em;
         position: fixed;
         bottom: 0;
-        height: .5em;
+        height: .9375em;
         line-height: .5;
-        padding: .25em .35em;
+        padding: .25em;
         background: linear-gradient(to bottom, #222, #262626);
         box-shadow: 0 0 0.75em inset #111, 0 0 1em -0.5em #111;
         text-shadow: 0 .05em .1em #000;
@@ -29,6 +29,36 @@
         &:hover {
             color: #ff6a00;
         }
+        &:active {
+            filter: brightness(1.2);
+            transform: translateY(.025em);
+        }
+        &--center {
+            padding: .125em .35em;
+            left: calc(50vw - 1em);
+            width: 1.3125em;
+            border-radius: .125em;
+            height: .4375em;
+            flex-direction: row;
+            align-items: center;
+            gap: .125em;
+        }
+    }
+
+    &__icon {
+        width: .4em;
+        min-height: .4em;
+        height: .4em;
+        margin-bottom: .125em;
+        fill: currentColor;
+        filter: drop-shadow(0 .1em .125em #000);
+    }
+
+    &__button--center &__icon {
+        margin-bottom: 0;
+        min-width: .25em;
+        width: .25em;
+        height: .25em;
     }
 
     &__text {
@@ -47,13 +77,14 @@
     &__change-channel {
         &--prev {
             left: 0;
-
-            border-top-right-radius: .25em;
+            border-top-left-radius: 1em;
+            border-bottom-left-radius: 1em;
         }
 
         &--next {
             right: 0;
-            border-top-left-radius: .25em;
+            border-top-right-radius: 1em;
+            border-bottom-right-radius: 1em;
         }
     }
 
@@ -61,20 +92,15 @@
         line-height: .35;
     }
 
-    &__icon {
-        width: .3125em;
-        min-height: .3125em;
-        height: .3125em;
-        margin-bottom: .125em;
-        fill: currentColor;
-        filter: drop-shadow(0 .1em .125em #000);
+    &__toggle-remote {
+        bottom: .75em;
+    }
+    &__random-channel {
+        bottom: 0;
     }
 
-    &__refresh {
-        left: calc(50vw - .785em);
-        border-top-right-radius: .25em;
-        border-top-left-radius: .25em;
-    }
+
+
 }
 
 .toggle-programs {

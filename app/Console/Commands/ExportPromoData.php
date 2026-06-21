@@ -69,7 +69,7 @@ class ExportPromoData extends Command
                 })->values();
                 $highlight = $program->channel->is_federal && $program->views > 100;
 
-                $channel_ids = [$program->channel_id, $program->additionalChannels->pluck('id')];
+                $channel_ids = $program->additionalChannels->pluck('channel_id')->prepend($program->channel_id);
                 $data['programs'][] = [
                     $program->id,
                     $program->name,
