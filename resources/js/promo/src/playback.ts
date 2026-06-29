@@ -116,12 +116,12 @@ export const Playback = {
                 return resolve(true);
             });
 
+            await this.player.load(this.record[2], this.playerRoot);
+
             if (!this.params.commercials && !doNotSeekToRandomTime) {
                 const seekToTime = seekTo ?? getRandomDurationPoint(this.record[10]);
                 seekToTime && this.player.seek(seekToTime);
             }
-
-            await this.player.load(this.record[2], this.playerRoot);
 
             this.player.play();
             setTimeout(() => {
