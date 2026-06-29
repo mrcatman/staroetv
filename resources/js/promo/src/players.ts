@@ -19,6 +19,9 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
                 this.emit('started');
                 setTimeout(() => {
                     this.instance.unmute();
+                    setTimeout(() => {
+                        this.instance.play();
+                    }, 500);
                 }, 1000);
             });
             this.instance.on('error', (e) => this.emit('error', e));
