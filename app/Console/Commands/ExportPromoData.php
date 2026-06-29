@@ -31,10 +31,10 @@ class ExportPromoData extends Command
             842 // Вторая программа ЦТ
         ];
 
-        $main_cities = ['Москва', 'Санкт-Петербург', 'Екатеринбург', 'Новосибирск', 'Казань', 'Нижний Новгород', 'Красноярск', 'Самара'];
+        $main_cities = collect(['Москва', 'Санкт-Петербург', 'Екатеринбург', 'Новосибирск', 'Казань', 'Нижний Новгород', 'Красноярск', 'Самара']);
 
         $channels = $channels_query->clone()->where(['is_federal' => true])->whereNotIn('id', $excluded)->orderBy('order', 'ASC')->get()
-            ->merge($channels_query->clone()->where(['is_federal' => false])->whereIn('city', $main_cities)->orderByRaw("FIELD(city, '" . $regional_counts->keys()->join("','") . "')")->get()
+            ->merge($channels_query->clone()->where(['is_federal' => false])->whereIn('city', $main_cities)->orderByRaw("FIELD(city, '" . $main_cities->join("','") . "')")->get())
             ->merge($channels_query->clone()->where(['is_federal' => false])->whereNull('city')->orderBy('order', 'ASC')->get())
             ->merge($channels_query->clone()->where(['is_federal' => false])->whereNotNull('city')->whereNotIn('city', $main_cities)->orderByRaw("FIELD(city, '" . $regional_counts->keys()->join("','") . "')")->get());
 
