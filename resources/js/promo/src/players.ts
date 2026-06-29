@@ -7,22 +7,19 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
 
     load(url: string, container: HTMLDivElement)  {
         return new Promise<void>((resolve, reject) => {
-            container.innerHTML = `<iframe src="${url}&js_api=1" frameborder="0" allowfullscreen allow="autoplay"></iframe>`;
+            container.innerHTML = `<iframe src="${url}&js_api=1&autoplay=1" frameborder="0" allowfullscreen allow="autoplay"></iframe>`;
 
             const iframe = container.querySelector('iframe');
             this.instance = VK.VideoPlayer(iframe);
             this.instance.on('inited', () => {
+                this.instance.unmute();
                 resolve();
             })
 
             this.instance.on('started', () => {
                 this.emit('started');
-                setTimeout(() => {
-                    this.instance.unmute();
-                    setTimeout(() => {
-                        this.instance.play();
-                    }, 500);
-                }, 1000);
+                this.instance.unmute();
+                this.instance.play();
             });
             this.instance.on('error', (e) => this.emit('error', e));
             this.instance.on('timeupdate', () => {
@@ -59,6 +56,8 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
     }
 
     setVolume(volume: number) {
+        this.instance.unmute();
+        this.instance.play();
         this.instance.setVolume(volume);
     }
 }
