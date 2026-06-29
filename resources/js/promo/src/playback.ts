@@ -119,7 +119,7 @@ export const Playback = {
             await this.player.load(this.record[2], this.playerRoot);
 
             if (!this.params.commercials && !doNotSeekToRandomTime) {
-                const seekToTime = seekTo ?? getRandomDurationPoint(this.record[10]);
+                const seekToTime = seekTo ?? getRandomDurationPoint(this.player.getDuration());
                 seekToTime && this.player.seek(seekToTime);
             }
 
