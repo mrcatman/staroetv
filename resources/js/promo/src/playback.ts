@@ -126,10 +126,12 @@ export const Playback = {
             this.player.play();
             setTimeout(() => {
                 try {
-                    this.player.setVolume(parseFloat(localStorage.getItem('volume')) ?? 1);
+                    this.player.setVolume(1);
+                    //this.player.setVolume(parseFloat(localStorage.getItem('volume')) ?? 1);
                 } catch (e) {
+                    alert(e);
                 }
-            }, 500);
+            }, 1000);
 
             this.recordTimeout = setTimeout(() => {
                 console.log('started', started);
