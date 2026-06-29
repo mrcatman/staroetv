@@ -51,6 +51,7 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
     }
 
     setVolume(volume: number) {
+        this.instance.unmute();
         this.instance.setVolume(volume);
     }
 }
