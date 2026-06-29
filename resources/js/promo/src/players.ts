@@ -15,7 +15,12 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
                 resolve();
             })
 
-            this.instance.on('started', () => this.emit('started'));
+            this.instance.on('started', () => {
+                this.emit('started');
+                setTimeout(() => {
+                    this.instance.unmute();
+                }, 1000);
+            });
             this.instance.on('error', (e) => this.emit('error', e));
             this.instance.on('timeupdate', () => {
                 if (this.isEnded) {
@@ -52,8 +57,6 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
 
     setVolume(volume: number) {
         this.instance.setVolume(volume);
-        this.instance.unmute();
-        alert(JSON.stringify({volume: this.instance.getVolume(), muted: this.instance.isMuted()}));
     }
 }
 
