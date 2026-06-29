@@ -89,10 +89,10 @@
                     </div>
                 </div>
                 <div class="tv__flash" id="flash" style="opacity: 0"></div>
-                <video autoplay muted loop class="tv__noise" id="noise" style="opacity: 0">
+                <video playsinline autoplay muted loop class="tv__noise" id="noise" style="opacity: 0">
                     <source src="{{Vite::asset('resources/images/promo/noise.webm')}}" type="video/webm">
                 </video>
-                <video autoplay muted loop class="tv__intro" id="intro">
+                <video playsinline autoplay muted loop class="tv__intro" id="intro">
                     <source src="{{Vite::asset('resources/images/promo/intro.mp4')}}" type="video/mp4">
                 </video>
                 <div id="player" class="tv__player"></div>
@@ -317,23 +317,36 @@
             </p>
             <h2 class="about__heading">Инструкции</h2>
             <ul class="about__text">
-                <li>Нажмите на <strong>экран телевизора</strong>, чтобы перейти к следующему видео.</li>
-                <li>Выберите канал с помощью <strong>пульта</strong>. Нажмите на канал ещё раз, чтобы поменять видео.</li>
-                <li>С помощью кнопок на ТВ можно выбрать конкретный <strong>год</strong> и <strong>жанр</strong> роликов.</li>
-                <li>Кнопки <span class="about__button"><span class="about__button__text">+</span></span>, <span class="about__button"><span class="about__button__text">-</span></span> — следующий/предыдущий
+                <li>Нажмите на <strong>экран телевизора</strong>, чтобы поменять видео.</li>
+                <li>Можно выбрать конкретный канал с помощью <strong>пульта</strong> (нажмите на канал ещё раз, чтобы включить другое видео с этого канала)</li>
+
+                <li>Кнопки <span class="about__button"> <svg class="about__button__icon" viewBox="-5.5 0 26 26">
+                        <g fill-rule="evenodd" >
+                            <g  transform="translate(-423.000000, -1196.000000)">
+                                <path d="M428.115,1209 L437.371,1200.6 C438.202,1199.77 438.202,1198.43 437.371,1197.6 C436.541,1196.76 435.194,1196.76 434.363,1197.6 L423.596,1207.36 C423.146,1207.81 422.948,1208.41 422.985,1209 C422.948,1209.59 423.146,1210.19 423.596,1210.64 L434.363,1220.4 C435.194,1221.24 436.541,1221.24 437.371,1220.4 C438.202,1219.57 438.202,1218.23 437.371,1217.4 L428.115,1209" id="chevron-left" sketch:type="MSShapeGroup"></path>
+                            </g>
+                        </g>
+                    </svg></span>, <span class="about__button"><svg class="about__button__icon" viewBox="-5.5 0 26 26">
+                        <g  fill-rule="evenodd">
+                            <g  transform="translate(-474.000000, -1196.000000)" >
+                                <path d="M488.404,1207.36 L477.637,1197.6 C476.806,1196.76 475.459,1196.76 474.629,1197.6 C473.798,1198.43 473.798,1199.77 474.629,1200.6 L483.885,1209 L474.629,1217.4 C473.798,1218.23 473.798,1219.57 474.629,1220.4 C475.459,1221.24 476.806,1221.24 477.637,1220.4 L488.404,1210.64 C488.854,1210.19 489.052,1209.59 489.015,1209 C489.052,1208.41 488.854,1207.81 488.404,1207.36" id="chevron-right" sketch:type="MSShapeGroup"></path>
+                            </g>
+                        </g>
+                    </svg></span> — следующий/предыдущий
                     канал соответственно
                 </li>
+                <li>С помощью кнопок на ТВ можно отфильтровать ролики по <strong>году</strong> и <strong>жанру</strong>.</li>
                 <li>Можно выбрать конкретную передачу с помощью <strong>полки с кассетами</strong> (список всегда случайный)</li>
                 <li>Кнопка <span class="about__button"><svg class="about__button__icon" viewBox="0 0 16 16">
                         <path d="M14 3.5L8.5 9 7 7.5 12.5 2H10V0h6v6h-2V3.5zM6 0v2H2v12h12v-4h2v6H0V0h6z"
                               fill-rule="evenodd"/>
-                    </svg>  </span> - посмотреть видео полностью
+                    </svg>  </span> - перейти к оригинальному видео
                 </li>
             </ul>
             <h2 class="about__heading">Доступность видео</h2>
             <p class="about__text">
                 К сожалению, часть видео на сайте залита на "вражеские" источники (Ютуб). При использовании сами-знаете-чего доступный архив может значительно расшириться :)<br/>
-                Если не хотите видеть современную богомерзкую рекламу, то можно использовать любой блокировщик.
+                Если не хотите видеть современную богомерзкую рекламу, можете использовать любой блокировщик.
             </p>
             <h2 class="about__heading">Почему нет сериалов и мультиков?</h2>
             <p class="about__text">

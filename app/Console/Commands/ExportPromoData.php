@@ -31,10 +31,12 @@ class ExportPromoData extends Command
             842 // Вторая программа ЦТ
         ];
 
-        $channels = $channels_query->clone()->where(['is_federal' => true])->whereNotIn('id', $excluded)->orderBy('order', 'ASC')->get()
-            ->merge($channels_query->clone()->where(['is_federal' => false])->whereNull('city')->orderBy('order', 'ASC')->get())
-            ->merge($channels_query->clone()->where(['is_federal' => false])->whereNotNull('city')->orderByRaw("FIELD(city, '" . $regional_counts->keys()->join("','") . "')")->get());
+        $main_cities = ['Москва', 'Санкт-Петербург', 'Екатеринбург', 'Новосибирск', 'Казань', 'Нижний Новгород', 'Красноярск', 'Самара'];
 
+        $channels = $channels_query->clone()->where(['is_federal' => true])->whereNotIn('id', $excluded)->orderBy('order', 'ASC')->get()
+            ->merge($channels_query->clone()->where(['is_federal' => false])->whereIn('city', $main_cities)->orderByRaw("FIELD(city, '" . $regional_counts->keys()->join("','") . "')")->get()
+            ->merge($channels_query->clone()->where(['is_federal' => false])->whereNull('city')->orderBy('order', 'ASC')->get())
+            ->merge($channels_query->clone()->where(['is_federal' => false])->whereNotNull('city')->whereNotIn('city', $main_cities)->orderByRaw("FIELD(city, '" . $regional_counts->keys()->join("','") . "')")->get());
 
         foreach ($channels as $channel) {
             $names = $channel->names->map(function ($name) {
@@ -107,7 +109,7 @@ class ExportPromoData extends Command
         })->where(['is_radio' => false])->where(function ($q) {
             $q->where('embed_code', 'NOT LIKE', '%dailymotion%');
             $q->orWhereNull('embed_code');
-        })->whereNull('telegram_id')->whereNull('country');
+        })->whereNull('telegram_id')->whereNull('country')->where('length', '>', 0);
 
         $total_records = $records->count();
         $parts = 10;
@@ -149,6 +151,7 @@ class ExportPromoData extends Command
                     $record->is_interprogram,
                     $is_advertising,
                     $genre_id,
+                    $record->length
                 ];
                 if (count($records_list) > $total_records / $parts) {
                     file_put_contents(public_path('teleport-data/records-' . $part_index . '.json'), json_encode($records_list, JSON_UNESCAPED_UNICODE));

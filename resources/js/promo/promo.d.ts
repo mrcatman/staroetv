@@ -39,6 +39,7 @@ declare namespace Promo {
         is_interprogram: boolean,
         is_advertising: boolean,
         genre_id: number,
+        duration: number,
     ]
 
     type Genre = [

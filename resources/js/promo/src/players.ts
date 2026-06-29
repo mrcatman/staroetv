@@ -192,7 +192,7 @@ class HlsJsPlayer extends EventEmitter implements Promo.Player {
 
     load(url: string, container: HTMLDivElement)  {
         return new Promise<void>((resolve, reject) => {
-            container.innerHTML = `<video></video>`;
+            container.innerHTML = `<video playsinline></video>`;
             this.videoElement = container.querySelector('video');
 
             if (Hls.isSupported()) {
@@ -256,7 +256,7 @@ class HTMLPlayer extends EventEmitter implements Promo.Player {
 
     load(url: string, container: HTMLDivElement)  {
         return new Promise<void>((resolve, reject) => {
-            container.innerHTML = `<video><source src="${url}" type="video/mp4" /></video>`;
+            container.innerHTML = `<video playsinline><source src="${url}" type="video/mp4" /></video>`;
             this.videoElement = container.querySelector('video');
             this.videoElement.addEventListener('loadedmetadata', function() {
                 resolve();

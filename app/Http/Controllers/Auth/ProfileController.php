@@ -216,7 +216,7 @@ class ProfileController extends Controller
         $total = $user->notifications()->count();
 
         $notifications = $user->notifications()->limit($limit)->offset(($page - 1) * $limit)->get();
-        $notifications->transform(function ($notification) {
+        $notifications = $notifications->transform(function ($notification) {
             $data = $notification->data;
             if ($notification->type == NewCommentReply::class) {
                 $comment = null;
@@ -287,6 +287,8 @@ class ProfileController extends Controller
         });
 
         $show_more = $total > $limit * $page;
+        $html = view("blocks.notifications.list", ['show_more' => $show_more, 'only_list' => true, 'notifications' => $notifications])->render();
+
         return [
             'status' => 1,
             'data' => [
@@ -294,10 +296,10 @@ class ProfileController extends Controller
                 'html' => [
                     $page > 1 ? [
                         'append_to' => '.notifications__items',
-                        'html' => view("blocks.notifications.list", ['show_more' => $show_more, 'only_list' => true, 'notifications' => $notifications])->render()
+                        'html' => $html
                     ] : [
                         'replace' => '.notifications__list',
-                        'html' => view("blocks.notifications.list", ['show_more' => $show_more, 'only_list' => false, 'notifications' => $notifications])->render()
+                        'html' => $html
                     ]
                 ]
             ]
