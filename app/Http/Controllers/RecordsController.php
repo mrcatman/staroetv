@@ -81,7 +81,7 @@ class RecordsController extends EntityController
                 }
             }
             foreach ($channels_by_region as $region => &$data) {
-                $capital = Geography::CAPITALS[$region];
+                $capital = isset(Geography::CAPITALS[$region]) ? Geography::CAPITALS[$region] : '';
                 uksort($data['cities'], function ($a, $b) use ($capital) {
                     return $a === $capital ? -1 : ($b === $capital ? 1 : strcmp($a, $b));
                 });
