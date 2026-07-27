@@ -93,7 +93,7 @@ class MassUploadController extends Controller {
             });
             $items = $items->map(function($item) {
                 return [
-                    'title' => $item->title,
+                    'title' => $this->fixTitle($item->title),
                     'description' => $item->description,
                     'player' => $item->player,
                     'duration' => $item->duration,
@@ -129,7 +129,7 @@ class MassUploadController extends Controller {
                 });
                 $items = $items->map(function ($item) {
                     return [
-                        'title' => $item->title,
+                        'title' => $this->fixTitle($item->title),
                         'description' => '',
                         'duration' => $item->duration,
                         'player' => 'https://youtube.com/embed/' . $item->id,
@@ -341,6 +341,10 @@ class MassUploadController extends Controller {
                 //dump($title);
             }
         }
+    }
+
+    private function fixTitle($title) {
+        return str_replace('.mp4', '', $title);
     }
 
 }
