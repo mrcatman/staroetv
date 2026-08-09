@@ -126,8 +126,9 @@ export const Playback = {
             this.player.play();
             setTimeout(() => {
                 try {
-                    this.player.setVolume(1);
-                } catch (e) { }
+                    this.player.setVolume(parseFloat(localStorage.getItem('volume')) ?? 1);
+                } catch (e) {
+                }
             }, 200);
 
             this.recordTimeout = setTimeout(() => {
