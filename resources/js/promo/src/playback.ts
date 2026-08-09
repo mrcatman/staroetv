@@ -1,6 +1,6 @@
 import { Database } from "./database";
 import { createPlayer } from "./players";
-import { getRandomDurationPoint } from "../utils";
+import { getRandomDurationPoint, isSafari } from "../utils";
 import { Controls } from "./controls";
 
 const RECORD_PLAY_TIMEOUT = 1000 * 12;
@@ -23,6 +23,8 @@ export const Playback = {
     params: {} as Promo.PlaybackParams,
     player: null as Promo.Player,
 
+    volume: parseFloat(localStorage.getItem('volume')) ?? 1,
+
     recordTimeout: null,
 
     hideTitleOverlayTimeout: null,
@@ -30,6 +32,9 @@ export const Playback = {
     updateDisplayStartTimeout: null,
     updateDisplayInterval: null,
     active: false,
+
+    needsUnmute: false,
+    unmuteWarning: document.getElementById('unmute_warning'),
 
     onOff() {
         if (this.active) {
@@ -103,14 +108,18 @@ export const Playback = {
             this.player.on('started', () => {
                 started = true;
                 this.playedRecordsCount++;
+
                 Controls.setActiveRecord(this.record);
+
                 this.showTitle();
                 this.noise.style.opacity = '0';
+                this.showUnmuteWarningIfNeeded();
 
                 this.params.program_id = undefined;
 
                 const endsAt = new Date().getTime() + (this.player.getDuration() - this.player.getCurrentTime()) * 1000;
                 Database.records.updateNowPlaying(this.record, endsAt);
+
                 clearTimeout(this.recordTimeout);
 
                 return resolve(true);
@@ -126,7 +135,7 @@ export const Playback = {
             this.player.play();
             setTimeout(() => {
                 try {
-                    this.player.setVolume(parseFloat(localStorage.getItem('volume')) ?? 1);
+                    this.setVolume(this.volume);
                 } catch (e) {
                 }
             }, 200);
@@ -171,7 +180,9 @@ export const Playback = {
         this.intro.style.pointerEvents = '';
     },
     setVolume(volume: number) {
+        this.volume = volume;
         this.player?.setVolume(volume);
+        localStorage.setItem('volume', volume.toString());
     },
     async changeChannel(delta: number) {
         let state = false;
@@ -253,6 +264,35 @@ export const Playback = {
             }, 200);
         }, immediate ? 0 : 3000);
     },
+    showUnmuteWarningIfNeeded() {
+        this.needsUnmute = false;
+        this.unmuteWarning.style.display = 'none';
+        if (!isSafari()) {
+            return;
+        }
+        if (!this.record[2].includes('vk.com') && !this.record[2].includes('vk.ru')) {
+            return;
+        }
+
+        this.needsUnmute = true;
+        this.unmuteWarning.style.display = 'block';
+    },
+    unmuteIfNeeded() {
+        if (!this.needsUnmute) {
+            return;
+        }
+        if (!this.player || !('unmute' in this.player)) {
+            return;
+        }
+
+        if (this.volume === 0) {
+            return;
+        }
+
+        this.player.unmute();
+        this.needsUnmute = false;
+        this.unmuteWarning.style.display = 'none';
+    },
     init() {
         this.currentRecordTitle.addEventListener('click', () => {
             if (!this.record) {
@@ -264,5 +304,6 @@ export const Playback = {
             this.start({ force: true });
         });
         this.intro.currentTime = Math.random() * 35;
+        document.addEventListener('click', this.unmuteIfNeeded.bind(this));
     }
 }

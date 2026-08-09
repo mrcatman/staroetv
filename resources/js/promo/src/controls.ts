@@ -328,7 +328,6 @@ export const Controls = {
             this.buttons.volume.style.transform = `rotate(${volume * 270 + 45}deg)`;
 
             Playback.setVolume(volume);
-            localStorage.setItem('volume', volume.toString());
         }
 
         setVolume(volume);

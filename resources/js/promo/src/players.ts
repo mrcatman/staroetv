@@ -7,6 +7,8 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
 
     load(url: string, container: HTMLDivElement)  {
         return new Promise<void>((resolve, reject) => {
+            url = url.replace('vk.com', 'vk.ru');
+
             container.innerHTML = `<iframe src="${url}&js_api=1" frameborder="0" allowfullscreen allow="autoplay"></iframe>`;
 
             const iframe = container.querySelector('iframe');
@@ -52,6 +54,10 @@ class VKPlayer extends EventEmitter implements Promo.Player  {
 
     setVolume(volume: number) {
         this.instance.setVolume(volume);
+    }
+
+    unmute() {
+        this.instance.unmute();
     }
 }
 
@@ -295,7 +301,7 @@ class HTMLPlayer extends EventEmitter implements Promo.Player {
 export const createPlayer = (url: string): Promo.Player | null => {
     let player: Promo.Player;
     switch (true) {
-        case url.includes('vk.com'):
+        case url.includes('vk.com') || url.includes('vk.ru'):
             player = new VKPlayer();
             break;
         // case url.includes('rutube'):

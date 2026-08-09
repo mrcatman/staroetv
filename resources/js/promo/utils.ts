@@ -38,3 +38,7 @@ export const getRandomItems = <T>(items: T[], count: number): T[] => {
 export const getFullPictureUrl = (url: string) => {
     return url && url.startsWith('/') ? `https://staroetv.su${url}` : url;
 }
+
+export const isSafari = () => {
+    return !CSS.supports('height', '100dvh') || !('showOpenFilePicker' in window);
+}

@@ -66,3 +66,26 @@ body {
     visibility: visible;
 }
 
+
+.unmute-warning {
+    position: absolute;
+    z-index: 1000;
+    color: #eee;
+    font-size: 1.75em;
+    text-align: center;
+    top: 4em;
+    left: max(1em, 50vw - 15em);
+    width: 100%;
+    max-width: 30em;
+    background: linear-gradient(to bottom, rgba(203, 26, 26, 0.72), rgba(119, 50, 50, 0.77), rgba(0, 0, 0, 0.5));
+    text-shadow: 0 .25em .75em #000000a3;
+    padding: .5em;
+    box-sizing: border-box;
+    border-radius: .5em;
+    box-shadow: 0 .5em 1em inset #222, 0 .5em 2.5em #ff000066;
+
+    &__top {
+        font-weight: bold;
+        font-size: 1.125em;
+    }
+}

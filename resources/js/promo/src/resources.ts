@@ -61,7 +61,7 @@ export const Resources = {
         return this.load(pictures, this.loadPicture);
     },
     loadScripts() {
-        const scripts = ['https://vk.com/js/api/videoplayer.js'];
+        const scripts = ['https://vk.ru/js/api/videoplayer.js'];
         if (this.needTryToLoadYoutube()) {
             scripts.push(YOUTUBE_IFRAME_API);
         }
