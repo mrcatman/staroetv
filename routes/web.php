@@ -105,7 +105,7 @@ if (!function_exists('defineCrudRoutes')) {
     }
 }
 
-$domain = request()->host() !== 'teleport-origin.staroetv.su' ? request()->host() : 'staroetv.su';
+$domain = !in_array(request()->host(), ['teleport-origin.staroetv.su', 'teleport.staroetv.su']) ? request()->host() : 'staroetv.su';
 Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class, 'domain' => $domain], function () {
     Route::get('/promo', [PromoController::class, 'index'])->name('promo.index');
 
