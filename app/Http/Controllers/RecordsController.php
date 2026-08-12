@@ -577,8 +577,9 @@ class RecordsController extends EntityController
 
         if ($type != 'other') {
             if (!request()->input('program.name') && !request()->input('program.id') && request()->input('program.unknown') !== true && (!$record->is_interprogram && !$record->is_clip && !$record->is_advertising)) {
-                $errors['program'] = "Выберите программу";
-            } else {
+                $record->program_id = null;
+                //$errors['program'] = "Выберите программу";
+           } else {
                 if ($type == 'program-design' || (!$record->is_interprogram && !$record->is_advertising && !$record->is_clip)) {
                     if (request()->input('program.id') > 0) {
                         $record->program_id = request()->input('program.id');
