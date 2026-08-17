@@ -94,7 +94,7 @@
                         :label="isRadio ? 'Радиостанция' : 'Канал'"
                         :errors="errors.channel"
                     >
-                        <select2 theme="default" :options="channelOptions" v-model="data.channel.id"
+                        <select2 :disabled="data.channel.unknown" theme="default" :options="channelOptions" v-model="data.channel.id"
                                  v-model:name="data.channel.name" :customOptions="createTagOptions"/>
 
                         <a v-if="data.channel.name.length && data.channel.id <= -1 && !data.channel.unknown"
@@ -102,9 +102,15 @@
                             <span class="tooltip">Будет создан новый канал</span>
                             <i class="fa fa-exclamation-circle"></i>
                         </a>
+
+                        <template #afterLabel>
+                            <a class="input-container__toggle-button"
+                               @click="channelsStore.load(true)">Обновить список</a>
+                        </template>
                         <template #toggleButtons>
                             <a class="input-container__toggle-button"
-                               @click="channelsStore.load(true)">Перезагрузить</a>
+                               :class="{ 'input-container__toggle-button--active': data.channel.unknown }"
+                               @click="data.channel.unknown = !data.channel.unknown">Канал неизвестен</a>
                         </template>
                     </input-container>
 
@@ -119,16 +125,21 @@
                         label="Программа"
                         :errors="errors.program"
                     >
-                        <select2 theme="default" :options="programOptions" v-model="data.program.id"
+                        <select2 :disabled="data.program.unknown" theme="default" :options="programOptions" v-model="data.program.id"
                                  v-model:name="data.program.name" :customOptions="createTagOptions"/>
                         <a v-if="data.program.name.length && data.program.id <= -1 && !data.program.unknown"
                            class="input-container__button input-container__button--select input-container__button--big input-container__button--info">
                             <span class="tooltip">Будет создана новая программа</span>
                             <i class="fa fa-exclamation-circle"></i>
                         </a>
+                        <template #afterLabel>
+                            <a class="input-container__toggle-button"
+                               @click="programsStore.load(data.channel.id, true)">Обновить список</a>
+                        </template>
                         <template #toggleButtons>
                             <a class="input-container__toggle-button"
-                               @click="programsStore.load(data.channel.id, true)">Перезагрузить</a>
+                               :class="{ 'input-container__toggle-button--active': data.program.unknown }"
+                               @click="data.program.unknown = !data.program.unknown">Программа неизвестна</a>
                         </template>
                     </input-container>
                 </div>
@@ -218,11 +229,11 @@
             </div>
 
             <input-container vertical label="Короткое описание" :errors="errors.short_description">
-                <textarea class="input input--textarea" v-model="data.short_description"></textarea>
+                <textarea class="input input--textarea" rows="2" v-model="data.short_description"></textarea>
             </input-container>
 
             <input-container vertical label="Описание" :errors="errors.description">
-                <textarea class="input input--textarea" v-model="data.description"></textarea>
+                <textarea class="input input--textarea" rows="4" v-model="data.description"></textarea>
             </input-container>
 
             <input-container vertical label="Источник" :errors="errors.source">

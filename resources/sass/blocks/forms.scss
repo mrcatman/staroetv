@@ -164,6 +164,9 @@
             font-weight: 600;
             color: var(--text-lighter);
         }
+        &__after {
+            margin-left: .5em;
+        }
     }
 
     &__message {
@@ -231,22 +234,20 @@
     }
 
     &__toggle-buttons {
-        font-size: .875em;
-        font-weight: bold;
+        margin-top: .5em;
     }
 
     &__toggle-button {
         display: inline-block;
-        margin-top: .5em;
         cursor: pointer;
-        color: var(--text-lighter);
-        border-bottom: 1px dashed;
+        border-bottom: 1px solid;
         text-decoration: none;
-        font-size: 1.125em;
-
-        &--active {
+        font-weight: 400;
+        &:hover {
+            color: var(--text-lighter);
+        }
+        &--active, &--active:hover {
             color: var(--primary);
-            border-bottom: 1px solid;
         }
     }
 

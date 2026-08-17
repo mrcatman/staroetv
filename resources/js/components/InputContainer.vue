@@ -4,6 +4,9 @@
         <slot v-if="checkbox" />
         <component :is="!checkbox ? 'label' : 'div'" class="input-container__label" :class="{'input-container__label--small': labelSmall}">
             {{ label }}<span v-if="required" class="input-container__required">*</span>
+            <span class="input-container__label__after" v-if="$slots.afterLabel">
+                <slot name="afterLabel" />
+            </span>
         </component>
         <div  v-if="!checkbox" class="input-container__inner" :class="{'input-container__inner--with-button': withButton}">
             <div class="input-container__element-outer">
