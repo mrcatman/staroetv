@@ -123,9 +123,10 @@ class ExportPromoData extends Command
         $seed = date('Ymd');
         $records->inRandomOrder($seed)->chunk(100, function ($records) use (&$count, &$part_index, &$parts, $total_records, &$records_list, $program_genres, &$record_ids) {
             foreach ($records as $record) {
-                $url = $record->use_own_player ? $record->source_hls : $record->original_url;
+                $url = $record->use_own_player ?
+                    ($record->use_webm ? $record->source_webm : $record->source_hls) : $record->original_url;
 
-                if (!str_contains($url, 'vk.com') && !str_contains($url, 'youtu') && !str_contains($url, '.m3u8')) { // todo check why rutube iframe api doesn't work in helium
+                if (!str_contains($url, 'vk.com') && !str_contains($url, 'youtu') && !str_contains($url, '.m3u8') && !str_contains($url, '.webm')) { // todo check why rutube iframe api doesn't work in helium
                     continue;
                 }
 

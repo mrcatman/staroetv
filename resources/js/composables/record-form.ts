@@ -131,6 +131,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
 
     const externalVideoError = ref<string>(null);
     const loading = ref<boolean>(false);
+    const similarChecking = ref<boolean>(false);
     const saving = ref<boolean>(false);
     const loadingInfo = ref<boolean>(false);
     const response = ref<Forms.Response>();
@@ -440,7 +441,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
 
     const getSimilar = (): Promise<Models.Record[]> => {
         return new Promise((resolve, reject) => {
-            $.get(route('records.similar'), data.value).done(({data}) => {
+            $.post(route('records.similar'), data.value).done(({data}) => {
                 resolve(data);
             }).catch(() => resolve([]));
         })
@@ -451,12 +452,15 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
             return update();
         }
         try {
+            similarChecking.value = true;
             similar.value = await getSimilar();
             if (!similar.value.length) {
                 return update();
             }
         } catch (e) {
             similar.value = [];
+        } finally {
+            similarChecking.value = false;
         }
     }
 

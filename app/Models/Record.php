@@ -459,6 +459,13 @@ class Record extends Model {
         return config('site.media_server_url').'/hls'.$this->source_path.'/index.m3u8';
     }
 
+    public function getSourceWebmAttribute() {
+        if (!$this->source_path) {
+            return null;
+        }
+        return config('site.media_server_url').str_replace('.mp4', '.webm', $this->source_path);
+    }
+
     public function getDownloadUrlAttribute() {
         return $this->source_path ? config('site.media_server_url').$this->source_path : null;
     }

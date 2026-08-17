@@ -1,4 +1,3 @@
-
 @if ($record->sources_count > 1)
     <div class="box">
         <div class="box__inner">
@@ -13,7 +12,8 @@
 @if ($record->is_radio)
     @if ($record->use_own_player)
         <audio @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif  data-title="{{$record->title}}"
-               data-url="{{config('app.url')}}{{$record->url}}" data-id="{{$record->id}}" class="own-player own-player--radio" controls>
+               data-url="{{config('app.url')}}{{$record->url}}" data-id="{{$record->id}}"
+               class="own-player own-player--radio" controls>
             <source src="{{$record->source_audio}}">
         </audio>
     @else
@@ -26,7 +26,8 @@
                 <div class="tab-content" data-id="parts" data-tab="part_{{$i}}"
                      @if($i != 0) style="display: none" @endif>
                     <video @if (isset($autoplay) && $autoplay) autoplay="autoplay"
-                           @endif data-title="{{$record->title}} (часть {{$i}}" data-url="{{config('app.url')}}{{$record->url}}#part_{{$i}}"
+                           @endif data-title="{{$record->title}} (часть {{$i}}"
+                           data-url="{{config('app.url')}}{{$record->url}}#part_{{$i}}"
                            data-id="{{$record->id}}" poster="{{$record->all_telegram_thumbs[$i]}}" class="own-player"
                            controls>
                         <source src="{{$record->all_telegram_sources[$i]}}" type="video/mp4">
@@ -36,9 +37,17 @@
         @else
             <video @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif data-title="{{$record->title}}"
                    data-url="{{config('app.url')}}{{$record->url}}" data-id="{{$record->id}}"
-                   poster="{{$record->cover}}?{{$record->updated_at}}" class="own-player" controls>
-                <source src="{{$record->source_path ? $record->source_hls : $record->source_telegram}}"
-                        type="{{$record->source_path ? 'application/vnd.apple.mpegurl' : 'video/mp4' }}">
+                   poster="{{$record->cover}}?{{$record->updated_at->getTimestamp()}}" class="own-player" controls>
+
+                @if ($record->source_path)
+                    @if ($record->use_webm)
+                        <source src="{{$record->source_webm}}" type="video/webm"/>
+                    @else
+                        <source src="{{$record->source_hls}}" type="application/vnd.apple.mpegurl"/>
+                    @endif
+                @else
+                    <source src="{{$record->source_telegram}}" type="video/mp4">
+                @endif
             </video>
         @endif
     @else
@@ -51,12 +60,13 @@
                     </div>
                 @endfor
             @else
-            {!! $record->embed_code !!}
+                {!! $record->embed_code !!}
             @endif
             @if(strpos($record->embed_code, "youtu") !== false)
                 <div class="record-page__download-overlay" data-id="{{$record->id}}" data-title="{{$record->title}}"
                      data-url="{{$record->url}}" data-poster="{{$record->cover}}" style="display: none">
-                    <div class="record-page__download-overlay__background" style="background-image: url('{{$record->cover}}')"></div>
+                    <div class="record-page__download-overlay__background"
+                         style="background-image: url('{{$record->cover}}')"></div>
                     <a class="record-page__download-overlay__button">
                         <i class="fa fa-play"></i>
                     </a>
@@ -73,5 +83,7 @@
 @endif
 
 @if(strpos($record->embed_code, "youtu") !== false && !$record->use_own_player && !$record->telegram_id)
-    <div class="warning-alert record-page__youtube-alert">Возможны проблемы с загрузкой этого видео, если у вас не работает Youtube (вы знаете, что делать)</div>
+    <div class="warning-alert record-page__youtube-alert">Возможны проблемы с загрузкой этого видео, если у вас не
+        работает Youtube (вы знаете, что делать)
+    </div>
 @endif
