@@ -169,6 +169,7 @@ const sendError = (recordId: number, description: string) => {
         description,
         record_id: recordId,
         type: "player-not-working",
+        auto: true,
     }
     $.post(route('records.complaint'), data);
 }

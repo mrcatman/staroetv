@@ -11,7 +11,6 @@
 |
 */
 
-use App\Http\Middleware\DisableCookies;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ArticlesController;
 use App\Http\Controllers\Auth\ProfileController;
@@ -34,6 +33,7 @@ use App\Http\Controllers\PromoController;
 use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\RecordsController;
 use App\Http\Controllers\RecordsAutocompleteController;
+use App\Http\Controllers\RecordsComplaintsController;
 use App\Http\Controllers\RecordsEditController;
 use App\Http\Controllers\RecordsUploadController;
 use App\Http\Controllers\ReputationController;
@@ -219,9 +219,9 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class, '
         Route::get('autocomplete/brands', [RecordsAutocompleteController::class, 'commercialsBrands'])->name('autocomplete.commercials-brands');
         Route::get('autocomplete/categories', [RecordsAutocompleteController::class, 'commercialsCategories'])->name('autocomplete.commercials-categories');
 
-        Route::get('similar', [RecordsController::class, 'similar'])->name('similar');
-        Route::post('complaint', [RecordsController::class, 'complaint'])->name('complaint');
+        Route::post('similar', [RecordsController::class, 'similar'])->name('similar');
         Route::post('download-url', [RecordsUploadController::class, 'downloadUrl'])->name('download-url');
+        Route::post('complaint', [RecordsComplaintsController::class, 'add'])->name('complaint');
 
         Route::name('edit.')->prefix('edit')->group(function () {
             Route::get('menu', [RecordsEditController::class, 'menu'])->name('menu');
