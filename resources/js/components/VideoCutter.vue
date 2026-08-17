@@ -667,7 +667,7 @@ const updateSimilar = (index) => {
             year
         }
     }
-    $.get(route('records.similar', data), (response) => {
+    $.post(route('records.similar', data), (response) => {
         cutResults.value[index].similar = response.data;
     });
 }

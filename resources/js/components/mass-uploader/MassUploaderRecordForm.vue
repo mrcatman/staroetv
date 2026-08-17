@@ -54,7 +54,7 @@
                                 </a>
                             </input-container>
                         </div>
-                        <div v-if="!data.record.upload" class="col col--auto">
+                        <div v-if="!data.record.upload && !data.record.uploaded_file_path" class="col col--auto">
                             <input-container checkbox label="Загрузить в хранилище сайта">
                                 <input type="checkbox" v-model="data.record.move_to_storage">
                                 <div class="input-container--checkbox__element"></div>
@@ -230,7 +230,7 @@
             </input-container>
 
             <div class="form__bottom">
-                <button :disabled="saving" @click="saveRecord()" class="button">Добавить</button>
+                <button :disabled="saving || similarChecking"  @click="saveRecord()" class="button">Добавить</button>
                 <div class="form__progress" v-if="isUploadingFile">
                     <div class="form__progress__bar" :style="{width: uploadPercent + '%'}">
                         {{ uploadPercent + '%' }}
@@ -380,6 +380,7 @@ const {
     errors,
 
     similar,
+    similarChecking,
     markSimilarAsChecked,
 
     response,
