@@ -37,7 +37,9 @@
         @else
             <video @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif data-title="{{$record->title}}"
                    data-url="{{config('app.url')}}{{$record->url}}" data-id="{{$record->id}}"
-                   poster="{{$record->cover}}?{{$record->updated_at->getTimestamp()}}" class="own-player" controls>
+                   poster="{{$record->cover}}?{{$record->updated_at->getTimestamp()}}"
+                   data-fallback-embed="{{$record->embed_code}}"
+                   class="own-player" controls>
 
                 @if ($record->source_path)
                     @if ($record->use_webm)

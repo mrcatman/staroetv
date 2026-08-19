@@ -63,34 +63,47 @@ export const initPlayer = () => {
         const title = $(playerEl).data('title');
         const id = $(playerEl).data('id');
         const isRadio = $(playerEl).hasClass('own-player--radio');
+
         const player = new Plyr(playerEl, {
             controls: generateControls(id, title, isRadio)
         });
         window.player = player;
+
+        const tryToFallback = () => {
+            const root =  $('.record-page__player');
+            const fallbackEmbed = $(playerEl).data('fallback-embed');
+            if (!fallbackEmbed?.trim()?.length) {
+                $(root).append(`<div class="warning-alert" style="margin-top: .5em;">Ошибка воспроизведения видео, попробуйте зайти с другого устройства или браузера</div>`)
+                return;
+            }
+            $(root).html(`<div class="record-page__player-container">${fallbackEmbed}</div>`);
+        }
+
         player.on('ready', async (event) => {
             const instance = event.detail.plyr;
-            let hlsSource = null;
-            const sources = instance.media.querySelectorAll('source');
-            for (let i = 0; i < sources.length; i++) {
-                if (sources[i].src.indexOf('.m3u8') > -1) {
-                    hlsSource = sources[i].src;
+
+            let supported = true;
+            const source = instance.media.querySelector('source').src;
+
+            if (source?.includes('.m3u8')) {
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(source);
+                    hls.attachMedia(instance.media);
+                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                        //console.log('MANIFEST_PARSED');
+                    });
+                    hls.on(Hls.Events.ERROR, function (event, data) {
+                        sendError(id, data.error.toString());
+                        if (data.details === 'bufferAddCodecError') {
+                            tryToFallback();
+                        }
+                    });
+                } else {
+                    tryToFallback();
                 }
-            }
-            if (hlsSource !== null && Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(hlsSource);
-                hls.attachMedia(instance.media);
-                hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    //console.log('MANIFEST_PARSED');
-                });
-                hls.on(Hls.Events.ERROR, function (event, data) {
-                    sendError(id, data.error.toString());
-                });
-            } else {
-                const response = await fetch(sources[0].src, {method: 'HEAD'});
-                if (!response.ok) {
-                    sendError(id, response.status);
-                }
+            } else if (source?.includes('.webm') && !MediaSource.isTypeSupported('video/webm; codecs="vp9"')) {
+                tryToFallback();
             }
         });
         playerEl.addEventListener('ready', event => {
