@@ -4,23 +4,14 @@
 @endsection
 @section('content')
     <div class="col main-page">
-        <div class="main-page__intro">
+        <a target="_blank" href="https://teleport.staroetv.su"  class="main-page__intro">
+            <div class="main-page__intro__background"></div>
             <video class="main-page__intro__video" autoplay muted loop>
-                <source src="/splashscreen/videos/noise.mp4"/>
+                <source src="{{Vite::asset('resources/images/promo/intro.mp4')}}"/>
             </video>
-            <div class="main-page__intro__overlay"></div>
             <div class="main-page__intro__text"><strong>Старый Телевизор</strong> - архив старых теле- и радиозаписей
             </div>
-        </div>
-        <!--
-        <div class="box">
-            <div class="box__inner ">
-                <a style="text-decoration: none; " href="/news/2020-08-05-4397">
-                    <h1 style="text-align: center; margin: .5em 0;font-size: 2.5em;color:var(--primary); ">Мы перезапустились</h1>
-                </a>
-            </div>
-        </div>
-        -->
+        </a>
         <div class="box">
             <div class="box__inner">
                 <div class="main-page__site-description">
