@@ -170,6 +170,10 @@ class ExternalServicesHelper {
         }
     }
 
+    public static function rutubeVideo($video_id) {
+        return json_decode(file_get_contents("https://rutube.ru/api/play/options/$video_id/?t=0"));
+    }
+
     public static function getThumbnail(Record $record) {
         if ($record->original_url && (strpos($record->original_url, 'vk.com') !== false || strpos($record->original_url, 'vkvideo.ru') !== false) && !$record->source_path) {
             preg_match('/(.*?)video_ext.php\?oid=(.*?)&id=(.*?)&hash=(.*?)[&"](.*?)/', $record->embed_code, $matches);

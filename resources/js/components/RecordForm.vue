@@ -31,7 +31,7 @@
                                                     :disabled="loadingInfo"
                                                     class="input"
                                                     v-model="data.record.url"
-                                                    :placeholder="`Вставьте ссылку (${isRadio ? 'Soundcloud либо прямая ссылка' : 'ВК либо Youtube'})`"
+                                                    :placeholder="`Вставьте ссылку (${isRadio ? 'Soundcloud либо прямая ссылка' : 'ВК, Youtube, Rutube'})`"
                                                 />
                                                 <textarea v-else placeholder="Код для вставки Iframe плеера"
                                                           class="input textarea" v-model="data.record.code"/>

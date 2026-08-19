@@ -389,7 +389,7 @@ class RecordsController extends EntityController
         $data = request()->validate([
             'record_id' => 'sometimes',
             'video_id' => 'required',
-            'video_type' => 'required|in:youtube,vk'
+            'video_type' => 'required|in:youtube,vk,rutube'
         ]);
 
         $existing_records = Record::where(function($q) use($data) {
@@ -411,49 +411,65 @@ class RecordsController extends EntityController
         }
 
 
-        if ($data['video_type'] == 'youtube') {
-            $response = (ExternalServicesHelper::youtubeVideo($data['video_id']));
-            if (!isset($response->items[0])) {
-                return [
-                    'status' => 0,
-                    'text' => 'Видео не найдено',
-                ];
-            }
+        switch ($data['video_type']) {
+            case 'youtube':
+                $response = (ExternalServicesHelper::youtubeVideo($data['video_id']));
+                if (!isset($response->items[0])) {
+                    return [
+                        'status' => 0,
+                        'text' => 'Видео не найдено',
+                    ];
+                }
 
-            $video = $response->items[0];
-            $duration = ExternalServicesHelper::youtubeVideoDuration($data['video_id']);
-            $info = [
-                'id' => $video->id,
-                'title' => $video->snippet->title,
-                'description' => $video->snippet->description,
-                'player' => 'https://youtube.com/embed/' . $video->id,
-                'code' => str_replace('URL', 'https://youtube.com/embed/' . $video->id, Records::IFRAME_CODE),
-                'thumbnails' => array_map(function ($thumb) use ($video) {
-                    return "https://img.youtube.com/vi/" . $video->id . "/" . $thumb . ".jpg";
-                }, ['0', '1', '2', '3', 'hqdefault']),
-                'duration' => $duration
-            ];
-        } else {
-            $response = (ExternalServicesHelper::vkVideo($data['video_id']));
-            if (!isset($response->response->items[0])) {
-                return [
-                    'status' => 0,
-                    'text' => 'Видео не найдено',
+                $video = $response->items[0];
+                $duration = ExternalServicesHelper::youtubeVideoDuration($data['video_id']);
+                $info = [
+                    'id' => $video->id,
+                    'title' => $video->snippet->title,
+                    'description' => $video->snippet->description,
+                    'player' => 'https://youtube.com/embed/' . $video->id,
+                    'code' => str_replace('URL', 'https://youtube.com/embed/' . $video->id, Records::IFRAME_CODE),
+                    'thumbnails' => array_map(function ($thumb) use ($video) {
+                        return "https://img.youtube.com/vi/" . $video->id . "/" . $thumb . ".jpg";
+                    }, ['0', '1', '2', '3', 'hqdefault']),
+                    'duration' => $duration
                 ];
-            }
+                break;
+            case 'vk':
+                $response = ExternalServicesHelper::vkVideo($data['video_id']);
+                if (!isset($response->response->items[0])) {
+                    return [
+                        'status' => 0,
+                        'text' => 'Видео не найдено',
+                    ];
+                }
 
-            $video = $response->response->items[0];
-            $info = [
-                'id' => $video->owner_id . ' ' . $video->id,
-                'title' => $video->title,
-                'description' => $video->description,
-                'player' => $video->player,
-                'code' => str_replace('URL', $video->player, Records::IFRAME_CODE),
-                'thumbnails' => [
-                    $video->image[count($video->image) - 1]->url
-                ],
-                'duration' => $video->duration
-            ];
+                $video = $response->response->items[0];
+                $info = [
+                    'id' => $video->owner_id . ' ' . $video->id,
+                    'title' => $video->title,
+                    'description' => $video->description,
+                    'player' => $video->player,
+                    'code' => str_replace('URL', $video->player, Records::IFRAME_CODE),
+                    'thumbnails' => [
+                        $video->image[count($video->image) - 1]->url
+                    ],
+                    'duration' => $video->duration
+                ];
+            case 'rutube':
+                $video = ExternalServicesHelper::rutubeVideo($data['video_id']);
+                $info = [
+                    'id' => $video->effective_video,
+                    'title' => $video->title,
+                    'description' => $video->description,
+                    'player' => "https://rutube.ru/play/embed/$video->effective_video",
+                    'code' => str_replace('URL', "https://rutube.ru/play/embed/$video->effective_video", Records::IFRAME_CODE),
+                    'thumbnails' => [
+                        $video->thumbnail_url
+                    ],
+                    'duration' => ceil($video->duration / 1000),
+                ];
+                break;
         }
 
         return [

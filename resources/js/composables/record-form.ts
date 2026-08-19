@@ -143,7 +143,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
 
     const setDefaultData = () => {
         data.value = {
-            ...JSON.parse(JSON.stringify(defaultData)),
+            ...defaultData,
             ...startParams
         } as RecordsUploadData;
 
@@ -295,7 +295,8 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
         if (!data.value.record.own_code) {
             return true;
         }
-        return !data.value.record.code?.length || /<iframe.*?\<\/iframe>/gi.test(data.value.record.code);
+        const code = data.value.record.code?.replace(/(\r\n|\n|\r)/gm, '');
+        return !code?.length || /<iframe.*?\<\/iframe>/gi.test(code);
     })
 
     const titleLoading = ref<boolean>(false);

@@ -35,10 +35,11 @@ const onPlayerChange = async() => {
 onMounted(onPlayerChange);
 watch(() => props.record, onPlayerChange);
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .player-embed {
     aspect-ratio: 4 / 3;
-    :global(.plyr, iframe) {
+    .plyr, iframe {
+        width: 100%;
         height: 100%;
     }
 }
