@@ -20,7 +20,7 @@ class IndexController extends Controller {
 
 
     public function index() {
-        $data = Cache::remember('index1', CacheTimes::PAGE_SHORT, function () {
+        $data = Cache::remember('index', CacheTimes::PAGE_SHORT, function () {
             $data = [];
             $data['users_on_site'] = User::where('was_online', '>', Carbon::now()->subMinutes(15))->orderBy('was_online', 'desc')->get();
 
@@ -35,7 +35,7 @@ class IndexController extends Controller {
             foreach (Periods::LIST as $period) {
                 $period = [
                     'name' => $period['name'],
-                    'records' =>  Record::where(['is_radio' => false, 'pending' => false])->whereBetween('year', $period['years'])->orderBy('original_added_at', 'desc')->limit($records_period_limit)->get()
+                    'records' =>  Record::approved()->where(['is_radio' => false, 'pending' => false])->whereBetween('year', $period['years'])->orderBy('original_added_at', 'desc')->limit($records_period_limit)->get()
                 ];
                 $data['records'][] = $period;
             }
@@ -45,17 +45,16 @@ class IndexController extends Controller {
             $data['forum_topics'] = ForumTopic::orderBy('last_reply_at', 'DESC')->limit($forum_topics_limit)->get();
 
             $last_viewed_limit = 5;
-            $data['last_viewed'] = Record::where(['is_radio' => false])->orderBy('updated_at', 'desc')->limit($last_viewed_limit)->get();
+            $data['last_viewed'] = Record::approved()->where(['is_radio' => false])->orderBy('updated_at', 'desc')->limit($last_viewed_limit)->get();
 
             $commercials_limit = 5;
-            $data['commercials'] = Record::where(['is_radio' => false, 'is_advertising' => true])->orderBy('original_added_at', 'desc')->limit($commercials_limit)->get();
+            $data['commercials'] = Record::approved()->where(['is_radio' => false, 'is_advertising' => true])->orderBy('original_added_at', 'desc')->limit($commercials_limit)->get();
 
             $teletext_limit = 5;
             $data['teletext'] = Teletext::where(['pending' => false])->orderBy('created_at', 'desc')->limit($teletext_limit)->get();
 
-
             $in_this_day_limit = 5;
-            $in_this_day_records = Record::where(['is_radio' => false, 'is_interprogram' => false, 'day' => date('d', time()), 'month' => date('m', time())])->inRandomOrder()->limit($in_this_day_limit)->get();
+            $in_this_day_records = Record::approved()->where(['is_radio' => false, 'is_interprogram' => false, 'day' => date('d', time()), 'month' => date('m', time())])->inRandomOrder()->limit($in_this_day_limit)->get();
             $data['in_this_day'] = $in_this_day_records;
 
             $month_names = DatesHelper::monthNamesParentalCase();
