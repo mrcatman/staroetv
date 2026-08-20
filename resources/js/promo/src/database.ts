@@ -16,11 +16,14 @@ export const Database = {
                 return !!channel[3];
             });
         },
+        getById(id: number): Promo.Channel {
+            return this.list.find(channel => channel[0] == id);
+        },
         getParamsForRecord(record: Promo.Record): [number, number, string] {
             if (record[8]) {
                 return [0, 0, 'Рекламные ролики'];
             }
-            const channel = this.list.find(channel => channel[0] == record[5]);
+            const channel = this.getById(record[5]);
             if (!channel) {
                 return [-1, -1, ''];
             }

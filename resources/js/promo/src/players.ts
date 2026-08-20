@@ -1,5 +1,6 @@
 import Hls from 'hls.js';
 import { EventEmitter } from "../utils";
+import { Debug } from "./debug";
 
 class VKPlayer extends EventEmitter implements Promo.Player  {
     private instance;
@@ -210,7 +211,7 @@ class HlsJsPlayer extends EventEmitter implements Promo.Player {
 
                 hls.on(Hls.Events.MEDIA_ENDED, () => this.emit('ended'));
                 hls.on(Hls.Events.ERROR, (e, data) => {
-                    console.log('hls error', data);
+                    Debug.log('HLS player error', data);
                     if (data.fatal) {
                         hls.destroy();
                         setTimeout(() => {

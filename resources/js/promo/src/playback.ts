@@ -2,6 +2,7 @@ import { Database } from "./database";
 import { createPlayer } from "./players";
 import { getRandomDurationPoint, isSafari } from "../utils";
 import { Controls } from "./controls";
+import { Debug } from "./debug";
 
 const RECORD_PLAY_TIMEOUT = 1000 * 12;
 
@@ -55,7 +56,9 @@ export const Playback = {
         return new Promise(async (resolve) => {
             clearTimeout(this.recordTimeout);
 
-            this.updateDisplay(tries > 0 ? `${tries + 1} попытка поймать канал...` : 'Ловим канал...');
+            let channelName = this.params.channel_id > 0 ? Database.channels.getById(this.params.channel_id)?.[1] || null : null;
+
+            this.updateDisplay(tries > 0 ? `${tries + 1} попытка поймать канал...` : `Ловим канал${channelName ? ` ${channelName}` : ''}...`);
 
             this.active = true;
             this.destroy();
@@ -68,9 +71,12 @@ export const Playback = {
             this.noise.style.opacity = '1';
             this.playerRoot.style.display = 'block';
 
+            if (Object.keys(this.params).length > 0) {
+                Debug.log('Playback params', this.params);
+            }
             const [record, seekTo] = await Database.records.get(this.params, force);
 
-            console.log('Start record', record, this.params);
+            Debug.log('Start record', record);
 
             if (!record) {
                 Controls.setActiveRecord(null);
@@ -92,8 +98,8 @@ export const Playback = {
 
             this.player = createPlayer(this.record[2]);
 
-            this.player.on('error', (e) => {
-                console.log('Player error: ', e);
+            this.player.on('error', () => {
+                Debug.log('Player error');
                 Database.records.markError(record);
 
                 this.destroy();
@@ -102,10 +108,12 @@ export const Playback = {
                 return resolve(false);
             });
             this.player.on('ended', () => {
-                console.log('Playback ended');
+                Debug.log('Playback ended');
                 this.start({doNotSeekToRandomTime: this.params.channel_id});
             });
             this.player.on('started', () => {
+                Debug.log('Playback started');
+
                 started = true;
                 this.playedRecordsCount++;
 
@@ -140,10 +148,12 @@ export const Playback = {
                 }
             }, 200);
 
+            clearTimeout(this.recordTimeout);
             this.recordTimeout = setTimeout(() => {
-                console.log('started', started);
-                if (!started) {
-                    console.log(`Record not started in ${RECORD_PLAY_TIMEOUT}ms, trying a new one...`);
+                if (started) {
+                    Debug.log('Record started');
+                } else {
+                    Debug.log(`Record not started in ${RECORD_PLAY_TIMEOUT}ms, trying a new one...`);
                     this.start({
                         force: true,
                         skipOnNonExisting,

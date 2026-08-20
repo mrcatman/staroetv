@@ -89,3 +89,19 @@ body {
         font-size: 1.125em;
     }
 }
+
+.debug {
+    position: absolute;
+    top: 3.25em;
+    left: 1em;
+    z-index: 100000;
+    background: #111;
+    color: #fff;
+    font-size: 1.625em;
+    max-height: 5em;
+    overflow: auto;
+    width: calc(100% - 2em);
+    word-break: break-all;
+    padding: .5em;
+    opacity: .75;
+}

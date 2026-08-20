@@ -195,6 +195,8 @@
         </div>
     </div>
 
+    <div id="debug" class="debug"></div>
+
     <div class="unmute-warning" id="unmute_warning" style="display: none">
         <div class="unmute-warning__top">Нажмите где угодно на странице, чтобы включить звук</div>
         <div class="unmute-warning__bottom">К сожалению, это ограничение iOS :(</div>
