@@ -39,7 +39,7 @@ export const getInfo = async (url: string, recordId?: string): Promise<{id: stri
                 reject(res);
             }
         }).catch(() => {
-            reject({text: 'Ошибка сети, повторите позже'});
+            reject({text: 'Видео не распознано'});
         });
     })
 }

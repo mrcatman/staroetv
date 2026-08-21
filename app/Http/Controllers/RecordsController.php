@@ -456,6 +456,7 @@ class RecordsController extends EntityController
                     ],
                     'duration' => $video->duration
                 ];
+                break;
             case 'rutube':
                 $video = ExternalServicesHelper::rutubeVideo($data['video_id']);
                 $info = [
