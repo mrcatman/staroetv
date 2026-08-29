@@ -41,15 +41,15 @@ class EnableWebmForConvertedVideos extends Command
             }
 
             $webm_path = str_replace('.mp4', '.webm', $file);
-                try {
-                    $webm_exists = $storage->exists($webm_path);
-                    if (!$webm_exists) {
-                        continue;
-                    }
+            try {
+                $webm_exists = $storage->exists($webm_path);
+                if (!$webm_exists) {
+                    continue;
+                }
             } catch (\Exception $e) {
-                echo "Exception: ".$e->getMessage() . "\n";
+                echo "Exception: " . $e->getMessage() . "\n";
                 continue;
-
+            }
 
             $last_modified = $storage->lastModified($webm_path);
             if (time() - $last_modified < 60) { // в процессе конвертации
