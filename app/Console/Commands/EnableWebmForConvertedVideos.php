@@ -41,24 +41,29 @@ class EnableWebmForConvertedVideos extends Command
             }
 
             $webm_path = str_replace('.mp4', '.webm', $file);
-            $webm_exists = $storage->exists($webm_path);
-            if (!$webm_exists) {
+                try {
+                    $webm_exists = $storage->exists($webm_path);
+                    if (!$webm_exists) {
+                        continue;
+                    }
+            } catch (\Exception $e) {
+                echo "Exception: ".$e->getMessage() . "\n";
                 continue;
-            }
+
 
             $last_modified = $storage->lastModified($webm_path);
             if (time() - $last_modified < 60) { // в процессе конвертации
-                echo "Converting now: {$file}\n";
+                echo "\nConverting now: {$file}\n";
                 continue;
             }
 
             $video = Record::where('source_path', 'LIKE', "%{$file}%")->first();
             if (!$video) {
-                echo "Not found: {$file}\n";
+                echo "\nNot found: {$file}\n";
                 continue;
             }
 
-            echo "{$video->id}: {$video->title}\n";
+            echo "\n{$video->id}: {$video->title}\n";
 
             if ($this->option('confirm')) {
                 $storage->delete($file);
@@ -66,7 +71,7 @@ class EnableWebmForConvertedVideos extends Command
                 $video->save();
             }
         }
-        
+
         $progressBar->finish();
     }
 }
