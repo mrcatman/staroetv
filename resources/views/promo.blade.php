@@ -13,7 +13,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100..900&display=swap" rel="stylesheet">
-
+    <meta property="og:title" content='ТЕЛЕпорт "Старого Телевизора"' />
+    <meta property="og:image" content="{{Vite::asset('resources/images/promo/share.jpg')}}" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     @vite([ 'resources/sass/promo/index.scss'])
 </head>
 <body>
