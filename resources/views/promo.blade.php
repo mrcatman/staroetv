@@ -199,7 +199,7 @@
         </div>
     </div>
 
-    <div id="debug" class="debug"></div>
+    <div id="debug" class="debug" style="display:none"></div>
 
     <div class="unmute-warning" id="unmute_warning" style="display: none">
         <div class="unmute-warning__top">Нажмите где угодно на странице, чтобы включить звук</div>
