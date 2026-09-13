@@ -19,12 +19,11 @@ class ConvertVideo implements ShouldQueue
     public function handle(): void
     {
         $storage = Storage::disk('media-storage');
+
         $upload_path = $storage->path($this->upload_path);
+        $new_path = $storage->path($this->new_path);
 
-        $extension = pathinfo($upload_path, PATHINFO_EXTENSION);
-
-        $mp4_path = str_replace("." . $extension, ".mp4", $this->new_path);
-        Process::forever()->run("ffmpeg -y -i " . $upload_path . " -strict -2 " . $mp4_path);
+        Process::forever()->run("ffmpeg -y -i " . $upload_path . " -strict -2 -c:v libx264 " . $new_path);
 
         $storage->delete($this->upload_path);
     }

@@ -59,6 +59,7 @@ class RecordsUploadController extends Controller
         $new_path = ($is_radio ? "radio-recordings" : "videos") . "/" . $filename;
 
         if ($extension != "mp4" && !$is_radio) {
+            $new_path = str_replace("." . $extension, ".mp4", $new_path);
             ConvertVideo::dispatch($upload_path, $new_path);
         } else {
             $storage->move($upload_path, $new_path);
