@@ -175,9 +175,9 @@
             padding: .5em;
             gap: .5em;
         }
-        &--desktop-only {
+        &__desktop-only {
             @include mobile() {
-                display: none;
+                display: none!important;
             }
         }
     }
