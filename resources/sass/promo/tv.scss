@@ -127,7 +127,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: 2;
+        z-index: 4;
         padding: 2em 2.25em;
         box-sizing: border-box;
         font-family: "VCROSDMono", sans-serif;
@@ -174,11 +174,10 @@
             box-shadow: 0 0 .75em inset, 0 0 1em -.5em;
             padding: .5em;
             gap: .5em;
-
-            &--desktop-only {
-                @include mobile() {
-                    display: none;
-                }
+        }
+        &--desktop-only {
+            @include mobile() {
+                display: none;
             }
         }
     }
@@ -230,6 +229,11 @@
 
             &--small {
                 width: 2.25em;
+            }
+
+            &--stroke {
+                fill: none;
+                stroke: currentColor;
             }
 
             &--text {
@@ -471,5 +475,73 @@
             top: calc(50vh + 37.5vw);
             left: 11.25vw;
         }
+    }
+}
+
+.fullscreen .tv {
+    &__outer {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    &__picture {
+        display: none;
+    }
+    &__controls {
+        transition: bottom .4s;
+        background: linear-gradient(45deg, #232323c4, #616161bf);
+        box-shadow: 0 .75em 4em inset #111;
+        padding: 1em;
+        top: unset;
+        bottom: -8em;
+        border-radius: 5em;
+        border: 2px solid rgba(0, 0, 0, .5);
+    }
+    &__volume {
+        transition: bottom .4s;
+        position: fixed;
+        bottom: -7.5em;
+        right: 10.75em;
+        top: unset;
+        left: unset;
+    }
+    &__on-off {
+        transition: bottom .4s;
+        position: fixed;
+        bottom: -7.5em;
+        right: 1.25em;
+        top: unset;
+        left: unset;
+        .tooltip {
+            left: -1em;
+        }
+    }
+    &__record-title {
+        transition: top .4s;
+        top: -2.875em;
+        background: linear-gradient(135deg, #232323c4, #616161bf);
+        box-shadow: 0 .5em 1em inset #111;
+        padding: .5em 1em;
+        left: calc(50vw - 11.75em - 1px - var(--widescreen-margin));
+        border: 2px solid rgba(0, 0, 0, .5);
+        border-bottom-left-radius: 1em;
+        border-bottom-right-radius: 1em;
+    }
+}
+
+.hovered .tv {
+    &__controls {
+        bottom: 0;
+    }
+    &__volume {
+        bottom: 1em;
+    }
+    &__on-off {
+        bottom: 1.25em;
+    }
+    &__record-title {
+        top: 0;
     }
 }

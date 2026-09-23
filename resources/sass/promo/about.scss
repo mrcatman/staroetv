@@ -95,4 +95,13 @@
         font-weight: bold;
         font-size: 1.375em;
     }
+    &__subheading {
+        margin: 0 0 .25em;
+        font-weight: bold;
+        font-size: 1.25em;
+    }
+    &__base {
+        border-bottom: 1px solid rgba(255, 255, 255, .25);
+        margin-bottom: .5em;
+    }
 }

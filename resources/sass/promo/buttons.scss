@@ -42,6 +42,10 @@
         left: 104vw;
     }
 }
+.fullscreen .reload-programs {
+    display: none;
+}
+
 .programs-back {
     display: none;
     @include mobile() {
@@ -72,4 +76,24 @@
             background: linear-gradient(to bottom, rgba(0,0,0,.75) 70%, transparent);
         }
     }
+}
+
+.support {
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    z-index: 5;
+    @include mobile() {
+        right: unset;
+        left: 1em;
+    }
+}
+
+.fullscreen .support {
+    transition: all .4s;
+    top: -2.75em;
+}
+
+.hovered .support {
+    top: 1em;
 }

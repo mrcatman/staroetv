@@ -9,6 +9,7 @@ const RECORD_PLAY_TIMEOUT = 1000 * 12;
 export const Playback = {
     playerRoot: document.getElementById('player'),
     inner: document.getElementById('inner'),
+    flash: document.getElementById('flash'),
     noise: document.getElementById('noise'),
     intro: document.getElementById('intro'),
     overlay: document.getElementById('overlay'),
@@ -186,6 +187,7 @@ export const Playback = {
         this.overlay.style.display = 'none';
 
         Controls.setActiveRecord(null);
+        this.noise.style.opacity = '0';
         this.intro.style.opacity = '1';
         this.intro.style.pointerEvents = '';
     },
@@ -195,6 +197,11 @@ export const Playback = {
         localStorage.setItem('volume', volume.toString());
     },
     async changeChannel(delta: number) {
+        this.flash.style.opacity = '1';
+        setTimeout(() => {
+            this.flash.style.opacity = '0';
+        }, 200);
+
         let state = false;
         while (!state) {
             this.currentChannelIndex += delta;
@@ -221,6 +228,24 @@ export const Playback = {
 
         }
     },
+    setChannel(channelNumber: number) {
+        if (channelNumber === 0) {
+            return this.setParamsAndStart({
+                channel_id: undefined,
+                program_id: undefined,
+                commercials: true
+            });
+        }
+        const channel = Database.channels.list[channelNumber - 1];
+        if (!channel) {
+            return;
+        }
+        return this.setParamsAndStart({
+            channel_id: channel[0],
+            program_id: undefined,
+            commercials: undefined
+        });
+    },
     showTitle() {
         clearTimeout(this.hideTitleOverlayTimeout);
 
@@ -238,6 +263,16 @@ export const Playback = {
         this.hideTitleOverlayTimeout = setTimeout(() => {
             this.overlay.style.display = 'none';
         }, 5000)
+    },
+    setDisplayChannelNumber(number: string) {
+        this.currentChannelNumber.innerHTML = number;
+        this.currentChannelName.innerHTML = '';
+
+        if (!number.length) {
+            this.overlay.style.display = 'none';
+            return;
+        }
+        this.overlay.style.display = '';
     },
     updateDisplay(title: string, immediate: boolean = false) {
         clearTimeout(this.updateDisplayStartTimeout);

@@ -45,3 +45,25 @@ export const isSafari = () => {
         !navigator.userAgent.match(/fxios/i) &&
         !navigator.userAgent.match(/Opera|OPT\//);
 }
+
+export const requestFullscreen = (el: HTMLElement) => {
+    if (el.requestFullscreen) {
+        el.requestFullscreen();
+    } else if (elwebkitRequestFullscreen) { /* Safari */
+        el.webkitRequestFullscreen();
+    } else if (el.msRequestFullscreen) { /* IE11 */
+        el.msRequestFullscreen();
+    }
+}
+
+export const exitFullscreen = () => {
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+    } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+    }
+}

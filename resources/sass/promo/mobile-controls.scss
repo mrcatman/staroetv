@@ -101,16 +101,6 @@
 
 }
 
-.support {
-    position: fixed;
-    top: 1em;
-    right: 1em;
-    z-index: 5;
-    @include mobile() {
-        right: unset;
-        left: 1em;
-    }
-}
 
 .toggle-programs {
     position: fixed;

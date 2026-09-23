@@ -4,8 +4,13 @@
     position: absolute;
     bottom: -1vw;
     left: 0;
-    transition: bottom .4s;
+    transition: all .4s;
     pointer-events: all;
+    font-size: 1.25vh;
+    @include mobile() {
+        margin: 4em 0 1.75em;
+        font-size: 3.125vw;
+    }
     @include mobile() {
         bottom: calc(-100% - 2em);
         height: 100vh;
@@ -22,10 +27,8 @@
         border-radius: 2em;
         padding: 1em;
         box-shadow: -1em 5em 2em 2em #0000004a;
-        font-size: 1.25vh;
         @include mobile() {
             margin: 4em 0 1.75em;
-            font-size: 3.125vw;
         }
     }
 
@@ -192,5 +195,11 @@
             opacity: .6;
         }
     }
+}
 
+.fullscreen .remote {
+    left: -28.5em;
+}
+.hovered .remote {
+    left: -2.75em;
 }

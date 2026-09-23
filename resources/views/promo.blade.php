@@ -13,11 +13,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100..900&display=swap" rel="stylesheet">
-    <meta property="og:title" content='ТЕЛЕпорт "Старого Телевизора"' />
-    <meta property="og:image" content="{{Vite::asset('resources/images/promo/share.jpg')}}" />
-    <meta property="og:image:type" content="image/jpeg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:title" content='ТЕЛЕпорт "Старого Телевизора"'/>
+    <meta property="og:image" content="{{Vite::asset('resources/images/promo/share.jpg')}}"/>
+    <meta property="og:image:type" content="image/jpeg"/>
+    <meta property="og:image:width" content="1200"/>
+    <meta property="og:image:height" content="630"/>
     @vite([ 'resources/sass/promo/index.scss'])
 </head>
 <body>
@@ -105,12 +105,14 @@
         <div class="tv__record-title" id="record_title"></div>
 
         <div class="tv__controls">
-            <div class="tv__controls__group tv__controls__group--desktop-only">
+            <div class="tv__controls__group tv__controls__desktop-only">
                 <div class="tv__control" id="control_prev_channel">
                     <svg class="tv__control__icon" viewBox="-5.5 0 26 26">
-                        <g fill-rule="evenodd" >
-                            <g  transform="translate(-423.000000, -1196.000000)">
-                                <path d="M428.115,1209 L437.371,1200.6 C438.202,1199.77 438.202,1198.43 437.371,1197.6 C436.541,1196.76 435.194,1196.76 434.363,1197.6 L423.596,1207.36 C423.146,1207.81 422.948,1208.41 422.985,1209 C422.948,1209.59 423.146,1210.19 423.596,1210.64 L434.363,1220.4 C435.194,1221.24 436.541,1221.24 437.371,1220.4 C438.202,1219.57 438.202,1218.23 437.371,1217.4 L428.115,1209" id="chevron-left" sketch:type="MSShapeGroup"></path>
+                        <g fill-rule="evenodd">
+                            <g transform="translate(-423.000000, -1196.000000)">
+                                <path
+                                    d="M428.115,1209 L437.371,1200.6 C438.202,1199.77 438.202,1198.43 437.371,1197.6 C436.541,1196.76 435.194,1196.76 434.363,1197.6 L423.596,1207.36 C423.146,1207.81 422.948,1208.41 422.985,1209 C422.948,1209.59 423.146,1210.19 423.596,1210.64 L434.363,1220.4 C435.194,1221.24 436.541,1221.24 437.371,1220.4 C438.202,1219.57 438.202,1218.23 437.371,1217.4 L428.115,1209"
+                                    id="chevron-left" sketch:type="MSShapeGroup"></path>
                             </g>
                         </g>
                     </svg>
@@ -118,9 +120,11 @@
                 </div>
                 <div class="tv__control" id="control_next_channel">
                     <svg class="tv__control__icon" viewBox="-5.5 0 26 26">
-                        <g  fill-rule="evenodd">
-                            <g  transform="translate(-474.000000, -1196.000000)" >
-                                <path d="M488.404,1207.36 L477.637,1197.6 C476.806,1196.76 475.459,1196.76 474.629,1197.6 C473.798,1198.43 473.798,1199.77 474.629,1200.6 L483.885,1209 L474.629,1217.4 C473.798,1218.23 473.798,1219.57 474.629,1220.4 C475.459,1221.24 476.806,1221.24 477.637,1220.4 L488.404,1210.64 C488.854,1210.19 489.052,1209.59 489.015,1209 C489.052,1208.41 488.854,1207.81 488.404,1207.36" id="chevron-right" sketch:type="MSShapeGroup"></path>
+                        <g fill-rule="evenodd">
+                            <g transform="translate(-474.000000, -1196.000000)">
+                                <path
+                                    d="M488.404,1207.36 L477.637,1197.6 C476.806,1196.76 475.459,1196.76 474.629,1197.6 C473.798,1198.43 473.798,1199.77 474.629,1200.6 L483.885,1209 L474.629,1217.4 C473.798,1218.23 473.798,1219.57 474.629,1220.4 C475.459,1221.24 476.806,1221.24 477.637,1220.4 L488.404,1210.64 C488.854,1210.19 489.052,1209.59 489.015,1209 C489.052,1208.41 488.854,1207.81 488.404,1207.36"
+                                    id="chevron-right" sketch:type="MSShapeGroup"></path>
                             </g>
                         </g>
                     </svg>
@@ -154,6 +158,33 @@
             </div>
 
             <div class="tv__controls__group">
+                <a class="tv__control tv__controls__desktop-only" id="control_fullscreen">
+                    <svg data-on class="tv__control__icon" viewBox="0 0 24 24">
+                        <path
+                            d="M5.41,4H8A1,1,0,0,0,8,2H4A2,2,0,0,0,2,4V8A1,1,0,0,0,4,8V5.41l4.29,4.3a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42Z"></path>
+                        <path
+                            d="M20,2H16a1,1,0,0,0,0,2h2.59l-4.3,4.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L20,5.41V8a1,1,0,0,0,2,0V4A2,2,0,0,0,20,2Z"></path>
+                        <path
+                            d="M8.29,14.29,4,18.59V16a1,1,0,0,0-2,0v4a2,2,0,0,0,2,2H8a1,1,0,0,0,0-2H5.41l4.3-4.29a1,1,0,0,0-1.42-1.42Z"></path>
+                        <path
+                            d="M21,15a1,1,0,0,0-1,1v2.59l-4.29-4.3a1,1,0,0,0-1.42,1.42L18.59,20H16a1,1,0,0,0,0,2h4a2,2,0,0,0,2-2V16A1,1,0,0,0,21,15Z"></path>
+                    </svg>
+                    <svg style="display: none" class="tv__control__icon tv__control__icon--stroke" viewBox="0 0 24 24">
+                        <path d="M8.71,15.29,3,21M8.71,8.71,3,3M21,21l-5.71-5.71M21,3,15.29,8.71"
+                              style="fill: none;stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
+                        <path d="M4,15H8a1,1,0,0,1,1,1v4"
+                              style="fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
+                        <path d="M9,4V8A1,1,0,0,1,8,9H4"
+                              style="fill: none;  stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
+                        <path d="M15,20V16a1,1,0,0,1,1-1h4"
+                              style="fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
+                        <path d="M20,9H16a1,1,0,0,1-1-1V4"
+                              style="fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path>
+                    </svg>
+
+                    <span class="tooltip" data-on>Полноэкранный режим</span>
+                    <span style="display: none" class="tooltip">Оконный режим</span>
+                </a>
                 <a class="tv__control tv__control--disabled" id="control_go_to_record">
                     <svg class="tv__control__icon tv__control__icon--small" viewBox="0 0 16 16">
                         <path d="M14 3.5L8.5 9 7 7.5 12.5 2H10V0h6v6h-2V3.5zM6 0v2H2v12h12v-4h2v6H0V0h6z"
@@ -227,9 +258,11 @@
         <a class="mobile-controls__button mobile-controls__change-channel mobile-controls__change-channel--prev"
            id="mobile_control_prev_channel">
             <svg class="mobile-controls__icon" viewBox="-5.5 0 26 26">
-                <g fill-rule="evenodd" >
-                    <g  transform="translate(-423.000000, -1196.000000)">
-                        <path d="M428.115,1209 L437.371,1200.6 C438.202,1199.77 438.202,1198.43 437.371,1197.6 C436.541,1196.76 435.194,1196.76 434.363,1197.6 L423.596,1207.36 C423.146,1207.81 422.948,1208.41 422.985,1209 C422.948,1209.59 423.146,1210.19 423.596,1210.64 L434.363,1220.4 C435.194,1221.24 436.541,1221.24 437.371,1220.4 C438.202,1219.57 438.202,1218.23 437.371,1217.4 L428.115,1209" id="chevron-left" sketch:type="MSShapeGroup"></path>
+                <g fill-rule="evenodd">
+                    <g transform="translate(-423.000000, -1196.000000)">
+                        <path
+                            d="M428.115,1209 L437.371,1200.6 C438.202,1199.77 438.202,1198.43 437.371,1197.6 C436.541,1196.76 435.194,1196.76 434.363,1197.6 L423.596,1207.36 C423.146,1207.81 422.948,1208.41 422.985,1209 C422.948,1209.59 423.146,1210.19 423.596,1210.64 L434.363,1220.4 C435.194,1221.24 436.541,1221.24 437.371,1220.4 C438.202,1219.57 438.202,1218.23 437.371,1217.4 L428.115,1209"
+                            id="chevron-left" sketch:type="MSShapeGroup"></path>
                     </g>
                 </g>
             </svg>
@@ -238,15 +271,18 @@
         <a class="mobile-controls__button mobile-controls__change-channel mobile-controls__change-channel--next"
            id="mobile_control_next_channel">
             <svg class="mobile-controls__icon" viewBox="-5.5 0 26 26">
-                 <g  fill-rule="evenodd">
-                    <g  transform="translate(-474.000000, -1196.000000)" >
-                        <path d="M488.404,1207.36 L477.637,1197.6 C476.806,1196.76 475.459,1196.76 474.629,1197.6 C473.798,1198.43 473.798,1199.77 474.629,1200.6 L483.885,1209 L474.629,1217.4 C473.798,1218.23 473.798,1219.57 474.629,1220.4 C475.459,1221.24 476.806,1221.24 477.637,1220.4 L488.404,1210.64 C488.854,1210.19 489.052,1209.59 489.015,1209 C489.052,1208.41 488.854,1207.81 488.404,1207.36" id="chevron-right" sketch:type="MSShapeGroup"></path>
+                <g fill-rule="evenodd">
+                    <g transform="translate(-474.000000, -1196.000000)">
+                        <path
+                            d="M488.404,1207.36 L477.637,1197.6 C476.806,1196.76 475.459,1196.76 474.629,1197.6 C473.798,1198.43 473.798,1199.77 474.629,1200.6 L483.885,1209 L474.629,1217.4 C473.798,1218.23 473.798,1219.57 474.629,1220.4 C475.459,1221.24 476.806,1221.24 477.637,1220.4 L488.404,1210.64 C488.854,1210.19 489.052,1209.59 489.015,1209 C489.052,1208.41 488.854,1207.81 488.404,1207.36"
+                            id="chevron-right" sketch:type="MSShapeGroup"></path>
                     </g>
                 </g>
             </svg>
             <div class="mobile-controls__label">След. канал</div>
         </a>
-        <a class="mobile-controls__button mobile-controls__button--center mobile-controls__toggle-remote" id="toggle_remote">
+        <a class="mobile-controls__button mobile-controls__button--center mobile-controls__toggle-remote"
+           id="toggle_remote">
             <svg class="mobile-controls__icon" viewBox="0 -0.5 21 21">
                 <g stroke="none" stroke-width="1" fill-rule="evenodd">
                     <g transform="translate(-99.000000, -200.000000)">
@@ -260,11 +296,15 @@
             </svg>
             <div class="mobile-controls__label">Показать пульт</div>
         </a>
-        <a class="mobile-controls__button mobile-controls__button--center mobile-controls__random-channel" id="random_channel">
-            <svg class="mobile-controls__icon" viewBox="50 50 430 430" >
+        <a class="mobile-controls__button mobile-controls__button--center mobile-controls__random-channel"
+           id="random_channel">
+            <svg class="mobile-controls__icon" viewBox="50 50 430 430">
                 <g stroke-width="1" fill-rule="evenodd">
                     <g id="icon" transform="translate(46.976875, 46.976875)">
-                        <path d="M379.689791,38.3564581 L379.689791,379.689791 L38.3564581,379.689791 L38.3564581,38.3564581 L379.689791,38.3564581 Z M283.689791,251.689791 C266.016679,251.689791 251.689791,266.016679 251.689791,283.689791 C251.689791,301.362903 266.016679,315.689791 283.689791,315.689791 C301.362903,315.689791 315.689791,301.362903 315.689791,283.689791 C315.689791,266.016679 301.362903,251.689791 283.689791,251.689791 Z M209.023125,177.023125 C191.350013,177.023125 177.023125,191.350013 177.023125,209.023125 C177.023125,226.696237 191.350013,241.023125 209.023125,241.023125 C226.696237,241.023125 241.023125,226.696237 241.023125,209.023125 C241.023125,191.350013 226.696237,177.023125 209.023125,177.023125 Z M134.356458,102.356458 C116.683346,102.356458 102.356458,116.683346 102.356458,134.356458 C102.356458,152.02957 116.683346,166.356458 134.356458,166.356458 C152.02957,166.356458 166.356458,152.02957 166.356458,134.356458 C166.356458,116.683346 152.02957,102.356458 134.356458,102.356458 Z" id="Combined-Shape" transform="translate(209.023125, 209.023125) rotate(-345.000000) translate(-209.023125, -209.023125) "></path>
+                        <path
+                            d="M379.689791,38.3564581 L379.689791,379.689791 L38.3564581,379.689791 L38.3564581,38.3564581 L379.689791,38.3564581 Z M283.689791,251.689791 C266.016679,251.689791 251.689791,266.016679 251.689791,283.689791 C251.689791,301.362903 266.016679,315.689791 283.689791,315.689791 C301.362903,315.689791 315.689791,301.362903 315.689791,283.689791 C315.689791,266.016679 301.362903,251.689791 283.689791,251.689791 Z M209.023125,177.023125 C191.350013,177.023125 177.023125,191.350013 177.023125,209.023125 C177.023125,226.696237 191.350013,241.023125 209.023125,241.023125 C226.696237,241.023125 241.023125,226.696237 241.023125,209.023125 C241.023125,191.350013 226.696237,177.023125 209.023125,177.023125 Z M134.356458,102.356458 C116.683346,102.356458 102.356458,116.683346 102.356458,134.356458 C102.356458,152.02957 116.683346,166.356458 134.356458,166.356458 C152.02957,166.356458 166.356458,152.02957 166.356458,134.356458 C166.356458,116.683346 152.02957,102.356458 134.356458,102.356458 Z"
+                            id="Combined-Shape"
+                            transform="translate(209.023125, 209.023125) rotate(-345.000000) translate(-209.023125, -209.023125) "></path>
                     </g>
                 </g>
             </svg>
@@ -320,88 +360,141 @@
 
     </div>
     <a target="_blank" href="https://yoomoney.ru/to/410013732417308" class="button support">
-        <svg class="button__icon"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M128 128C92.7 128 64 156.7 64 192L64 448C64 483.3 92.7 512 128 512L512 512C547.3 512 576 483.3 576 448L576 192C576 156.7 547.3 128 512 128L128 128zM320 224C373 224 416 267 416 320C416 373 373 416 320 416C267 416 224 373 224 320C224 267 267 224 320 224zM512 248C512 252.4 508.4 256.1 504 255.5C475 251.9 452.1 228.9 448.5 200C448 195.6 451.6 192 456 192L504 192C508.4 192 512 195.6 512 200L512 248zM128 392C128 387.6 131.6 383.9 136 384.5C165 388.1 187.9 411.1 191.5 440C192 444.4 188.4 448 184 448L136 448C131.6 448 128 444.4 128 440L128 392zM136 255.5C131.6 256 128 252.4 128 248L128 200C128 195.6 131.6 192 136 192L184 192C188.4 192 192.1 195.6 191.5 200C187.9 229 164.9 251.9 136 255.5zM504 384.5C508.4 384 512 387.6 512 392L512 440C512 444.4 508.4 448 504 448L456 448C451.6 448 447.9 444.4 448.5 440C452.1 411 475.1 388.1 504 384.5z"/></svg>
+        <svg class="button__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+            <!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.-->
+            <path
+                d="M128 128C92.7 128 64 156.7 64 192L64 448C64 483.3 92.7 512 128 512L512 512C547.3 512 576 483.3 576 448L576 192C576 156.7 547.3 128 512 128L128 128zM320 224C373 224 416 267 416 320C416 373 373 416 320 416C267 416 224 373 224 320C224 267 267 224 320 224zM512 248C512 252.4 508.4 256.1 504 255.5C475 251.9 452.1 228.9 448.5 200C448 195.6 451.6 192 456 192L504 192C508.4 192 512 195.6 512 200L512 248zM128 392C128 387.6 131.6 383.9 136 384.5C165 388.1 187.9 411.1 191.5 440C192 444.4 188.4 448 184 448L136 448C131.6 448 128 444.4 128 440L128 392zM136 255.5C131.6 256 128 252.4 128 248L128 200C128 195.6 131.6 192 136 192L184 192C188.4 192 192.1 195.6 191.5 200C187.9 229 164.9 251.9 136 255.5zM504 384.5C508.4 384 512 387.6 512 392L512 440C512 444.4 508.4 448 504 448L456 448C451.6 448 447.9 444.4 448.5 440C452.1 411 475.1 388.1 504 384.5z"/>
+        </svg>
         Поддержать проект
     </a>
-</div>
 
-<div id="about" class="about" style="display: none">
-    <div class="about__content">
-        <div class="about__main">
-            <h2 class="about__heading">ТЕЛЕпорт</h2>
-            <p class="about__text">
-                Добро пожаловать на наш скромный симулятор лампового аналогового телека 90-х и нулевых.
-            </p>
-            <h2 class="about__heading">Инструкции</h2>
-            <ul class="about__text">
-                <li>Нажмите на <strong>экран телевизора</strong>, чтобы поменять видео.</li>
-                <li>Можно выбрать конкретный канал с помощью <strong>пульта</strong> (нажмите на канал ещё раз, чтобы включить другое видео с этого канала)</li>
 
-                <li>Кнопки <span class="about__button"> <svg class="about__button__icon" viewBox="-5.5 0 26 26">
-                        <g fill-rule="evenodd" >
-                            <g  transform="translate(-423.000000, -1196.000000)">
-                                <path d="M428.115,1209 L437.371,1200.6 C438.202,1199.77 438.202,1198.43 437.371,1197.6 C436.541,1196.76 435.194,1196.76 434.363,1197.6 L423.596,1207.36 C423.146,1207.81 422.948,1208.41 422.985,1209 C422.948,1209.59 423.146,1210.19 423.596,1210.64 L434.363,1220.4 C435.194,1221.24 436.541,1221.24 437.371,1220.4 C438.202,1219.57 438.202,1218.23 437.371,1217.4 L428.115,1209" id="chevron-left" sketch:type="MSShapeGroup"></path>
+    <div id="about" class="about" style="display: none">
+        <div class="about__content">
+            <div class="about__main">
+                <h2 class="about__heading">ТЕЛЕпорт</h2>
+                <div id="about_base" class="about__base">
+                    <p class="about__text">
+                        Добро пожаловать на наш скромный симулятор лампового аналогового телека 90-х и нулевых.
+                    </p>
+                    <h2 class="about__subheading">Инструкции</h2>
+                    <ul class="about__text">
+                        <li>Нажмите на <strong>экран телевизора</strong>, чтобы поменять видео.</li>
+                        <li>Можно выбрать конкретный канал с помощью <strong>пульта</strong> (нажмите на канал ещё раз,
+                            чтобы включить другое видео с этого канала)
+                        </li>
+
+                        <li>Кнопки <span class="about__button"> <svg class="about__button__icon" viewBox="-5.5 0 26 26">
+                        <g fill-rule="evenodd">
+                            <g transform="translate(-423.000000, -1196.000000)">
+                                <path
+                                    d="M428.115,1209 L437.371,1200.6 C438.202,1199.77 438.202,1198.43 437.371,1197.6 C436.541,1196.76 435.194,1196.76 434.363,1197.6 L423.596,1207.36 C423.146,1207.81 422.948,1208.41 422.985,1209 C422.948,1209.59 423.146,1210.19 423.596,1210.64 L434.363,1220.4 C435.194,1221.24 436.541,1221.24 437.371,1220.4 C438.202,1219.57 438.202,1218.23 437.371,1217.4 L428.115,1209"
+                                    id="chevron-left" sketch:type="MSShapeGroup"></path>
                             </g>
                         </g>
                     </svg></span>, <span class="about__button"><svg class="about__button__icon" viewBox="-5.5 0 26 26">
-                        <g  fill-rule="evenodd">
-                            <g  transform="translate(-474.000000, -1196.000000)" >
-                                <path d="M488.404,1207.36 L477.637,1197.6 C476.806,1196.76 475.459,1196.76 474.629,1197.6 C473.798,1198.43 473.798,1199.77 474.629,1200.6 L483.885,1209 L474.629,1217.4 C473.798,1218.23 473.798,1219.57 474.629,1220.4 C475.459,1221.24 476.806,1221.24 477.637,1220.4 L488.404,1210.64 C488.854,1210.19 489.052,1209.59 489.015,1209 C489.052,1208.41 488.854,1207.81 488.404,1207.36" id="chevron-right" sketch:type="MSShapeGroup"></path>
+                        <g fill-rule="evenodd">
+                            <g transform="translate(-474.000000, -1196.000000)">
+                                <path
+                                    d="M488.404,1207.36 L477.637,1197.6 C476.806,1196.76 475.459,1196.76 474.629,1197.6 C473.798,1198.43 473.798,1199.77 474.629,1200.6 L483.885,1209 L474.629,1217.4 C473.798,1218.23 473.798,1219.57 474.629,1220.4 C475.459,1221.24 476.806,1221.24 477.637,1220.4 L488.404,1210.64 C488.854,1210.19 489.052,1209.59 489.015,1209 C489.052,1208.41 488.854,1207.81 488.404,1207.36"
+                                    id="chevron-right" sketch:type="MSShapeGroup"></path>
                             </g>
                         </g>
                     </svg></span> — следующий/предыдущий канал
-                </li>
-                <li>С помощью кнопок на ТВ можно отфильтровать ролики по <strong>году</strong> и <strong>жанру</strong>.</li>
-                <li>Можно выбрать конкретную передачу с помощью <strong>полки с кассетами</strong> (список всегда случайный)</li>
-                <li>Кнопка <span class="about__button"><svg class="about__button__icon" viewBox="0 0 16 16">
+                        </li>
+                        <li>С помощью кнопок на ТВ можно отфильтровать ролики по <strong>году</strong> и
+                            <strong>жанру</strong>.
+                        </li>
+                        <li>Можно выбрать конкретную передачу с помощью <strong>полки с кассетами</strong> (список
+                            всегда случайный)
+                        </li>
+                        <li>Кнопка <span class="about__button"><svg class="about__button__icon" viewBox="0 0 16 16">
                         <path d="M14 3.5L8.5 9 7 7.5 12.5 2H10V0h6v6h-2V3.5zM6 0v2H2v12h12v-4h2v6H0V0h6z"
                               fill-rule="evenodd"/>
                     </svg>  </span> - перейти к оригинальному видео
-                </li>
-            </ul>
-            <h2 class="about__heading">Доступность видео</h2>
-            <p class="about__text">
-                К сожалению, часть видео на сайте залита на "вражеские" источники (Ютуб). При использовании сами-знаете-чего доступный архив может значительно расшириться :)<br/>
-                Если не хотите видеть современную богомерзкую рекламу, можете использовать любой блокировщик.
-            </p>
-            <h2 class="about__heading">Почему нет сериалов и мультиков?</h2>
-            <p class="about__text">
-                Увы, это считается полноценным пиратством, программы всё же находятся в "серой зоне". Возможно, в будущем ситуация изменится.
-            </p>
-            <h2 class="about__heading">Есть что предложить?</h2>
-            <p class="about__text">
-                По всем вопросам и предложениям пишите в <a target="_blank" href="https://staroetv.su/contact">форму</a> или <a target="_blank" href="https://t.me/staroetv?direct">напрямую в Телеграм</a>.
-                <br/>
-                Если у вас всё ещё хранятся VHS кассеты или любой другой носитель с записями, которых нет на
-                сайте, то вы можете <a target="_blank" href="https://staroetv.su/tape-digitization">помочь архиву</a>.
-            </p>
+                        </li>
+                        <li>
+                            Управление с клавиатуры: <strong>цифры</strong> - ввод номера канала,
+                            <strong>пробел</strong> - вкл/выкл, <strong>стрелки влево-вправо</strong> - переключить
+                            канал, <strong>стрелки вверх-вниз</strong> - управление громкостью, <strong>R</strong> -
+                            случайный канал, <strong>A</strong> - рекламные ролики, <strong>F</strong> - полный экран.
+                        </li>
+                    </ul>
+                    <h2 class="about__subheading">Доступность видео</h2>
+                    <p class="about__text">
+                        К сожалению, часть видео на сайте залита на "вражеские" источники (Ютуб). При использовании
+                        сами-знаете-чего доступный архив может значительно расшириться :)<br/>
+                        Если не хотите видеть современную богомерзкую рекламу, можете использовать любой блокировщик.
+                    </p>
+                    <h2 class="about__subheading">Почему нет сериалов и мультиков?</h2>
+                    <p class="about__text">
+                        Увы, это считается полноценным пиратством, программы всё же находятся в "серой зоне". Возможно,
+                        в будущем ситуация изменится.
+                    </p>
+                    <h2 class="about__subheading">Есть что предложить?</h2>
+                    <p class="about__text">
+                        По всем вопросам и предложениям пишите в <a target="_blank" href="https://staroetv.su/contact">форму</a>
+                        или <a target="_blank" href="https://t.me/staroetv?direct">напрямую в Телеграм</a>.
+                        <br/>
+                        Если у вас всё ещё хранятся VHS кассеты или любой другой носитель с записями, которых нет на
+                        сайте, то вы можете <a target="_blank" href="https://staroetv.su/tape-digitization">помочь
+                            архиву</a>.
+                    </p>
 
-            <h2 class="about__heading">О проекте</h2>
-            <p class="about__text">
-                Разработано <a target="_blank" href="https://mrcatmann.ru">mrcatmann</a> и командой сайта <a target="_blank" href="https://staroetv.su">"Старый телевизор"</a>.
-                За основу взята идея проекта <a target="_blank" href="http://myretrotvs.com/">MyRetroTVs</a>.
-            </p>
-
+                    <h2 class="about__subheading">О проекте</h2>
+                    <p class="about__text">
+                        Разработано <a target="_blank" href="https://mrcatmann.ru">mrcatmann</a> и командой сайта <a
+                            target="_blank" href="https://staroetv.su">"Старый телевизор"</a>.
+                        За основу взята идея проекта <a target="_blank" href="http://myretrotvs.com/">MyRetroTVs</a>.
+                    </p>
+                </div>
+                <div class="about__release-notes" data-version="1">
+                    <h3 class="about__subheading">Обновление 1.1 (23.09.2026)</h3>
+                    <ul class="about__text">
+                        <li>Добавлена кнопка для перехода в полноэкранный режим.</li>
+                        <li>Добавлено управление с клавиатуры.</li>
+                        <li>Начата разработка тестового приложения под Android TV.</li>
+                    </ul>
+                </div>
+            </div>
+            <a class="about__close" id="about_close">Продолжить</a>
         </div>
-        <a class="about__close" id="about_close">Продолжить</a>
     </div>
 </div>
+
 </body>
 @routes
 @vite(['resources/js/promo/index.ts'])
 
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=110041560', 'ym');
+    (function (m, e, t, r, i, k, a) {
+        m[i] = m[i] || function () {
+            (m[i].a = m[i].a || []).push(arguments)
+        };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+            if (document.scripts[j].src === r) {
+                return;
+            }
+        }
+        k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+    })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=110041560', 'ym');
 
-    ym(110041560, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+    ym(110041560, 'init', {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true
+    });
 </script>
-<noscript><div><img src="https://mc.yandex.ru/watch/110041560" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<noscript>
+    <div><img src="https://mc.yandex.ru/watch/110041560" style="position:absolute; left:-9999px;" alt=""/></div>
+</noscript>
 <!-- /Yandex.Metrika counter -->
 
 </html>

@@ -3,6 +3,7 @@ import { Loader } from "./loader";
 import { Resources } from "./resources";
 import { Playback } from "./playback";
 import { About } from "./about";
+import { exitFullscreen, requestFullscreen } from "../utils";
 
 export const Controls = {
     allChannels: false,
@@ -13,9 +14,14 @@ export const Controls = {
     remoteMain: document.getElementById('remote_main'),
     remoteAll: document.getElementById('remote_all'),
     remoteAllChannels: document.getElementById('remote_all_channels'),
-    flash: document.getElementById('flash'),
 
     programsReloadCount: 0,
+
+    enteredNumber: '',
+    inputNumberTimeout: null,
+
+    isFullscreen: false,
+    fullscreenHideControlsTimeout: null,
 
     buttons: {
         nextChannel: document.getElementById('control_next_channel'),
@@ -29,6 +35,7 @@ export const Controls = {
         goToRecord: document.getElementById('control_go_to_record'),
         about: document.getElementById('control_about'),
         onOff: document.getElementById('control_on_off'),
+        fullscreen: document.getElementById('control_fullscreen'),
 
         year: document.getElementById('control_year'),
         yearsList: document.getElementById('control_year_list'),
@@ -217,6 +224,7 @@ export const Controls = {
         this.buttons.randomMobile.addEventListener('click', () => this.randomChannel());
         this.buttons.commercials.addEventListener('click', () => this.commercials());
         this.buttons.onOff.addEventListener('click', () => this.onOff());
+        this.buttons.fullscreen.addEventListener('click', () => this.toggleFullscreen());
 
         this.buttons.showAllChannels.addEventListener('click', () => this.showAllChannels());
         this.buttons.showAllChannelsBack.addEventListener('click', () => this.showMainChannels());
@@ -224,11 +232,7 @@ export const Controls = {
         this.buttons.programsBack.addEventListener('click', () => this.programsBack());
     },
     changeChannel(delta: number) {
-        this.flash.style.opacity = '1';
-        setTimeout(() => {
-            this.flash.style.opacity = '0';
-        }, 200);
-
+        clearTimeout(this.inputNumberTimeout);
         Playback.changeChannel(delta);
         this.initPrograms();
     },
@@ -320,25 +324,26 @@ export const Controls = {
         }
         this.buttons.genresList.style.display = '';
     },
+    setVolume(volume: number) {
+        volume = Math.max(0, Math.min(1, volume));
+        //volume = _volume;
+        this.buttons.volume.style.transform = `rotate(${volume * 270 + 45}deg)`;
+
+        Playback.setVolume(volume);
+    },
     initVolume() {
         const savedVolume = parseFloat(localStorage.getItem('volume'));
         let volume = savedVolume >= 0 ? savedVolume : 1;
-        const setVolume = (_volume: number) => {
-            volume = _volume;
-            this.buttons.volume.style.transform = `rotate(${volume * 270 + 45}deg)`;
 
-            Playback.setVolume(volume);
-        }
-
-        setVolume(volume);
+        this.setVolume(volume);
 
         [['mousedown', 'mousemove', 'mouseup'], ['touchstart', 'touchmove', 'touchend']].forEach((events) => {
             this.buttons.volume.addEventListener(events[0], (e) => {
                 const x = e.clientX ?? e.touches[0].clientX;
                 let startVolume = volume;
-                const onMouseMove = (e: MouseEvent) => {
-                    const delta = ((e.clientX ?? e.touches[0].clientX) - x) / 200;
-                    setVolume(Math.max(0, Math.min(1, startVolume + delta)));
+                const onMouseMove = (e: MouseEvent | TouchEvent) => {
+                    const delta = (((e as MouseEvent).clientX ?? (e as TouchEvent).touches[0].clientX) - x) / 200;
+                    this.setVolume(startVolume + delta);
                 }
                 document.addEventListener(events[1], onMouseMove);
                 document.addEventListener(events[2], () => {
@@ -346,6 +351,9 @@ export const Controls = {
                 });
             });
         })
+    },
+    changeVolume(delta: number) {
+        this.setVolume(Playback.volume + delta * .1);
     },
     initClickOutside() {
         document.addEventListener('click', (e) => {
@@ -388,11 +396,75 @@ export const Controls = {
         this.initChannels();
         this.initPrograms();
     },
-    initButtons() {
+    init() {
         this.initMain();
         this.initVolume();
         this.initClickOutside();
         this.initMobileToggles();
         document.body.scrollLeft = 0;
+
+        const query = window.matchMedia('(display-mode: fullscreen)')
+        query.addEventListener('change', ({ matches }) => {
+            this.isFullscreen = matches;
+            if (matches) {
+                this.onEnterFullscreen();
+            } else {
+                this.onExitFullscreen();
+            }
+        });
+    },
+    onEnterFullscreen() {
+        document.body.classList.add('no-animation');
+        document.body.classList.add('fullscreen');
+        document.body.addEventListener('mousemove', this.onFullscreenMouseMove);
+
+        this.toggleFullscreenButton(true);
+        setTimeout(() => {
+            document.body.classList.remove('no-animation');
+        }, 200);
+    },
+    onExitFullscreen() {
+        document.body.classList.add('no-animation');
+        clearTimeout(this.fullscreenHideControlsTimeout);
+        document.body.classList.remove('hovered');
+        document.body.classList.remove('fullscreen');
+        document.body.removeEventListener('mousemove', this.onFullscreenMouseMove);
+
+        this.toggleFullscreenButton(false);
+
+        setTimeout(() => {
+            document.body.classList.remove('no-animation');
+        }, 200);
+    },
+    toggleFullscreenButton(isFullscreen: boolean) {
+        Array.from(this.buttons.fullscreen.children).forEach((el: HTMLElement) => {
+            el.style.display = el.dataset.on !== undefined ? (isFullscreen ? 'none' : '') : (isFullscreen ? '' : 'none');
+        });
+    },
+    onFullscreenMouseMove() {
+        clearTimeout(this.fullscreenHideControlsTimeout);
+        document.body.classList.add('hovered');
+        this.fullscreenHideControlsTimeout = setTimeout(() => {
+            document.body.classList.remove('hovered');
+        }, 2000);
+    },
+    inputNumber(digit: number) {
+        this.enteredNumber += `${digit}`;
+        Playback.setDisplayChannelNumber(this.enteredNumber);
+
+        clearTimeout(this.inputNumberTimeout);
+        this.inputNumberTimeout = setTimeout(() => {
+            const parsedNumber = parseInt(this.enteredNumber);
+            this.enteredNumber = '';
+            Playback.setDisplayChannelNumber(``);
+            Playback.setChannel(parsedNumber);
+        }, this.enteredNumber.length >= 3 ? 0 : 500);
+    },
+    toggleFullscreen() {
+        if (!this.isFullscreen) {
+            requestFullscreen(this.main);
+        } else {
+            exitFullscreen();
+        }
     }
 }
