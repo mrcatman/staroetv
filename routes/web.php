@@ -730,6 +730,11 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class, '
     Route::get('/smiles', [SmilesController::class, 'ajax'])->name('smiles.ajax');
 
     Route::get('/go', function () {
+        $referer = request()->header('Referer');
+        if (!str_contains($referer, 'staroetv.su')) {
+            return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ'); // fuck spammers
+        }
+
         $path = explode("/go?", $_SERVER['REQUEST_URI'])[1];
         return view('pages.redirect', ['path' => $path]);
         //return redirect($path);

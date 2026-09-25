@@ -43,6 +43,7 @@ class ForumMessage extends Model {
         if (strpos($text, "_uVideoPlayer") !== false) {
             $text = preg_replace('/<script(.*?)>_uVideoPlayer\({(.*?)},(.*?)\);<\/script>/', '<div class="forum-message__video-player" data-params={$2} data-element=$3></div>', $text);
         }
+        $text = str_replace('/go?', '', $text);
         $text = str_replace("/.s/img/fr/ic/11/lastpost.gif", "https://staroetv.su/.s/img/fr/ic/11/lastpost.gif", $text);
         return $text;
     }
