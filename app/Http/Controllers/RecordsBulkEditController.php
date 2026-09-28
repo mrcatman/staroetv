@@ -12,7 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
-class RecordsEditController extends Controller
+class RecordsBulkEditController extends Controller
 {
 
     public function __construct()
@@ -121,13 +121,7 @@ class RecordsEditController extends Controller
             'source' => 'sometimes'
         ]);
 
-        $record->year = request()->input('date.year') > 0 ? request()->input('date.year') : null;
-        $record->month = request()->input('date.month') > 0 ? request()->input('date.month') : null;
-        $record->day = request()->input('date.day') > 0 ? request()->input('date.day') : null;
-
-        if ($record->year && $record->month && $record->day) {
-            $record->date = Carbon::createFromDate($record->year, $record->month, $record->day);
-        }
+        $record->fillDateFromRequest(request());
 
         $record->fill($data)->save();
         $record->setSupposedDate();

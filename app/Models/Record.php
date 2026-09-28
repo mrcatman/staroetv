@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use cijic\phpMorphy\Facade\Morphy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\Request;
 
 class Record extends Model {
 
@@ -382,6 +383,25 @@ class Record extends Model {
         return gmdate("H:i:s", $this->length);
     }
 
+    public function fillDateFromRequest(Request $request) {
+        if ($request->input('date.range')) {
+            $this->year_start = $request->input('date.year_start') > 0 ? $request->input('date.year_start') : null;
+            $this->month_start = $request->input('date.month_start') > 0 ? $request->input('date.month_start') : ($this->year_start ? 1 : null);
+            $this->day_start = $request->input('date.day_start') > 0 ? $request->input('date.day_start') : ($this->year_start ? 1 : null);
+            $this->year_end = $request->input('date.year_end') > 0 ? $request->input('date.year_end') : null;
+            $this->month_end = $request->input('date.month_end') > 0 ? $request->input('date.month_end') : ($this->year_end ? 12 : null);
+            $this->day_end = $request->input('date.day_end') > 0 ? $request->input('date.day_end') : ($this->year_end ? 31 : null);
+        } else {
+            $this->year = $request->input('date.year') > 0 ? $request->input('date.year') : null;
+            $this->month = $request->input('date.month') > 0 ? $request->input('date.month') : null;
+            $this->day = $request->input('date.day') > 0 ? $request->input('date.day') : null;
+
+            if ($this->year && $this->month && $this->day) {
+                $this->date = Carbon::createFromDate($this->year, $this->month, $this->day);
+            }
+        }
+    }
+
     public function setSupposedDate() {
         if (!$this->year && !$this->year_start && !$this->year_end && $this->interprogramPackage) {
             $date_start = Carbon::parse($this->interprogramPackage->date_start);
@@ -429,6 +449,7 @@ class Record extends Model {
        if (!PermissionsHelper::allows('viapprove')) {
             $query->where(function($q) {
                 $q->where(['pending' => false]);
+                $q->where(['is_converting' => false]);
                 $user = auth()->user();
                 if ($user) {
                     $q->orWhere(['author_id' => $user->id]);

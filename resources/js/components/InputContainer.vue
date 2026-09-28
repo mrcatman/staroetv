@@ -8,7 +8,7 @@
                 <slot name="afterLabel" />
             </span>
         </component>
-        <div  v-if="!checkbox" class="input-container__inner" :class="{'input-container__inner--with-button': withButton}">
+        <div v-if="!checkbox" class="input-container__inner" :class="{'input-container__inner--with-button': withButton}">
             <div class="input-container__element-outer">
                 <slot />
                 <div class="input-container__description" v-if="$slots.description">
@@ -18,7 +18,7 @@
                     <slot name="toggleButtons" />
                 </div>
             </div>
-            <span class="input-container__message">{{ errors }}</span>
+            <span v-if="!hideErrorsText" class="input-container__message">{{ errors }}</span>
         </div>
 
     </component>
@@ -28,6 +28,7 @@ defineProps<{
     label?: string,
     labelSmall?: boolean,
     errors?: string | string[],
+    hideErrorsText?: boolean,
     checkbox?: boolean,
     withButton?: boolean,
     vertical?: boolean,

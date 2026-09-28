@@ -34,7 +34,7 @@ use App\Http\Controllers\ProgramsController;
 use App\Http\Controllers\RecordsController;
 use App\Http\Controllers\RecordsAutocompleteController;
 use App\Http\Controllers\RecordsComplaintsController;
-use App\Http\Controllers\RecordsEditController;
+use App\Http\Controllers\RecordsBulkEditController;
 use App\Http\Controllers\RecordsUploadController;
 use App\Http\Controllers\ReputationController;
 use App\Http\Controllers\SiteSearchController;
@@ -199,10 +199,11 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class, '
         Route::any('search', [RecordsController::class, 'search'])->name('search');
         Route::get('commercials', [RecordsController::class, 'search'])->name('commercials');
 
-        Route::get('upload/config', [RecordsUploadController::class, 'config'])->name('upload.config');
-        Route::post('upload/process', [RecordsUploadController::class, 'process'])->name('upload.process');
+        Route::get('upload/config', [RecordsController::class, 'uploadConfig'])->name('upload.config');;
 
         Route::post('download', [RecordsUploadController::class, 'download'])->name('download');
+        Route::post('download-url', [RecordsUploadController::class, 'downloadUrl'])->name('download-url');
+
         Route::post('mass-edit', [RecordsController::class, 'massEdit'])->name('mass-edit');
         Route::post('add', [RecordsController::class, 'save'])->name('save');
         Route::post('{id}/edit', [RecordsController::class, 'update'])->name('update');
@@ -220,24 +221,24 @@ Route::group(['middleware' => \App\Http\Middleware\SetUserLastSeenPage::class, '
         Route::get('autocomplete/categories', [RecordsAutocompleteController::class, 'commercialsCategories'])->name('autocomplete.commercials-categories');
 
         Route::post('similar', [RecordsController::class, 'similar'])->name('similar');
-        Route::post('download-url', [RecordsUploadController::class, 'downloadUrl'])->name('download-url');
+
         Route::post('complaint', [RecordsComplaintsController::class, 'add'])->name('complaint');
 
         Route::name('edit.')->prefix('edit')->group(function () {
-            Route::get('menu', [RecordsEditController::class, 'menu'])->name('menu');
-            Route::get('basic-info', [RecordsEditController::class, 'basicInfoForm'])->name('basic-info.form');
-            Route::post('basic-info', [RecordsEditController::class, 'saveBasicInfo'])->name('basic-info.save');
-            Route::get('transfer', [RecordsEditController::class, 'transferForm'])->name('transfer.form');
-            Route::post('transfer', [RecordsEditController::class, 'saveTransfer'])->name('transfer.save');
-            Route::get('type', [RecordsEditController::class, 'typeForm'])->name('type.form');
-            Route::post('type', [RecordsEditController::class, 'saveType'])->name('type.save');
-            Route::get('commercials-info', [RecordsEditController::class, 'commercialsInfoForm'])->name('commercials-info.form');
-            Route::post('commercials-info', [RecordsEditController::class, 'saveCommercialsInfo'])->name('commercials-info.save');
+            Route::get('menu', [RecordsBulkEditController::class, 'menu'])->name('menu');
+            Route::get('basic-info', [RecordsBulkEditController::class, 'basicInfoForm'])->name('basic-info.form');
+            Route::post('basic-info', [RecordsBulkEditController::class, 'saveBasicInfo'])->name('basic-info.save');
+            Route::get('transfer', [RecordsBulkEditController::class, 'transferForm'])->name('transfer.form');
+            Route::post('transfer', [RecordsBulkEditController::class, 'saveTransfer'])->name('transfer.save');
+            Route::get('type', [RecordsBulkEditController::class, 'typeForm'])->name('type.form');
+            Route::post('type', [RecordsBulkEditController::class, 'saveType'])->name('type.save');
+            Route::get('commercials-info', [RecordsBulkEditController::class, 'commercialsInfoForm'])->name('commercials-info.form');
+            Route::post('commercials-info', [RecordsBulkEditController::class, 'saveCommercialsInfo'])->name('commercials-info.save');
 
-            Route::post('update-thumbnails', [RecordsEditController::class, 'updateThumbnails'])->name('update-thumbnails');
-            Route::post('upload-to-server', [RecordsEditController::class, 'uploadToServer'])->name('upload-to-server');
-            Route::post('approve', [RecordsEditController::class, 'approve'])->name('approve');
-            Route::post('unapprove', [RecordsEditController::class, 'unapprove'])->name('unapprove');
+            Route::post('update-thumbnails', [RecordsBulkEditController::class, 'updateThumbnails'])->name('update-thumbnails');
+            Route::post('upload-to-server', [RecordsBulkEditController::class, 'uploadToServer'])->name('upload-to-server');
+            Route::post('approve', [RecordsBulkEditController::class, 'approve'])->name('approve');
+            Route::post('unapprove', [RecordsBulkEditController::class, 'unapprove'])->name('unapprove');
         });
     });
 

@@ -55,8 +55,20 @@ class MediaHelper {
         return "yt-dlp --merge-output-format mp4 -i $url --output $path";
     }
 
+    public static function getCodec($path): string {
+        return Process::run("ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 $path")->output();
+    }
+
     public static function reencode($path, $output_path) {
         return Process::run("ffmpeg -y -i $path -c:v libx264 $output_path && rm $path");
+    }
+
+    public static function reencodeVP9($path, $output_path) {
+        Process::forever()->run("ffmpeg -y -i $path -c:v libvpx-vp9 $output_path && rm $path");
+    }
+
+    public static function reencodeAudio($path, $output_path) {
+        Process::forever()->run("ffmpeg -y -i $path  -vn $output_path && rm $path");
     }
 
     public static function download($url, $path)

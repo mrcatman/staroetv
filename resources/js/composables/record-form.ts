@@ -44,7 +44,7 @@ export type RecordsUploadData = {
         thumbnails: string[],
 
         upload: boolean,
-        uploaded_file_path?: string,
+        upload_id?: string,
         source_hls?: string,
         move_to_storage?: boolean,
         duration: number,
@@ -87,7 +87,7 @@ const defaultData: RecordsUploadData = {
         thumbnail_url: null,
         thumbnails: [],
         upload: false,
-        uploaded_file_path: null,
+        upload_id: null,
         source_hls: null,
         move_to_storage: false,
         duration: 0,
@@ -127,7 +127,7 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
     const programsStore = useProgramsStore();
     const uploadConfigStore = useUploadConfigStore();
     //const designPackagesStore = useDesignPackagesStore();
-    const tusUpload = useTusUpload(startParams?.is_radio);
+    const tusUpload = useTusUpload();
 
     const externalVideoError = ref<string>(null);
     const loading = ref<boolean>(false);
@@ -149,6 +149,17 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
 
         data.value.is_radio = !!startParams.is_radio;
         data.value.record.own_code = !!startParams?.is_radio;
+        data.value.record.upload = false;
+        data.value.channel = {
+            id: null,
+            name: '',
+            unknown: false,
+        }
+        data.value.program = {
+            id: null,
+            name: '',
+            unknown: false,
+        }
     }
 
     const load = async () => {
@@ -434,8 +445,8 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
     });
 
 
-    let saveCallback: (record: Models.Record, errors: Forms.Errors) => void;
-    const setSaveCallback = (callback: (record: Models.Record, errors: Forms.Errors) => void) => {
+    let saveCallback: (record: Models.Record, hasErrors: boolean) => void;
+    const setSaveCallback = (callback: (record: Models.Record, hasErrors: boolean) => void) => {
         saveCallback = callback;
     }
 
@@ -474,7 +485,6 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
     const update = async () => {
         saving.value = true;
         if (tusUpload.needUpload.value) {
-            tusUpload.setEndpoint(uploadConfigStore.uploadEndpoint);
             try {
                 await tusUpload.upload();
             } catch (errorText) {
@@ -488,8 +498,8 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
         }
 
 
-        if (tusUpload.url.value) {
-            data.value.record.uploaded_file_path = tusUpload.url.value;
+        if (tusUpload.uploadId.value) {
+            data.value.record.upload_id = tusUpload.uploadId.value;
 
             data.value.record.thumbnails = [];
             data.value.record.thumbnail_id = null;
@@ -497,17 +507,17 @@ export const useRecordForm = (startParams?: Partial<RecordsUploadData>, record?:
         }
 
 
-        $.post(record ? route('records.update', record.id) : route('records.save'), data.value).done(res => {
+        const isNew = !record;
+        $.post(isNew ? route('records.save') : route('records.update', record.id), data.value).done(res => {
             saving.value = false;
             response.value = res;
             errors.value = res.errors || {};
-            saveCallback && saveCallback(res.data?.record as Models.Record, Object.keys(errors.value).length);
             if (res.status) {
-
                 if (!record) {
                     setDefaultData();
                 }
             }
+            saveCallback && saveCallback(res.data?.record as Models.Record, !!Object.keys(errors.value).length);
         }).catch(e => {
             saving.value = false;
             response.value = {status: 0, text: 'Неизвестная ошибка, попробуйте позже или отпишитесь на форуме'};

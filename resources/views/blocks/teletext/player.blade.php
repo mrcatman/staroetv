@@ -1,7 +1,7 @@
-<div class="record-page__player-container teletext-page__player-container">
+<div class="record-page__player-container @if (!$page) record-page__player-container--processing @endif teletext-page__player-container">
     <div class="teletext">
         @if (!$page)
-            <div class="teletext-page__processing">Подождите немного, телетекст ещё в обработке</div>
+            <div class="record-page__processing">Подождите немного, телетекст ещё в обработке</div>
         @else
             {!! $content !!}
         @endif

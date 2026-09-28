@@ -1,8 +1,7 @@
 <template>
     <div class="form record-form">
-        <Preloader v-if="loading || (saving && !isUploadingFile)
-"/>
-        <Response :data="response" v-if="!inModal"/>
+        <preloader v-if="loading || (saving && !isUploadingFile)"/>
+        <response :data="response" v-if="!inModal"/>
 
         <similar-modal ref="similarModal" :similar="similar" @mark="markSimilarAsChecked"/>
         <div class="row row--align-start">
@@ -136,11 +135,13 @@
                             vertical
                             :label="isRadio ? 'Радиостанция' : 'Канал'"
                             :errors="errors.channel"
+                            :hide-errors-text="true"
                         >
                             <channel-select
+                                ref="channelSelect"
                                 v-model="data.channel"
+                                :errors="errors.channel"
                                 :is-radio="isRadio">
-                                <span class="input-container__message">{{  }}</span>
                             </channel-select>
                         </input-container>
 
@@ -148,8 +149,11 @@
                             v-if="['programs', 'program-design'].includes(data.type) && data.channel.name.length"
                             vertical
                             label="Программа"
-                            :errors="errors.channel">
+                            :errors="errors.program"
+                            :hide-errors-text="true"
+                        >
                             <program-select
+                                ref="programSelect"
                                 v-model:program="data.program"
                                 :channel="data.channel"
                             />
@@ -581,8 +585,7 @@ import ChannelSelect from "./record-form/ChannelSelect.vue";
 import ProgramSelect from "./record-form/ProgramSelect.vue";
 import InputContainer from './InputContainer.vue';
 
-import { RecordsUploadData } from "@/composables/records-upload";
-import { useRecordForm } from "@/composables/record-form";
+import { useRecordForm, type RecordsUploadData } from "@/composables/record-form";
 
 import { useCategoriesStore } from "@/stores/categories";
 import { autocompleteOptions } from "@/utils/autocomplete";
@@ -634,6 +637,8 @@ const onFileInputChange = (e: Event) => {
     setUploadFile((e.target as HTMLInputElement).files[0]);
 }
 
+const channelSelect = useTemplateRef<typeof ChannelSelect>('channelSelect');
+const programSelect = useTemplateRef<typeof ProgramSelect>('programSelect');
 setSaveCallback((record: Models.Record, hasErrors: boolean) => {
     window.scrollTo(0, 0);
     emit('save', record);

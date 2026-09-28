@@ -1,7 +1,11 @@
 namespace Forms {
     export type Response = {
         status: 1 | 0;
-        text: string
+        text: string,
+        link?: {
+            url: string;
+            text: string;
+        }
     }
 
     export type Errors = {

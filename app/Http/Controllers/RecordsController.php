@@ -18,6 +18,7 @@ use App\Helpers\RecordsHelper;
 use App\Helpers\ViewsHelper;
 use App\Http\Requests\RecordsSearchRequest;
 use App\Jobs\DownloadExternalVideo;
+use App\Jobs\ProcessUploadedRecord;
 use App\Models\AdditionalChannel;
 use App\Models\Channel;
 use App\Models\ChannelName;
@@ -479,6 +480,21 @@ class RecordsController extends EntityController
         ];
     }
 
+
+    public function uploadConfig()
+    {
+        $can_upload = PermissionsHelper::allows('viupload') && !PermissionsHelper::isBanned();
+        $upload_endpoint = config('site.upload_endpoint');
+        return [
+            'status' => 1,
+            'data' => [
+                'can_upload' => $can_upload,
+                'upload_endpoint' => $upload_endpoint,
+            ]
+        ];
+    }
+
+
     public function save()
     {
         if (!PermissionsHelper::allows('viadd') || PermissionsHelper::isBanned()) {
@@ -620,28 +636,33 @@ class RecordsController extends EntityController
         }
 
         $upload = request()->input('record.upload', false);
-        $has_uploaded_video = $upload && request()->has('record.uploaded_file_path');
-        $storage = Storage::disk('media-storage');
+        $has_uploaded_video = $upload && request()->has('record.upload_id');
+        $storage = Storage::disk('temp');
 
         if ($has_uploaded_video) {
-            $uploaded_file_path = request()->input('record.uploaded_file_path');
+            $upload_id = request()->input('record.upload_id');
+            $uploaded_file_path = "uploads/$upload_id";
+
             if (!$storage->exists($uploaded_file_path)) {
                 $errors['uploaded_file_path'] = 'Ошибка загрузки: файл не найден. Повторите загрузку ещё раз';
             } else {
-                $record->use_own_player = true;
-                $record->source_path = $uploaded_file_path;
-
-                $thumbnail = !$is_radio ? MediaHelper::makeThumbnail($storage->path($uploaded_file_path)) : null;
-                if ($thumbnail) {
-                    $cover = Picture::firstOrNew([
-                        'url' => $thumbnail
-                    ]);
-                    $cover->save();
-                    $record->cover_id = $cover->id;
-                }
-
                 $duration = MediaHelper::getDuration($storage->path($uploaded_file_path));
-                $record->length = $duration;
+                if (!$duration) {
+                    $errors['uploaded_file_path'] = 'Ошибка загрузки: не распознан формат медиафайла';
+                } else {
+                    $record->use_own_player = true;
+
+                    $thumbnail = !$is_radio ? MediaHelper::makeThumbnail($storage->path($uploaded_file_path)) : null;
+                    if ($thumbnail) {
+                        $cover = Picture::firstOrNew([
+                            'url' => $thumbnail
+                        ]);
+                        $cover->save();
+                        $record->cover_id = $cover->id;
+                    }
+
+                    $record->length = $duration;
+                }
             }
         }
 
@@ -679,22 +700,7 @@ class RecordsController extends EntityController
         $record->month_end = null;
         $record->day_end = null;
 
-        if (request()->input('date.range')) {
-            $record->year_start = request()->input('date.year_start') > 0 ? request()->input('date.year_start') : null;
-            $record->month_start = request()->input('date.month_start') > 0 ? request()->input('date.month_start') : ($record->year_start ? 1 : null);
-            $record->day_start = request()->input('date.day_start') > 0 ? request()->input('date.day_start') : ($record->year_start ? 1 : null);
-            $record->year_end = request()->input('date.year_end') > 0 ? request()->input('date.year_end') : null;
-            $record->month_end = request()->input('date.month_end') > 0 ? request()->input('date.month_end') : ($record->year_end ? 12 : null);
-            $record->day_end = request()->input('date.day_end') > 0 ? request()->input('date.day_end') : ($record->year_end ? 31 : null);
-
-        } else {
-            $record->year = request()->input('date.year') > 0 ? request()->input('date.year') : null;
-            $record->month = request()->input('date.month') > 0 ? request()->input('date.month') : null;
-            $record->day = request()->input('date.day') > 0 ? request()->input('date.day') : null;
-            if ($record->year && $record->month && $record->day) {
-                $record->date = Carbon::createFromDate($record->year, $record->month, $record->day);
-            }
-        }
+        $record->fillDateFromRequest(request());
 
         $record->short_description = request()->input('short_description', '');
         $record->description = strip_tags(request()->input('description', ''));
@@ -751,14 +757,6 @@ class RecordsController extends EntityController
             ];
         }
 
-        if ($has_uploaded_video && str_starts_with($uploaded_file_path, 'temp-upload/')) {
-            $new_file_path = str_replace('temp-upload/', 'videos/', $uploaded_file_path);
-
-            $storage->move($uploaded_file_path, $new_file_path);
-
-            $uploaded_file_path = '/' . $new_file_path;
-            $record->source_path = $uploaded_file_path;
-        }
 
         $record->is_radio = $is_radio;
         if ($record->channel && $record->channel->is_radio) {
@@ -769,6 +767,11 @@ class RecordsController extends EntityController
         ActionsLogHelper::create($record, $is_new ? Actions::Create : Actions::Update);
         $record->setSupposedDate();
 
+        if ($has_uploaded_video) {
+            $record->is_converting = true;
+            $record->save();
+            ProcessUploadedRecord::dispatch($record, $uploaded_file_path, $is_radio);
+        }
         if (!$record->use_own_player && request()->input('record.move_to_storage')) {
             DownloadExternalVideo::dispatch($record);
         }
@@ -776,11 +779,14 @@ class RecordsController extends EntityController
         $record->clearCache();
 
         $text = $record->is_radio ? ($is_new ? 'Радиозапись добавлена' : 'Радиозапись обновлена') : ($is_new ? 'Видео добавлено' : 'Видео обновлено');
-        $text .= '<a target=_blank href="' . $record->url . '">Перейти</a>';
 
         return [
             'status' => 1,
             'text' => $text,
+            'link' => [
+                'text' => 'Перейти',
+                'url' => $record->url
+            ],
             'data' => [
                 'record' => $record
             ]

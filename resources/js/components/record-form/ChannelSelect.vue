@@ -14,6 +14,7 @@
                                 <i class="fa fa-exclamation-circle"></i>
                             </a>
                         </div>
+                        <span class="input-container__message">{{ errors }}</span>
                     </div>
 
                     <slot></slot>
@@ -72,6 +73,7 @@ const props = defineProps<{
     disabled?: boolean,
     isRadio?: boolean,
     channel?: RecordsUploadRelationData
+    errors?: string
 }>();
 
 const model = defineModel<RecordsUploadRelationData>({
@@ -86,6 +88,7 @@ const channel = ref<RecordsUploadRelationData>(props.channel ?? model.value);
 watch(() => channel, () => {
     model.value = channel.value;
 }, { deep: true })
+
 
 const category = ref<string>('federal');
 
@@ -130,4 +133,14 @@ const findChannel = () => {
         selectChannel(foundChannel);
     }
 }
+
+const reset = () => {
+    channel.value = {
+        id: null,
+        name: '',
+        unknown: false,
+    }
+}
+
+defineExpose({reset});
 </script>

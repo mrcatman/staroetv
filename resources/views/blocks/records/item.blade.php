@@ -12,7 +12,7 @@
 
 @php($url = isset($url) ? $url : $record->url ?? $record->full_url)
 @php($hide_info = isset($hide_info) ? $hide_info : false)
-<a data-id={{$record->id}} href="{{$url}}" class="record-item @if ($record->pending) record-item--pending @endif @if ($record->use_own_player) record-item--with-preview @endif"
+<a data-id={{$record->id}} href="{{$url}}" class="record-item @if ($record->pending || $record->is_converting) record-item--pending @endif @if ($record->use_own_player) record-item--with-preview @endif"
     @if ($record->use_own_player) data-src="{{$record->download_url}}" @endif
 >
     <div class="record-item__cover">
@@ -53,6 +53,9 @@
                     @if ($record->is_interprogram && $record->interprogram_name != "")
                         <span class="record-item__tag">{{$record->interprogram_name}}</span>
                     @endif
+                        @if ($record->is_converting)
+                            <span class="record-item__tag record-item__tag--converting">Конвертируется</span>
+                        @endif
                 </div>
             </div>
         @endif

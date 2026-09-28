@@ -21,6 +21,9 @@
     &__list {
         width: 100%;
         font-size: 1.25em;
+        :global(.radio-recording) {
+            font-size: .75em;
+        }
     }
 
     &__buttons {

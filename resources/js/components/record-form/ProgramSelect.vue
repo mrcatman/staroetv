@@ -13,6 +13,7 @@
                                 <i class="fa fa-exclamation-circle"></i>
                             </a>
                         </div>
+                        <span class="input-container__message">{{ errors }}</span>
                     </div>
                 </div>
                 <div class="col col--auto">
@@ -60,12 +61,14 @@ const emit = defineEmits<{ (e: 'selected'): void }>();
 const props = defineProps<{
     disabled?: boolean,
     channel: Models.Channel,
+    errors?: string
 }>();
 
 const program = defineModel<RecordsUploadRelationData>('program', {
     default: {
         id: null,
-        name: ''
+        name: '',
+        unknown: false,
     }
 });
 
@@ -110,4 +113,15 @@ const findByName = () => {
         selectProgram(foundProgram);
     }
 }
+
+
+const reset = () => {
+    program.value = {
+        id: null,
+        name: '',
+        unknown: false,
+    }
+}
+
+defineExpose({reset});
 </script>

@@ -9,81 +9,87 @@
         </div>
     </div>
 @endif
-@if ($record->is_radio)
-    @if ($record->use_own_player)
-        <audio @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif  data-title="{{$record->title}}"
-               data-url="{{config('app.url')}}{{$record->url}}" data-id="{{$record->id}}"
-               class="own-player own-player--radio" controls>
-            <source src="{{$record->source_audio}}">
-        </audio>
-    @else
-        {!! $record->embed_code !!}
-    @endif
+@if ($record->is_converting)
+    <div class="record-page__player-container record-page__player-container--processing">
+        <div class="record-page__processing">Подождите немного, запись в очереди на обработку</div>
+    </div>
 @else
-    @if (($record->use_own_player) || $record->telegram_id)
-        @if ($record->telegram_id && count($record->all_telegram_sources) > 1)
-            @for ($i = 0; $i < count($record->all_telegram_sources); $i++)
-                <div class="tab-content" data-id="parts" data-tab="part_{{$i}}"
-                     @if($i != 0) style="display: none" @endif>
-                    <video @if (isset($autoplay) && $autoplay) autoplay="autoplay"
-                           @endif data-title="{{$record->title}} (часть {{$i}}"
-                           data-url="{{config('app.url')}}{{$record->url}}#part_{{$i}}"
-                           data-id="{{$record->id}}" poster="{{$record->all_telegram_thumbs[$i]}}" class="own-player"
-                           controls>
-                        <source src="{{$record->all_telegram_sources[$i]}}" type="video/mp4">
-                    </video>
-                </div>
-            @endfor
-        @else
-            <video @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif data-title="{{$record->title}}"
+    @if ($record->is_radio)
+        @if ($record->use_own_player)
+            <audio @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif  data-title="{{$record->title}}"
                    data-url="{{config('app.url')}}{{$record->url}}" data-id="{{$record->id}}"
-                   poster="{{$record->cover}}?{{$record->updated_at->getTimestamp()}}"
-                   data-fallback-embed="{{$record->embed_code}}"
-                   class="own-player" controls>
-
-                @if ($record->source_path)
-                    @if ($record->use_webm)
-                        <source src="{{$record->source_webm}}" type="video/webm"/>
-                    @else
-                        <source src="{{$record->source_hls}}" type="application/vnd.apple.mpegurl"/>
-                    @endif
-                @else
-                    <source src="{{$record->source_telegram}}" type="video/mp4">
-                @endif
-            </video>
+                   class="own-player own-player--radio" controls>
+                <source src="{{$record->source_audio}}">
+            </audio>
+        @else
+            {!! $record->embed_code !!}
         @endif
     @else
-        <div class="record-page__player-container">
-            @if ($record->multiple_embeds)
-                @for ($i = 0; $i < count($record->multiple_embeds); $i++)
+        @if (($record->use_own_player) || $record->telegram_id)
+            @if ($record->telegram_id && count($record->all_telegram_sources) > 1)
+                @for ($i = 0; $i < count($record->all_telegram_sources); $i++)
                     <div class="tab-content" data-id="parts" data-tab="part_{{$i}}"
                          @if($i != 0) style="display: none" @endif>
-                        {!! $record->multiple_embeds[$i] !!}
+                        <video @if (isset($autoplay) && $autoplay) autoplay="autoplay"
+                               @endif data-title="{{$record->title}} (часть {{$i}}"
+                               data-url="{{config('app.url')}}{{$record->url}}#part_{{$i}}"
+                               data-id="{{$record->id}}" poster="{{$record->all_telegram_thumbs[$i]}}"
+                               class="own-player"
+                               controls>
+                            <source src="{{$record->all_telegram_sources[$i]}}" type="video/mp4">
+                        </video>
                     </div>
                 @endfor
             @else
-                {!! $record->embed_code !!}
+                <video @if (isset($autoplay) && $autoplay) autoplay="autoplay" @endif data-title="{{$record->title}}"
+                       data-url="{{config('app.url')}}{{$record->url}}" data-id="{{$record->id}}"
+                       poster="{{$record->cover}}?{{$record->updated_at->getTimestamp()}}"
+                       data-fallback-embed="{{$record->embed_code}}"
+                       class="own-player" controls>
+
+                    @if ($record->source_path)
+                        @if ($record->use_webm)
+                            <source src="{{$record->source_webm}}" type="video/webm"/>
+                        @else
+                            <source src="{{$record->source_hls}}" type="application/vnd.apple.mpegurl"/>
+                        @endif
+                    @else
+                        <source src="{{$record->source_telegram}}" type="video/mp4">
+                    @endif
+                </video>
             @endif
-            @if(strpos($record->embed_code, "youtu") !== false)
-                <div class="record-page__download-overlay" data-id="{{$record->id}}" data-title="{{$record->title}}"
-                     data-url="{{$record->url}}" data-poster="{{$record->cover}}" style="display: none">
-                    <div class="record-page__download-overlay__background"
-                         style="background-image: url('{{$record->cover}}')"></div>
-                    <a class="record-page__download-overlay__button">
-                        <i class="fa fa-play"></i>
-                    </a>
-                    <div style="display: none" class="record-page__download-overlay__error">
-                        <div class="record-page__download-overlay__error__heading">
-                            Ошибка загрузки видео
+        @else
+            <div class="record-page__player-container">
+                @if ($record->multiple_embeds)
+                    @for ($i = 0; $i < count($record->multiple_embeds); $i++)
+                        <div class="tab-content" data-id="parts" data-tab="part_{{$i}}"
+                             @if($i != 0) style="display: none" @endif>
+                            {!! $record->multiple_embeds[$i] !!}
                         </div>
-                        Уже работаем над решением проблемы
+                    @endfor
+                @else
+                    {!! $record->embed_code !!}
+                @endif
+                @if(strpos($record->embed_code, "youtu") !== false)
+                    <div class="record-page__download-overlay" data-id="{{$record->id}}" data-title="{{$record->title}}"
+                         data-url="{{$record->url}}" data-poster="{{$record->cover}}" style="display: none">
+                        <div class="record-page__download-overlay__background"
+                             style="background-image: url('{{$record->cover}}')"></div>
+                        <a class="record-page__download-overlay__button">
+                            <i class="fa fa-play"></i>
+                        </a>
+                        <div style="display: none" class="record-page__download-overlay__error">
+                            <div class="record-page__download-overlay__error__heading">
+                                Ошибка загрузки видео
+                            </div>
+                            Уже работаем над решением проблемы
+                        </div>
                     </div>
-                </div>
-            @endif
-        </div>
+                @endif
+            </div>
+        @endif
     @endif
 @endif
-
 @if(strpos($record->embed_code, "youtu") !== false && !$record->use_own_player && !$record->telegram_id)
     <div class="warning-alert record-page__youtube-alert">Возможны проблемы с загрузкой этого видео, если у вас не
         работает Youtube (вы знаете, что делать)
