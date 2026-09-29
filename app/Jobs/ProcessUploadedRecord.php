@@ -50,6 +50,7 @@ class ProcessUploadedRecord implements ShouldQueue
             Process::forever()->run("mv $temp_converted_path $new_path");
         }
 
+        $this->record->use_webm = $extension === '.webm';
         $this->record->source_path = $file_path;
         $this->record->is_converting = false;
         $this->record->save();
