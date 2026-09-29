@@ -41,7 +41,7 @@ class ProcessUploadedRecord implements ShouldQueue
         } else {
             Log::debug("Processing record: $temp_path -> $file_path, original codec: $codec, allowed codecs: " . implode(', ', $allowed_codecs));
 
-            $temp_converted_path = $temp_storage->path($this->uploaded_file_path . '.converted.'. $extension);
+            $temp_converted_path = $temp_storage->path($this->uploaded_file_path . '.converted'. $extension);
 
             // todo: check other codecs besides x264
             $this->record->is_radio ? MediaHelper::reencodeAudio($temp_path, $temp_converted_path) : MediaHelper::reencode($temp_path, $temp_converted_path);
