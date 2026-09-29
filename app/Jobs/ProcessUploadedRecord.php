@@ -27,7 +27,7 @@ class ProcessUploadedRecord implements ShouldQueue
         $temp_path = $temp_storage->path($this->uploaded_file_path);
         $codec = MediaHelper::getCodec($temp_path);
 
-        $extension = $this->record->is_radio ? '.mp3' : ($codec === 'h264' ? '.mp4' : '.webm');
+        $extension = $this->record->is_radio ? '.mp3' : (in_array($codec, ['vp8', 'vp9']) ? '.webm' : '.mp4');
 
         $filename = $this->record->id . $extension;
         $file_path = $this->record->is_radio ? "/radio-recordings/$filename" : "/videos/$filename";
