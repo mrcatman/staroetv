@@ -20,20 +20,19 @@
     <meta property="og:image:height" content="630"/>
     @vite([ 'resources/sass/promo/index.scss'])
 </head>
-<script>
-    if ((new URLSearchParams(window.location.search)).get('debug_load')) {
-        var debugLoad = document.getElementById('debug_load');
-        debugLoad.style.display = 'block';
-        window.addEventListener('error', (event) => {
-            var text = event.message + '\n' + event.filename + ':' + event.lineno + ':' + event.colno;
-            debugLoad.innerHTML += text + '\n';
-        });
-    }
-</script>
 <body>
 <div class="main" id="main">
     <div id="debug_load" style="display:none; position: absolute;top: 3.25em; left: 1em; z-index: 100000001;background: #000;color: #ff6f6f;font-weight:600;font-size: 1.25em; max-height: 5em;overflow: auto;width: calc(100% - 2em);word-break: break-all;padding: .5em;opacity: .75;"></div>
-
+    <script>
+        if ((new URLSearchParams(window.location.search)).get('debug_load')) {
+            var debugLoad = document.getElementById('debug_load');
+            debugLoad.style.display = 'block';
+            window.addEventListener('error', (event) => {
+                var text = event.message + '\n' + event.filename + ':' + event.lineno + ':' + event.colno;
+                debugLoad.innerHTML += text + '\n';
+            });
+        }
+    </script>
     <div class="loader" id="loader"
          style="position: absolute;top:0;left:0;width: 100%;height: 100%;z-index:100000000;background:#111;color: #fff;display: flex;flex-direction:column;align-items:center;justify-content:center">
         <div class="loader__tv">
