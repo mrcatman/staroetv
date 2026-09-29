@@ -46,6 +46,7 @@ class ProcessUploadedRecord implements ShouldQueue
             // todo: check other codecs besides x264
             $this->record->is_radio ? MediaHelper::reencodeAudio($temp_path, $temp_converted_path) : MediaHelper::reencode($temp_path, $temp_converted_path);
 
+            Log::debug("Running: mv $temp_converted_path $new_path");
             Process::forever()->run("mv $temp_converted_path $new_path");
         }
 
