@@ -57,7 +57,7 @@ class MediaHelper {
     }
 
     public static function getCodec($path): string {
-        return Process::run("ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 $path")->output();
+        return trim((string)Process::run("ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 $path")->output());
     }
 
     public static function reencode($path, $output_path) {
