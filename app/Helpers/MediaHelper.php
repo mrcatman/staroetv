@@ -2,6 +2,7 @@
 namespace App\Helpers;
 
 use App\Models\Record;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 
 class MediaHelper {
@@ -60,14 +61,17 @@ class MediaHelper {
     }
 
     public static function reencode($path, $output_path) {
+        Log::debug("Running: ffmpeg -y -i $path -c:v libx264 $output_path && rm $path");
         return Process::run("ffmpeg -y -i $path -c:v libx264 $output_path && rm $path");
     }
 
     public static function reencodeVP9($path, $output_path) {
+        Log::debug("Running: ffmpeg -y -i $path -c:v libvpx-vp9 $output_path && rm $path");
         Process::forever()->run("ffmpeg -y -i $path -c:v libvpx-vp9 $output_path && rm $path");
     }
 
     public static function reencodeAudio($path, $output_path) {
+        Log::debug("Running: ffmpeg -y -i $path  -vn $output_path && rm $path");
         Process::forever()->run("ffmpeg -y -i $path  -vn $output_path && rm $path");
     }
 

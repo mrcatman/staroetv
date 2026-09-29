@@ -770,7 +770,7 @@ class RecordsController extends EntityController
         if ($has_uploaded_video) {
             $record->is_converting = true;
             $record->save();
-            ProcessUploadedRecord::dispatch($record, $uploaded_file_path, $is_radio);
+            ProcessUploadedRecord::dispatch($record, $uploaded_file_path);
         }
         if (!$record->use_own_player && request()->input('record.move_to_storage')) {
             DownloadExternalVideo::dispatch($record);
