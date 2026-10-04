@@ -488,7 +488,7 @@ class Record extends Model {
     }
 
     public function getDownloadUrlAttribute() {
-        return $this->source_path ? config('site.media_server_url').$this->source_path : null;
+        return $this->source_path ? ($this->use_webm ? $this->source_webm : config('site.media_server_url').$this->source_path) : null;
     }
 
     public function getSourceTelegramAttribute() {
