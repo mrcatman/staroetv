@@ -94,7 +94,7 @@ export const initPlayer = () => {
                         //console.log('MANIFEST_PARSED');
                     });
                     hls.on(Hls.Events.ERROR, function (event, data) {
-                        sendError(id, data.error.toString());
+                        //sendError(id, data.error.toString());
                         if (data.details === 'bufferAddCodecError') {
                             tryToFallback();
                         }
