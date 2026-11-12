@@ -14,9 +14,9 @@ class ContactFormController extends Controller {
 
     private function sendToAdmin(Mailable $message)
     {
-        try {
-            Mail::to(config('site.admin_email'))->send($message);
-        } catch (\Exception $e) {}
+//        try {
+//            Mail::to(config('site.admin_email'))->send($message);
+//        } catch (\Exception $e) {}
 
         try {
             $text = $message->subject.PHP_EOL.$message->render();
